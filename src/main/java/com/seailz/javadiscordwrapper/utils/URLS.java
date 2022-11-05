@@ -14,6 +14,11 @@ public final class URLS {
     }
 
     public static class GET {
+
+        public static class GATEWAY {
+            public static String GET_GATEWAY_URL = "/gateway";
+        }
+
         public static class APPLICATION {
             /**
              * Requests info about the current application from the API
@@ -21,6 +26,10 @@ public final class URLS {
              */
             public static String APPLICATION_INFORMATION = "/oauth2/applications/@me";
         }
+    }
+
+    public static class GATEWAY {
+        public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
     }
 
 }

@@ -2,7 +2,7 @@ package com.seailz.javadiscordwrapper;
 
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.Application;
-import com.seailz.javadiscordwrapper.model.Guild;
+import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.Intent;
 import com.seailz.javadiscordwrapper.model.User;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;

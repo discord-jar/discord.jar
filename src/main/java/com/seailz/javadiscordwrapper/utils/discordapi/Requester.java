@@ -17,7 +17,7 @@ import java.net.URL;
 public class Requester {
 
     // send get request
-    public static JSONObject get(String url, DiscordJv djv) {
+    public static DiscordResponse get(String url, DiscordJv djv) {
         try {
             url = URLS.BASE_URL + url;
             URL obj = new URL(url);
@@ -35,7 +35,7 @@ public class Requester {
                 }
                 in.close();
                 System.out.println();
-                return new JSONObject(response.toString());
+                return new DiscordResponse(responseCode, new JSONObject(response.toString()));
             } else {
                 System.out.println("Request failed with code: " + responseCode);
             }

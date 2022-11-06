@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model;
+package com.seailz.javadiscordwrapper.model.channel.utils;
 
 /**
  * Represents the type of a channel.

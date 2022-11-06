@@ -5,7 +5,7 @@ import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
-import com.seailz.javadiscordwrapper.utils.Requester;
+import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
@@ -35,7 +35,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
         this.discordJv = discordJv;
-        this.url = Requester.get("/gateway", discordJv).getString("url");
+        this.url = Requester.get("/gateway", discordJv).body().getString("url");
         logger = Logger.getLogger("DISCORD.JV");
         initiateConnection();
         logger.info("[DISCORD.JV] Connected to gateway");

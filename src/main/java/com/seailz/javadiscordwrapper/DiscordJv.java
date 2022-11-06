@@ -135,7 +135,7 @@ public class DiscordJv {
      * Returns a {@link Application} object containing information about the bot
      */
     public Application getSelfInfo() {
-        return Application.decompile(Requester.get(URLS.GET.APPLICATION.APPLICATION_INFORMATION, this));
+        return Application.decompile(Requester.get(URLS.GET.APPLICATION.APPLICATION_INFORMATION, this).body());
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.model.message;
 
 import com.seailz.javadiscordwrapper.model.*;
+import com.seailz.javadiscordwrapper.model.channel.utils.ChannelMention;
 import com.seailz.javadiscordwrapper.model.embed.Embed;
 import com.seailz.javadiscordwrapper.model.emoji.Reaction;
 import com.seailz.javadiscordwrapper.model.interation.MessageInteraction;
@@ -57,5 +58,8 @@ public record Message(
         Message referencedMessage,
         // sent if the message is a response to an Interaction
         MessageInteraction interaction,
+        // the thread that was started from this message, includes thread member object
+        Thread thread,
+        // sent if the message contains components like buttons, action rows, or other interactive components
 ) {
 }

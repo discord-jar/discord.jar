@@ -1,5 +1,7 @@
 package com.seailz.javadiscordwrapper;
 
+import com.seailz.javadiscordwrapper.events.DiscordListener;
+import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.Application;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
@@ -15,6 +17,7 @@ import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -49,7 +52,21 @@ public class DiscordJv {
      * Used for caching users in memory
      */
     private Cache<User> userCache;
+    /**
+     * Manages dispatching events to listeners
+     */
+    private EventDispatcher eventDispatcher;
 
+    /**
+     * Creates a new instance of the DiscordJv class
+     * @param token   The token of the bot
+     * @param intents The intents the bot will use
+     *
+     * @throws ExecutionException
+     *         If an error occurs while connecting to the gateway
+     * @throws InterruptedException
+     *         If an error occurs while connecting to the gateway
+     */
     public DiscordJv(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
         this.token = token;
         this.intents = intents;
@@ -57,6 +74,7 @@ public class DiscordJv {
         this.gatewayFactory = new GatewayFactory(this);
         this.guildCache = new Cache<>();
         this.userCache = new Cache<>();
+        this.eventDispatcher = new EventDispatcher(this);
 
         initiateNoShutdown();
     }
@@ -85,6 +103,9 @@ public class DiscordJv {
         }).start();
     }
 
+    /**
+     * Stops the bot from shutting down when processes are finished
+     */
     public void initiateNoShutdown() {
         // stop program from shutting down
         new Thread(() -> {
@@ -98,6 +119,15 @@ public class DiscordJv {
         }).start();
     }
 
+    /**
+     * Sets the bot's status
+     *
+     * @param status
+     *        The status to set
+     *
+     * @throws IOException
+     *         If an error occurs while setting the status
+     */
     public void setStatus(StatusType status) throws IOException {
         JSONObject payload = new JSONObject();
         payload.put("op", 3);
@@ -108,6 +138,14 @@ public class DiscordJv {
         data.put("afk", false);
         payload.put("d", data);
         gatewayFactory.getClientSession().sendMessage(new TextMessage(payload.toString()));
+    }
+
+    /**
+     * Registers a listener, or multiple, with the event dispatcher
+     * @param listeners The listeners to register
+     */
+    public void registerListeners(DiscordListener... listeners) {
+        eventDispatcher.addListener(listeners);
     }
 
     /**

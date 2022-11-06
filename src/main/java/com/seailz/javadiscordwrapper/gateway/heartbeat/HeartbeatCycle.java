@@ -10,6 +10,14 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * This class is responsible for sending heartbeats to the Discord API.
+ * This class is used internally and should not be used by the end user.
+ *
+ * @author Seailz
+ * @since  1.0
+ * @see    com.seailz.javadiscordwrapper.gateway.GatewayFactory
+ */
 public class HeartbeatCycle {
 
     private int interval;

@@ -78,7 +78,6 @@ public class GatewayFactory extends TextWebSocketHandler {
             payload.put("d", new JSONObject().put("token", discordJv.getToken()).put("session_id", sessionId).put("seq", lastSequence));
             try {
                 clientSession.sendMessage(new TextMessage(payload.toString()));
-                System.out.println(payload.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -97,7 +96,6 @@ public class GatewayFactory extends TextWebSocketHandler {
            lastSequence = payload.getInt("s");
         } catch (JSONException ignored) {}
 
-        System.out.println(payload.getInt("op"));
         switch (GatewayEvents.getEvent(payload.getInt("op"))) {
             case HELLO:
                 handleHello(payload);
@@ -131,14 +129,13 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     private void handleDispatched(JSONObject payload) throws IOException, ExecutionException, InterruptedException {
         // Handle dispatched events
-        System.out.println(payload.getString("t"));
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
             case READY:
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
                 this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
                 break;
             case GUILD_CREATE:
-                discordJv.getGuildCache().add(new Guild());
+                discordJv.getGuildCache().add(new Guild(""));
                 break;
             case RESUMED:
                 logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");

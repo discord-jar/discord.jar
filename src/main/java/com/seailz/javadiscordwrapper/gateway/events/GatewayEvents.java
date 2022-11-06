@@ -1,5 +1,13 @@
 package com.seailz.javadiscordwrapper.gateway.events;
 
+/**
+ * Represents a message sent from the Discord gateway to the client
+ * This is an internal class and should not be used by the end user.
+ *
+ * @author Seailz
+ * @since  1.0
+ * @see    com.seailz.javadiscordwrapper.gateway.GatewayFactory
+ */
 public enum GatewayEvents {
 
     HELLO(10),

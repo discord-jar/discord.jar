@@ -5,6 +5,7 @@ import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
+import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -143,9 +144,8 @@ public class GatewayFactory extends TextWebSocketHandler {
                 logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
                 break;
             case MESSAGE_CREATE:
-                logger.info("[DISCORD.JV] Message received: " + payload.getJSONObject("d").getString("content"));
-                if (payload.getJSONObject("d").getString("content").equals("reconnect"))
-                    reconnect();
+                Message m = Message.decompile(payload.getJSONObject("d"));
+                System.out.println(m.compile().toString());
                 break;
         }
     }

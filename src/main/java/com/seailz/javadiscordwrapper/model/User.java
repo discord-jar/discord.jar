@@ -19,7 +19,7 @@ public record User(
      */
     @Override
     public JSONObject compile() {
-        return new JSONObject()
+        JSONObject obj = new JSONObject()
                 .put("id", id)
                 .put("username", username)
                 .put("discriminator", discriminator)
@@ -31,8 +31,13 @@ public record User(
                 .put("verified", verified)
                 .put("email", email)
                 .put("flags", flags)
-                .put("premium_type", premiumType.getId())
                 .put("public_flags", publicFlags);
+
+        if (premiumType == null)
+            obj.put("premium_type", JSONObject.NULL);
+        else
+            obj.put("premium_type", premiumType.getId());
+        return obj;
     }
 
     /**

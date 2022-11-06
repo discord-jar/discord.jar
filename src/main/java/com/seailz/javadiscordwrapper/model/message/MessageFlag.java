@@ -1,5 +1,7 @@
 package com.seailz.javadiscordwrapper.model.message;
 
+import java.util.EnumSet;
+
 /**
  * Represents a flag on a message,
  * @author Seailz
@@ -35,5 +37,17 @@ public enum MessageFlag {
 
     public int getLeftShiftId() {
         return 1 << id;
+    }
+
+    public static EnumSet<MessageFlag> getFlagsByInt(int flags) {
+        EnumSet<MessageFlag> set = EnumSet.noneOf(MessageFlag.class);
+        if (flags == 0)
+            return set;
+        for (MessageFlag flag : MessageFlag.values())
+        {
+            if ((flag.getLeftShiftId() & flags) == flag.getLeftShiftId())
+                set.add(flag);
+        }
+        return set;
     }
 }

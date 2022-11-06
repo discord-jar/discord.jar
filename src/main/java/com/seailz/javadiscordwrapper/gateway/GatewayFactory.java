@@ -5,7 +5,7 @@ import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
 import com.seailz.javadiscordwrapper.model.Guild;
-import com.seailz.javadiscordwrapper.utils.Requester;
+import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;

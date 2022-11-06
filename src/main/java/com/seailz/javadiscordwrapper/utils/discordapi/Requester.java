@@ -1,6 +1,7 @@
-package com.seailz.javadiscordwrapper.utils;
+package com.seailz.javadiscordwrapper.utils.discordapi;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.utils.URLS;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -8,6 +9,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Util class used to make requests to the Discord API
+ * @author Seailz
+ * @since 1.0
+ */
 public class Requester {
 
     // send get request

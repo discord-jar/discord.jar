@@ -1,5 +1,10 @@
 package com.seailz.javadiscordwrapper.utils.version;
 
+/**
+ * Represents a version of the Discord API
+ * @author Seailz
+ * @since 1.0
+ */
 public enum APIVersion {
 
     V10(APIVersionState.AVAILABLE, 10),

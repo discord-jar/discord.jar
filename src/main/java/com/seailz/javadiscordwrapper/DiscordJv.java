@@ -5,7 +5,7 @@ import com.seailz.javadiscordwrapper.model.Application;
 import com.seailz.javadiscordwrapper.model.Guild;
 import com.seailz.javadiscordwrapper.model.Intent;
 import com.seailz.javadiscordwrapper.model.User;
-import com.seailz.javadiscordwrapper.utils.Requester;
+import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.utils.presence.StatusType;
@@ -16,7 +16,6 @@ import org.springframework.web.socket.TextMessage;
 import java.io.*;
 import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**

@@ -1,5 +1,12 @@
 package com.seailz.javadiscordwrapper.gateway.events;
 
+import com.seailz.javadiscordwrapper.events.model.Event;
+import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
+import com.seailz.javadiscordwrapper.events.model.gateway.GatewayResumedEvent;
+import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
+import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
+import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
+
 /**
  * Represents a gateway event that is fired by the Discord API
  * These events are not things like "send heartbeat", "send identify", "hello", (which can be found here {@link GatewayEvents})
@@ -13,11 +20,22 @@ package com.seailz.javadiscordwrapper.gateway.events;
  */
 public enum DispatchedEvents {
 
-    READY,
-    GUILD_CREATE,
-    RESUMED,
-    MESSAGE_CREATE,
+    READY(ReadyEvent.class),
+    GUILD_CREATE(GuildCreateEvent.class),
+    RESUMED(GatewayResumedEvent.class),
+    MESSAGE_CREATE(MessageCreateEvent.class),
+    APPLICATION_COMMAND_PERMISSION_UPDATE(CommandPermissionUpdateEvent.class)
     ;
+
+    private final Class<? extends Event> event;
+
+    DispatchedEvents(Class<? extends Event> event) {
+        this.event = event;
+    }
+
+    public Class<? extends Event> getEvent() {
+        return event;
+    }
 
     public static DispatchedEvents getEventByName(String name) {
         for (DispatchedEvents event : values()) {

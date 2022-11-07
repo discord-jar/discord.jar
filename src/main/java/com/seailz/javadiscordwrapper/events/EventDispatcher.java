@@ -49,11 +49,12 @@ public class EventDispatcher {
      *
      * @since 1.0
      */
-    public void dispatchEvent(Event event) {
+    public void dispatchEvent(Event event, Class<? extends Event> type) {
         int index = 0;
         for (Method i : listeners.values()) {
-            if (i.getParameterTypes()[0].equals(event.getClass())) {
+            if (i.getParameterTypes()[0].equals(type)) {
                 try {
+                    i.setAccessible(true);
                     i.invoke(listeners.keySet().toArray()[index], event);
                 } catch (Exception e) {
                     e.printStackTrace();

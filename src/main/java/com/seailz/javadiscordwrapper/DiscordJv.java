@@ -2,22 +2,26 @@ package com.seailz.javadiscordwrapper;
 
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
+import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
+import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.Application;
+import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.Intent;
 import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.utils.presence.StatusType;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -79,6 +83,7 @@ public class DiscordJv {
         initiateNoShutdown();
     }
 
+    // This method is used for testing purposes only
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
         String token = "";
         File file = new File("token.txt");
@@ -89,18 +94,16 @@ public class DiscordJv {
             e.printStackTrace();
         }
         DiscordJv discordJv = new DiscordJv(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
-        new Thread(() -> {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                discordJv.setStatus(StatusType.DO_NOT_DISTURB);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
+        discordJv.registerListeners(
+                new DiscordListener() {
+                    @Override
+                    @EventMethod
+                    public void onCommandPermissionUpdate(@NotNull CommandPermissionUpdateEvent event) {
+                        System.out.println("Message received: " + event.getPermissions().permissions().length);
+                    }
+                }
+        );
+        System.out.println(discordJv.getSelfInfo());
     }
 
     /**
@@ -139,6 +142,38 @@ public class DiscordJv {
         payload.put("d", data);
         gatewayFactory.getClientSession().sendMessage(new TextMessage(payload.toString()));
     }
+
+    /**
+     * Returns info about a user
+     *
+     * @param id
+     *        The id of the user
+     *
+     * @return The user
+     */
+    public User getUserById(String id) {
+        DiscordResponse response = Requester.get(URLS.GET.USER.GET_USER.replace("{user.id}", id), this);
+        return User.decompile(response.body());
+    }
+
+    /**
+     * Returns info about a user
+     *
+     * @param id
+     *        The id of the user
+     *
+     * @return The user
+     */
+    public User getUserById(long id) {
+        return getUserById(String.valueOf(id));
+    }
+
+    public Channel getChannelById(String id) {
+        DiscordResponse response = Requester.get(URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id), this);
+        return Channel.decompile(response.body());
+    }
+
+
 
     /**
      * Registers a listener, or multiple, with the event dispatcher
@@ -181,6 +216,13 @@ public class DiscordJv {
      */
     public Cache<User> getUserCache() {
         return userCache;
+    }
+
+    /**
+     * Returns the event dispatcher
+     */
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
     }
 
 }

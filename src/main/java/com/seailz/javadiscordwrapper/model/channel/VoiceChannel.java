@@ -2,7 +2,6 @@ package com.seailz.javadiscordwrapper.model.channel;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
-import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
 import com.seailz.javadiscordwrapper.model.video.VideoQualityMode;
 import org.json.JSONArray;
@@ -21,7 +20,7 @@ public class VoiceChannel extends Channel implements Compilerable {
     private VideoQualityMode videoQualityMode;
 
     public VoiceChannel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, int rateLimitPerUser, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, int userLimit, int bitrate, int rtcRegion, VideoQualityMode videoQualityMode) {
-        super(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser);
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
         this.userLimit = userLimit;
         this.rateLimitPerUser = rateLimitPerUser;
         this.bitrate = bitrate;

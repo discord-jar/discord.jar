@@ -1,5 +1,8 @@
 package com.seailz.javadiscordwrapper.events;
 
+import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
+import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
+import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
 import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,5 +18,16 @@ import org.jetbrains.annotations.NotNull;
  * @see    com.seailz.javadiscordwrapper.events.annotation.EventMethod
  */
 public abstract class DiscordListener {
+    // General Events
+    public void onReady(@NotNull ReadyEvent event) {}
+
+    // Message Events
     public void onMessageReceived(@NotNull MessageCreateEvent event) {}
+
+    // Guild Events
+    public void onGuildCreated(@NotNull GuildCreateEvent event) {}
+
+    // Command Events
+    public void onCommandPermissionUpdate(@NotNull CommandPermissionUpdateEvent event) {}
+
 }

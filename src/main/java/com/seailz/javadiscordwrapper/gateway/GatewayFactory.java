@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.gateway;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.events.model.Event;
 import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
@@ -17,6 +18,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -127,8 +129,13 @@ public class GatewayFactory extends TextWebSocketHandler {
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
     }
 
-    private void handleDispatched(JSONObject payload) throws IOException, ExecutionException, InterruptedException {
+    private void handleDispatched(JSONObject payload) throws IOException, ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // Handle dispatched events
+        // actually dispatch the event
+        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent();
+        Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class).newInstance(discordJv, lastSequence, payload);
+        discordJv.getEventDispatcher().dispatchEvent(event, eventClass);
+
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
             case READY:
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
@@ -139,10 +146,6 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case RESUMED:
                 logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
-                break;
-            case MESSAGE_CREATE:
-                Message m = Message.decompile(payload.getJSONObject("d"));
-                System.out.println(m.compile().toString());
                 break;
         }
     }

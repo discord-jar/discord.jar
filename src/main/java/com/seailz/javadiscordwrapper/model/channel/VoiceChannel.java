@@ -39,12 +39,9 @@ public class VoiceChannel extends Channel implements Compilerable {
                 .put("video_quality_mode", videoQualityMode.getCode())
                 .put("type", type().getCode())
                 .put("name", name())
-                .put("topic", topic())
                 .put("nsfw", nsfw())
                 .put("parent_id", parentId())
-                .put("last_pin_timestamp", lastPinTimestamp())
-                .put("permissions", permissions())
-                .put("default_auto_archive_duration", defaultThreadRateLimitPerUser());
+                .put("permissions", permissions());
     }
 
     @NonNull

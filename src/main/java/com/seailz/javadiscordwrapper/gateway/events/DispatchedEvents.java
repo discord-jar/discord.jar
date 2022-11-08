@@ -24,7 +24,7 @@ public enum DispatchedEvents {
     GUILD_CREATE(GuildCreateEvent.class),
     RESUMED(GatewayResumedEvent.class),
     MESSAGE_CREATE(MessageCreateEvent.class),
-    APPLICATION_COMMAND_PERMISSION_UPDATE(CommandPermissionUpdateEvent.class)
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE(CommandPermissionUpdateEvent.class)
     ;
 
     private final Class<? extends Event> event;

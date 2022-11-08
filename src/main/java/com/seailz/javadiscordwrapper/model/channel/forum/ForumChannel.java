@@ -64,13 +64,9 @@ public class ForumChannel extends Channel implements Compilerable {
                 .put("position", position())
                 .put("permission_overwrites", permissionOverwrites())
                 .put("name", name())
-                .put("topic", topic())
                 .put("nsfw", nsfw())
-                .put("last_message_id", lastMessageId())
-                .put("last_pin_timestamp", lastPinTimestamp())
                 .put("parent_id", parentId())
-                .put("permissions", permissions())
-                .put("default_thread_rate_limit_per_user", defaultThreadRateLimitPerUser());
+                .put("permissions", permissions());
     }
 
 

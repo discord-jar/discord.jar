@@ -21,7 +21,6 @@ public class GuildCreateEvent extends Event {
 
     @NotNull
     public Guild getGuild() {
-        return new Guild("");
-        // TODO: finish the guild object!!
+        return Guild.decompile(getJson().getJSONObject("d"), getBot());
     }
 }

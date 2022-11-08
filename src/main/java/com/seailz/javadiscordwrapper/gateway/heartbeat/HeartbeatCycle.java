@@ -23,7 +23,7 @@ public class HeartbeatCycle {
     private int interval;
     private GatewayFactory factory;
 
-    public HeartbeatCycle(int interval, GatewayFactory factory) {
+    public HeartbeatCycle(int interval, GatewayFactory factory) throws InterruptedException {
         this.interval = interval;
         this.factory = factory;
         start();
@@ -37,9 +37,10 @@ public class HeartbeatCycle {
         factory.getClientSession().sendMessage(new TextMessage(payload.toString()));
     }
 
-    public void sendFirst() {
+    public void sendFirst() throws InterruptedException {
         double jitter = new Random().nextDouble(1);
         double interval = this.interval * jitter;
+
         new Thread(() -> {
             try {
                 Thread.sleep((long) interval);
@@ -48,9 +49,17 @@ public class HeartbeatCycle {
                 e.printStackTrace();
             }
         }).start();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
-    public void start() {
+    public void start() throws InterruptedException {
         sendFirst();
         new Thread(() -> {
             while (true) {

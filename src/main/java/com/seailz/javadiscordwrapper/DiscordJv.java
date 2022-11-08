@@ -10,17 +10,21 @@ import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.Intent;
 import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.status.Status;
+import com.seailz.javadiscordwrapper.model.status.activity.Activity;
+import com.seailz.javadiscordwrapper.model.status.activity.ActivityType;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
-import com.seailz.javadiscordwrapper.utils.presence.StatusType;
+import com.seailz.javadiscordwrapper.model.status.StatusType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -103,7 +107,11 @@ public class DiscordJv {
                     }
                 }
         );
-        System.out.println(discordJv.getSelfInfo());
+
+        ArrayList<Activity> activities = new ArrayList<>();
+        activities.add(new Activity("Hello World", ActivityType.WATCHING));
+        Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
+        discordJv. setStatus(status);
     }
 
     /**
@@ -131,16 +139,11 @@ public class DiscordJv {
      * @throws IOException
      *         If an error occurs while setting the status
      */
-    public void setStatus(StatusType status) throws IOException {
-        JSONObject payload = new JSONObject();
-        payload.put("op", 3);
-        JSONObject data = new JSONObject();
-        data.put("since", 0);
-        data.put("activities", new JSONArray());
-        data.put("status", status.toString().toLowerCase());
-        data.put("afk", false);
-        payload.put("d", data);
-        gatewayFactory.getClientSession().sendMessage(new TextMessage(payload.toString()));
+    public void setStatus(Status status) throws IOException {
+        JSONObject json = new JSONObject();
+        json.put("d", status.compile());
+        json.put("op", 3);
+        gatewayFactory.queueMessage(json);
     }
 
     /**
@@ -172,8 +175,6 @@ public class DiscordJv {
         DiscordResponse response = Requester.get(URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id), this);
         return Channel.decompile(response.body());
     }
-
-
 
     /**
      * Registers a listener, or multiple, with the event dispatcher

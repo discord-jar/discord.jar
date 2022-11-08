@@ -6,7 +6,6 @@ import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
-import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +19,10 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
@@ -34,14 +37,30 @@ public class GatewayFactory extends TextWebSocketHandler {
     private Logger logger;
     private String resumeUrl;
     private String sessionId;
+    private List<JSONObject> queue;
+    private boolean ready;
 
 
     public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
         this.discordJv = discordJv;
         this.url = Requester.get("/gateway", discordJv).body().getString("url");
+        this.queue = new ArrayList<>();
         logger = Logger.getLogger("DISCORD.JV");
         initiateConnection();
         logger.info("[DISCORD.JV] Connected to gateway");
+    }
+
+    /**
+     * Queues a message to be sent to the gateway
+     * @param obj The message to be sent
+     */
+    public void queueMessage(JSONObject obj) throws IOException {
+        if (ready) {
+            clientSession.sendMessage(new TextMessage(obj.toString()));
+            return;
+        }
+
+        queue.add(obj);
     }
 
     private void initiateConnection() throws ExecutionException, InterruptedException {
@@ -57,6 +76,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void reconnect() throws ExecutionException, InterruptedException, IOException {
+        logger.info("[DISCORD.JV] Reconnecting to gateway");
         try {
             clientSession.close();
         } catch (IOException e) {
@@ -112,11 +132,13 @@ public class GatewayFactory extends TextWebSocketHandler {
             case RECONNECT:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect, reconnecting...");
                 reconnect();
+                ready = false;
                 break;
             case INVALID_SESSION:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
                 clientSession.close();
                 initiateConnection();
+                ready = false;
                 break;
             case HEARTBEAT_ACK:
                 logger.info("[DISCORD.JV] Heartbeat acknowledged");
@@ -124,12 +146,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    private void handleHello(JSONObject payload) {
+    private void handleHello(JSONObject payload) throws InterruptedException {
         // Start heartbeat cycle
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
     }
 
-    private void handleDispatched(JSONObject payload) throws IOException, ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void handleDispatched(JSONObject payload) throws ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent();
@@ -140,9 +162,20 @@ public class GatewayFactory extends TextWebSocketHandler {
             case READY:
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
                 this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
+
+                ready = true;
+
+                queue.forEach(obj -> {
+                    try {
+                        clientSession.sendMessage(new TextMessage(obj.toString()));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                queue.clear();
                 break;
             case GUILD_CREATE:
-                discordJv.getGuildCache().add(new Guild(""));
+                discordJv.getGuildCache().add(Guild.decompile(payload.getJSONObject("d"), discordJv));
                 break;
             case RESUMED:
                 logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");

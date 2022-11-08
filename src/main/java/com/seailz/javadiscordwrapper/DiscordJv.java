@@ -12,6 +12,7 @@ import com.seailz.javadiscordwrapper.model.Intent;
 import com.seailz.javadiscordwrapper.model.User;
 import com.seailz.javadiscordwrapper.model.status.Status;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
+import com.seailz.javadiscordwrapper.model.status.activity.ActivityButton;
 import com.seailz.javadiscordwrapper.model.status.activity.ActivityType;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
@@ -25,7 +26,9 @@ import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -109,7 +112,9 @@ public class DiscordJv {
         );
 
         ArrayList<Activity> activities = new ArrayList<>();
-        activities.add(new Activity("Hello World", ActivityType.WATCHING));
+        activities.add(
+                new Activity("Hello World2", ActivityType.WATCHING)
+        );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv. setStatus(status);
     }

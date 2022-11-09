@@ -4,11 +4,12 @@ import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.utils.URLS;
-import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.HashMap;
 
 /**
  * This event will fire when a message is sent/created.
@@ -50,7 +51,14 @@ public class MessageCreateEvent extends MessageEvent {
         Guild returnValue = getBot().getGuildCache().getById(getJson().getJSONObject("d").getString("guild_id"));
         if (returnValue == null) {
             // retrieve from API
-            returnValue = Guild.decompile(Requester.get(URLS.GET.GUILDS.GET_GUILD, getBot()).body(), getBot());
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.GET_GUILD.replace("{guild.id}", getJson().getJSONObject("d").getString("guild_id")),
+                    getBot(),
+                    URLS.GET.GUILDS.GET_GUILD
+            ).invoke();
+            returnValue = Guild.decompile(response.body(), getBot());
         }
 
         return returnValue;

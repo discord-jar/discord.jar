@@ -14,8 +14,7 @@ import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.status.Status;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
 import com.seailz.javadiscordwrapper.model.status.activity.ActivityType;
-import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
-import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
+import com.seailz.javadiscordwrapper.utils.discordapi.*;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
@@ -25,6 +24,8 @@ import org.json.JSONObject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -63,6 +64,16 @@ public class DiscordJv {
      * Manages dispatching events to listeners
      */
     private EventDispatcher eventDispatcher;
+    /**
+     * Queued messages to be sent to the Discord API incase the rate-limits are hit
+     */
+    private List<DiscordRequest> queuedRequests;
+    /**
+     * The rate-limits the bot is facing
+     * Key: The endpoint
+     * Value: The amount of requests left
+     */
+    private HashMap<String, RateLimit> rateLimits;
 
     /**
      * Creates a new instance of the DiscordJv class
@@ -82,6 +93,9 @@ public class DiscordJv {
         this.guildCache = new Cache<>();
         this.userCache = new Cache<>();
         this.eventDispatcher = new EventDispatcher(this);
+        this.queuedRequests = new ArrayList<>();
+        this.rateLimits = new HashMap<>();
+        new RequestQueueHandler(this);
 
         initiateNoShutdown();
     }
@@ -113,6 +127,8 @@ public class DiscordJv {
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv. setStatus(status);
+
+        System.out.println(discordJv.getUserById("947691195658797167").username());
     }
 
     /**
@@ -156,7 +172,11 @@ public class DiscordJv {
      * @return The user
      */
     public User getUserById(String id) {
-        DiscordResponse response = Requester.get(URLS.GET.USER.GET_USER.replace("{user.id}", id), this);
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.USER.GET_USER.replace("{user.id}", id),
+                this, URLS.GET.USER.GET_USER
+        ).invoke();
         return User.decompile(response.body());
     }
 
@@ -173,7 +193,11 @@ public class DiscordJv {
     }
 
     public Channel getChannelById(String id) {
-        DiscordResponse response = Requester.get(URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id), this);
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id),
+                this, URLS.GET.CHANNELS.GET_CHANNEL
+        ).invoke();
         return Channel.decompile(response.body());
     }
 
@@ -210,7 +234,12 @@ public class DiscordJv {
      * Returns a {@link Application} object containing information about the bot
      */
     public Application getSelfInfo() {
-        return Application.decompile(Requester.get(URLS.GET.APPLICATION.APPLICATION_INFORMATION, this).body());
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.APPLICATION.APPLICATION_INFORMATION,
+                this, URLS.GET.APPLICATION.APPLICATION_INFORMATION
+        ).invoke();
+        return Application.decompile(response.body());
     }
 
     /**
@@ -227,4 +256,17 @@ public class DiscordJv {
         return eventDispatcher;
     }
 
+    /**
+     * Returns the rate-limit info
+     */
+    public HashMap<String, RateLimit> getRateLimits() {
+        return rateLimits;
+    }
+
+    /**
+     * Gets queued requests
+     */
+    public List<DiscordRequest> getQueuedRequests() {
+        return queuedRequests;
+    }
 }

@@ -6,7 +6,8 @@ import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
-import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,7 +43,14 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
         this.discordJv = discordJv;
-        this.url = Requester.get("/gateway", discordJv).body().getString("url");
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                "/gateway",
+                discordJv,
+                "/gateway"
+        ).invoke();
+        this.url = response.body().getString("url");
         this.queue = new ArrayList<>();
         logger = Logger.getLogger("DISCORD.JV");
         initiateConnection();

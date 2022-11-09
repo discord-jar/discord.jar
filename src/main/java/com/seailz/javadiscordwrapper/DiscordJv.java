@@ -4,15 +4,15 @@ import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
 import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
+import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
-import com.seailz.javadiscordwrapper.model.Application;
+import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
-import com.seailz.javadiscordwrapper.model.Intent;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.application.Intent;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.status.Status;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
-import com.seailz.javadiscordwrapper.model.status.activity.ActivityButton;
 import com.seailz.javadiscordwrapper.model.status.activity.ActivityType;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
@@ -20,15 +20,11 @@ import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -105,8 +101,8 @@ public class DiscordJv {
                 new DiscordListener() {
                     @Override
                     @EventMethod
-                    public void onCommandPermissionUpdate(@NotNull CommandPermissionUpdateEvent event) {
-                        System.out.println("Message received: " + event.getPermissions().permissions().length);
+                    public void onMessageReceived(@NotNull MessageCreateEvent event) {
+                        System.out.println("Message received: " + event.getGuild().name());
                     }
                 }
         );

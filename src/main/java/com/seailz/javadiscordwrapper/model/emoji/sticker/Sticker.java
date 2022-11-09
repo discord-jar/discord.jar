@@ -1,7 +1,7 @@
 package com.seailz.javadiscordwrapper.model.emoji.sticker;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -3,6 +3,8 @@ package com.seailz.javadiscordwrapper.events.model.message;
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.message.Message;
+import com.seailz.javadiscordwrapper.utils.URLS;
+import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -27,6 +29,7 @@ public class MessageCreateEvent extends MessageEvent {
      */
     public MessageCreateEvent(DiscordJv bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
+        System.out.println(data.toString());
     }
 
     /**
@@ -44,14 +47,12 @@ public class MessageCreateEvent extends MessageEvent {
      */
     @NotNull
     public Guild getGuild() {
-        AtomicReference<Guild> returnValue = new AtomicReference<>();
-        getBot().getGuildCache().getCache().forEach(guild -> {
-            if (guild.id().equals(getJson().getString("guild_id"))) {
-                returnValue.set(guild);
-            }
-        });
-        // TODO: if guild isn't in cache, get it from the api
+        Guild returnValue = getBot().getGuildCache().getById(getJson().getJSONObject("d").getString("guild_id"));
+        if (returnValue == null) {
+            // retrieve from API
+            returnValue = Guild.decompile(Requester.get(URLS.GET.GUILDS.GET_GUILD, getBot()).body(), getBot());
+        }
 
-        return returnValue.get();
+        return returnValue;
     }
 }

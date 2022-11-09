@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model;
+package com.seailz.javadiscordwrapper.model.user;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.utils.flag.FlagUtil;
@@ -10,7 +10,7 @@ import java.util.EnumSet;
 public record User(
         String id, String username, String discriminator, String avatar, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
-        EnumSet<Flag> flags, int flagsRaw, PremiumType premiumType, EnumSet<Flag> publicFlags, int publicFlagsRaw
+        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, int publicFlagsRaw
 ) implements Compilerable {
 
     /**
@@ -56,9 +56,9 @@ public record User(
         String locale;
         boolean verified;
         String email;
-        EnumSet<Flag> flags;
+        EnumSet<UserFlag> flags;
         PremiumType premiumType;
-        EnumSet<Flag> publicFlags;
+        EnumSet<UserFlag> publicFlags;
         int publicFlagsRaw = 0;
         int flagsRaw = 0;
 

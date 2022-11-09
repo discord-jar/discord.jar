@@ -2,8 +2,8 @@ package com.seailz.javadiscordwrapper.events.model.general;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.events.model.Event;
-import com.seailz.javadiscordwrapper.model.Application;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.application.Application;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.guild.UnavailableGuild;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;

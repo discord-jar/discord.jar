@@ -1,7 +1,7 @@
 package com.seailz.javadiscordwrapper.model.team.member;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.user.User;
 import org.json.JSONObject;
 
 public record TeamMember(MembershipState membershipState, String permissions, String teamId, User user) implements Compilerable {

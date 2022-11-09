@@ -2,8 +2,8 @@ package com.seailz.javadiscordwrapper.model.guild;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.Role;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.role.Role;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.emoji.Emoji;
 import com.seailz.javadiscordwrapper.model.emoji.sticker.Sticker;

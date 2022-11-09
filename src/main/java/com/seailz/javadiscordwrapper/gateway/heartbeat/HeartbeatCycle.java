@@ -22,12 +22,14 @@ public class HeartbeatCycle {
 
     private int interval;
     private GatewayFactory factory;
+    private boolean shouldBeSendingHeartbeats;
 
     public HeartbeatCycle(int interval, GatewayFactory factory) throws InterruptedException {
         this.interval = interval;
         this.factory = factory;
         start();
         // sessionCheck();
+        shouldBeSendingHeartbeats = true;
     }
 
     public void sendHeartbeat() throws IOException {
@@ -62,11 +64,17 @@ public class HeartbeatCycle {
     public void start() throws InterruptedException {
         sendFirst();
         new Thread(() -> {
-            while (true) {
+            while (shouldBeSendingHeartbeats) {
                 try {
                     Thread.sleep(interval);
-                    sendHeartbeat();
-                } catch (InterruptedException | IOException e) {
+                    try {
+                        sendHeartbeat();
+                    } catch (IllegalArgumentException e) {
+                        shouldBeSendingHeartbeats = false;
+                        factory.reconnect();
+                    }
+                } catch (InterruptedException | IOException | ExecutionException e) {
+                    shouldBeSendingHeartbeats = false;
                     e.printStackTrace();
                 }
             }
@@ -84,7 +92,7 @@ public class HeartbeatCycle {
                 if (!factory.getClientSession().isOpen()) {
                     try {
                         factory.reconnect();
-
+                        shouldBeSendingHeartbeats = false;
                     } catch (ExecutionException | InterruptedException | IOException e) {
                         throw new RuntimeException(e);
                     }

@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model;
+package com.seailz.javadiscordwrapper.model.role;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import org.json.JSONObject;

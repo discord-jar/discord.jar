@@ -1,20 +1,21 @@
 package com.seailz.javadiscordwrapper.model.message;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.*;
+import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.thread.Thread;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelMention;
 import com.seailz.javadiscordwrapper.model.embed.Embed;
 import com.seailz.javadiscordwrapper.model.emoji.Reaction;
 import com.seailz.javadiscordwrapper.model.interation.MessageInteraction;
 import com.seailz.javadiscordwrapper.model.message.activity.MessageActivity;
+import com.seailz.javadiscordwrapper.model.role.Role;
+import com.seailz.javadiscordwrapper.model.user.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public record Message(
         // The snowflake ID of the message

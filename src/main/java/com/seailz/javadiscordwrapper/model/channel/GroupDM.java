@@ -1,7 +1,7 @@
 package com.seailz.javadiscordwrapper.model.channel;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
 import org.json.JSONArray;

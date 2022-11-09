@@ -1,7 +1,7 @@
 package com.seailz.javadiscordwrapper.model.interation;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.guild.Member;
 import com.seailz.javadiscordwrapper.model.interation.utils.InteractionType;
 import org.json.JSONObject;

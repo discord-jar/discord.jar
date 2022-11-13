@@ -80,7 +80,8 @@ public class DiscordJv {
     }
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
-        String token = "";
+        System.out.println(com.seailz.javadiscordwrapper.utils.flag.FlagUtil.getApplicationFlagsByInt(8953856));
+        /** String token = "";
         File file = new File("token.txt");
         // get first line of that file
         try (FileReader reader = new FileReader(file)) {
@@ -100,7 +101,7 @@ public class DiscordJv {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }).start();
+        }).start(); **/
     }
 
     /**

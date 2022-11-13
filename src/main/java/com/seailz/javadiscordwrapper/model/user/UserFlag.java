@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model;
+package com.seailz.javadiscordwrapper.model.user;
 
 /**
  * Represents a flag on a user's account.
@@ -6,7 +6,7 @@ package com.seailz.javadiscordwrapper.model;
  * @author Seailz
  * @since 1.0
  */
-public enum Flag {
+public enum UserFlag {
 
     // User is a staff member
     STAFF(0),
@@ -40,7 +40,7 @@ public enum Flag {
 
     private int id;
 
-    Flag(int id) {
+    UserFlag(int id) {
         this.id = id;
     }
 

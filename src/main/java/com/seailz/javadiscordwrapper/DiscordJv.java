@@ -2,21 +2,29 @@ package com.seailz.javadiscordwrapper;
 
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
+import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
+import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
+import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
-import com.seailz.javadiscordwrapper.model.Application;
+import com.seailz.javadiscordwrapper.model.application.Application;
+import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
-import com.seailz.javadiscordwrapper.model.Intent;
-import com.seailz.javadiscordwrapper.model.User;
-import com.seailz.javadiscordwrapper.utils.discordapi.Requester;
+import com.seailz.javadiscordwrapper.model.application.Intent;
+import com.seailz.javadiscordwrapper.model.user.User;
+import com.seailz.javadiscordwrapper.model.status.Status;
+import com.seailz.javadiscordwrapper.model.status.activity.Activity;
+import com.seailz.javadiscordwrapper.model.status.activity.ActivityType;
+import com.seailz.javadiscordwrapper.utils.discordapi.*;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
-import com.seailz.javadiscordwrapper.utils.presence.StatusType;
-import org.json.JSONArray;
+import com.seailz.javadiscordwrapper.model.status.StatusType;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -56,6 +64,16 @@ public class DiscordJv {
      * Manages dispatching events to listeners
      */
     private EventDispatcher eventDispatcher;
+    /**
+     * Queued messages to be sent to the Discord API incase the rate-limits are hit
+     */
+    private List<DiscordRequest> queuedRequests;
+    /**
+     * The rate-limits the bot is facing
+     * Key: The endpoint
+     * Value: The amount of requests left
+     */
+    private HashMap<String, RateLimit> rateLimits;
 
     /**
      * Creates a new instance of the DiscordJv class
@@ -75,13 +93,16 @@ public class DiscordJv {
         this.guildCache = new Cache<>();
         this.userCache = new Cache<>();
         this.eventDispatcher = new EventDispatcher(this);
+        this.queuedRequests = new ArrayList<>();
+        this.rateLimits = new HashMap<>();
+        new RequestQueueHandler(this);
 
         initiateNoShutdown();
     }
 
+    // This method is used for testing purposes only
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
-        System.out.println(com.seailz.javadiscordwrapper.utils.flag.FlagUtil.getApplicationFlagsByInt(8953856));
-        /** String token = "";
+        String token = "";
         File file = new File("token.txt");
         // get first line of that file
         try (FileReader reader = new FileReader(file)) {
@@ -90,18 +111,24 @@ public class DiscordJv {
             e.printStackTrace();
         }
         DiscordJv discordJv = new DiscordJv(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
-        new Thread(() -> {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                discordJv.setStatus(StatusType.DO_NOT_DISTURB);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).start(); **/
+        discordJv.registerListeners(
+                new DiscordListener() {
+                    @Override
+                    @EventMethod
+                    public void onMessageReceived(@NotNull MessageCreateEvent event) {
+                        System.out.println("Message received: " + event.getGuild().name());
+                    }
+                }
+        );
+
+        ArrayList<Activity> activities = new ArrayList<>();
+        activities.add(
+                new Activity("Hello World2", ActivityType.WATCHING)
+        );
+        Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
+        discordJv. setStatus(status);
+
+        System.out.println(discordJv.getUserById("947691195658797167").username());
     }
 
     /**
@@ -129,16 +156,49 @@ public class DiscordJv {
      * @throws IOException
      *         If an error occurs while setting the status
      */
-    public void setStatus(StatusType status) throws IOException {
-        JSONObject payload = new JSONObject();
-        payload.put("op", 3);
-        JSONObject data = new JSONObject();
-        data.put("since", 0);
-        data.put("activities", new JSONArray());
-        data.put("status", status.toString().toLowerCase());
-        data.put("afk", false);
-        payload.put("d", data);
-        gatewayFactory.getClientSession().sendMessage(new TextMessage(payload.toString()));
+    public void setStatus(Status status) throws IOException {
+        JSONObject json = new JSONObject();
+        json.put("d", status.compile());
+        json.put("op", 3);
+        gatewayFactory.queueMessage(json);
+    }
+
+    /**
+     * Returns info about a user
+     *
+     * @param id
+     *        The id of the user
+     *
+     * @return The user
+     */
+    public User getUserById(String id) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.USER.GET_USER.replace("{user.id}", id),
+                this, URLS.GET.USER.GET_USER
+        ).invoke();
+        return User.decompile(response.body());
+    }
+
+    /**
+     * Returns info about a user
+     *
+     * @param id
+     *        The id of the user
+     *
+     * @return The user
+     */
+    public User getUserById(long id) {
+        return getUserById(String.valueOf(id));
+    }
+
+    public Channel getChannelById(String id) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id),
+                this, URLS.GET.CHANNELS.GET_CHANNEL
+        ).invoke();
+        return Channel.decompile(response.body());
     }
 
     /**
@@ -174,7 +234,12 @@ public class DiscordJv {
      * Returns a {@link Application} object containing information about the bot
      */
     public Application getSelfInfo() {
-        return Application.decompile(Requester.get(URLS.GET.APPLICATION.APPLICATION_INFORMATION, this).body());
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.APPLICATION.APPLICATION_INFORMATION,
+                this, URLS.GET.APPLICATION.APPLICATION_INFORMATION
+        ).invoke();
+        return Application.decompile(response.body());
     }
 
     /**
@@ -184,4 +249,24 @@ public class DiscordJv {
         return userCache;
     }
 
+    /**
+     * Returns the event dispatcher
+     */
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
+    }
+
+    /**
+     * Returns the rate-limit info
+     */
+    public HashMap<String, RateLimit> getRateLimits() {
+        return rateLimits;
+    }
+
+    /**
+     * Gets queued requests
+     */
+    public List<DiscordRequest> getQueuedRequests() {
+        return queuedRequests;
+    }
 }

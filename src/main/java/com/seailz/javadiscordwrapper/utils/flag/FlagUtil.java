@@ -1,17 +1,17 @@
 package com.seailz.javadiscordwrapper.utils.flag;
 
-import com.seailz.javadiscordwrapper.model.ApplicationFlag;
-import com.seailz.javadiscordwrapper.model.Flag;
+import com.seailz.javadiscordwrapper.model.application.ApplicationFlag;
+import com.seailz.javadiscordwrapper.model.user.UserFlag;
 
 import java.util.EnumSet;
 
 public class FlagUtil {
 
-    public static EnumSet<Flag> getFlagsByInt(int flags) {
-        EnumSet<Flag> set = EnumSet.noneOf(Flag.class);
+    public static EnumSet<UserFlag> getFlagsByInt(int flags) {
+        EnumSet<UserFlag> set = EnumSet.noneOf(UserFlag.class);
         if (flags == 0)
             return set;
-        for (Flag flag : Flag.values())
+        for (UserFlag flag : UserFlag.values())
         {
             if ((flag.getLeftShiftId() & flags) == flag.getLeftShiftId())
                 set.add(flag);

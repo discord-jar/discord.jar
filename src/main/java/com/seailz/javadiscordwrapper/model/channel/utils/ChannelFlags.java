@@ -1,7 +1,5 @@
 package com.seailz.javadiscordwrapper.model.channel.utils;
 
-import com.seailz.javadiscordwrapper.model.ApplicationFlag;
-
 import java.util.EnumSet;
 
 /**

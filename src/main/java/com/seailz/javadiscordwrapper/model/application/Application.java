@@ -1,6 +1,8 @@
-package com.seailz.javadiscordwrapper.model;
+package com.seailz.javadiscordwrapper.model.application;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.javadiscordwrapper.model.scopes.InstallParams;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.team.Team;
 import com.seailz.javadiscordwrapper.utils.flag.FlagUtil;
 import org.json.JSONException;

@@ -26,6 +26,30 @@ public final class URLS {
              */
             public static String APPLICATION_INFORMATION = "/oauth2/applications/@me";
         }
+
+        public static class USER {
+            /**
+             * Returns info about a user
+             * @param id The id of the user
+             */
+            public static String GET_USER = "/users/{user.id}";
+        }
+
+        public static class CHANNELS {
+            /**
+             * Returns info about a channel
+             * @param id The id of the channel
+             */
+            public static String GET_CHANNEL = "/channels/{channel.id}";
+        }
+
+        public static class GUILDS {
+            /**
+             * Returns a {@link com.seailz.javadiscordwrapper.model.guild.Guild} object containing information about the guild
+             * @param id The id of the guild
+             */
+            public static String GET_GUILD = "/guilds/{guild.id}";
+        }
     }
 
     public static class GATEWAY {

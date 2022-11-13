@@ -1,11 +1,9 @@
 package com.seailz.javadiscordwrapper.model.channel.thread;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.User;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelFlags;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
-import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
 import org.json.JSONObject;
 
@@ -26,7 +24,7 @@ public class Thread extends Channel implements Compilerable {
     private int totalMessageSent;
 
     public Thread(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, String ownerId, int messageCount, int memberCount, ThreadMetadata metadata, ThreadMember member, int defaultAutoArchiveDuration, ChannelFlags[] flags, int totalMessageSent) {
-        super(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser);
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
         this.ownerId = ownerId;
         this.messageCount = messageCount;
         this.memberCount = memberCount;
@@ -91,13 +89,9 @@ public class Thread extends Channel implements Compilerable {
                 .put("position", position())
                 .put("permission_overwrites", permissionOverwrites())
                 .put("name", name())
-                .put("topic", topic())
                 .put("nsfw", nsfw())
-                .put("last_message_id", lastMessageId())
                 .put("parent_id", parentId())
-                .put("last_pin_timestamp", lastPinTimestamp())
-                .put("permissions", permissions())
-                .put("default_thread_rate_limit_per_user", defaultThreadRateLimitPerUser());
+                .put("permissions", permissions());
     }
 
     public static Thread decompile(JSONObject json) {

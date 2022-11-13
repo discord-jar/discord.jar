@@ -1,9 +1,8 @@
 package com.seailz.javadiscordwrapper.model.channel;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.User;
+import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
-import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +19,7 @@ public class GroupDM extends Channel implements Compilerable {
     private String applicationId;
 
     public GroupDM(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, User[] recipients, String icon, String ownerId, String applicationId) {
-        super(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser);
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
         this.recipients = recipients;
         this.icon = icon;
         this.ownerId = ownerId;
@@ -40,13 +39,9 @@ public class GroupDM extends Channel implements Compilerable {
                 .put("position", position())
                 .put("permission_overwrites", permissionOverwrites())
                 .put("name", name())
-                .put("topic", topic())
                 .put("nsfw", nsfw())
-                .put("last_message_id", lastMessageId())
                 .put("parent_id", parentId())
-                .put("last_pin_timestamp", lastPinTimestamp())
-                .put("permissions", permissions())
-                .put("default_thread_rate_limit_per_user", defaultThreadRateLimitPerUser());
+                .put("permissions", permissions());
     }
 
     @NonNull

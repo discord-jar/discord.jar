@@ -3,7 +3,6 @@ package com.seailz.javadiscordwrapper.model.channel.forum;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
-import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,7 +34,7 @@ public class ForumChannel extends Channel implements Compilerable {
             DefaultReaction defaultReaction,
             DefaultSortOrder defaultSortOrder
     ) {
-        super(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser);
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
         this.tags = tags;
         this.appliedTags = appliedTags;
         this.defaultReaction = defaultReaction;
@@ -65,13 +64,9 @@ public class ForumChannel extends Channel implements Compilerable {
                 .put("position", position())
                 .put("permission_overwrites", permissionOverwrites())
                 .put("name", name())
-                .put("topic", topic())
                 .put("nsfw", nsfw())
-                .put("last_message_id", lastMessageId())
-                .put("last_pin_timestamp", lastPinTimestamp())
                 .put("parent_id", parentId())
-                .put("permissions", permissions())
-                .put("default_thread_rate_limit_per_user", defaultThreadRateLimitPerUser());
+                .put("permissions", permissions());
     }
 
 

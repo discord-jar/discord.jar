@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model;
+package com.seailz.javadiscordwrapper.model.application;
 
 /**
  * Represents an intent

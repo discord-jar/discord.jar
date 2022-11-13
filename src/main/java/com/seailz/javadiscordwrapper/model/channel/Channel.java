@@ -17,28 +17,20 @@ public class Channel {
     private int position;
     private PermissionOverwrite[] permissionOverwrites;
     private String name;
-    private String topic;
     private boolean nsfw;
-    private String lastMessageId;
     private String parentId;
-    private String lastPinTimestamp;
     private String permissions;
-    private int defaultThreadRateLimitPerUser;
 
-    public Channel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser) {
+    public Channel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, boolean nsfw, String parentId, String permissions) {
         this.id = id;
         this.type = type;
         this.guildId = guildId;
         this.position = position;
         this.permissionOverwrites = permissionOverwrites;
         this.name = name;
-        this.topic = topic;
         this.nsfw = nsfw;
-        this.lastMessageId = lastMessageId;
         this.parentId = parentId;
-        this.lastPinTimestamp = lastPinTimestamp;
         this.permissions = permissions;
-        this.defaultThreadRateLimitPerUser = defaultThreadRateLimitPerUser;
     }
 
     @NonNull
@@ -49,13 +41,9 @@ public class Channel {
         int position;
         PermissionOverwrite[] permissionOverwrites;
         String name;
-        String topic;
         boolean nsfw;
-        String lastMessageId;
         String parentId;
-        String lastPinTimestamp;
         String permissions;
-        int defaultThreadRateLimitPerUser;
 
         try {
             id = json.getString("id");
@@ -99,21 +87,9 @@ public class Channel {
         }
 
         try {
-            topic = json.getString("topic");
-        } catch (JSONException e) {
-            topic = null;
-        }
-
-        try {
             nsfw = json.getBoolean("nsfw");
         } catch (JSONException e) {
             nsfw = false;
-        }
-
-        try {
-            lastMessageId = json.getString("last_message_id");
-        } catch (JSONException e) {
-            lastMessageId = null;
         }
 
         try {
@@ -123,24 +99,12 @@ public class Channel {
         }
 
         try {
-            lastPinTimestamp = json.getString("last_pin_timestamp");
-        } catch (JSONException e) {
-            lastPinTimestamp = null;
-        }
-
-        try {
             permissions = json.getString("permissions");
         } catch (JSONException e) {
             permissions = null;
         }
 
-        try {
-            defaultThreadRateLimitPerUser = json.getInt("default_thread_rate_limit_per_user");
-        } catch (JSONException e) {
-            defaultThreadRateLimitPerUser = 0;
-        }
-
-        return new Channel(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser);
+        return new Channel(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
 
     }
 
@@ -168,32 +132,16 @@ public class Channel {
         return name;
     }
 
-    public String topic() {
-        return topic;
-    }
-
     public boolean nsfw() {
         return nsfw;
-    }
-
-    public String lastMessageId() {
-        return lastMessageId;
     }
 
     public String parentId() {
         return parentId;
     }
 
-    public String lastPinTimestamp() {
-        return lastPinTimestamp;
-    }
-
     public String permissions() {
         return permissions;
-    }
-
-    public int defaultThreadRateLimitPerUser() {
-        return defaultThreadRateLimitPerUser;
     }
 
 }

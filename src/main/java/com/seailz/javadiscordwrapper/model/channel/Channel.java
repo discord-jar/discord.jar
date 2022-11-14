@@ -1,7 +1,9 @@
 package com.seailz.javadiscordwrapper.model.channel;
 
+import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
+import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +11,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 
-public class Channel {
+public class Channel implements Compilerable, Resolvable {
 
     private String id;
     private ChannelType type;
@@ -144,4 +146,50 @@ public class Channel {
         return permissions;
     }
 
+    @Override
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
+
+        if (id != null) {
+            json.put("id", id);
+        }
+
+        if (type != null) {
+            json.put("type", type.getCode());
+        }
+
+        if (guildId != null) {
+            json.put("guild_id", guildId);
+        }
+
+        if (position != 0) {
+            json.put("position", position);
+        }
+
+        if (permissionOverwrites != null) {
+            JSONArray overwrites = new JSONArray();
+            for (PermissionOverwrite overwrite : permissionOverwrites) {
+                overwrites.put(overwrite.compile());
+            }
+            json.put("permission_overwrites", overwrites);
+        }
+
+        if (name != null) {
+            json.put("name", name);
+        }
+
+        if (nsfw) {
+            json.put("nsfw", nsfw);
+        }
+
+        if (parentId != null) {
+            json.put("parent_id", parentId);
+        }
+
+        if (permissions != null) {
+            json.put("permissions", permissions);
+        }
+
+        return json;
+    }
 }

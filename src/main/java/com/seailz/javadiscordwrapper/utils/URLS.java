@@ -16,6 +16,9 @@ public final class URLS {
     public static class GET {
 
         public static class GATEWAY {
+            /**
+             * Returns the gateway URL
+             */
             public static String GET_GATEWAY_URL = "/gateway";
         }
 
@@ -49,6 +52,14 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String GET_GUILD = "/guilds/{guild.id}";
+        }
+
+        public static class APPLICATIONS {
+            /**
+             * Returns an {@link com.seailz.javadiscordwrapper.model.application.Application object containing information about the application of the bot selected}
+             * @param id the id of the bot
+             */
+            public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
         }
     }
 

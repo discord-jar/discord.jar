@@ -19,9 +19,12 @@ import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+import org.springframework.boot.web.servlet.support.ServletContextApplicationContextInitializer;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -53,13 +56,21 @@ public class DiscordJv {
      */
     private EnumSet<Intent> intents;
     /**
-     * Used for caching guilds in memory
+     * Used for caching {@link Guild}s in memory
      */
     private Cache<Guild> guildCache;
     /**
-     * Used for caching users in memory
+     * Used for caching {@link User}s in memory
      */
     private Cache<User> userCache;
+    /**
+     * Used for caching {@link Channel}s in memory
+     */
+    private Cache<Channel> channelCache;
+    /**
+     * Used for caching {@link Application}s in memory
+     */
+    private Cache<Application> applicationCache;
     /**
      * Manages dispatching events to listeners
      */
@@ -89,13 +100,15 @@ public class DiscordJv {
         this.token = token;
         this.intents = intents;
         logger = Logger.getLogger("DiscordJv");
-        this.gatewayFactory = new GatewayFactory(this);
         this.guildCache = new Cache<>();
         this.userCache = new Cache<>();
+        this.channelCache = new Cache<>();
+        this.applicationCache = new Cache<>();
         this.eventDispatcher = new EventDispatcher(this);
         this.queuedRequests = new ArrayList<>();
         this.rateLimits = new HashMap<>();
         new RequestQueueHandler(this);
+        this.gatewayFactory = new GatewayFactory(this);
 
         initiateNoShutdown();
     }
@@ -128,7 +141,9 @@ public class DiscordJv {
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv. setStatus(status);
 
-        System.out.println(discordJv.getUserById("947691195658797167").username());
+        discordJv.getCacheByObjectType(ServletContextApplicationContextInitializer.class);
+
+        //System.out.println(discordJv.getUserById("947691195658797167").username());
     }
 
     /**
@@ -171,13 +186,9 @@ public class DiscordJv {
      *
      * @return The user
      */
+    @Nullable
     public User getUserById(String id) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(), new HashMap<>(),
-                URLS.GET.USER.GET_USER.replace("{user.id}", id),
-                this, URLS.GET.USER.GET_USER
-        ).invoke();
-        return User.decompile(response.body());
+        return userCache.getById(id);
     }
 
     /**
@@ -188,17 +199,27 @@ public class DiscordJv {
      *
      * @return The user
      */
+    @Nullable
     public User getUserById(long id) {
         return getUserById(String.valueOf(id));
     }
 
+    /**
+     * Returns info about a channel
+     *
+     * @param id
+     *        The id of the channel
+     *
+     * @return A {@link Channel} object containing the information.
+     */
+    @Nullable
     public Channel getChannelById(String id) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(), new HashMap<>(),
-                URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id),
-                this, URLS.GET.CHANNELS.GET_CHANNEL
-        ).invoke();
-        return Channel.decompile(response.body());
+        return channelCache.getById(id);
+    }
+
+    @Nullable
+    private Application getApplicationById(String id) {
+        return applicationCache.getById(id);
     }
 
     /**
@@ -226,8 +247,8 @@ public class DiscordJv {
     /**
      * Returns the cache for storing guilds
      */
-    public Cache<Guild> getGuildCache() {
-        return guildCache;
+    public Guild getGuildById(String id) {
+        return guildCache.getById(id);
     }
 
     /**
@@ -240,13 +261,6 @@ public class DiscordJv {
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION
         ).invoke();
         return Application.decompile(response.body());
-    }
-
-    /**
-     * Returns the cache for storing users
-     */
-    public Cache<User> getUserCache() {
-        return userCache;
     }
 
     /**
@@ -268,5 +282,23 @@ public class DiscordJv {
      */
     public List<DiscordRequest> getQueuedRequests() {
         return queuedRequests;
+    }
+
+    private Cache<?> getCacheByObjectType(Class<?> clazz) {
+        for (Field field : this.getClass().getFields()) {
+            if (!field.getType().equals(Cache.class)) continue;
+            //if (clazz)
+            System.out.println(field.getName());
+            System.out.println(field.getType().getName());
+        }
+        return null;
+    }
+
+    private Cache<?> getCacheByObjectType(Object obj) {
+        return getCacheByObjectType(obj.getClass());
+    }
+
+    public void addToCache(Object obj) {
+
     }
 }

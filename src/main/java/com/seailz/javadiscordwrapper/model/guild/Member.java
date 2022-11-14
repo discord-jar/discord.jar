@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.model.guild;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
 import com.seailz.javadiscordwrapper.model.role.Role;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.json.JSONObject;
@@ -35,7 +36,7 @@ public record Member(
         boolean pending,
         String permissions,
         String communicationDisabledUntil
-) implements Compilerable {
+) implements Compilerable, Resolvable {
 
     @Override
     public JSONObject compile() {

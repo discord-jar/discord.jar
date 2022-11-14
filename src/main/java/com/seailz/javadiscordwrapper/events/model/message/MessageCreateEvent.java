@@ -42,25 +42,12 @@ public class MessageCreateEvent extends MessageEvent {
     }
 
     /**
-     * The guild the message was sent in
+     * The {@link Guild} the message was sent in
      * This shouldn't return null.
-     * @return The guild the message was sent in
+     * @return A {@link Guild} object
      */
     @NotNull
     public Guild getGuild() {
-        Guild returnValue = getBot().getGuildCache().getById(getJson().getJSONObject("d").getString("guild_id"));
-        if (returnValue == null) {
-            // retrieve from API
-            DiscordResponse response = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.GET.GUILDS.GET_GUILD.replace("{guild.id}", getJson().getJSONObject("d").getString("guild_id")),
-                    getBot(),
-                    URLS.GET.GUILDS.GET_GUILD
-            ).invoke();
-            returnValue = Guild.decompile(response.body(), getBot());
-        }
-
-        return returnValue;
+        return getBot().getGuildById((getJson().getJSONObject("d").getString("guild_id")));
     }
 }

@@ -27,15 +27,17 @@ public class HeartbeatCycle {
     public HeartbeatCycle(int interval, GatewayFactory factory) throws InterruptedException {
         this.interval = interval;
         this.factory = factory;
+        System.out.println("Starting heartbeats at " + interval);
         start();
         // sessionCheck();
         shouldBeSendingHeartbeats = true;
     }
 
-    public void sendHeartbeat() throws IOException {
+    public void sendHeartbeat() throws IOException, ExecutionException, InterruptedException {
         JSONObject payload = new JSONObject();
         payload.put("op", 1);
         payload.put("d", factory.getLastSequence());
+
         factory.getClientSession().sendMessage(new TextMessage(payload.toString()));
     }
 
@@ -49,6 +51,8 @@ public class HeartbeatCycle {
                 sendHeartbeat();
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
             }
         }).start();
 

@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
@@ -182,7 +183,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 queue.clear();
                 break;
             case GUILD_CREATE:
-                discordJv.getGuildCache().add(Guild.decompile(payload.getJSONObject("d"), discordJv));
+                //
                 break;
             case RESUMED:
                 logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
@@ -191,6 +192,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private void sendIdentify() throws IOException {
+
         AtomicInteger intents = new AtomicInteger();
         discordJv.getIntents().forEach(intent -> {
             intents.getAndAdd(intent.getLeftShiftId());

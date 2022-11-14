@@ -6,8 +6,9 @@ import com.seailz.javadiscordwrapper.model.channel.thread.Thread;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelMention;
 import com.seailz.javadiscordwrapper.model.embed.Embed;
 import com.seailz.javadiscordwrapper.model.emoji.Reaction;
-import com.seailz.javadiscordwrapper.model.interation.MessageInteraction;
+import com.seailz.javadiscordwrapper.model.interaction.Interaction;
 import com.seailz.javadiscordwrapper.model.message.activity.MessageActivity;
+import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
 import com.seailz.javadiscordwrapper.model.role.Role;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.json.JSONArray;
@@ -67,11 +68,11 @@ public record Message(
         // the message associated with the message_reference
         Message referencedMessage,
         // sent if the message is a response to an Interaction
-        MessageInteraction interaction,
+        Interaction interaction,
         // the thread that was started from this message, includes thread member object
         Thread thread
         // sent if the message contains components like buttons, action rows, or other interactive components
-) implements Compilerable {
+) implements Compilerable, Resolvable {
 
     @NonNull
     public static Message decompile(JSONObject obj) {
@@ -99,7 +100,7 @@ public record Message(
         MessageReference messageReference;
         MessageFlag[] flags;
         Message referencedMessage;
-        MessageInteraction interaction;
+        Interaction interaction;
         Thread thread;
 
         try {
@@ -264,7 +265,7 @@ public record Message(
         }
 
         try {
-            interaction = MessageInteraction.decompile(obj.getJSONObject("interaction"));
+            interaction = Interaction.decompile(obj.getJSONObject("interaction"));
         } catch (JSONException e) {
             interaction = null;
         }

@@ -1,9 +1,11 @@
-package com.seailz.javadiscordwrapper.model.interation.utils;
+package com.seailz.javadiscordwrapper.model.interaction;
 
 /**
  * Represents the type of interaction
+ *
  * @author Seailz
- * @since 1.0
+ * @since  1.0
+ * @see    com.seailz.javadiscordwrapper.model.interaction.Interaction
  */
 public enum InteractionType {
 
@@ -11,9 +13,11 @@ public enum InteractionType {
     APPLICATION_COMMAND(2),
     MESSAGE_COMPONENT(3),
     APPLICATION_COMMAND_AUTOCOMPLETE(4),
-    MODAL_SUBMIT(5);
+    MODAL_SUBMIT(5),
 
-    private final int code;
+    ;
+
+    private int code;
 
     InteractionType(int code) {
         this.code = code;
@@ -23,9 +27,9 @@ public enum InteractionType {
         return code;
     }
 
-    public static InteractionType fromCode(int code) {
-        for (InteractionType type : values()) {
-            if (type.getCode() == code) {
+    public static InteractionType getType(int code) {
+        for(InteractionType type : values()) {
+            if(type.getCode() == code) {
                 return type;
             }
         }

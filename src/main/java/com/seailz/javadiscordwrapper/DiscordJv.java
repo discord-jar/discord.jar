@@ -89,12 +89,12 @@ public class DiscordJv {
         this.token = token;
         this.intents = intents;
         logger = Logger.getLogger("DiscordJv");
+        this.rateLimits = new HashMap<>();
+        this.queuedRequests = new ArrayList<>();
         this.gatewayFactory = new GatewayFactory(this);
         this.guildCache = new Cache<>();
         this.userCache = new Cache<>();
         this.eventDispatcher = new EventDispatcher(this);
-        this.queuedRequests = new ArrayList<>();
-        this.rateLimits = new HashMap<>();
         new RequestQueueHandler(this);
 
         initiateNoShutdown();

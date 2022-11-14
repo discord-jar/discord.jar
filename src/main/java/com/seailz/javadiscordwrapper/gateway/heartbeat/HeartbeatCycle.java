@@ -32,7 +32,7 @@ public class HeartbeatCycle {
         shouldBeSendingHeartbeats = true;
     }
 
-    public void sendHeartbeat() throws IOException {
+    public void sendHeartbeat() throws IOException, ExecutionException, InterruptedException {
         JSONObject payload = new JSONObject();
         payload.put("op", 1);
         payload.put("d", factory.getLastSequence());
@@ -47,7 +47,7 @@ public class HeartbeatCycle {
             try {
                 Thread.sleep((long) interval);
                 sendHeartbeat();
-            } catch (InterruptedException | IOException e) {
+            } catch (InterruptedException | IOException | ExecutionException e) {
                 e.printStackTrace();
             }
         }).start();

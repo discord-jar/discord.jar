@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.model.message;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
@@ -28,7 +29,7 @@ public record Attachment(
         int height,
         int width,
         boolean ephemeral
-) implements Compilerable {
+) implements Compilerable, Resolvable {
 
 
     @Override

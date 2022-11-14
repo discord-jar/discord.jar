@@ -26,6 +26,8 @@ public enum ApplicationFlag {
     GATEWAY_MESSAGE_CONTENT_LIMITED(19),
     // Indicates if an app has registered global application commands
     APPLICATION_COMMANDS_BADE(23),
+    // considered an "active" bot, can be used for getting the "Active Developer" badge
+    ACTIVE_BOT(24),
     ;
 
     private int id;

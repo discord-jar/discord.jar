@@ -65,6 +65,8 @@ public class Cache<T> {
                 }
             }
         });
+
+        if (returnObject.get() != null) cache.add((T) returnObject.get());
         return returnObject.get() == null ? null : (T) returnObject.get();
     }
 }

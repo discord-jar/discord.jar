@@ -2,6 +2,7 @@ package com.seailz.javadiscordwrapper.model.role;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
+import com.seailz.javadiscordwrapper.utils.Mentionable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,7 +30,7 @@ public record Role(
         boolean managed,
         boolean mentionable,
         RoleTag tags
-) implements Compilerable, Resolvable {
+) implements Compilerable, Resolvable, Mentionable {
     public static Role decompile(JSONObject obj) {
         String id;
         String name;

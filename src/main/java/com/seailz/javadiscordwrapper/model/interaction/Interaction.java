@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.interaction;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
@@ -7,7 +8,11 @@ import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.guild.Member;
 import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.model.user.User;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+
+import java.lang.reflect.Method;
 
 /**
  * Represents the data of an interaction
@@ -121,12 +126,17 @@ public class Interaction implements Compilerable {
     }
 
     @Override
+    @SneakyThrows
     public JSONObject compile() {
+        Class<? extends InteractionData> dataClass = data.getClass();
+        Method compileMethod = dataClass.getMethod("compile");
+        JSONObject data = (JSONObject) compileMethod.invoke(this.data);
+
         return new JSONObject()
                 .put("id", id)
                 .put("application", application.id())
                 .put("type", type.getCode())
-                .put("data", "" /* TODO: data.compile() */)
+                .put("data", data)
                 .put("guild", guild.id())
                 .put("channel", channel.id())
                 .put("member", member.compile())
@@ -138,5 +148,27 @@ public class Interaction implements Compilerable {
                 .put("locale", locale)
                 .put("guildLocale", guildLocale);
     }
+
+    @NotNull
+    public static Interaction decompile(JSONObject json, DiscordJv discordJv) {
+        String id = json.has("id") ? json.getString("id") : null;
+        Application application = json.has("application") ? Application.decompile(json.getJSONObject("application")) : null;
+        InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
+        InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJv) : null;
+        Guild guild = json.has("guild") ? Guild.decompile(json.getJSONObject("guild"), discordJv) : null;
+        Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJv) : null;
+        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member")) : null;
+        User user = json.has("user") ? User.decompile(json.getJSONObject("user")) : null;
+        String token = json.has("token") ? json.getString("token") : null;
+        int version = json.has("version") ? json.getInt("version") : 0;
+        Message message = json.has("message") ? Message.decompile(json.getJSONObject("message"), discordJv) : null;
+        String appPermissions = json.has("appPermissions") ? json.getString("appPermissions") : null;
+        String locale = json.has("locale") ? json.getString("locale") : null;
+        String guildLocale = json.has("guildLocale") ? json.getString("guildLocale") : null;
+
+        return new Interaction(id, application, type, data, guild, channel, member, user, token, version, message, appPermissions, locale, guildLocale);
+    }
+
+
 
 }

@@ -21,7 +21,7 @@ public class RequestQueueHandler {
                 }
                 if (jv.getQueuedRequests().isEmpty()) continue;
                 for (DiscordRequest req : jv.getQueuedRequests()) {
-                    if (!req.getRateLimit().isPresent()) continue;;
+                    if (req.getRateLimit().isEmpty()) continue;
                     RateLimit limit = req.getRateLimit().get();
                     if (limit.remaining() == 0) continue;
 

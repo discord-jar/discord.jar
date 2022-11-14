@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.channel;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
@@ -18,8 +19,8 @@ public class GroupDM extends Channel implements Compilerable {
     private String ownerId;
     private String applicationId;
 
-    public GroupDM(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, User[] recipients, String icon, String ownerId, String applicationId) {
-        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+    public GroupDM(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, User[] recipients, String icon, String ownerId, String applicationId, DiscordJv discordJv) {
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
         this.recipients = recipients;
         this.icon = icon;
         this.ownerId = ownerId;
@@ -45,7 +46,7 @@ public class GroupDM extends Channel implements Compilerable {
     }
 
     @NonNull
-    public static GroupDM decompile(JSONObject obj) {
+    public static GroupDM decompile(JSONObject obj, DiscordJv discordJv) {
         ChannelType type;
         String name;
         String topic;
@@ -183,6 +184,6 @@ public class GroupDM extends Channel implements Compilerable {
             defaultThreadRateLimitPerUser = 0;
         }
 
-        return new GroupDM(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, null, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, recipients, icon, ownerId, applicationId);
+        return new GroupDM(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, null, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, recipients, icon, ownerId, applicationId, discordJv);
     }
 }

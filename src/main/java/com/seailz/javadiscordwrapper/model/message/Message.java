@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.message;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.thread.Thread;
@@ -75,7 +76,7 @@ public record Message(
 ) implements Compilerable, Resolvable {
 
     @NonNull
-    public static Message decompile(JSONObject obj) {
+    public static Message decompile(JSONObject obj, DiscordJv discordJv) {
         String id;
         String channelId;
         User author;
@@ -259,19 +260,19 @@ public record Message(
         }
 
         try {
-            referencedMessage = Message.decompile(obj.getJSONObject("referenced_message"));
+            referencedMessage = Message.decompile(obj.getJSONObject("referenced_message"), discordJv);
         } catch (JSONException e) {
             referencedMessage = null;
         }
 
         try {
-            interaction = Interaction.decompile(obj.getJSONObject("interaction"));
+            interaction = Interaction.decompile(obj.getJSONObject("interaction"), discordJv);
         } catch (JSONException e) {
             interaction = null;
         }
 
         try {
-            thread = Thread.decompile(obj.getJSONObject("thread"));
+            thread = Thread.decompile(obj.getJSONObject("thread"), discordJv);
         } catch (JSONException e) {
             thread = null;
         }

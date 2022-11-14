@@ -10,33 +10,39 @@ import java.util.EnumSet;
 public enum MessageFlag {
 
     // this message has been published to subscribed channels (via Channel Following)
-    CROSSPOSTED(0),
+    CROSSPOSTED(0, false),
     // this message originated from a message in another channel (via Channel Following)
-    IS_CROSSPOST(1),
+    IS_CROSSPOST(1, false),
     // do not include any embeds when serializing this message
-    SUPPRESS_EMBEDS(2),
+    SUPPRESS_EMBEDS(2, true),
     // the source message for this crosspost has been deleted (via Channel Following)
-    SOURCE_MESSAGE_DELETED(3),
+    SOURCE_MESSAGE_DELETED(3, false),
     // this message came from the urgent message system
-    URGENT(4),
+    URGENT(4, false),
     // this message has an associated thread, with the same id as the message
-    HAS_THREAD(5),
+    HAS_THREAD(5, false),
     // this message is only visible to the user who invoked the Interaction
-    EPHEMERAL(6),
+    EPHEMERAL(6, false),
     // this message is an Interaction Response and the bot is "thinking"
-    LOADING(7),
+    LOADING(7, false),
     // this message failed to mention some roles and add their members to the thread
-    FAILED_THREAD_MEMBER_ADD(8),
+    FAILED_THREAD_MEMBER_ADD(8, false),
     ;
 
     private int id;
+    private boolean canBeSent;
 
-    MessageFlag(int id) {
+    MessageFlag(int id, boolean canBeSent) {
         this.id = id;
+        this.canBeSent = canBeSent;
     }
 
     public int getLeftShiftId() {
         return 1 << id;
+    }
+
+    public boolean canBeSent() {
+        return canBeSent;
     }
 
     public static EnumSet<MessageFlag> getFlagsByInt(int flags) {

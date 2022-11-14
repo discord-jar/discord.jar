@@ -51,8 +51,6 @@ public class HeartbeatCycle {
                 sendHeartbeat();
             } catch (InterruptedException | IOException | ExecutionException e) {
                 e.printStackTrace();
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
             }
         }).start();
 

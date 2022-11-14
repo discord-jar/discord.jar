@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.channel;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
@@ -19,8 +20,8 @@ public class VoiceChannel extends Channel implements Compilerable {
     private int rtcRegion;
     private VideoQualityMode videoQualityMode;
 
-    public VoiceChannel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, int rateLimitPerUser, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, int userLimit, int bitrate, int rtcRegion, VideoQualityMode videoQualityMode) {
-        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+    public VoiceChannel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, int rateLimitPerUser, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, int userLimit, int bitrate, int rtcRegion, VideoQualityMode videoQualityMode, DiscordJv discordJv) {
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
         this.userLimit = userLimit;
         this.rateLimitPerUser = rateLimitPerUser;
         this.bitrate = bitrate;
@@ -45,7 +46,7 @@ public class VoiceChannel extends Channel implements Compilerable {
     }
 
     @NonNull
-    public static VoiceChannel decompile(JSONObject obj) {
+    public static VoiceChannel decompile(JSONObject obj, DiscordJv discordJv) {
         int userLimit;
         int rateLimitPerUser;
         int bitrate;
@@ -184,7 +185,7 @@ public class VoiceChannel extends Channel implements Compilerable {
             defaultThreadRateLimitPerUser = 0;
         }
 
-        return new VoiceChannel(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, null, rateLimitPerUser, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, userLimit, bitrate, rtcRegion, videoQualityMode);
+        return new VoiceChannel(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, null, rateLimitPerUser, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, userLimit, bitrate, rtcRegion, videoQualityMode, discordJv);
 
     }
 }

@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.channel.forum;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
@@ -32,9 +33,10 @@ public class ForumChannel extends Channel implements Compilerable {
             ForumTag[] tags,
             ForumTag[] appliedTags,
             DefaultReaction defaultReaction,
-            DefaultSortOrder defaultSortOrder
+            DefaultSortOrder defaultSortOrder,
+            DiscordJv discordJv
     ) {
-        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
         this.tags = tags;
         this.appliedTags = appliedTags;
         this.defaultReaction = defaultReaction;

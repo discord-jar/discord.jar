@@ -2,6 +2,7 @@ package com.seailz.javadiscordwrapper.model.user;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
+import com.seailz.javadiscordwrapper.utils.Mentionable;
 import com.seailz.javadiscordwrapper.utils.flag.FlagUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +13,7 @@ public record User(
         String id, String username, String discriminator, String avatar, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
         EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, int publicFlagsRaw
-) implements Compilerable, Resolvable {
+) implements Compilerable, Resolvable, Mentionable {
 
     /**
      * Converts this User object to a JSONObject

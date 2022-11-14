@@ -1,13 +1,13 @@
-package com.seailz.javadiscordwrapper.model.channel.utils;
+package com.seailz.javadiscordwrapper.model.channel;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.channel.Channel;
+import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 public class TextChannel extends Channel implements Compilerable {
 
@@ -16,8 +16,8 @@ public class TextChannel extends Channel implements Compilerable {
     private int defaultThreadRateLimitPerUser;
     private String topic;
 
-    public TextChannel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, boolean nsfw, String parentId, String permissions) {
-        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+    public TextChannel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, boolean nsfw, String parentId, String permissions, DiscordJv discordJv) {
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class TextChannel extends Channel implements Compilerable {
     }
 
     @NotNull
-    public static TextChannel decompile(JSONObject obj) {
+    public static TextChannel decompile(JSONObject obj, DiscordJv discordJv) {
         ChannelType type;
         String name;
         String topic;
@@ -129,7 +129,7 @@ public class TextChannel extends Channel implements Compilerable {
             guildId = null;
         }
 
-        return new TextChannel(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+        return new TextChannel(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
     }
 
     public String lastMessageId() {

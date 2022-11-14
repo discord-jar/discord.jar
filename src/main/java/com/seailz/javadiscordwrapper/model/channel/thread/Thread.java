@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.channel.thread;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelFlags;
@@ -23,8 +24,8 @@ public class Thread extends Channel implements Compilerable {
     private ChannelFlags[] flags;
     private int totalMessageSent;
 
-    public Thread(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, String ownerId, int messageCount, int memberCount, ThreadMetadata metadata, ThreadMember member, int defaultAutoArchiveDuration, ChannelFlags[] flags, int totalMessageSent) {
-        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+    public Thread(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, String ownerId, int messageCount, int memberCount, ThreadMetadata metadata, ThreadMember member, int defaultAutoArchiveDuration, ChannelFlags[] flags, int totalMessageSent, DiscordJv discordJv) {
+        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
         this.ownerId = ownerId;
         this.messageCount = messageCount;
         this.memberCount = memberCount;
@@ -94,7 +95,7 @@ public class Thread extends Channel implements Compilerable {
                 .put("permissions", permissions());
     }
 
-    public static Thread decompile(JSONObject json) {
+    public static Thread decompile(JSONObject json, DiscordJv discordJv) {
         String id;
         ChannelType type;
         String guildId;
@@ -247,6 +248,6 @@ public class Thread extends Channel implements Compilerable {
             totalMessageSent = 0;
         }
 
-        return new Thread(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, ownerId, messageCount, memberCount, metadata, member, defaultAutoArchiveDuration, flags, totalMessageSent);
+        return new Thread(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, ownerId, messageCount, memberCount, metadata, member, defaultAutoArchiveDuration, flags, totalMessageSent, discordJv);
     }
 }

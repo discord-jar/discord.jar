@@ -43,21 +43,60 @@ public class ApplicationCommandInteractionData extends InteractionData {
     }
 
     public ApplicationCommandInteractionData(JSONObject obj, DiscordJv discordJv) {
-        id = obj.getString("id");
-        name = obj.getString("name");
-        resolved = ResolvedData.decompile(obj.getJSONObject("resolved"));
+        id = obj.has("id") ? obj.getString("id") : null;
+        name = obj.has("name") ? obj.getString("name") : null;
+        resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved")) : null;
 
-        JSONArray optionsArray = obj.getJSONArray("options");
-        for (int i = 0; i < optionsArray.length(); i++) {
-            options.add(ResolvedCommandOption.decompile(optionsArray.getJSONObject(i)));
+        if (obj.has("options")) {
+            JSONArray optionsArray = obj.getJSONArray("options");
+            for (int i = 0; i < optionsArray.length(); i++) {
+                options.add(ResolvedCommandOption.decompile(optionsArray.getJSONObject(i)));
+            }
         }
 
-        guild = Guild.decompile(obj.getJSONObject("guild_id"), discordJv);
-        targetId = obj.getInt("target_id");
+        guild = obj.has("guild_id") ? discordJv.getGuildCache().getById(obj.getString("guild_id")) : null;
+        targetId = obj.has("target_id") ? obj.getInt("target_id") : 0;
     }
 
+    public String id() {
+        return id;
+    }
 
+    public String name() {
+        return name;
+    }
 
+    public ResolvedData resolved() {
+        return resolved;
+    }
 
+    public List<ResolvedCommandOption> options() {
+        return options;
+    }
+
+    public Guild guild() {
+        return guild;
+    }
+
+    public int targetId() {
+        return targetId;
+    }
+
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        JSONArray options = new JSONArray();
+        for (ResolvedCommandOption option : this.options) {
+            options.put(option.compile());
+        }
+
+        obj.put("id", id);
+        obj.put("name", name);
+        obj.put("resolved", resolved.compile());
+        obj.put("options", options);
+        obj.put("guild_id", guild.id());
+        obj.put("target_id", targetId);
+
+        return obj;
+    }
 
 }

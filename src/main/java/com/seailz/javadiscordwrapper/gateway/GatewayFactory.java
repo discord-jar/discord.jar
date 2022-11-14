@@ -10,6 +10,7 @@ import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
@@ -49,7 +50,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 new HashMap<>(),
                 "/gateway",
                 discordJv,
-                "/gateway"
+                "/gateway", RequestMethod.GET
         ).invoke();
         this.url = response.body().getString("url");
         this.queue = new ArrayList<>();

@@ -11,6 +11,10 @@ public final class URLS {
             public static class COMMANDS {
             }
         }
+
+        public static class MESSAGES {
+            public static final String SEND = "/channels/{channel.id}/messages";
+        }
     }
 
     public static class GET {

@@ -38,7 +38,7 @@ public class MessageCreateEvent extends MessageEvent {
      */
     @NotNull
     public Message getMessage() {
-        return Message.decompile(getJson().getJSONObject("d"));
+        return Message.decompile(getJson().getJSONObject("d"), getBot());
     }
 
     /**
@@ -48,6 +48,6 @@ public class MessageCreateEvent extends MessageEvent {
      */
     @NotNull
     public Guild getGuild() {
-        return getBot().getGuildById((getJson().getJSONObject("d").getString("guild_id")));
+        return getBot().getGuildCache().getById((getJson().getJSONObject("d").getString("guild_id")));
     }
 }

@@ -1,5 +1,7 @@
 package com.seailz.javadiscordwrapper.model.channel;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.action.MessageCreateAction;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.permission.PermissionOverwrite;
@@ -22,8 +24,9 @@ public class Channel implements Compilerable, Resolvable {
     private boolean nsfw;
     private String parentId;
     private String permissions;
+    private DiscordJv discordJv;
 
-    public Channel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, boolean nsfw, String parentId, String permissions) {
+    public Channel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, boolean nsfw, String parentId, String permissions, DiscordJv discordJv) {
         this.id = id;
         this.type = type;
         this.guildId = guildId;
@@ -33,10 +36,11 @@ public class Channel implements Compilerable, Resolvable {
         this.nsfw = nsfw;
         this.parentId = parentId;
         this.permissions = permissions;
+        this.discordJv = discordJv;
     }
 
     @NonNull
-    public static Channel decompile(JSONObject json) {
+    public static Channel decompile(JSONObject json, DiscordJv discordJv) {
         String id;
         ChannelType type;
         String guildId;
@@ -106,7 +110,7 @@ public class Channel implements Compilerable, Resolvable {
             permissions = null;
         }
 
-        return new Channel(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions);
+        return new Channel(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
 
     }
 
@@ -191,5 +195,10 @@ public class Channel implements Compilerable, Resolvable {
         }
 
         return json;
+    }
+
+    // TODO: text channel
+    public MessageCreateAction sendMessage(String content) {
+        return new MessageCreateAction(content, this.id, discordJv);
     }
 }

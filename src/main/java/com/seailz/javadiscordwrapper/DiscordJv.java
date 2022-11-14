@@ -20,6 +20,7 @@ import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -86,6 +87,7 @@ public class DiscordJv {
      *         If an error occurs while connecting to the gateway
      */
     public DiscordJv(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
+        token = token.replaceAll("\\r\\n", "");
         this.token = token;
         this.intents = intents;
         logger = Logger.getLogger("DiscordJv");
@@ -117,6 +119,7 @@ public class DiscordJv {
                     @EventMethod
                     public void onMessageReceived(@NotNull MessageCreateEvent event) {
                         System.out.println("Message received: " + event.getGuild().name());
+
                     }
                 }
         );
@@ -127,8 +130,7 @@ public class DiscordJv {
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv. setStatus(status);
-
-        System.out.println(discordJv.getUserById("947691195658797167").username());
+        discordJv.getChannelById("993461660792651829").sendMessage("hello, world.").run();
     }
 
     /**
@@ -175,7 +177,7 @@ public class DiscordJv {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.USER.GET_USER.replace("{user.id}", id),
-                this, URLS.GET.USER.GET_USER
+                this, URLS.GET.USER.GET_USER, RequestMethod.GET
         ).invoke();
         return User.decompile(response.body());
     }
@@ -196,9 +198,9 @@ public class DiscordJv {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id),
-                this, URLS.GET.CHANNELS.GET_CHANNEL
+                this, URLS.GET.CHANNELS.GET_CHANNEL, RequestMethod.GET
         ).invoke();
-        return Channel.decompile(response.body());
+        return Channel.decompile(response.body(), this);
     }
 
     /**
@@ -237,7 +239,7 @@ public class DiscordJv {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
-                this, URLS.GET.APPLICATION.APPLICATION_INFORMATION
+                this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
         ).invoke();
         return Application.decompile(response.body());
     }

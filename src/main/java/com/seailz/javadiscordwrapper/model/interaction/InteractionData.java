@@ -2,6 +2,8 @@ package com.seailz.javadiscordwrapper.model.interaction;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.interaction.data.command.ApplicationCommandInteractionData;
+import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
+import com.seailz.javadiscordwrapper.model.interaction.data.modal.ModalSubmitInteractionData;
 import org.json.JSONObject;
 
 /**
@@ -14,11 +16,10 @@ import org.json.JSONObject;
  */
 public class InteractionData {
 
-    public InteractionData decompile(InteractionType type, JSONObject obj, DiscordJv jv) {
+    public static InteractionData decompile(InteractionType type, JSONObject obj, DiscordJv jv) {
         return switch (type) {
-            case APPLICATION_COMMAND -> new ApplicationCommandInteractionData(obj, jv);
+            case APPLICATION_COMMAND, APPLICATION_COMMAND_AUTOCOMPLETE -> new ApplicationCommandInteractionData(obj, jv);
             case MESSAGE_COMPONENT -> new MessageComponentInteractionData(obj);
-            case APPLICATION_COMMAND_AUTOCOMPLETE -> new ApplicationCommandAutocompleteInteractionData(obj);
             case MODAL_SUBMIT -> new ModalSubmitInteractionData(obj);
             default -> null;
         };

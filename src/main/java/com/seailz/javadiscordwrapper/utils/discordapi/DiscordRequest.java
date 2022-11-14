@@ -3,6 +3,7 @@ package com.seailz.javadiscordwrapper.utils.discordapi;
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,7 +29,8 @@ public record DiscordRequest(
         HashMap<String, String> headers,
         String url,
         DiscordJv djv,
-        String baseUrl
+        String baseUrl,
+        RequestMethod requestMethod
 ) {
 
     /**
@@ -50,9 +52,12 @@ public record DiscordRequest(
             }
 
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod("GET");
+            con.setRequestMethod(requestMethod.toString());
             con.setRequestProperty("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
             con.setRequestProperty("Authorization", "Bot " + djv.getToken());
+            con.setRequestProperty("Content-Length", String.valueOf(body.toString().length()));
+            headers.forEach(con::setRequestProperty);
+
             int responseCode = con.getResponseCode();
             if (responseCode == 200) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -119,7 +124,19 @@ public record DiscordRequest(
                         throw new RuntimeException(e);
                     }
                 }, "RateLimitQueue").start();
+                return null;
             }
+
+            System.out.println(responseCode);
+            System.out.println(con.getResponseMessage());
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
         }

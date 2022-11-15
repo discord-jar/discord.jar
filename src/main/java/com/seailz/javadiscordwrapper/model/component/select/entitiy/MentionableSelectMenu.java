@@ -18,6 +18,7 @@ public class MentionableSelectMenu implements SelectMenu {
     private String placeholder;
     private int minValues;
     private int maxValues;
+    private boolean disabled;
 
     /**
      * Creates a new mentionable select menu
@@ -36,11 +37,12 @@ public class MentionableSelectMenu implements SelectMenu {
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
      */
-    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues) {
+    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
+        this.disabled = disabled;
     }
 
     @Override
@@ -82,7 +84,7 @@ public class MentionableSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new MentionableSelectMenu(
-                customId, placeholder, minValues, maxValues
+                customId, placeholder, minValues, maxValues, disabled
         );
     }
 
@@ -98,13 +100,17 @@ public class MentionableSelectMenu implements SelectMenu {
 
     @Override
     public JSONObject compile() {
-        return new JSONObject()
-                .put("type", type().getCode())
-                .put("custom_id", customId)
-                .put("placeholder", placeholder)
-                .put("min_values", minValues)
-                .put("max_values", maxValues)
-                .put("disabled", isDisabled());
+        if (minValues > maxValues)
+            throw new IllegalArgumentException("Min values cannot be greater than max values");
+
+        JSONObject obj = new JSONObject();
+        obj.put("type", type().getCode());
+        obj.put("custom_id", customId);
+        if (placeholder != null) obj.put("placeholder", placeholder);
+        if (minValues != 0) obj.put("min_values", minValues);
+        if (maxValues != 0) obj.put("max_values", maxValues);
+        if (disabled) obj.put("disabled", true);
+        return obj;
     }
 
     public static MentionableSelectMenu decompile(JSONObject json) {
@@ -112,7 +118,8 @@ public class MentionableSelectMenu implements SelectMenu {
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues);
+        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues, disabled);
     }
 }

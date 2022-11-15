@@ -104,20 +104,16 @@ public class RoleSelectMenu implements SelectMenu {
 
     @Override
     public JSONObject compile() {
+        if (minValues > maxValues)
+            throw new IllegalArgumentException("Min values cannot be greater than max values");
+
         JSONObject obj = new JSONObject();
         obj.put("type", type().getCode());
         obj.put("custom_id", customId);
-        if (placeholder != null)
-            obj.put("placeholder", placeholder);
-
-        if (minValues != 0)
-            obj.put("min_values", minValues);
-
-        if (maxValues != 0)
-            obj.put("max_values", maxValues);
-
-        if (isDisabled)
-            obj.put("disabled", true);
+        if (placeholder != null) obj.put("placeholder", placeholder);
+        if (minValues != 0) obj.put("min_values", minValues);
+        if (maxValues != 0) obj.put("max_values", maxValues);
+        if (isDisabled) obj.put("disabled", true);
         return obj;
     }
 

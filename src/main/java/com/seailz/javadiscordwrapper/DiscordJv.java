@@ -3,6 +3,7 @@ package com.seailz.javadiscordwrapper;
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
@@ -11,9 +12,11 @@ import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.component.ActionRow;
+import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.UserSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.application.Intent;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -156,9 +159,9 @@ public class DiscordJv {
                 new DiscordListener() {
                     @Override
                     @EventMethod
-                    public void onChannelSelectMenuInteraction(@NotNull ChannelSelectMenuInteractionEvent event) {
-                        System.out.println(event.getSelectedChannels());
-                        event.respond("You selected " + event.getSelectedChannels().get(0).name() + " roles").setEphemeral(true).setTTS(true).run();
+                    public void onStringSelectMenuInteraction(@NotNull StringSelectMenuInteractionEvent event) {
+                        System.out.println(event.getSelectedOptions());
+                        event.respond("You selected " + event.getSelectedOptions().get(0).label() + " roles").setEphemeral(true).setTTS(true).run();
                     }
                 }
         );
@@ -172,11 +175,11 @@ public class DiscordJv {
         discordJv.getChannelById("993461660792651829").sendMessage("hello, world.")
                 .addComponent(
                         ActionRow.of(
-                                new ChannelSelectMenu("userselect")
-                                        .setMaxValues(5)
-                                        .setMinValues(1)
+                                new StringSelectMenu("userselect")
+                                        .setMaxValues(0)
+                                        .setMinValues(0)
                                         .setPlaceholder("Select channels")
-                                        .setChannelTypes(ChannelType.GUILD_TEXT)
+                                        .addOption(new SelectOption("hello1", "hello"))
                         )
                 ).run();
     }

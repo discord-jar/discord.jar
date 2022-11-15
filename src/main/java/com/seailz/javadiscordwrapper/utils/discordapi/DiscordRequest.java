@@ -126,6 +126,10 @@ public record DiscordRequest(
                 return new DiscordResponse(responseCode, new JSONObject(response.toString()), headers);
             }
 
+            System.out.println("Response Code : " + responseCode);
+            System.out.println(con.getResponseMessage());
+            System.out.println(body.toString());
+
             if (responseCode == 429) {
                 Logger logger = Logger.getLogger("DiscordJv");
                 logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + con.getHeaderField("Retry-After") + " seconds");

@@ -136,14 +136,18 @@ public class ChannelSelectMenu implements SelectMenu {
     public JSONObject compile() {
         JSONArray channelTypes = new JSONArray();
         this.channelTypes.forEach(channelType -> channelTypes.put(channelType.getCode()));
-        return new JSONObject()
-                .put("type", type().getCode())
-                .put("custom_id", customId)
-                .put("placeholder", placeholder)
-                .put("min_values", minValues)
-                .put("max_values", maxValues)
-                .put("disabled", disabled)
-                .put("channel_types", channelTypes);
+        if (minValues > maxValues)
+            throw new IllegalArgumentException("Min values cannot be greater than max values");
+
+        JSONObject obj = new JSONObject();
+        obj.put("type", type().getCode());
+        obj.put("custom_id", customId);
+        if (placeholder != null) obj.put("placeholder", placeholder);
+        if (minValues != 0) obj.put("min_values", minValues);
+        if (maxValues != 0) obj.put("max_values", maxValues);
+        if (disabled) obj.put("disabled", true);
+        if (this.channelTypes != null) obj.put("channel_types", channelTypes);
+        return obj;
     }
 
     public static ChannelSelectMenu decompile(JSONObject json) {

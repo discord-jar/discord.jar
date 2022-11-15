@@ -36,6 +36,17 @@ public class Cache<T> {
         this.discordJv = discordJv;
         this.clazz = clazz;
         this.discordRequest = request;
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(300000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                cache.clear();
+            }
+        }).start();
     }
 
     /**

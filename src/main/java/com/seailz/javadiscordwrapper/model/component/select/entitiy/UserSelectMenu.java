@@ -3,6 +3,8 @@ package com.seailz.javadiscordwrapper.model.component.select.entitiy;
 import com.seailz.javadiscordwrapper.model.component.ActionComponent;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
 import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -104,13 +106,17 @@ public class UserSelectMenu implements SelectMenu {
 
     @Override
     public JSONObject compile() {
-        return new JSONObject()
-                .put("type", type().getCode())
-                .put("custom_id", customId)
-                .put("placeholder", placeholder)
-                .put("min_values", minValues)
-                .put("max_values", maxValues)
-                .put("disabled", isDisabled);
+        if (minValues > maxValues)
+            throw new IllegalArgumentException("Min values cannot be greater than max values");
+
+        JSONObject obj = new JSONObject();
+        obj.put("type", type().getCode());
+        obj.put("custom_id", customId);
+        if (placeholder != null) obj.put("placeholder", placeholder);
+        if (minValues != 0) obj.put("min_values", minValues);
+        if (maxValues != 0) obj.put("max_values", maxValues);
+        if (isDisabled) obj.put("disabled", true);
+        return obj;
     }
 
     public static UserSelectMenu decompile(JSONObject json) {

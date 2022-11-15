@@ -24,6 +24,7 @@ public class StringSelectMenu implements SelectMenu {
     private int minValues;
     private int maxValues;
     private SelectOption[] options;
+    private boolean disabled;
 
     /**
      * Creates a new string select menu
@@ -43,12 +44,13 @@ public class StringSelectMenu implements SelectMenu {
      * @param maxValues The maximum amount of values that can be selected
      * @param options The options of the select menu
      */
-    public StringSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<SelectOption> options) {
+    public StringSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<SelectOption> options, boolean disabled) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
         this.options = options.toArray(new SelectOption[0]);
+        this.disabled = disabled;
     }
 
     /**
@@ -80,35 +82,41 @@ public class StringSelectMenu implements SelectMenu {
         return maxValues;
     }
 
-    public void setCustomId(String customId) {
+    public StringSelectMenu setCustomId(String customId) {
         this.customId = customId;
+        return this;
     }
 
-    public void setPlaceholder(String placeholder) {
+    public StringSelectMenu setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
+        return this;
     }
 
-    public void setMinValues(int minValues) {
+    public StringSelectMenu setMinValues(int minValues) {
         this.minValues = minValues;
+        return this;
     }
 
-    public void setMaxValues(int maxValues) {
+    public StringSelectMenu setMaxValues(int maxValues) {
         this.maxValues = maxValues;
+        return this;
     }
 
-    public void setOptions(SelectOption[] options) {
+    public StringSelectMenu setOptions(SelectOption[] options) {
         this.options = options;
+        return this;
     }
 
     public SelectOption[] options() {
         return options;
     }
 
-    public void addOption(SelectOption option) {
+    public StringSelectMenu addOption(SelectOption option) {
         SelectOption[] newOptions = new SelectOption[options.length + 1];
         System.arraycopy(options, 0, newOptions, 0, options.length);
         newOptions[newOptions.length - 1] = option;
         options = newOptions;
+        return this;
     }
 
 
@@ -116,7 +124,7 @@ public class StringSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new StringSelectMenu(
-                customId, placeholder, minValues, maxValues, List.of(options)
+                customId, placeholder, minValues, maxValues, List.of(options), disabled
         );
     }
 
@@ -136,14 +144,27 @@ public class StringSelectMenu implements SelectMenu {
         for (SelectOption option : this.options)
             options.put(option.compile());
 
-        return new JSONObject()
-                .put("type", type().getCode())
-                .put("custom_id", customId)
-                .put("placeholder", placeholder)
-                .put("min_values", minValues)
-                .put("max_values", maxValues)
-                .put("disabled", isDisabled())
-                .put("options", options);
+        if (maxValues > options.length())
+            throw new IllegalArgumentException("Max values cannot be greater than the amount of options");
+
+        if (minValues > maxValues)
+            throw new IllegalArgumentException("Min values cannot be greater than max values");
+
+        if (options.length() == 0)
+            throw new IllegalArgumentException("Select menu must have at least one option");
+
+        if (options.length() > 25)
+            throw new IllegalArgumentException("Select menu cannot have more than 25 options");
+
+        JSONObject obj = new JSONObject();
+        obj.put("type", type().getCode());
+        obj.put("custom_id", customId);
+        if (placeholder != null) obj.put("placeholder", placeholder);
+        if (minValues != 0) obj.put("min_values", minValues);
+        if (maxValues != 0) obj.put("max_values", maxValues);
+        if (disabled) obj.put("disabled", true);
+        obj.put("options", options);
+        return obj;
     }
 
     public static StringSelectMenu decompile(JSONObject json) {
@@ -159,7 +180,7 @@ public class StringSelectMenu implements SelectMenu {
                 options.add(SelectOption.decompile(optionsJson.getJSONObject(i)));
         }
 
-        return new StringSelectMenu(customId, placeholder, minValues, maxValues, options);
+        return new StringSelectMenu(customId, placeholder, minValues, maxValues, options, json.has("disabled") && json.getBoolean("disabled"));
     }
 
 }

@@ -1,0 +1,43 @@
+name: Bug Report
+description: Report a Bug!
+title: "[Bug Report] "
+labels: [ "type: bug", "state: pending" ]
+assignees: Seailz
+body:
+  - type: markdown
+    attributes:
+      value: |-        
+        Keep in mind that this isn't the place to learn Java.  
+        Please head over to [StackOverflow](https://stackoverflow.com/questions/tagged/java) for your general programming questions.
+  - type: checkboxes
+    attributes:
+      label: General Troubleshooting
+      description: "Make sure you've done these things first:"
+      options:
+        - label: You've have checked for similar issues.
+          required: true
+        - label: You've updated to the latest version of the API
+          required: true
+        - label: You've have checked the PR's for bug fixes relating to your issue.
+          required: true
+  - type: textarea
+    attributes:
+      label: "Part of library impacted"
+      description: "What part of the library is impacted by this bug?"
+      placeholder: "Components"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Bug Report Description"
+      description: "Provide a small description of the bug you have encountered."
+      placeholder: "I was trying to do something and it didn't work!"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Steps to reproduce"
+      description: "Please list each action necessary to make the bug happen. These have to be reproducible 100% of the time."
+      placeholder: "1) Create a component\n2)..."
+    validations:
+      required: true

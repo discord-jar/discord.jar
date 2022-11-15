@@ -2,6 +2,7 @@ package com.seailz.javadiscordwrapper.model.interaction.reply;
 
 import com.seailz.javadiscordwrapper.model.component.DisplayComponent;
 import com.seailz.javadiscordwrapper.model.message.Attachment;
+import com.seailz.javadiscordwrapper.model.message.MessageFlag;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -78,6 +79,12 @@ public class InteractionMessageResponse implements InteractionReply {
         this.suppressEmbeds = suppressEmbeds;
     }
 
+    public void removeComponent(DisplayComponent component) {
+        if (this.components == null)
+            return;
+        this.components.remove(component);
+    }
+
     public void setTts(boolean tts) {
         this.tts = tts;
     }
@@ -88,5 +95,41 @@ public class InteractionMessageResponse implements InteractionReply {
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
+        if (this.tts)
+            obj.put("tts", true);
+
+        if (this.content != null)
+            obj.put("content", this.content);
+
+        List<MessageFlag> flags = new ArrayList<>();
+        if (this.ephemeral)
+            flags.add(MessageFlag.EPHEMERAL);
+
+        if (this.suppressEmbeds)
+            flags.add(MessageFlag.SUPPRESS_EMBEDS);
+
+        if (flags.size() == 1)
+            obj.put("flags", flags.get(0).getLeftShiftId());
+
+        if (flags.size() == 2)
+            obj.put("flags", flags.get(0).getLeftShiftId() | flags.get(1).getLeftShiftId());
+
+        if (this.components != null) {
+            List<JSONObject> components = new ArrayList<>();
+            for (DisplayComponent component : this.components) {
+                components.add(component.compile());
+            }
+            obj.put("components", components);
+        }
+
+        if (this.attachments != null) {
+            List<JSONObject> attachments = new ArrayList<>();
+            for (Attachment attachment : this.attachments) {
+                attachments.add(attachment.compile());
+            }
+            obj.put("attachments", attachments);
+        }
+
+        return obj;
     }
 }

@@ -1,12 +1,17 @@
 package com.seailz.javadiscordwrapper.events.model.interaction;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.action.InteractionCallbackAction;
+import com.seailz.javadiscordwrapper.action.MessageInteractionCallbackAction;
 import com.seailz.javadiscordwrapper.events.model.Event;
 import com.seailz.javadiscordwrapper.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.interaction.Interaction;
 import com.seailz.javadiscordwrapper.model.interaction.InteractionData;
 import com.seailz.javadiscordwrapper.model.interaction.InteractionType;
+import com.seailz.javadiscordwrapper.model.interaction.callback.InteractionCallbackType;
+import com.seailz.javadiscordwrapper.model.interaction.reply.InteractionMessageResponse;
+import com.seailz.javadiscordwrapper.model.interaction.reply.InteractionReply;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,5 +80,8 @@ public class InteractionEvent extends Event {
         return getInteraction().data();
     }
 
-    public
+    @NotNull
+    public MessageInteractionCallbackAction respond(String message) {
+        return new MessageInteractionCallbackAction(InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE, new InteractionMessageResponse(message), getInteraction().token(), getInteraction().id(), getBot());
+    }
 }

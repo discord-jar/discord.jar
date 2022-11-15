@@ -136,6 +136,7 @@ public class DiscordJv {
                     @EventMethod
                     public void onRoleSelectMenuInteraction(@NotNull RoleSelectMenuInteractionEvent event) {
                         System.out.println(event.getSelectedRoles());
+                        event.respond("You selected " + event.getSelectedRoles().size() + " roles").setEphemeral(true).setTTS(true).run();
                     }
                 }
         );

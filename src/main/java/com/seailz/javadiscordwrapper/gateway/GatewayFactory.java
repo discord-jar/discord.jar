@@ -163,7 +163,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void handleDispatched(JSONObject payload) throws ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // Handle dispatched events
         // actually dispatch the event
-        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload);
+        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, discordJv);
         if (eventClass == null) {
             logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t"));
             return;

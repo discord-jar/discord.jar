@@ -56,15 +56,14 @@ public class UserSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Retrieves the {@link StringSelectMenu} component
+     * Returns the user who clicked the select menu. This SHOULD not ever return null.
+     * @return {@link User} object containing the user who clicked the select menu.
      */
     @NotNull
-    public UserSelectMenuInteractionEvent getComponent() {
-        return (UserSelectMenuInteractionEvent) getInteraction().message().components().stream()
-                .filter(component -> component instanceof UserSelectMenuInteractionEvent)
-                .filter(component -> ((UserSelectMenuInteractionEvent) component).getCustomId().equals(getCustomId()))
-                .findFirst()
-                .orElseThrow();
+    public User getUser() {
+        if (getInteraction().user() == null)
+            return getInteraction().member().user();
+        return getInteraction().user();
     }
 }
 

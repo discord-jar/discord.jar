@@ -1,19 +1,18 @@
-package com.seailz.javadiscordwrapper.events.model.interaction.select;
+package com.seailz.javadiscordwrapper.events.model.interaction.button;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
-import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
-import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.RawComponent;
+import com.seailz.javadiscordwrapper.model.component.button.Button;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class StringSelectMenuInteractionEvent extends InteractionEvent {
-
-    public StringSelectMenuInteractionEvent(DiscordJv bot, long sequence, JSONObject data) {
+public class ButtonInteractionEvent extends InteractionEvent {
+    public ButtonInteractionEvent(@NotNull DiscordJv bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 
@@ -29,17 +28,6 @@ public class StringSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Returns the selected option of the {@link StringSelectMenuInteractionEvent}.
-     *
-     * This SHOULD not ever return null.
-     * @return A list of {@link SelectOption} objects containing the selected options.
-     */
-    @NotNull
-    public List<SelectOption> getSelectedOptions() {
-        return List.of(getInteractionData().selectOptions());
-    }
-
-    /**
      * Returns the custom id of the select menu.
      *
      * This SHOULD not ever return null.
@@ -51,8 +39,8 @@ public class StringSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Returns the user who clicked the select menu. This SHOULD not ever return null.
-     * @return {@link User} object containing the user who clicked the select menu.
+     * Returns the user who clicked the button. This SHOULD not ever return null.
+     * @return {@link User} object containing the user who clicked the button.
      */
     @NotNull
     public User getUser() {

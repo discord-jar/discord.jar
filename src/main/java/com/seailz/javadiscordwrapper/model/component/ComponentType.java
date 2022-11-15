@@ -1,5 +1,7 @@
 package com.seailz.javadiscordwrapper.model.component;
 
+import com.seailz.javadiscordwrapper.model.component.button.Button;
+import com.seailz.javadiscordwrapper.model.component.button.ButtonImpl;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.MentionableSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu;
@@ -18,7 +20,7 @@ public enum ComponentType {
     /** A container for other components */
     ACTION_ROW(1, 0, false, true, false, ActionRow.class),
     /* A button */
-    BUTTON(2, 5, false, true, false, null) ,
+    BUTTON(2, 5, false, true, false, ButtonImpl.class) ,
     /* A select menu */
     STRING_SELECT(3, 1, true, true, false, StringSelectMenu.class),
     /* A text input */

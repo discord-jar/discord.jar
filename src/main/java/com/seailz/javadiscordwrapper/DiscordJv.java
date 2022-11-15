@@ -3,6 +3,7 @@ package com.seailz.javadiscordwrapper;
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
+import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
@@ -12,6 +13,7 @@ import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.component.ActionRow;
+import com.seailz.javadiscordwrapper.model.component.button.Button;
 import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu;
@@ -159,9 +161,9 @@ public class DiscordJv {
                 new DiscordListener() {
                     @Override
                     @EventMethod
-                    public void onStringSelectMenuInteraction(@NotNull StringSelectMenuInteractionEvent event) {
-                        System.out.println(event.getSelectedOptions());
-                        event.respond("You selected " + event.getSelectedOptions().get(0).label() + " roles").setEphemeral(true).setTTS(true).run();
+                    public void onButtonClickInteractionEvent(@NotNull ButtonInteractionEvent event) {
+                        event.respond("You clicked the button, " + event.getUser().username() + "!")
+                                .setEphemeral(true).run();
                     }
                 }
         );
@@ -175,11 +177,7 @@ public class DiscordJv {
         discordJv.getChannelById("993461660792651829").sendMessage("hello, world.")
                 .addComponent(
                         ActionRow.of(
-                                new StringSelectMenu("userselect")
-                                        .setMaxValues(0)
-                                        .setMinValues(0)
-                                        .setPlaceholder("Select channels")
-                                        .addOption(new SelectOption("hello1", "hello"))
+                                Button.primary("primary button", "p-b")
                         )
                 ).run();
     }

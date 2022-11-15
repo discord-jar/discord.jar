@@ -6,6 +6,7 @@ import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdat
 import com.seailz.javadiscordwrapper.events.model.gateway.GatewayResumedEvent;
 import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
 import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
@@ -77,7 +78,7 @@ public enum DispatchedEvents {
             case MESSAGE_COMPONENT -> {
                 switch (ComponentType.getType(p.getJSONObject("d").getJSONObject("data").getInt("component_type"))) {
                     case BUTTON -> {
-
+                        return ButtonInteractionEvent.class;
                     }
                     case STRING_SELECT -> {
                         return StringSelectMenuInteractionEvent.class;

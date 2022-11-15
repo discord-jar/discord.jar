@@ -143,7 +143,6 @@ public class Interaction implements Compilerable {
                 .put("guild", guild.id())
                 .put("channel", channel.id())
                 .put("member", member.compile())
-                .put("user", user.compile())
                 .put("token", token)
                 .put("version", version)
                 .put("message", message.compile())

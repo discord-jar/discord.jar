@@ -7,6 +7,7 @@ import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
 import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.javadiscordwrapper.model.role.Role;
+import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -58,14 +59,13 @@ public class RoleSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Retrieves the {@link StringSelectMenu} component
+     * Returns the user who clicked the select menu. This SHOULD not ever return null.
+     * @return {@link User} object containing the user who clicked the select menu.
      */
     @NotNull
-    public RoleSelectMenuInteractionEvent getComponent() {
-        return (RoleSelectMenuInteractionEvent) getInteraction().message().components().stream()
-                .filter(component -> component instanceof RoleSelectMenuInteractionEvent)
-                .filter(component -> ((RoleSelectMenuInteractionEvent) component).getCustomId().equals(getCustomId()))
-                .findFirst()
-                .orElseThrow();
+    public User getUser() {
+        if (getInteraction().user() == null)
+            return getInteraction().member().user();
+        return getInteraction().user();
     }
 }

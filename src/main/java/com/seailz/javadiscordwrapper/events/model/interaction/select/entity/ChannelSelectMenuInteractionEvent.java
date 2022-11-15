@@ -8,6 +8,7 @@ import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelec
 import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.javadiscordwrapper.model.role.Role;
+import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -63,14 +64,13 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Retrieves the {@link com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu ChannelSelectMenu} component
+     * Returns the user who clicked the select menu. This SHOULD not ever return null.
+     * @return {@link User} object containing the user who clicked the select menu.
      */
     @NotNull
-    public ChannelSelectMenu getComponent() {
-        return (ChannelSelectMenu) getInteraction().message().components().stream()
-                .filter(component -> component instanceof ChannelSelectMenu)
-                .filter(component -> ((ChannelSelectMenu) component).customId().equals(getCustomId()))
-                .findFirst()
-                .orElseThrow();
+    public User getUser() {
+        if (getInteraction().user() == null)
+            return getInteraction().member().user();
+        return getInteraction().user();
     }
 }

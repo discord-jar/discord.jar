@@ -3,6 +3,7 @@ package com.seailz.javadiscordwrapper.events;
 import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
 import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
@@ -42,5 +43,5 @@ public abstract class DiscordListener {
         public void onChannelSelectMenuInteraction(@NotNull ChannelSelectMenuInteractionEvent event) {}
 
        // Button Events
-
+        public void onButtonClickInteractionEvent(@NotNull ButtonInteractionEvent event) {}
 }

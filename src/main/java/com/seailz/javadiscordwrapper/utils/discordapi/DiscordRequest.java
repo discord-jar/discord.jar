@@ -126,6 +126,8 @@ public record DiscordRequest(
                 return new DiscordResponse(responseCode, new JSONObject(response.toString()), headers);
             }
 
+            if (responseCode == 204) return null;
+
             System.out.println("Response Code : " + responseCode);
             System.out.println(con.getResponseMessage());
             System.out.println(body.toString());

@@ -71,7 +71,7 @@ public enum ComponentType {
     }
 
     /**
-     * Whether the component is a select menu TODO: Add link to select menus
+     * Whether the component is a {@link com.seailz.javadiscordwrapper.model.component.select.SelectMenu SelectMenu}
      *
      * @return A boolean representing whether the component is a select menu
      */

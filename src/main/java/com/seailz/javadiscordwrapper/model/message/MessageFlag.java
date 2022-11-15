@@ -22,7 +22,7 @@ public enum MessageFlag {
     // this message has an associated thread, with the same id as the message
     HAS_THREAD(5, false),
     // this message is only visible to the user who invoked the Interaction
-    EPHEMERAL(6, false),
+    EPHEMERAL(6, true),
     // this message is an Interaction Response and the bot is "thinking"
     LOADING(7, false),
     // this message failed to mention some roles and add their members to the thread

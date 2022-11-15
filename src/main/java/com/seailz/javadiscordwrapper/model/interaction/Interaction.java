@@ -4,6 +4,7 @@ import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
+import com.seailz.javadiscordwrapper.model.component.Component;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.guild.Member;
 import com.seailz.javadiscordwrapper.model.message.Message;
@@ -12,7 +13,9 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Represents the data of an interaction
@@ -150,12 +153,12 @@ public class Interaction implements Compilerable {
     }
 
     @NotNull
-    public static Interaction decompile(JSONObject json, DiscordJv discordJv) {
+    public static Interaction decompile(JSONObject json, DiscordJv discordJv) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         String id = json.has("id") ? json.getString("id") : null;
         Application application = json.has("application") ? Application.decompile(json.getJSONObject("application")) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
         InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJv) : null;
-        Guild guild = json.has("guild") ? Guild.decompile(json.getJSONObject("guild"), discordJv) : null;
+        Guild guild = json.has("guild_id") ? discordJv.getGuildCache().getById(json.getString("guild_id")) : null;
         Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJv) : null;
         Member member = json.has("member") ? Member.decompile(json.getJSONObject("member")) : null;
         User user = json.has("user") ? User.decompile(json.getJSONObject("user")) : null;

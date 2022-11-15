@@ -1,7 +1,7 @@
 package com.seailz.javadiscordwrapper.model.component;
 
 /**
- * Component which can be inserted into a LayoutComponent // TODO: Add link to LayoutComponent
+ * Component which can be inserted into a {@link DisplayComponent}
  *
  * @author Seailz
  * @since  1.0

@@ -8,8 +8,7 @@ public final class URLS {
 
     public static class POST {
         public static class INTERACTIONS {
-            public static class COMMANDS {
-            }
+            public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
         }
 
         public static class MESSAGES {
@@ -48,6 +47,12 @@ public final class URLS {
              * @param id The id of the channel
              */
             public static String GET_CHANNEL = "/channels/{channel.id}";
+            /**
+             * Returns a message
+             * @param id The id of the channel
+             * @param message.id The id of the message
+             */
+            public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
         }
 
         public static class GUILDS {

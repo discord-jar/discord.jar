@@ -5,6 +5,9 @@ import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.thread.Thread;
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelMention;
+import com.seailz.javadiscordwrapper.model.component.Component;
+import com.seailz.javadiscordwrapper.model.component.DisplayComponent;
+import com.seailz.javadiscordwrapper.model.component.RawComponent;
 import com.seailz.javadiscordwrapper.model.embed.Embed;
 import com.seailz.javadiscordwrapper.model.emoji.Reaction;
 import com.seailz.javadiscordwrapper.model.interaction.Interaction;
@@ -17,7 +20,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 
 public record Message(
         // The snowflake ID of the message
@@ -71,8 +76,9 @@ public record Message(
         // sent if the message is a response to an Interaction
         Interaction interaction,
         // the thread that was started from this message, includes thread member object
-        Thread thread
+        Thread thread,
         // sent if the message contains components like buttons, action rows, or other interactive components
+        List<DisplayComponent> components
 ) implements Compilerable, Resolvable {
 
     @NonNull
@@ -103,6 +109,7 @@ public record Message(
         Message referencedMessage;
         Interaction interaction;
         Thread thread;
+        List<DisplayComponent> components = new ArrayList<>();
 
         try {
             id = obj.getString("id");
@@ -144,6 +151,20 @@ public record Message(
         } catch (JSONException e) {
             mentionEveryone = false;
         }
+        
+        try {
+            JSONArray componentsJson = obj.getJSONArray("components");
+            List<Component> componentsDecompiled = Component.decompileList(componentsJson);
+            List<DisplayComponent> displayComponents = new ArrayList<>();
+            for (Component component : componentsDecompiled) {
+                if (component instanceof DisplayComponent) {
+                    displayComponents.add((DisplayComponent) component);
+                }
+            }
+        } catch (JSONException e) {
+            components = null;
+        }
+        
         try {
             JSONArray mentionsArray = obj.getJSONArray("mentions");
             mentions = new User[mentionsArray.length()];
@@ -269,6 +290,12 @@ public record Message(
             interaction = Interaction.decompile(obj.getJSONObject("interaction"), discordJv);
         } catch (JSONException e) {
             interaction = null;
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
 
         try {
@@ -277,7 +304,7 @@ public record Message(
             thread = null;
         }
 
-        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread);
+        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components);
     }
 
     @Override
@@ -328,6 +355,13 @@ public record Message(
                 reactionsArray.put(reaction.compile());
             }
         }
+        
+        JSONArray componentsArray = new JSONArray();
+        if (components != null) {
+            for (Component component : components) {
+                componentsArray.put(component.compile());
+            }
+        }
 
         return new JSONObject()
                 .put("id", id)
@@ -355,7 +389,8 @@ public record Message(
                 .put("flags", flags)
                 .put("referenced_message", referencedMessage == null ? JSONObject.NULL : referencedMessage.compile())
                 .put("interaction", interaction == null ? JSONObject.NULL : interaction.compile())
-                .put("thread", thread == null ? JSONObject.NULL : thread.compile());
+                .put("thread", thread == null ? JSONObject.NULL : thread.compile())
+                .put("components", componentsArray);
     }
 }
 

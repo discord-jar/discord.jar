@@ -7,6 +7,7 @@ import com.seailz.javadiscordwrapper.model.interaction.data.ResolvedData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -42,7 +43,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
         this.targetId = targetId;
     }
 
-    public ApplicationCommandInteractionData(JSONObject obj, DiscordJv discordJv) {
+    public ApplicationCommandInteractionData(JSONObject obj, DiscordJv discordJv) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         id = obj.has("id") ? obj.getString("id") : null;
         name = obj.has("name") ? obj.getString("name") : null;
         resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved")) : null;

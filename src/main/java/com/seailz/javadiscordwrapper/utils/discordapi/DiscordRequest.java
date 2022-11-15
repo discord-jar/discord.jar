@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -55,7 +57,19 @@ public record DiscordRequest(
             con.setRequestMethod(requestMethod.toString());
             con.setRequestProperty("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
             con.setRequestProperty("Authorization", "Bot " + djv.getToken());
+            con.setRequestProperty("Content-Type", "application/json");
             headers.forEach(con::setRequestProperty);
+
+            byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
+
+            if (requestMethod == RequestMethod.POST || requestMethod == RequestMethod.PATCH) {
+                con.setDoOutput(true);
+                try (OutputStream os = con.getOutputStream()) {
+                    os.write(out);
+                }
+            }
+
+            con.connect();
 
             int responseCode = con.getResponseCode();
             if (responseCode == 200) {
@@ -128,6 +142,15 @@ public record DiscordRequest(
 
             System.out.println(responseCode);
             System.out.println(con.getResponseMessage());
+            System.out.println(body);
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
         }

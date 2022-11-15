@@ -16,7 +16,7 @@ import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectM
 public enum ComponentType {
 
     /** A container for other components */
-    ACTION_ROW(1, 0, false, true, false, null),
+    ACTION_ROW(1, 0, false, true, false, ActionRow.class),
     /* A button */
     BUTTON(2, 5, false, true, false, null) ,
     /* A select menu */
@@ -71,7 +71,7 @@ public enum ComponentType {
     }
 
     /**
-     * Whether the component is a select menu TODO: Add link to select menus
+     * Whether the component is a {@link com.seailz.javadiscordwrapper.model.component.select.SelectMenu SelectMenu}
      *
      * @return A boolean representing whether the component is a select menu
      */

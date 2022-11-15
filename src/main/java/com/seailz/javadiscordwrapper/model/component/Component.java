@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.model.component;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
 import org.json.JSONArray;
 
 import java.lang.reflect.InvocationTargetException;
@@ -40,7 +41,7 @@ public interface Component extends Compilerable {
     boolean isModalCompatible();
 
     /**
-     * Whether the component is a select menu TODO: Add link to select menus
+     * Whether the component is a {@link SelectMenu}
      *
      * @return A boolean representing whether the component is a select menu
      */

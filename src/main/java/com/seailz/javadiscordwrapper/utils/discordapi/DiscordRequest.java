@@ -139,18 +139,6 @@ public record DiscordRequest(
                 }, "RateLimitQueue").start();
                 return null;
             }
-
-            System.out.println(responseCode);
-            System.out.println(con.getResponseMessage());
-            System.out.println(body);
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -24,6 +24,7 @@ public class ChannelSelectMenu implements SelectMenu {
     private int minValues;
     private int maxValues;
     private List<ChannelType> channelTypes;
+    private boolean disabled;
 
     /**
      * Creates a new channel select menu
@@ -43,12 +44,13 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues   The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes) {
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
         this.channelTypes = channelTypes;
+        this.disabled = disabled;
     }
 
     /**
@@ -60,8 +62,8 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues   The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, ChannelType... channelTypes) {
-        this(customId, placeholder, minValues, maxValues, List.of(channelTypes));
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, ChannelType... channelTypes) {
+        this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled);
     }
 
     @Override
@@ -116,7 +118,7 @@ public class ChannelSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new ChannelSelectMenu(
-                customId, placeholder, minValues, maxValues
+                customId, placeholder, minValues, maxValues, disabled
         );
     }
 
@@ -140,7 +142,7 @@ public class ChannelSelectMenu implements SelectMenu {
                 .put("placeholder", placeholder)
                 .put("min_values", minValues)
                 .put("max_values", maxValues)
-                .put("disabled", isDisabled())
+                .put("disabled", disabled)
                 .put("channel_types", channelTypes);
     }
 
@@ -150,6 +152,7 @@ public class ChannelSelectMenu implements SelectMenu {
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
         JSONArray channelTypes = json.has("channel_types") ? json.getJSONArray("channel_types") : null;
+        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
         List<ChannelType> channelTypesDecompiled = new ArrayList<>();
         if (channelTypes != null) {
@@ -161,7 +164,7 @@ public class ChannelSelectMenu implements SelectMenu {
             });
         }
 
-        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled);
+        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled);
     }
 }
 

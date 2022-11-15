@@ -30,17 +30,6 @@ public class UserSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Returns the selected option of the {@link UserSelectMenuInteractionEvent}.
-     *
-     * This SHOULD not ever return null.
-     * @return A list of {@link SelectOption} objects containing the selected options.
-     */
-    @NotNull
-    public List<SelectOption> getSelectedOptions() {
-        return List.of(getInteractionData().selectOptions());
-    }
-
-    /**
      * Returns the selected users of the {@link com.seailz.javadiscordwrapper.model.component.select.entitiy.UserSelectMenu UserSelectMenu}.
      *
      * @throws IllegalStateException if the event was not fied in a {@link com.seailz.javadiscordwrapper.model.guild.Guild Guild}.

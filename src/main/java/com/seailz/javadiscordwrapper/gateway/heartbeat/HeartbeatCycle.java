@@ -27,7 +27,6 @@ public class HeartbeatCycle {
     public HeartbeatCycle(int interval, GatewayFactory factory) throws InterruptedException {
         this.interval = interval;
         this.factory = factory;
-        System.out.println("Starting heartbeats at " + interval);
         start();
         // sessionCheck();
         shouldBeSendingHeartbeats = true;

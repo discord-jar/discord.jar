@@ -3,12 +3,17 @@ package com.seailz.javadiscordwrapper;
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
+import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.component.ActionRow;
+import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.entitiy.UserSelectMenu;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.application.Intent;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -19,7 +24,9 @@ import com.seailz.javadiscordwrapper.utils.discordapi.*;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -62,6 +69,10 @@ public class DiscordJv {
      * Used for caching users in memory
      */
     private Cache<User> userCache;
+    /**
+     * Used for caching channels in memory
+     */
+    private Cache<Channel> channelCache;
     /**
      * Manages dispatching events to listeners
      */
@@ -113,6 +124,16 @@ public class DiscordJv {
                 URLS.GET.USER.GET_USER,
                 RequestMethod.GET
         ));
+
+        this.channelCache = new Cache<>(this, Channel.class, new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", "%s"),
+                this,
+                URLS.GET.CHANNELS.GET_CHANNEL,
+                RequestMethod.GET
+        ));
+
         this.eventDispatcher = new EventDispatcher(this);
         new RequestQueueHandler(this);
 
@@ -134,9 +155,9 @@ public class DiscordJv {
                 new DiscordListener() {
                     @Override
                     @EventMethod
-                    public void onRoleSelectMenuInteraction(@NotNull RoleSelectMenuInteractionEvent event) {
-                        System.out.println(event.getSelectedRoles());
-                        event.respond("You selected " + event.getSelectedRoles().size() + " roles").setEphemeral(true).setTTS(true).run();
+                    public void onChannelSelectMenuInteraction(@NotNull ChannelSelectMenuInteractionEvent event) {
+                        System.out.println(event.getSelectedChannels());
+                        event.respond("You selected " + event.getSelectedChannels().get(0).name() + " roles").setEphemeral(true).setTTS(true).run();
                     }
                 }
         );
@@ -150,7 +171,11 @@ public class DiscordJv {
         discordJv.getChannelById("993461660792651829").sendMessage("hello, world.")
                 .addComponent(
                         ActionRow.of(
-                                new RoleSelectMenu("roleSelect")
+                                new ChannelSelectMenu("userselect")
+                                        .setMaxValues(5)
+                                        .setMinValues(1)
+                                        .setPlaceholder("Select channels")
+                                        .setChannelTypes(ChannelType.GUILD_TEXT)
                         )
                 ).run();
     }
@@ -230,13 +255,10 @@ public class DiscordJv {
         return getUserById(String.valueOf(id));
     }
 
+    @Nullable
+    @SneakyThrows
     public Channel getChannelById(String id) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(), new HashMap<>(),
-                URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", id),
-                this, URLS.GET.CHANNELS.GET_CHANNEL, RequestMethod.GET
-        ).invoke();
-        return Channel.decompile(response.body(), this);
+       return getChannelCache().getById(id);
     }
 
     /**
@@ -306,5 +328,11 @@ public class DiscordJv {
      */
     public List<DiscordRequest> getQueuedRequests() {
         return queuedRequests;
+    }
+    /**
+     * Get channel cache
+     */
+    public Cache<Channel> getChannelCache() {
+        return channelCache;
     }
 }

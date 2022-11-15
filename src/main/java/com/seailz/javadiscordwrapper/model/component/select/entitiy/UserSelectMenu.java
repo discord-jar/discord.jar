@@ -18,6 +18,7 @@ public class UserSelectMenu implements SelectMenu {
     private String placeholder;
     private int minValues;
     private int maxValues;
+    private boolean isDisabled;
 
     /**
      * Creates a new user select menu
@@ -36,11 +37,12 @@ public class UserSelectMenu implements SelectMenu {
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
      */
-    public UserSelectMenu(String customId, String placeholder, int minValues, int maxValues) {
+    public UserSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean isDisabled) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
+        this.isDisabled = isDisabled;
     }
 
     @Override
@@ -63,26 +65,30 @@ public class UserSelectMenu implements SelectMenu {
         return maxValues;
     }
 
-    public void setCustomId(String customId) {
+    public UserSelectMenu setCustomId(String customId) {
         this.customId = customId;
+        return this;
     }
 
-    public void setPlaceholder(String placeholder) {
+    public UserSelectMenu setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
+        return this;
     }
 
-    public void setMinValues(int minValues) {
+    public UserSelectMenu setMinValues(int minValues) {
         this.minValues = minValues;
+        return this;
     }
 
-    public void setMaxValues(int maxValues) {
+    public UserSelectMenu setMaxValues(int maxValues) {
         this.maxValues = maxValues;
+        return this;
     }
 
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new UserSelectMenu(
-                customId, placeholder, minValues, maxValues
+                customId, placeholder, minValues, maxValues, disabled
         );
     }
 
@@ -104,7 +110,7 @@ public class UserSelectMenu implements SelectMenu {
                 .put("placeholder", placeholder)
                 .put("min_values", minValues)
                 .put("max_values", maxValues)
-                .put("disabled", isDisabled());
+                .put("disabled", isDisabled);
     }
 
     public static UserSelectMenu decompile(JSONObject json) {
@@ -112,8 +118,9 @@ public class UserSelectMenu implements SelectMenu {
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        boolean isDisabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new UserSelectMenu(customId, placeholder, minValues, maxValues);
+        return new UserSelectMenu(customId, placeholder, minValues, maxValues, isDisabled);
     }
 }
 

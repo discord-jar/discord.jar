@@ -7,8 +7,10 @@ import com.seailz.javadiscordwrapper.events.model.gateway.GatewayResumedEvent;
 import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
 import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.command.CommandInteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
 import com.seailz.javadiscordwrapper.model.interaction.InteractionType;
@@ -82,6 +84,12 @@ public enum DispatchedEvents {
                     }
                     case ROLE_SELECT -> {
                         return RoleSelectMenuInteractionEvent.class;
+                    }
+                    case USER_SELECT -> {
+                        return UserSelectMenuInteractionEvent.class;
+                    }
+                    case CHANNEL_SELECT -> {
+                        return ChannelSelectMenuInteractionEvent.class;
                     }
 
                 }

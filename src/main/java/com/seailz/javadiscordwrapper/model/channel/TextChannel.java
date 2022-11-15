@@ -139,4 +139,8 @@ public class TextChannel extends Channel implements Compilerable {
     public void lastMessageId(String lastMessageId) {
         this.lastMessageId = lastMessageId;
     }
+
+    public String lastPinTimestamp() {
+        return lastPinTimestamp;
+    }
 }

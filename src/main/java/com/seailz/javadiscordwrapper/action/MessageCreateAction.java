@@ -4,6 +4,8 @@ import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.action.finished.FinishedAction;
 import com.seailz.javadiscordwrapper.model.component.DisplayComponent;
 import com.seailz.javadiscordwrapper.model.component.MessageComponent;
+import com.seailz.javadiscordwrapper.model.component.RawComponent;
+import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
 import com.seailz.javadiscordwrapper.model.message.Attachment;
 import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.model.message.MessageFlag;
@@ -219,6 +221,8 @@ public class MessageCreateAction {
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Length", payload.has("content") ? String.valueOf(payload.getString("content").length()) : "0");
+
+
 
         DiscordRequest request = new DiscordRequest(
                 payload,

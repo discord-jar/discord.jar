@@ -2,14 +2,10 @@ package com.seailz.javadiscordwrapper.events.model.interaction.button;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
-import com.seailz.javadiscordwrapper.model.component.RawComponent;
-import com.seailz.javadiscordwrapper.model.component.button.Button;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ButtonInteractionEvent extends InteractionEvent {
     public ButtonInteractionEvent(@NotNull DiscordJv bot, long sequence, @NotNull JSONObject data) {

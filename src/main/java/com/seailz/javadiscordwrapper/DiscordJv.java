@@ -138,6 +138,7 @@ public class DiscordJv {
         new RequestQueueHandler(this);
 
         initiateNoShutdown();
+        initiateShutdownHooks();
     }
 
     // This method is used for testing purposes only
@@ -194,6 +195,17 @@ public class DiscordJv {
                 }
             }
         }).start();
+    }
+
+    public void initiateShutdownHooks() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            gatewayFactory.close();
+        }));
     }
 
     /**

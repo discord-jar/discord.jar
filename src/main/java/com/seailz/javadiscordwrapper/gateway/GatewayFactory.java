@@ -11,6 +11,7 @@ import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
@@ -213,6 +214,18 @@ public class GatewayFactory extends TextWebSocketHandler {
         payload.put("d", data);
         synchronized (clientSession) {
             clientSession.sendMessage(new TextMessage(payload.toString()));
+        }
+    }
+
+    /**
+     * Closes the connection to the gateway
+     */
+    public void close() {
+        try {
+            clientSession.close(CloseStatus.GOING_AWAY);
+            logger.info("[DISCORD.JV] Disconnected from gateway. Ready for shutdown.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

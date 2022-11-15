@@ -174,9 +174,13 @@ public class MessageCreateAction {
 
         JSONObject payload = new JSONObject();
         payload.put("content", text == null ? JSONObject.NULL : text);
-        payload.put("nonce", nonce == null ? JSONObject.NULL : nonce);
+        if (nonce != null)
+            payload.put("nonce", nonce);
+
         payload.put("tts", tts);
-        payload.put("message_reference", messageReference == null ? JSONObject.NULL : messageReference.compile());
+
+        if (messageReference != null)
+            payload.put("message_reference", messageReference.compile());
 
         JSONArray components = new JSONArray();
         if (this.components != null) {
@@ -184,7 +188,9 @@ public class MessageCreateAction {
                 components.put(component.compile());
             }
         }
-        payload.put("components", this.components == null || components.toList().isEmpty() ? JSONObject.NULL : components);
+
+        if (this.components != null)
+            payload.put("components", components);
 
         JSONArray stickerIds = new JSONArray();
         if (this.stickerIds != null) {
@@ -192,7 +198,8 @@ public class MessageCreateAction {
                 stickerIds.put(stickerId);
             }
         }
-        payload.put("sticker_ids", this.stickerIds == null || this.stickerIds.isEmpty() ? JSONObject.NULL : stickerIds);
+        if (this.stickerIds != null)
+            payload.put("sticker_ids", stickerIds);
 
         JSONArray attachments = new JSONArray();
         if (this.attachments != null) {
@@ -201,10 +208,13 @@ public class MessageCreateAction {
             }
         }
 
-        payload.put("attachments", this.attachments == null || this.attachments.isEmpty() ? JSONObject.NULL : attachments);
-        payload.put("flags", supressEmbeds ? MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId() : 0);
+        if (this.attachments != null)
+            payload.put("attachments", attachments);
+
+        if (this.supressEmbeds)
+            payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
+
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("Content-Length", payload.has("content") ? String.valueOf(payload.getString("content").length()) : "0");
 
         DiscordRequest request = new DiscordRequest(
                 payload,

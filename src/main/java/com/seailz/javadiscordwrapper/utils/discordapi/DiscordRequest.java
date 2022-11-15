@@ -55,7 +55,6 @@ public record DiscordRequest(
             con.setRequestMethod(requestMethod.toString());
             con.setRequestProperty("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
             con.setRequestProperty("Authorization", "Bot " + djv.getToken());
-            con.setRequestProperty("Content-Length", String.valueOf(body.toString().length()));
             headers.forEach(con::setRequestProperty);
 
             int responseCode = con.getResponseCode();
@@ -129,14 +128,6 @@ public record DiscordRequest(
 
             System.out.println(responseCode);
             System.out.println(con.getResponseMessage());
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
         }

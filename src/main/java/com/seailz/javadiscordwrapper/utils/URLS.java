@@ -8,8 +8,7 @@ public final class URLS {
 
     public static class POST {
         public static class INTERACTIONS {
-            public static class COMMANDS {
-            }
+            public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
         }
 
         public static class MESSAGES {

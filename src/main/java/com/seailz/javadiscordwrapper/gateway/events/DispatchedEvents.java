@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.gateway.events;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.events.model.Event;
 import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.javadiscordwrapper.events.model.gateway.GatewayResumedEvent;
@@ -11,9 +12,17 @@ import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelec
 import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
 import com.seailz.javadiscordwrapper.model.interaction.InteractionType;
+import com.seailz.javadiscordwrapper.model.interaction.callback.InteractionCallbackType;
+import com.seailz.javadiscordwrapper.utils.URLS;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.HashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -30,20 +39,35 @@ import java.util.logging.Logger;
 public enum DispatchedEvents {
 
     /* Sent when bot is ready to receive events */
-    READY((p) -> ReadyEvent.class),
+    READY((p, d) -> ReadyEvent.class),
     /* Sent when a guild is created */
-    GUILD_CREATE((p) -> GuildCreateEvent.class),
+    GUILD_CREATE((p, d) -> GuildCreateEvent.class),
     /* Sent when a gateway connection is resumed */
-    RESUMED((p) -> GatewayResumedEvent.class),
+    RESUMED((p, d) -> GatewayResumedEvent.class),
     /* Sent when a message is created */
-    MESSAGE_CREATE((p) -> MessageCreateEvent.class),
+    MESSAGE_CREATE((p, d) -> MessageCreateEvent.class),
     /* Sent when a command permission is updated */
-    APPLICATION_COMMAND_PERMISSIONS_UPDATE((p) -> CommandPermissionUpdateEvent.class),
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, d) -> CommandPermissionUpdateEvent.class),
     /* Sent when an interaction is created */
-    INTERACTION_CREATE((p) -> {
+    INTERACTION_CREATE((p, d) -> {
         switch (InteractionType.getType(p.getJSONObject("d").getInt("type"))) {
             case PING -> {
+                Logger.getLogger("EventDispatcher")
+                        .log(Level.WARNING, "[DISCORD.JV] Ping request received. This is unusual, will ACK anyway.");
 
+                new DiscordRequest(
+                        new JSONObject()
+                                .put("type", InteractionCallbackType.PONG.getCode()),
+                        new HashMap<>(),
+                        URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}",
+                                p.getJSONObject("d").getString("id").replace(
+                                        "{interaction.token}", p.getJSONObject("d")
+                                                .getString("token")
+                                )),
+                        d,
+                        URLS.POST.INTERACTIONS.CALLBACK,
+                        RequestMethod.POST
+                ).invoke();
             }
             case APPLICATION_COMMAND -> {
                 return CommandInteractionEvent.class;
@@ -77,16 +101,16 @@ public enum DispatchedEvents {
         return null;
     }),
     /* Unknown */
-    UNKNOWN((p) -> null),
+    UNKNOWN((p, d) -> null),
     ;
 
-    private final Function<JSONObject, Class<? extends Event>> event;
+    private final BiFunction<JSONObject, DiscordJv, Class<? extends Event>> event;
 
-    DispatchedEvents(Function<JSONObject, Class<? extends Event>> event) {
+    DispatchedEvents(BiFunction<JSONObject, DiscordJv, Class<? extends Event>> event) {
         this.event = event;
     }
 
-    public Function<JSONObject, Class<? extends Event>> getEvent() {
+    public BiFunction<JSONObject, DiscordJv, Class<? extends Event>> getEvent() {
         return event;
     }
 

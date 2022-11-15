@@ -74,4 +74,6 @@ public class InteractionEvent extends Event {
     public InteractionData getInteractionData() {
         return getInteraction().data();
     }
+
+    public
 }

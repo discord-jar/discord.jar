@@ -62,6 +62,9 @@ public class MessageCreateAction {
         this.attachments = attachments;
         this.channelId = channelId;
         this.discordJv = discordJv;
+        this.components = new ArrayList<>();
+        this.attachments = new ArrayList<>();
+        this.stickerIds = new ArrayList<>();
     }
 
     public MessageCreateAction(@Nullable String text, @Nullable String nonce, boolean tts, @Nullable MessageReference messageReference, @Nullable List<DisplayComponent> components, @Nullable List<String> stickerIds, @Nullable List<Attachment> attachments, boolean supressEmbeds, @NotNull String channelId, @NotNull DiscordJv discordJv) {
@@ -150,6 +153,8 @@ public class MessageCreateAction {
     }
 
     public MessageCreateAction addComponent(DisplayComponent component) {
+        if (this.components == null)
+            this.components = new ArrayList<>();
         this.components.add(component);
         return this;
     }
@@ -165,6 +170,8 @@ public class MessageCreateAction {
     }
 
     public MessageCreateAction addComponents(DisplayComponent... components) {
+        if (this.components == null)
+            this.components = new ArrayList<>();
         this.components.addAll(List.of(components));
         return this;
     }
@@ -173,10 +180,10 @@ public class MessageCreateAction {
         String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
 
         JSONObject payload = new JSONObject();
-        payload.put("content", text == null ? JSONObject.NULL : text);
-        payload.put("nonce", nonce == null ? JSONObject.NULL : nonce);
-        payload.put("tts", tts);
-        payload.put("message_reference", messageReference == null ? JSONObject.NULL : messageReference.compile());
+        if (this.text != null) payload.put("content", this.text);
+        if (this.nonce != null) payload.put("nonce", this.nonce);
+        if (this.tts) payload.put("tts", true);
+        if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
 
         JSONArray components = new JSONArray();
         if (this.components != null) {
@@ -184,7 +191,9 @@ public class MessageCreateAction {
                 components.put(component.compile());
             }
         }
-        payload.put("components", this.components == null || components.toList().isEmpty() ? JSONObject.NULL : components);
+
+        if (this.components != null)
+            payload.put("components", components);
 
         JSONArray stickerIds = new JSONArray();
         if (this.stickerIds != null) {
@@ -192,7 +201,9 @@ public class MessageCreateAction {
                 stickerIds.put(stickerId);
             }
         }
-        payload.put("sticker_ids", this.stickerIds == null || this.stickerIds.isEmpty() ? JSONObject.NULL : stickerIds);
+
+        if (this.stickerIds != null)
+            payload.put("sticker_ids", stickerIds);
 
         JSONArray attachments = new JSONArray();
         if (this.attachments != null) {
@@ -201,8 +212,11 @@ public class MessageCreateAction {
             }
         }
 
-        payload.put("attachments", this.attachments == null || this.attachments.isEmpty() ? JSONObject.NULL : attachments);
-        payload.put("flags", supressEmbeds ? MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId() : 0);
+        if (this.attachments != null)
+            payload.put("attachments", attachments);
+
+        if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
+
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Length", payload.has("content") ? String.valueOf(payload.getString("content").length()) : "0");
 

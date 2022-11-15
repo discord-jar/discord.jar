@@ -6,9 +6,11 @@ import com.seailz.javadiscordwrapper.model.message.Message;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
@@ -30,7 +32,6 @@ public class MessageCreateEvent extends MessageEvent {
      */
     public MessageCreateEvent(DiscordJv bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
-        System.out.println(data.toString());
     }
 
     /**
@@ -47,6 +48,7 @@ public class MessageCreateEvent extends MessageEvent {
      * @return A {@link Guild} object
      */
     @NotNull
+    @SneakyThrows
     public Guild getGuild() {
         return getBot().getGuildCache().getById((getJson().getJSONObject("d").getString("guild_id")));
     }

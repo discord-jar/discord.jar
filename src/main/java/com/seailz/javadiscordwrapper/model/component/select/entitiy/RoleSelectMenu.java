@@ -18,6 +18,7 @@ public class RoleSelectMenu implements SelectMenu {
     private String placeholder;
     private int minValues;
     private int maxValues;
+    private boolean isDisabled;
 
     /**
      * Creates a new role select menu
@@ -35,8 +36,9 @@ public class RoleSelectMenu implements SelectMenu {
      * @param placeholder The placeholder of the select menu
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
+     * @param disabled    If the select menu is disabled
      */
-    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues) {
+    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
@@ -86,7 +88,7 @@ public class RoleSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new RoleSelectMenu(
-                customId, placeholder, minValues, maxValues
+                customId, placeholder, minValues, maxValues, disabled
         );
     }
 
@@ -102,13 +104,21 @@ public class RoleSelectMenu implements SelectMenu {
 
     @Override
     public JSONObject compile() {
-        return new JSONObject()
-                .put("type", type().getCode())
-                .put("custom_id", customId)
-                .put("placeholder", placeholder)
-                .put("min_values", minValues)
-                .put("max_values", maxValues)
-                .put("disabled", isDisabled());
+        JSONObject obj = new JSONObject();
+        obj.put("type", type().getCode());
+        obj.put("custom_id", customId);
+        if (placeholder != null)
+            obj.put("placeholder", placeholder);
+
+        if (minValues != 0)
+            obj.put("min_values", minValues);
+
+        if (maxValues != 0)
+            obj.put("max_values", maxValues);
+
+        if (isDisabled)
+            obj.put("disabled", true);
+        return obj;
     }
 
     public static RoleSelectMenu decompile(JSONObject json) {
@@ -116,8 +126,11 @@ public class RoleSelectMenu implements SelectMenu {
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new RoleSelectMenu(customId, placeholder, minValues, maxValues);
+        return new RoleSelectMenu(customId, placeholder, minValues, maxValues, disabled);
     }
+
+
 }
 

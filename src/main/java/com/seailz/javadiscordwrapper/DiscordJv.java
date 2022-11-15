@@ -3,11 +3,12 @@ package com.seailz.javadiscordwrapper;
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
-import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdateEvent;
-import com.seailz.javadiscordwrapper.events.model.message.MessageCreateEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
+import com.seailz.javadiscordwrapper.model.component.ActionRow;
+import com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.application.Intent;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -94,8 +95,24 @@ public class DiscordJv {
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
         this.gatewayFactory = new GatewayFactory(this);
-        this.guildCache = new Cache<>();
-        this.userCache = new Cache<>();
+        this.guildCache = new Cache<>(this, Guild.class,
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.GET_GUILD.replace("{guild.id}", "%s"),
+                        this,
+                        URLS.GET.GUILDS.GET_GUILD,
+                        RequestMethod.GET
+                ));
+
+        this.userCache = new Cache<>(this, User.class, new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.USER.GET_USER.replace("{user.id}", "%s"),
+                this,
+                URLS.GET.USER.GET_USER,
+                RequestMethod.GET
+        ));
         this.eventDispatcher = new EventDispatcher(this);
         new RequestQueueHandler(this);
 
@@ -117,9 +134,8 @@ public class DiscordJv {
                 new DiscordListener() {
                     @Override
                     @EventMethod
-                    public void onMessageReceived(@NotNull MessageCreateEvent event) {
-                        System.out.println("Message received: " + event.getGuild().name());
-
+                    public void onRoleSelectMenuInteraction(@NotNull RoleSelectMenuInteractionEvent event) {
+                        System.out.println(event.getSelectedRoles());
                     }
                 }
         );
@@ -130,7 +146,12 @@ public class DiscordJv {
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv. setStatus(status);
-        discordJv.getChannelById("993461660792651829").sendMessage("hello, world.").run();
+        discordJv.getChannelById("993461660792651829").sendMessage("hello, world.")
+                .addComponent(
+                        ActionRow.of(
+                                new RoleSelectMenu("roleSelect")
+                        )
+                ).run();
     }
 
     /**
@@ -177,6 +198,20 @@ public class DiscordJv {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.USER.GET_USER.replace("{user.id}", id),
+                this, URLS.GET.USER.GET_USER, RequestMethod.GET
+        ).invoke();
+        return User.decompile(response.body());
+    }
+
+
+    /**
+     * Returns info about the bot user
+     * @return a {@link User} object
+     */
+    public User getSelfUser() {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.USER.GET_USER.replace("{user.id}", "@me"),
                 this, URLS.GET.USER.GET_USER, RequestMethod.GET
         ).invoke();
         return User.decompile(response.body());

@@ -58,7 +58,7 @@ public class ActionRow implements DisplayComponent {
     }
 
     @NotNull
-    public static ActionRow decomplie(JSONObject obj) {
+    public static ActionRow decompile(JSONObject obj) {
         ActionRow row = new ActionRow();
         List<RawComponent> comp = new ArrayList<>();
 

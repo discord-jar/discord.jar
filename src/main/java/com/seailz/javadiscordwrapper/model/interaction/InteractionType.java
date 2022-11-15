@@ -15,6 +15,7 @@ public enum InteractionType {
     APPLICATION_COMMAND_AUTOCOMPLETE(4),
     MODAL_SUBMIT(5),
 
+    UNKNOWN(-1),
     ;
 
     private int code;
@@ -33,6 +34,6 @@ public enum InteractionType {
                 return type;
             }
         }
-        return null;
+        return UNKNOWN;
     }
 }

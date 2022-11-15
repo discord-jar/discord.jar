@@ -1,10 +1,8 @@
-package com.seailz.javadiscordwrapper.model.component.select.entitiy;
+package com.seailz.javadiscordwrapper.model.component.select.entity;
 
 import com.seailz.javadiscordwrapper.model.component.ActionComponent;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
 import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
-import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**

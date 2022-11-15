@@ -1,11 +1,10 @@
 package com.seailz.javadiscordwrapper.model.component;
 
-import com.seailz.javadiscordwrapper.model.component.button.Button;
 import com.seailz.javadiscordwrapper.model.component.button.ButtonImpl;
-import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
-import com.seailz.javadiscordwrapper.model.component.select.entitiy.MentionableSelectMenu;
-import com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu;
-import com.seailz.javadiscordwrapper.model.component.select.entitiy.UserSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.entity.ChannelSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.entity.MentionableSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.entity.RoleSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.select.entity.UserSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
 
 /**

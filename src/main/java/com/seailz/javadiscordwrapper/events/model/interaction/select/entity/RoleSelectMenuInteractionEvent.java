@@ -2,9 +2,6 @@ package com.seailz.javadiscordwrapper.events.model.interaction.select.entity;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
-import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
-import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
-import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.javadiscordwrapper.model.role.Role;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -31,7 +28,7 @@ public class RoleSelectMenuInteractionEvent extends InteractionEvent {
     }
 
     /**
-     * Returns the selected roles of the {@link com.seailz.javadiscordwrapper.model.component.select.entitiy.RoleSelectMenu RoleSelectMenu}.
+     * Returns the selected roles of the {@link com.seailz.javadiscordwrapper.model.component.select.entity.RoleSelectMenu RoleSelectMenu}.
      *
      * @throws IllegalStateException if the event was not fied in a {@link com.seailz.javadiscordwrapper.model.guild.Guild Guild}.
      *

@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model.component.select.entitiy;
+package com.seailz.javadiscordwrapper.model.component.select.entity;
 
 import com.seailz.javadiscordwrapper.model.component.ActionComponent;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
@@ -6,43 +6,43 @@ import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
 import org.json.JSONObject;
 
 /**
- * Represents a {@link com.seailz.javadiscordwrapper.utils.Mentionable} select menu ({@link com.seailz.javadiscordwrapper.model.role.Role} & {@link com.seailz.javadiscordwrapper.model.user.User})
+ * Represents a role select menu
  *
  * @author Seailz
  * @since  1.0
  * @see    com.seailz.javadiscordwrapper.model.component.select.SelectMenu
  */
-public class MentionableSelectMenu implements SelectMenu {
+public class RoleSelectMenu implements SelectMenu {
 
     private String customId;
     private String placeholder;
     private int minValues;
     private int maxValues;
-    private boolean disabled;
+    private boolean isDisabled;
 
     /**
-     * Creates a new mentionable select menu
+     * Creates a new role select menu
      *
      * @param customId The custom id of the select menu
      */
-    public MentionableSelectMenu(String customId) {
+    public RoleSelectMenu(String customId) {
         this.customId = customId;
     }
 
     /**
-     * Creates a new mentionable select menu
+     * Creates a new role select menu
      *
      * @param customId    The custom id of the select menu
      * @param placeholder The placeholder of the select menu
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
+     * @param disabled    If the select menu is disabled
      */
-    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled) {
+    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
-        this.disabled = disabled;
     }
 
     @Override
@@ -65,32 +65,36 @@ public class MentionableSelectMenu implements SelectMenu {
         return maxValues;
     }
 
-    public void setCustomId(String customId) {
+    public RoleSelectMenu setCustomId(String customId) {
         this.customId = customId;
+        return this;
     }
 
-    public void setPlaceholder(String placeholder) {
+    public RoleSelectMenu setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
+        return this;
     }
 
-    public void setMinValues(int minValues) {
+    public RoleSelectMenu setMinValues(int minValues) {
         this.minValues = minValues;
+        return this;
     }
 
-    public void setMaxValues(int maxValues) {
+    public RoleSelectMenu setMaxValues(int maxValues) {
         this.maxValues = maxValues;
+        return this;
     }
 
     @Override
     public ActionComponent setDisabled(boolean disabled) {
-        return new MentionableSelectMenu(
+        return new RoleSelectMenu(
                 customId, placeholder, minValues, maxValues, disabled
         );
     }
 
     @Override
     public ComponentType type() {
-        return ComponentType.MENTIONABLE_SELECT;
+        return ComponentType.ROLE_SELECT;
     }
 
     @Override
@@ -109,17 +113,20 @@ public class MentionableSelectMenu implements SelectMenu {
         if (placeholder != null) obj.put("placeholder", placeholder);
         if (minValues != 0) obj.put("min_values", minValues);
         if (maxValues != 0) obj.put("max_values", maxValues);
-        if (disabled) obj.put("disabled", true);
+        if (isDisabled) obj.put("disabled", true);
         return obj;
     }
 
-    public static MentionableSelectMenu decompile(JSONObject json) {
+    public static RoleSelectMenu decompile(JSONObject json) {
         String customId = json.has("custom_id") ? json.getString("custom_id") : null;
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
         boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues, disabled);
+        return new RoleSelectMenu(customId, placeholder, minValues, maxValues, disabled);
     }
+
+
 }
+

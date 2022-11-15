@@ -3,14 +3,9 @@ package com.seailz.javadiscordwrapper.events.model.interaction.select.entity;
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
-import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
-import com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu;
-import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
-import com.seailz.javadiscordwrapper.model.role.Role;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -35,7 +30,7 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
 
 
     /**
-     * Returns the selected channels of the {@link com.seailz.javadiscordwrapper.model.component.select.entitiy.ChannelSelectMenu ChannelSelectMenu}.
+     * Returns the selected channels of the {@link com.seailz.javadiscordwrapper.model.component.select.entity.ChannelSelectMenu ChannelSelectMenu}.
      *
      * @throws IllegalStateException if the event was not fied in a {@link com.seailz.javadiscordwrapper.model.guild.Guild Guild}.
      *

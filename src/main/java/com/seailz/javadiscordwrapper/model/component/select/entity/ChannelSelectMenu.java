@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.model.component.select.entitiy;
+package com.seailz.javadiscordwrapper.model.component.select.entity;
 
 import com.seailz.javadiscordwrapper.model.channel.utils.ChannelType;
 import com.seailz.javadiscordwrapper.model.component.ActionComponent;

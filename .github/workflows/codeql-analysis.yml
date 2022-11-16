@@ -19,6 +19,7 @@ on:
     branches: [ '*' ]
   schedule:
     - cron: '33 10 * * 4'
+    
 
 jobs:
   analyze:
@@ -68,3 +69,7 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
+      - name: Setup Java JDK  
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17

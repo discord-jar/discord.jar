@@ -8,6 +8,7 @@ import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
 import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.command.CommandInteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
@@ -99,7 +100,7 @@ public enum DispatchedEvents {
 
             }
             case MODAL_SUBMIT -> {
-
+                return ModalInteractionEvent.class;
             }
             case UNKNOWN -> {
                 Logger.getLogger("DispatchedEvents").warning(

@@ -53,7 +53,6 @@ public class InteractionCallbackAction {
                         URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", this.id)
                                 .replace("{interaction.token}", this.token), discordJv, URLS.POST.INTERACTIONS.CALLBACK,
                         RequestMethod.POST);
-        System.out.println(json );
         request.invoke();
     }
 

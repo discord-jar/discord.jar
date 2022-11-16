@@ -1,7 +1,10 @@
 package com.seailz.javadiscordwrapper.events.model.interaction.select.entity;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
+import com.seailz.javadiscordwrapper.model.component.select.entity.UserSelectMenu;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +13,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fires when a {@link UserSelectMenu} is used.
+ * This includes all the data that is sent with the event. <p>
+ *
+ * To implement this event, you must override the {@link DiscordListener#onUserSelectMenuInteraction(UserSelectMenuInteractionEvent)} method in your {@link DiscordListener } class and then register it in your main class with {@link DiscordJv#registerListeners(DiscordListener...)}
+ *
+ * @author Seailz
+ * @since  1.0
+ * @see    <a href="https://discord.com/developers/docs/interactions/message-components#select-menus">Select Menu Documentation</a>
+ * @see    com.seailz.javadiscordwrapper.model.component.select.SelectMenu
+ * @see    com.seailz.javadiscordwrapper.model.component.select.entity.UserSelectMenu
+ */
 public class UserSelectMenuInteractionEvent extends InteractionEvent {
 
     public UserSelectMenuInteractionEvent(DiscordJv bot, long sequence, JSONObject data) {

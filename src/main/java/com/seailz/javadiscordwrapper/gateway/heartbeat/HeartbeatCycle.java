@@ -37,6 +37,8 @@ public class HeartbeatCycle {
         payload.put("op", 1);
         payload.put("d", factory.getLastSequence());
 
+        if (!factory.getClientSession().isOpen())
+            factory.reconnect();
         factory.getClientSession().sendMessage(new TextMessage(payload.toString()));
     }
 

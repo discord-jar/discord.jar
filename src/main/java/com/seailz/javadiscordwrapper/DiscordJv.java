@@ -4,6 +4,7 @@ import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
 import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
@@ -162,6 +163,14 @@ public class DiscordJv {
                                         "test"
                                 )
                         ))).run();
+                        //event.reply("hi").run();
+                    }
+                },
+                new DiscordListener() {
+                    @Override
+                    @EventMethod
+                    public void onModalInteractionEvent(@NotNull ModalInteractionEvent event) {
+                        event.reply("You did it!").run();
                     }
                 }
         );

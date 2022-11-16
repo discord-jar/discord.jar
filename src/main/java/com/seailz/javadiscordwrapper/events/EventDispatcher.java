@@ -56,12 +56,14 @@ public class EventDispatcher {
 
             int index = 0;
             for (Method i : listeners.values()) {
-                if (i.getParameterTypes()[0].equals(type)) {
-                    try {
-                        i.setAccessible(true);
-                        i.invoke(listeners.keySet().toArray()[index], event);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                if (i.isAnnotationPresent(EventMethod.class)) {
+                    if (i.getParameterTypes()[0].equals(type)) {
+                        try {
+                            i.setAccessible(true);
+                            i.invoke(listeners.keySet().toArray()[index], event);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 index++;

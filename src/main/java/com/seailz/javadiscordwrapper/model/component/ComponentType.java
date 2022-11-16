@@ -1,6 +1,6 @@
 package com.seailz.javadiscordwrapper.model.component;
 
-import com.seailz.javadiscordwrapper.model.component.button.ButtonImpl;
+import com.seailz.javadiscordwrapper.model.component.button.internal.ButtonImpl;
 import com.seailz.javadiscordwrapper.model.component.select.entity.ChannelSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entity.MentionableSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entity.RoleSelectMenu;

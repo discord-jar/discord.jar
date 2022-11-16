@@ -13,7 +13,7 @@ import org.json.JSONObject;
  * @author Seailz
  * @since  1.0
  */
-public class MessageEvent extends Event {
+class MessageEvent extends Event {
     public MessageEvent(DiscordJv bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
     }

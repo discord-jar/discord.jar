@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.model.component.button;
 
 import com.seailz.javadiscordwrapper.model.component.MessageComponent;
+import com.seailz.javadiscordwrapper.model.component.button.internal.ButtonImpl;
 import com.seailz.javadiscordwrapper.model.emoji.Emoji;
 
 public interface Button extends MessageComponent {

@@ -1,6 +1,8 @@
-package com.seailz.javadiscordwrapper.model.component.button;
+package com.seailz.javadiscordwrapper.model.component.button.internal;
 
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
+import com.seailz.javadiscordwrapper.model.component.button.Button;
+import com.seailz.javadiscordwrapper.model.component.button.ButtonStyle;
 import com.seailz.javadiscordwrapper.model.emoji.Emoji;
 import org.json.JSONObject;
 

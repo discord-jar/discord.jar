@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.action;
+package com.seailz.javadiscordwrapper.action.interaction;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.interaction.callback.InteractionCallbackType;
@@ -53,6 +53,7 @@ public class InteractionCallbackAction {
                         URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", this.id)
                                 .replace("{interaction.token}", this.token), discordJv, URLS.POST.INTERACTIONS.CALLBACK,
                         RequestMethod.POST);
+        System.out.println(json );
         request.invoke();
     }
 

@@ -9,8 +9,11 @@ import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.component.ActionRow;
 import com.seailz.javadiscordwrapper.model.component.button.Button;
+import com.seailz.javadiscordwrapper.model.component.text.TextInput;
+import com.seailz.javadiscordwrapper.model.component.text.TextInputStyle;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.application.Intent;
+import com.seailz.javadiscordwrapper.model.interaction.modal.Modal;
 import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.status.Status;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
@@ -152,8 +155,13 @@ public class DiscordJv {
                     @Override
                     @EventMethod
                     public void onButtonClickInteractionEvent(@NotNull ButtonInteractionEvent event) {
-                        event.respond("You clicked the button, " + event.getUser().username() + "!")
-                                .setEphemeral(true).run();
+                        event.replyModal(new Modal("test", "test", ActionRow.of(
+                                new TextInput(
+                                        "test",
+                                        TextInputStyle.SHORT,
+                                        "test"
+                                )
+                        ))).run();
                     }
                 }
         );

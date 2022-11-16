@@ -16,23 +16,4 @@ public interface ActionComponent extends RawComponent {
      */
     String customId();
 
-    /**
-     * @return If the component is disabled
-     */
-    default boolean isDisabled() {
-        try {
-            return compile().getBoolean("disabled");
-        } catch (JSONException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Returns a disabled/non-disabled version of this component
-     * @param disabled If the component should be disabled
-     * @return An {@link ActionComponent}
-     */
-    ActionComponent setDisabled(boolean disabled);
-
-
 }

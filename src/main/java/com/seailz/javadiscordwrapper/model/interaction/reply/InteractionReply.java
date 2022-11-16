@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.interaction.reply;
 
+import com.seailz.javadiscordwrapper.action.interaction.InteractionCallbackAction;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 
 /**
@@ -15,7 +16,7 @@ import com.seailz.javadiscordwrapper.core.Compilerable;
  * @author Seailz
  * @see    com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent
  * @see    com.seailz.javadiscordwrapper.model.interaction.Interaction
- * @see    com.seailz.javadiscordwrapper.action.InteractionCallbackAction
+ * @see    InteractionCallbackAction
  * @since  1.0
  */
 public interface InteractionReply extends Compilerable {}

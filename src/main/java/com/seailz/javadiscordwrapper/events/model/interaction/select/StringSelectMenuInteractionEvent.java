@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.events.model.interaction.select;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
 import com.seailz.javadiscordwrapper.model.component.select.SelectOption;
 import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
@@ -11,6 +12,18 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+/**
+ * Fires when a {@link StringSelectMenu} is used.
+ * This includes all the data that is sent with the event. <p>
+ *
+ * To implement this event, you must override the {@link DiscordListener#onStringSelectMenuInteraction(StringSelectMenuInteractionEvent)} method in your {@link DiscordListener } class and then register it in your main class with {@link DiscordJv#registerListeners(DiscordListener...)}
+ *
+ * @author Seailz
+ * @since  1.0
+ * @see    <a href="https://discord.com/developers/docs/interactions/message-components#select-menus">Select Menu Documentation</a>
+ * @see    com.seailz.javadiscordwrapper.model.component.select.SelectMenu
+ * @see    com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu
+ */
 public class StringSelectMenuInteractionEvent extends InteractionEvent {
 
     public StringSelectMenuInteractionEvent(DiscordJv bot, long sequence, JSONObject data) {

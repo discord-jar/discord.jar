@@ -2,6 +2,7 @@ package com.seailz.javadiscordwrapper.model.component;
 
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
+import com.seailz.javadiscordwrapper.model.interaction.modal.Modal;
 import org.json.JSONArray;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +34,7 @@ public interface Component extends Compilerable {
     boolean isMessageCompatible();
 
     /**
-     * Whether the component is compatible with a Modal TODO: Add link to Modal
+     * Whether the component is compatible with a @{@link Modal}
      *
      * @return A boolean representing whether the component is compatible with a Modal
      */
@@ -74,6 +75,13 @@ public interface Component extends Compilerable {
     }
 
     static JSONArray compileList(List<Component> components) {
+        JSONArray arr = new JSONArray();
+        for (Component component : components)
+            arr.put(component.compile());
+        return arr;
+    }
+
+    static JSONArray compileModalList(List<ModalComponent> components) {
         JSONArray arr = new JSONArray();
         for (Component component : components)
             arr.put(component.compile());

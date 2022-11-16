@@ -6,6 +6,8 @@ import com.seailz.javadiscordwrapper.model.component.select.entity.MentionableSe
 import com.seailz.javadiscordwrapper.model.component.select.entity.RoleSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.entity.UserSelectMenu;
 import com.seailz.javadiscordwrapper.model.component.select.string.StringSelectMenu;
+import com.seailz.javadiscordwrapper.model.component.text.TextInput;
+import com.seailz.javadiscordwrapper.model.interaction.modal.Modal;
 
 /**
  * Represents the type of a component
@@ -23,7 +25,7 @@ public enum ComponentType {
     /* A select menu */
     STRING_SELECT(3, 1, true, true, false, StringSelectMenu.class),
     /* A text input */
-    TEXT_INPUT(4, 1, false, false, true, null),
+    TEXT_INPUT(4, 1, false, false, true, TextInput.class),
     /* A user select menu */
     USER_SELECT(5, 1, true, true, false, UserSelectMenu.class),
     /* A role select menu */
@@ -90,7 +92,7 @@ public enum ComponentType {
     }
 
     /**
-     * Whether a component can be used in a Modal TODO: Add link to Modal
+     * Whether a component can be used in a @{@link Modal}
      *
      * @return If a component can be used in Modals
      */

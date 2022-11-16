@@ -1,8 +1,12 @@
 package com.seailz.javadiscordwrapper.events.model.interaction.button;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
+import com.seailz.javadiscordwrapper.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.javadiscordwrapper.events.model.interaction.InteractionEvent;
+import com.seailz.javadiscordwrapper.model.interaction.callback.InteractionCallbackType;
 import com.seailz.javadiscordwrapper.model.interaction.data.message.MessageComponentInteractionData;
+import com.seailz.javadiscordwrapper.model.interaction.modal.Modal;
+import com.seailz.javadiscordwrapper.model.interaction.reply.InteractionModalResponse;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -43,5 +47,21 @@ public class ButtonInteractionEvent extends InteractionEvent {
         if (getInteraction().user() == null)
             return getInteraction().member().user();
         return getInteraction().user();
+    }
+
+    /**
+     * Replies to the interaction with a {@link Modal}.
+     *
+     * @param modal The modal to send.
+     * @return {@link ModalInteractionCallbackAction} object containing the action to send the modal.
+     */
+    public ModalInteractionCallbackAction replyModal(Modal modal) {
+        return new ModalInteractionCallbackAction(
+                InteractionCallbackType.MODAL,
+                new InteractionModalResponse(modal.title(), modal.customId(), modal.components()),
+                getInteraction().token(),
+                getInteraction().id(),
+                getBot()
+        );
     }
 }

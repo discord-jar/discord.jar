@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.action;
+package com.seailz.javadiscordwrapper.action.interaction;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.interaction.callback.InteractionCallbackType;

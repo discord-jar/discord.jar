@@ -4,6 +4,7 @@ import com.seailz.javadiscordwrapper.events.model.command.CommandPermissionUpdat
 import com.seailz.javadiscordwrapper.events.model.general.ReadyEvent;
 import com.seailz.javadiscordwrapper.events.model.guild.GuildCreateEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
+import com.seailz.javadiscordwrapper.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.javadiscordwrapper.events.model.interaction.select.StringSelectMenuInteractionEvent;
@@ -44,4 +45,7 @@ public abstract class DiscordListener {
 
        // Button Events
         public void onButtonClickInteractionEvent(@NotNull ButtonInteractionEvent event) {}
+        // Modal Events
+        public void onModalInteractionEvent(@NotNull ModalInteractionEvent event) {}
+
 }

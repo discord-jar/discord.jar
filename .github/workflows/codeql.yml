@@ -72,3 +72,7 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11

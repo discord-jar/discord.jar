@@ -1,6 +1,7 @@
 package com.seailz.javadiscordwrapper.model.component;
 
 import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
+import com.seailz.javadiscordwrapper.model.interaction.modal.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public interface DisplayComponent extends Component {
     }
 
     /**
-     * Whether all components in the {@link DisplayComponent} are compatible with a Modal TODO: Add link to Modal
+     * Whether all components in the {@link DisplayComponent} are compatible with a @{@link Modal}
      */
     default boolean isModalCompatible() {
         if (!type().isModalCompatible())

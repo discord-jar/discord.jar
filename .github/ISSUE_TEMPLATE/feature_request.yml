@@ -1,0 +1,30 @@
+
+name: Feature Request
+description: Suggest a feature to be added!
+title: "[Feature Request] "
+labels: [ "type: feature", "state: pending" ]
+assignees: Seailz
+body:
+  - type: markdown
+    attributes:
+      value: |-        
+        Keep in mind that this isn't the place to learn Java.  
+        Please head over to [StackOverflow](https://stackoverflow.com/questions/tagged/java) for your general programming questions.
+  - type: checkboxes
+    attributes:
+      label: General Troubleshooting
+      description: "Make sure you've done these things first:"
+      options:
+        - label: You've have checked for similar feature requests.
+          required: true
+        - label: You've updated to the latest version of the API.
+          required: true
+        - label: You've have checked the PR's for features relating to your suggestion.
+          required: true
+  - type: textarea
+    attributes:
+      label: "Feature Request Description"
+      description: "Provide a small description of the feature you want added"
+      placeholder: "add flying cats pls"
+    validations:
+      required: true

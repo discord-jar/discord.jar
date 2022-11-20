@@ -10,4 +10,4 @@ Due to the framework not being finished, no version is supported at the moment. 
 
 ## Reporting a Vulnerability
 
-To report a vulnerability, please either DM Seailz#0001 or me@ioyo.dev
+To report a vulnerability, please either DM `Seailz#0001` on Discord.

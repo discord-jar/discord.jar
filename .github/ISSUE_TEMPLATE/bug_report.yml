@@ -1,7 +1,7 @@
 name: Bug Report
 description: Report a Bug!
 title: "[Bug Report] "
-labels: [ "type: bug", "state: pending" ]
+labels: [ "type: bug", "status: pending" ]
 assignees: Seailz
 body:
   - type: markdown

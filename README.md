@@ -1,4 +1,4 @@
-![jv (2)](https://user-images.githubusercontent.com/81972974/202929256-3678a1a5-df3a-4bbf-aab3-a35d0c85147e.png)
+![jv__2_-removebg-preview (1)](https://user-images.githubusercontent.com/81972974/202929327-edc62335-af42-4c7c-93b6-d974de2d3a17.png)
 
 # discord.jv - a clean Java wrapper for Discord
 discord.jv is a work in progress Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).

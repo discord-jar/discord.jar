@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.guild;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
 import com.seailz.javadiscordwrapper.model.role.Role;
@@ -56,7 +57,7 @@ public record Member(
     }
 
     @NonNull
-    public static Member decompile(JSONObject obj) {
+    public static Member decompile(JSONObject obj, DiscordJv discordJv) {
         User user;
         String nick;
         String avatar;
@@ -70,7 +71,7 @@ public record Member(
         String communicationDisabledUntil;
 
         try {
-            user = User.decompile(obj.getJSONObject("user"));
+            user = User.decompile(obj.getJSONObject("user"), discordJv);
         } catch (Exception e) {
             user = null;
         }

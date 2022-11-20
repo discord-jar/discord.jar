@@ -94,6 +94,6 @@ public class CommandInteractionEvent extends InteractionEvent {
                         URLS.GET.USER.GET_USER,
                         RequestMethod.GET
                 ).invoke();
-        return User.decompile(response.body());
+        return User.decompile(response.body(), getBot());
     }
 }

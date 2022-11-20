@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.team;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.team.member.TeamMember;
 import org.json.JSONArray;
@@ -28,7 +29,7 @@ public record Team(
                 .put("owner_user_id", ownerUserId);
     }
 
-    public static Team decompile(JSONObject obj) {
+    public static Team decompile(JSONObject obj, DiscordJv discordJv) {
         String icon;
         String id;
         String name;
@@ -54,7 +55,7 @@ public record Team(
         }
 
         try {
-            members = obj.getJSONArray("members").toList().stream().map(o -> TeamMember.decompile(new JSONObject(o.toString()))).toList();
+            members = obj.getJSONArray("members").toList().stream().map(o -> TeamMember.decompile(new JSONObject(o.toString()), discordJv)).toList();
         } catch (Exception e) {
             members = null;
         }

@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.status;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
 import org.json.JSONArray;
@@ -37,7 +38,7 @@ public record Status(
                 .put("afk", afk);
     }
 
-    public static Status decompile(JSONObject obj) {
+    public static Status decompile(JSONObject obj, DiscordJv discordjv) {
         int since;
         Activity[] activities;
         StatusType status;
@@ -52,7 +53,7 @@ public record Status(
         try {
             activities = new Activity[obj.getJSONArray("activities").length()];
             for (int i = 0; i < activities.length; i++) {
-                activities[i] = Activity.decompile(obj.getJSONArray("activities").getJSONObject(i));
+                activities[i] = Activity.decompile(obj.getJSONArray("activities").getJSONObject(i), discordjv);
             }
         } catch (Exception e) {
             activities = new Activity[0];

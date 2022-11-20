@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.component.button.internal;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
 import com.seailz.javadiscordwrapper.model.component.button.Button;
 import com.seailz.javadiscordwrapper.model.component.button.ButtonStyle;
@@ -104,14 +105,14 @@ public class ButtonImpl implements Button {
         return url;
     }
 
-    public static Button decompile(JSONObject obj) {
+    public static Button decompile(JSONObject obj, DiscordJv discordJv) {
         ButtonImpl button = new ButtonImpl();
         button.setLabel(obj.getString("label"));
         button.setStyle(ButtonStyle.fromCode(obj.getInt("style")));
         button.setCustomId(obj.getString("custom_id"));
         if (obj.has("url")) button.setUrl(obj.getString("url"));
         if (obj.has("disabled")) button.setDisabled(obj.getBoolean("disabled"));
-        if (obj.has("emoji")) button.setEmoji(Emoji.decompile(obj.getJSONObject("emoji")));
+        if (obj.has("emoji")) button.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJv));
         return button;
     }
 }

@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.guild;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.emoji.Emoji;
 import com.seailz.javadiscordwrapper.model.emoji.sticker.Sticker;
@@ -64,7 +65,7 @@ public record UnavailableGuild(
     }
 
     @NotNull
-    public static UnavailableGuild decompile(JSONObject obj) {
+    public static UnavailableGuild decompile(JSONObject obj, DiscordJv discordjv) {
         String id;
         String name;
         String icon;
@@ -112,7 +113,7 @@ public record UnavailableGuild(
             JSONArray emojiArray = obj.getJSONArray("emojis");
 
             for (int i = 0; i < emojiArray.length(); i++) {
-                emojiList.add(Emoji.decompile(emojiArray.getJSONObject(i)));
+                emojiList.add(Emoji.decompile(emojiArray.getJSONObject(i), discordjv));
             }
             emojis = emojiList;
         } catch (JSONException e) {
@@ -154,7 +155,7 @@ public record UnavailableGuild(
             JSONArray stickerArray = obj.getJSONArray("stickers");
 
             for (int i = 0; i < stickerArray.length(); i++) {
-                stickerList.add(Sticker.decompile(stickerArray.getJSONObject(i)));
+                stickerList.add(Sticker.decompile(stickerArray.getJSONObject(i), discordjv));
             }
             stickers = stickerList;
         } catch (JSONException e) {

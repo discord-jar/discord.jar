@@ -333,7 +333,7 @@ public class DiscordJv {
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
         ).invoke();
-        return Application.decompile(response.body());
+        return Application.decompile(response.body(), this);
     }
 
     /**

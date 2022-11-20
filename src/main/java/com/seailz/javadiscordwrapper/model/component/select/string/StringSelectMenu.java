@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.component.select.string;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.model.component.ActionComponent;
 import com.seailz.javadiscordwrapper.model.component.ComponentType;
 import com.seailz.javadiscordwrapper.model.component.select.SelectMenu;
@@ -167,7 +168,7 @@ public class StringSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static StringSelectMenu decompile(JSONObject json) {
+    public static StringSelectMenu decompile(JSONObject json, DiscordJv discordJv) {
         String customId = json.has("custom_id") ? json.getString("custom_id") : null;
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
@@ -177,7 +178,7 @@ public class StringSelectMenu implements SelectMenu {
         if (json.has("options")) {
             JSONArray optionsJson = json.getJSONArray("options");
             for (int i = 0; i < optionsJson.length(); i++)
-                options.add(SelectOption.decompile(optionsJson.getJSONObject(i)));
+                options.add(SelectOption.decompile(optionsJson.getJSONObject(i), discordJv));
         }
 
         return new StringSelectMenu(customId, placeholder, minValues, maxValues, options, json.has("disabled") && json.getBoolean("disabled"));

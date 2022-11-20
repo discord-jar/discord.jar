@@ -300,7 +300,7 @@ public record Guild(
             JSONArray emojisArray = obj.getJSONArray("emojis");
             emojis = new ArrayList<>();
             for (int i = 0; i < emojisArray.length(); i++) {
-                emojis.add(Emoji.decompile(emojisArray.getJSONObject(i)));
+                emojis.add(Emoji.decompile(emojisArray.getJSONObject(i), discordJv));
             }
         } catch (JSONException e) {
             emojis = null;
@@ -412,7 +412,7 @@ public record Guild(
             JSONArray stickersArray = obj.getJSONArray("stickers");
             stickers = new ArrayList<>();
             for (int i = 0; i < stickersArray.length(); i++) {
-                stickers.add(Sticker.decompile(stickersArray.getJSONObject(i)));
+                stickers.add(Sticker.decompile(stickersArray.getJSONObject(i), discordJv));
             }
         } catch (JSONException e) {
             stickers = null;

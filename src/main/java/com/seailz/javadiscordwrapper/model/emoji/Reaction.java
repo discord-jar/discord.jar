@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.emoji;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
@@ -26,7 +27,7 @@ public record Reaction(
     }
 
     @NonNull
-    public static Reaction decompile(JSONObject obj) {
+    public static Reaction decompile(JSONObject obj, DiscordJv discordJv) {
         int count;
         boolean me;
         Emoji emoji;
@@ -44,7 +45,7 @@ public record Reaction(
         }
 
         try {
-            emoji = Emoji.decompile(obj.getJSONObject("emoji"));
+            emoji = Emoji.decompile(obj.getJSONObject("emoji"), discordJv);
         } catch (Exception e) {
             emoji = null;
         }

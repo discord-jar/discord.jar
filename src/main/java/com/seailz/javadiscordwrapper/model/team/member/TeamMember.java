@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.team.member;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.json.JSONObject;
@@ -14,7 +15,7 @@ public record TeamMember(MembershipState membershipState, String permissions, St
                 .put("user", user.compile());
     }
 
-    public static TeamMember decompile(JSONObject obj) {
+    public static TeamMember decompile(JSONObject obj, DiscordJv discordJv) {
         MembershipState membershipState;
         String permissions;
         String teamId;
@@ -39,7 +40,7 @@ public record TeamMember(MembershipState membershipState, String permissions, St
         }
 
         try {
-            user = User.decompile(obj.getJSONObject("user"));
+            user = User.decompile(obj.getJSONObject("user"), discordJv);
         } catch (Exception e) {
             user = null;
         }

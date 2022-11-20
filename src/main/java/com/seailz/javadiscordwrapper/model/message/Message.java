@@ -122,7 +122,7 @@ public record Message(
             channelId = null;
         }
         try {
-            author = User.decompile(obj.getJSONObject("author"));
+            author = User.decompile(obj.getJSONObject("author"), discordJv);
         } catch (JSONException e) {
             author = null;
         }
@@ -169,7 +169,7 @@ public record Message(
             JSONArray mentionsArray = obj.getJSONArray("mentions");
             mentions = new User[mentionsArray.length()];
             for (int i = 0; i < mentionsArray.length(); i++) {
-                mentions[i] = User.decompile(mentionsArray.getJSONObject(i));
+                mentions[i] = User.decompile(mentionsArray.getJSONObject(i), discordJv);
             }
         } catch (JSONException e) {
             mentions = null;
@@ -219,7 +219,7 @@ public record Message(
             JSONArray reactionsArray = obj.getJSONArray("reactions");
             reactions = new Reaction[reactionsArray.length()];
             for (int i = 0; i < reactionsArray.length(); i++) {
-                reactions[i] = Reaction.decompile(reactionsArray.getJSONObject(i));
+                reactions[i] = Reaction.decompile(reactionsArray.getJSONObject(i), discordJv);
             }
         } catch (JSONException e) {
             reactions = null;
@@ -256,7 +256,7 @@ public record Message(
         }
 
         try {
-            application = Application.decompile(obj.getJSONObject("application"));
+            application = Application.decompile(obj.getJSONObject("application"), discordJv);
         } catch (JSONException e) {
             application = null;
         }

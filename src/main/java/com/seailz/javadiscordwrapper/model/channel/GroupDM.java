@@ -68,7 +68,7 @@ public class GroupDM extends Channel implements Compilerable {
             ArrayList<User> usersDecompiled = new ArrayList<>();
             JSONArray usersArray = obj.getJSONArray("recipients");
             for (int i = 0; i < usersArray.length(); i++) {
-                usersDecompiled.add(User.decompile(usersArray.getJSONObject(i)));
+                usersDecompiled.add(User.decompile(usersArray.getJSONObject(i), discordJv));
             }
 
             recipients = usersDecompiled.toArray(new User[0]);

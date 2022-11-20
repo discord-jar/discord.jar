@@ -1,18 +1,67 @@
 package com.seailz.javadiscordwrapper.model.user;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.javadiscordwrapper.model.channel.TextChannel;
 import com.seailz.javadiscordwrapper.model.resolve.Resolvable;
 import com.seailz.javadiscordwrapper.utils.Mentionable;
+import com.seailz.javadiscordwrapper.utils.URLS;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import com.seailz.javadiscordwrapper.utils.flag.FlagUtil;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 
+/**
+ * Users in Discord are generally considered the base entity. Users can spawn across the entire platform, be members of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of "bot" vs "normal." Although they are similar, bot users are automated users that are "owned" by another user. Unlike normal users, bot users do not have a limitation on the number of Guilds they can be a part of.
+ * <p>
+ * Usernames and Nicknames <p>
+ * Discord enforces the following restrictions for usernames and nicknames:<p>
+ *<p>
+ * Names can contain most valid unicode characters. We limit some zero-width and non-rendering characters.<p>
+ * Usernames must be between 2 and 32 characters long.<p>
+ * Nicknames must be between 1 and 32 characters long.<p>
+ * Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.<p>
+ * The following restrictions are additionally enforced for usernames:<p>
+ *<p>
+ * Usernames cannot contain the following substrings: @, #, :, ```, discord<p>
+ * Usernames cannot be: everyone, here<p>
+ * There are other rules and restrictions not shared here for the sake of spam and abuse mitigation, but the majority of users won't encounter them. It's important to properly handle all error messages returned by Discord when editing or updating names.
+ * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object">User Object</a>
+ *
+ * @param id the user's id
+ * @param username the user's username, not unique across the platform
+ * @param discriminator the user's 4-digit discord-tag
+ * @param avatar the user's avatar hash
+ * @param bot whether the user is a bot
+ * @param system whether the user is an Official Discord System user (part of the urgent message system)
+ * @param mfaEnabled whether the user has two factor enabled on their account
+ * @param locale the user's chosen language option
+ * @param verified whether the email on this account has been verified
+ * @param email the user's email
+ * @param flags the flags on a user's account
+ * @param flagsRaw the raw flags on a user's account
+ * @param premiumType the type of Nitro subscription on a user's account
+ * @param publicFlags the public flags on a user's account
+ * @param publicFlagsRaw the raw public flags on a user's account
+ * @param discordJv the discordJv instance
+ *
+ * @author Seailz
+ * @since 1.0
+ * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object-user-structure">User Structure</a>
+ */
 public record User(
         String id, String username, String discriminator, String avatar, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
-        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, int publicFlagsRaw
+        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, int publicFlagsRaw,
+        DiscordJv discordJv
 ) implements Compilerable, Resolvable, Mentionable {
 
     /**
@@ -20,7 +69,7 @@ public record User(
      * @return a JSONObject consisting of the data in this User object
      */
     @Override
-    public JSONObject compile() {
+    public @NotNull JSONObject compile() {
         JSONObject obj = new JSONObject()
                 .put("id", id)
                 .put("username", username)
@@ -47,7 +96,8 @@ public record User(
      * @param obj the JSONObject to convert
      * @return a User object consisting of the data in the JSONObject
      */
-    public static User decompile(JSONObject obj) {
+    @Contract("_, _ -> new")
+    public static @NotNull User decompile(@NotNull JSONObject obj, DiscordJv discordJv) {
         String id;
         String username;
         String discriminator;
@@ -143,6 +193,34 @@ public record User(
         } catch (JSONException e) {
             publicFlags = null;
         }
-        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, publicFlagsRaw);
+        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, publicFlagsRaw, discordJv);
     }
+
+    /**
+     * Opens a DM channel with this user. <p>
+     *
+     * You should not use this endpoint to DM everyone in a server about something.
+     * DMs should generally be initiated by a user action.
+     * If you open a significant amount of DMs too quickly, your bot may be rate limited or blocked from opening new ones.
+     *
+     * @return {@link TextChannel} object of the DM channel
+     */
+    @Nullable
+    public TextChannel createDM() {
+        JSONObject obj = new JSONObject()
+                .put("recipient_id", id);
+        DiscordResponse resp = new DiscordRequest(
+                obj,
+                new HashMap<>(),
+                URLS.POST.USERS.CREATE_DM,
+                discordJv,
+                URLS.POST.USERS.CREATE_DM,
+                RequestMethod.POST
+        ).invoke();
+
+        return resp != null && resp.body() != null ? TextChannel.decompile(resp.body(), discordJv) : null;
+    }
+
+
+
 }

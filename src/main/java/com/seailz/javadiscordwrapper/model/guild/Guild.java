@@ -13,13 +13,17 @@ import com.seailz.javadiscordwrapper.model.guild.notification.DefaultMessageNoti
 import com.seailz.javadiscordwrapper.model.guild.premium.PremiumTier;
 import com.seailz.javadiscordwrapper.model.guild.verification.VerificationLevel;
 import com.seailz.javadiscordwrapper.model.guild.welcome.WelcomeScreen;
+import com.seailz.javadiscordwrapper.utils.URLS;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -99,7 +103,8 @@ public record Guild(
         int approximatePresenceCount,
         WelcomeScreen welcomeScreen,
         List<Sticker> stickers,
-        boolean premiumProgressBarEnabled
+        boolean premiumProgressBarEnabled,
+        DiscordJv discordJv
 ) implements Compilerable {
 
 
@@ -228,7 +233,7 @@ public record Guild(
         }
 
         try {
-            owner = User.decompile(obj.getJSONObject("owner"));
+            owner = User.decompile(obj.getJSONObject("owner"), discordJv);
         } catch (JSONException e) {
             owner = null;
         }
@@ -456,7 +461,26 @@ public record Guild(
                 approximatePresenceCount,
                 welcomeScreen,
                 stickers,
-                premiumProgressBarEnabled
+                premiumProgressBarEnabled,
+                discordJv
         );
+    }
+
+    /**
+     * Leaves a guild
+     */
+    public void leave() {
+
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.GUILD.LEAVE_GUILD.replace(
+                        "{guild.id}",
+                        id
+                ),
+                discordJv,
+                URLS.DELETE.GUILD.LEAVE_GUILD,
+                RequestMethod.DELETE
+        ).invoke();
     }
 }

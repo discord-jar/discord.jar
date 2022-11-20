@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 /**
  * Cache object used to store objects in memory
@@ -77,7 +78,7 @@ public class Cache<T> {
      * @param id The id of the item to get
      * @return The item
      */
-    public T getById(String id) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public T getById(String id) {
         AtomicReference<Object> returnObject = new AtomicReference<>();
         cache.forEach(t -> {
             String itemId;
@@ -104,10 +105,20 @@ public class Cache<T> {
             try {
                 decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJv.class);
             } catch (NoSuchMethodException e) {
-                decompile = clazz.getMethod("decompile", JSONObject.class);
+                try {
+                    decompile = clazz.getMethod("decompile", JSONObject.class);
+                } catch (NoSuchMethodException ex) {
+                    Logger.getLogger("DiscordJv").severe("Was unable to return user from cache, please report this to discord.jv's github!");
+                    throw new RuntimeException(ex);
+                }
             }
 
-            returnObject.set(decompile.invoke(null, response.body(), discordJv));
+            try {
+                returnObject.set(decompile.invoke(null, response.body(), discordJv));
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                Logger.getLogger("DiscordJv").severe("Was unable to return user from cache, please report this to discord.jv's github!");
+                throw new RuntimeException(e);
+            }
         }
 
         if (returnObject.get() != null) cache.add((T) returnObject.get());

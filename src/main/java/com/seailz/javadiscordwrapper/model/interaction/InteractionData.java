@@ -21,7 +21,7 @@ public class InteractionData {
     public static InteractionData decompile(InteractionType type, JSONObject obj, DiscordJv jv) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         return switch (type) {
             case APPLICATION_COMMAND, APPLICATION_COMMAND_AUTOCOMPLETE -> new ApplicationCommandInteractionData(obj, jv);
-            case MESSAGE_COMPONENT -> new MessageComponentInteractionData(obj);
+            case MESSAGE_COMPONENT -> new MessageComponentInteractionData(obj, jv);
             case MODAL_SUBMIT -> new ModalSubmitInteractionData(obj);
             default -> null;
         };

@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -241,12 +242,7 @@ public class DiscordJv {
      * @return The user
      */
     public User getUserById(String id) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(), new HashMap<>(),
-                URLS.GET.USER.GET_USER.replace("{user.id}", id),
-                this, URLS.GET.USER.GET_USER, RequestMethod.GET
-        ).invoke();
-        return User.decompile(response.body());
+        return userCache.getById(id);
     }
 
 
@@ -260,7 +256,7 @@ public class DiscordJv {
                 URLS.GET.USER.GET_USER.replace("{user.id}", "@me"),
                 this, URLS.GET.USER.GET_USER, RequestMethod.GET
         ).invoke();
-        return User.decompile(response.body());
+        return User.decompile(response.body(), this);
     }
 
     /**
@@ -275,10 +271,28 @@ public class DiscordJv {
         return getUserById(String.valueOf(id));
     }
 
+    /**
+     * Returns info about a {@link Channel}
+     * @param id
+     *      The id of the channel
+     *
+     * @return A {@link Channel} object
+     */
     @Nullable
-    @SneakyThrows
     public Channel getChannelById(String id) {
        return getChannelCache().getById(id);
+    }
+
+    @Nullable
+    @SneakyThrows
+    public Guild getGuildById(long id) {
+        return getGuildById(String.valueOf(id));
+    }
+
+    @Nullable
+    @SneakyThrows
+    public Guild getGuildById(String id) {
+        return getGuildCache().getById(id);
     }
 
     /**
@@ -319,7 +333,7 @@ public class DiscordJv {
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
         ).invoke();
-        return Application.decompile(response.body());
+        return Application.decompile(response.body(), this);
     }
 
     /**

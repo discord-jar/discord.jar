@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.application;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.scopes.InstallParams;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -62,7 +63,7 @@ public record Application(
                 .put("custom_install_url", customInstallUrl);
     }
 
-    public static Application decompile(JSONObject obj) {
+    public static Application decompile(JSONObject obj, DiscordJv discordJv) {
         String id;
         String name;
         String iconUrl;
@@ -141,7 +142,7 @@ public record Application(
         }
 
         try {
-            owner = User.decompile(obj.getJSONObject("owner"));
+            owner = User.decompile(obj.getJSONObject("owner"), discordJv);
         } catch (JSONException e) {
             owner = null;
         }
@@ -159,7 +160,7 @@ public record Application(
         }
 
         try {
-            team = Team.decompile(obj.getJSONObject("team"));
+            team = Team.decompile(obj.getJSONObject("team"), discordJv);
         } catch (JSONException e) {
             team = null;   
         }

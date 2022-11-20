@@ -154,13 +154,13 @@ public class Interaction implements Compilerable {
     @NotNull
     public static Interaction decompile(JSONObject json, DiscordJv discordJv) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         String id = json.has("id") ? json.getString("id") : null;
-        Application application = json.has("application") ? Application.decompile(json.getJSONObject("application")) : null;
+        Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJv) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
         InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJv) : null;
         Guild guild = json.has("guild_id") ? discordJv.getGuildCache().getById(json.getString("guild_id")) : null;
         Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJv) : null;
-        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member")) : null;
-        User user = json.has("user") ? User.decompile(json.getJSONObject("user")) : null;
+        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJv) : null;
+        User user = json.has("user") ? User.decompile(json.getJSONObject("user"), discordJv) : null;
         String token = json.has("token") ? json.getString("token") : null;
         int version = json.has("version") ? json.getInt("version") : 0;
         Message message = json.has("message") ? Message.decompile(json.getJSONObject("message"), discordJv) : null;

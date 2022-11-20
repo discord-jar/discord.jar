@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.emoji.sticker;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +62,7 @@ public record Sticker(
      * @return The compiled {@link Sticker} object
      */
     @NotNull
-    public static Sticker decompile(JSONObject obj) {
+    public static Sticker decompile(JSONObject obj, DiscordJv discordJv) {
         String id;
         String packId;
         String name;
@@ -129,7 +130,7 @@ public record Sticker(
         }
 
         try {
-            user = User.decompile(obj.getJSONObject("user"));
+            user = User.decompile(obj.getJSONObject("user"), discordJv);
         } catch (JSONException e) {
             user = null;
         }

@@ -27,7 +27,7 @@ public class ReadyEvent extends Event {
      */
     @NotNull
     public User getUser() {
-        return User.decompile(getJson().getJSONObject("d").getJSONObject("user"));
+        return User.decompile(getJson().getJSONObject("d").getJSONObject("user"), getBot());
     }
 
     @NotNull
@@ -47,7 +47,7 @@ public class ReadyEvent extends Event {
     public List<UnavailableGuild> getGuilds() {
         List<UnavailableGuild> guilds = new ArrayList<>();
         for (Object guild : getJson().getJSONObject("d").getJSONArray("guilds")) {
-            guilds.add(UnavailableGuild.decompile((JSONObject) guild));
+            guilds.add(UnavailableGuild.decompile((JSONObject) guild, getBot()));
         }
         return guilds;
     }
@@ -59,7 +59,7 @@ public class ReadyEvent extends Event {
 
     @NotNull
     public Application getApplication() {
-        return Application.decompile(getJson().getJSONObject("d").getJSONObject("application"));
+        return Application.decompile(getJson().getJSONObject("d").getJSONObject("application"), getBot());
     }
 
 

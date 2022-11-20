@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.status.activity;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.emoji.Emoji;
 import com.seailz.javadiscordwrapper.model.status.Status;
@@ -98,7 +99,7 @@ public class Activity implements Compilerable {
     }
 
     @NotNull
-    public static Activity decompile(JSONObject obj) {
+    public static Activity decompile(JSONObject obj, DiscordJv discordJv) {
         String name;
         ActivityType type;
         String url;
@@ -119,7 +120,7 @@ public class Activity implements Compilerable {
         if (obj.has("application_id")) applicationId = obj.getString("application_id");
         else applicationId = null;
 
-        if (obj.has("emoji")) emoji = Emoji.decompile(obj.getJSONObject("emoji"));
+        if (obj.has("emoji")) emoji = Emoji.decompile(obj.getJSONObject("emoji"), discordJv);
         else emoji = null;
 
         if (obj.has("instance")) instance = obj.getBoolean("instance");

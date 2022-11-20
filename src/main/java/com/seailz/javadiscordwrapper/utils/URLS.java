@@ -14,6 +14,21 @@ public final class URLS {
         public static class MESSAGES {
             public static final String SEND = "/channels/{channel.id}/messages";
         }
+
+        public static class USERS {
+            /**
+             * Opens a DM channel with a user
+             *
+             * You should not use this endpoint to DM everyone in a server about something.
+             * DMs should generally be initiated by a user action.
+             * If you open a significant amount of DMs too quickly, your bot may be rate limited or blocked from opening new ones.
+             *
+             * @see <a href="https://discord.com/developers/docs/resources/user#create-dm">Create DM Documentation</a>
+             *
+             * @param recipitent_id The user id to open a DM channel with.
+             */
+            public static final String CREATE_DM = "/users/@me/channels";
+        }
     }
 
     public static class GET {
@@ -69,6 +84,16 @@ public final class URLS {
              * @param id the id of the bot
              */
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
+        }
+    }
+
+    public static class DELETE {
+        public static class GUILD {
+            /**
+             * Leaves a guild
+             * @param id The id of the guild
+             */
+            public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
         }
     }
 

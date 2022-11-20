@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.emoji;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.role.Role;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -44,7 +45,7 @@ public record Emoji(
     }
 
     @NonNull
-    public static Emoji decompile(JSONObject obj) {
+    public static Emoji decompile(JSONObject obj, DiscordJv discordJv) {
         String id;
         String name;
         Role[] roles;
@@ -77,7 +78,7 @@ public record Emoji(
         }
 
         try {
-            user = User.decompile(obj.getJSONObject("user"));
+            user = User.decompile(obj.getJSONObject("user"), discordJv);
         } catch (Exception e) {
             user = null;
         }

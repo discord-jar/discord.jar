@@ -8,6 +8,4 @@ public record DiscordResponse(
         int code,
         JSONObject body,
         HashMap<String, String> headers
-) {
-
-}
+) {}

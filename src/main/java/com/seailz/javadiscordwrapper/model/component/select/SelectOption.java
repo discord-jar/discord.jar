@@ -1,5 +1,6 @@
 package com.seailz.javadiscordwrapper.model.component.select;
 
+import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.emoji.Emoji;
 import org.json.JSONObject;
@@ -92,13 +93,13 @@ public class SelectOption implements Compilerable {
         return obj;
     }
 
-    public static SelectOption decompile(JSONObject obj) {
+    public static SelectOption decompile(JSONObject obj, DiscordJv discordJv) {
         SelectOption option = new SelectOption(obj.getString("label"), obj.getString("value"));
         if (obj.has("description")) {
             option.setDescription(obj.getString("description"));
         }
         if (obj.has("emoji")) {
-            option.setEmoji(Emoji.decompile(obj.getJSONObject("emoji")));
+            option.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJv));
         }
         if (obj.has("default")) {
             option.setDefaultSelected(obj.getBoolean("default"));

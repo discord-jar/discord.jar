@@ -2,7 +2,7 @@
 
 # discord.jv - a clean Java wrapper for Discord
 discord.jv is a work in progress Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
-Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if your interested in helping out it would be greatly appreciated!
+Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if you're interested in helping out it would be greatly appreciated!
 
 ## Documentation
 There is currently no documentation, but it will be avaliable [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready.

@@ -2,7 +2,7 @@
 name: Feature Request
 description: Suggest a feature to be added!
 title: "[Feature Request] "
-labels: [ "type: feature", "state: pending" ]
+labels: [ "type: feature", "status: pending" ]
 assignees: Seailz
 body:
   - type: markdown

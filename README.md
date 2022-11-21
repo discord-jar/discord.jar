@@ -2,7 +2,7 @@
 
 [![seailz - discord.jv](https://img.shields.io/static/v1?label=seailz&message=discord.jv&color=blue&logo=github)](https://github.com/seailz/discord.jv "Go to GitHub repo") [![stars - discord.jv](https://img.shields.io/github/stars/seailz/discord.jv?style=social)](https://github.com/seailz/discord.jv) [![forks - discord.jv](https://img.shields.io/github/forks/seailz/discord.jv?style=social)](https://github.com/seailz/discord.jv) [![License](https://img.shields.io/badge/License-GNU_General_Public_License_v3.0-blue)](#license) [![issues - discord.jv](https://img.shields.io/github/issues/seailz/discord.jv)](https://github.com/seailz/discord.jv/issues)
 # discord.jv - a clean Java wrapper for Discord
-discord.jv is a work in progress Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
+discord.jv [![loc - discord.jv](https://sloc.xyz/github/seailz/discord.jv)](https://github.com/seailz/discord.jv) is a **work in progress** Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
 Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if you're interested in helping out it would be greatly appreciated!
 
 ## Documentation

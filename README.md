@@ -33,7 +33,7 @@ License info can be found [here](https://github.com/seailz/discord.jv/blob/main/
 [![](https://dcbadge.vercel.app/api/server/3cF5xeT3eV)]([https://discord.gg/INVITEID](https://discord.gg/3cF5xeT3eV))
 
 ## Donations
-<a href="https://github.com/seailz">
+<a href="https://github.com/sponsors/seailz">
  <img alt="Ghsponsors Singular badge" height="56" href="https://github.com/seailz" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/ghsponsors-singular_vector.svg">
 </a>
 

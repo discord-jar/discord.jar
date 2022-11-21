@@ -27,5 +27,4 @@ or
 License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE)
 
 ## Contact
-![](https://dcbadge.vercel.app/api/shield/947691195658797167)
 [![](https://dcbadge.vercel.app/api/server/3cF5xeT3eV)]([https://discord.gg/INVITEID](https://discord.gg/3cF5xeT3eV))

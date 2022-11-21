@@ -2,6 +2,7 @@ package com.seailz.javadiscordwrapper.utils.version;
 
 /**
  * Represents a version of the Discord API
+ *
  * @author Seailz
  * @since 1.0
  */

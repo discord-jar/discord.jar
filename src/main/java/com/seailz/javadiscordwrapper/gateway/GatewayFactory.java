@@ -5,6 +5,7 @@ import com.seailz.javadiscordwrapper.events.model.Event;
 import com.seailz.javadiscordwrapper.gateway.events.DispatchedEvents;
 import com.seailz.javadiscordwrapper.gateway.events.GatewayEvents;
 import com.seailz.javadiscordwrapper.gateway.heartbeat.HeartbeatCycle;
+import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
 import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import org.json.JSONException;
@@ -74,13 +75,13 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void initiateConnection() throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(url)).get();
+        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version)).get();
     }
 
     private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(customURL)).get();
+        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version)).get();
     }
 
     public void reconnect() throws ExecutionException, InterruptedException, IOException {

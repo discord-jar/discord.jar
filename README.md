@@ -23,6 +23,9 @@ or
 or
 `other[description]`.
 
+## Dependencies
+**Springframework - web sockets**, **org.json - json managing**, **jetbrains annotations**, **lombok - may be removed soon**
+
 ## License
 License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE)
 

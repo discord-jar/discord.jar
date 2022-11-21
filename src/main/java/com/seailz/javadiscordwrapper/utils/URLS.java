@@ -2,9 +2,22 @@ package com.seailz.javadiscordwrapper.utils;
 
 import com.seailz.javadiscordwrapper.utils.version.APIVersion;
 
+/**
+ * A list of all endpoints used by Discord.jv
+ *
+ * @author Seailz
+ * @since 1.0
+ * @see com.seailz.javadiscordwrapper.utils.version.APIVersion
+ */
 public final class URLS {
 
-    public static final String BASE_URL = "https://discord.com/api/v" + APIVersion.getLatest().getCode();
+    public static APIVersion version = APIVersion.getLatest();
+
+    public URLS(APIVersion version) {
+        URLS.version = version;
+    }
+
+    public static final String BASE_URL = "https://discord.com/api/v" + version;
 
     public static class POST {
         public static class INTERACTIONS {

@@ -23,6 +23,7 @@ import com.seailz.javadiscordwrapper.utils.discordapi.*;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
+import com.seailz.javadiscordwrapper.utils.version.APIVersion;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,18 +91,25 @@ public class DiscordJv {
 
     /**
      * Creates a new instance of the DiscordJv class
-     * @param token   The token of the bot
-     * @param intents The intents the bot will use
+     * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
+     *
+     * @param token
+     *        The token of the bot
+     * @param intents
+     *        The intents the bot will use
+     * @param version
+     *        The version of the Discord API the bot will use
      *
      * @throws ExecutionException
      *         If an error occurs while connecting to the gateway
      * @throws InterruptedException
      *         If an error occurs while connecting to the gateway
      */
-    public DiscordJv(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         token = token.replaceAll("\\r\\n", "");
         this.token = token;
         this.intents = intents;
+        new URLS(version);
         logger = Logger.getLogger("DiscordJv");
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
@@ -139,6 +147,14 @@ public class DiscordJv {
 
         initiateNoShutdown();
         initiateShutdownHooks();
+    }
+
+    public DiscordJv(String token) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES, Intent.GUILD_MESSAGE_REACTIONS), APIVersion.getLatest());
+    }
+
+    public DiscordJv(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
+        this(token, intents, APIVersion.getLatest());
     }
 
     // This method is used for testing purposes only
@@ -226,7 +242,7 @@ public class DiscordJv {
      * @throws IOException
      *         If an error occurs while setting the status
      */
-    public void setStatus(Status status) throws IOException {
+    public void setStatus(@NotNull Status status) throws IOException {
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
@@ -241,6 +257,7 @@ public class DiscordJv {
      *
      * @return The user
      */
+    @Nullable
     public User getUserById(String id) {
         return userCache.getById(id);
     }
@@ -248,8 +265,11 @@ public class DiscordJv {
 
     /**
      * Returns info about the bot user
+     * This shouldn't return null, but it might if the Discord API didn't respond correctly.
+     *
      * @return a {@link User} object
      */
+    @Nullable
     public User getSelfUser() {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
@@ -267,6 +287,7 @@ public class DiscordJv {
      *
      * @return The user
      */
+    @Nullable
     public User getUserById(long id) {
         return getUserById(String.valueOf(id));
     }
@@ -283,14 +304,28 @@ public class DiscordJv {
        return getChannelCache().getById(id);
     }
 
+    /**
+     * Returns info about a {@link Guild}
+     *
+     * @param id
+     *       The id of the guild
+     *
+     * @return A {@link Guild} object
+     */
     @Nullable
-    @SneakyThrows
     public Guild getGuildById(long id) {
         return getGuildById(String.valueOf(id));
     }
 
+    /**
+     * Returns info about a {@link Guild}
+     *
+     * @param id
+     *       The id of the guild
+     *
+     * @return A {@link Guild} object
+     */
     @Nullable
-    @SneakyThrows
     public Guild getGuildById(String id) {
         return getGuildCache().getById(id);
     }
@@ -299,13 +334,14 @@ public class DiscordJv {
      * Registers a listener, or multiple, with the event dispatcher
      * @param listeners The listeners to register
      */
-    public void registerListeners(DiscordListener... listeners) {
+    public void registerListeners(@NotNull DiscordListener... listeners) {
         eventDispatcher.addListener(listeners);
     }
 
     /**
      * Returns the bot's token inputted in the constructor
      */
+    @NotNull
     public String getToken() {
         return token;
     }
@@ -313,6 +349,7 @@ public class DiscordJv {
     /**
      * Returns the bot's intents inputted in the constructor
      */
+    @NotNull
     public EnumSet<Intent> getIntents() {
         return intents;
     }
@@ -320,6 +357,7 @@ public class DiscordJv {
     /**
      * Returns the cache for storing guilds
      */
+    @NotNull
     public Cache<Guild> getGuildCache() {
         return guildCache;
     }
@@ -327,6 +365,7 @@ public class DiscordJv {
     /**
      * Returns a {@link Application} object containing information about the bot
      */
+    @Nullable
     public Application getSelfInfo() {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
@@ -339,6 +378,7 @@ public class DiscordJv {
     /**
      * Returns the cache for storing users
      */
+    @NotNull
     public Cache<User> getUserCache() {
         return userCache;
     }
@@ -346,6 +386,7 @@ public class DiscordJv {
     /**
      * Returns the event dispatcher
      */
+    @NotNull
     public EventDispatcher getEventDispatcher() {
         return eventDispatcher;
     }
@@ -353,6 +394,7 @@ public class DiscordJv {
     /**
      * Returns the rate-limit info
      */
+    @NotNull
     public HashMap<String, RateLimit> getRateLimits() {
         return rateLimits;
     }
@@ -360,13 +402,21 @@ public class DiscordJv {
     /**
      * Gets queued requests
      */
+    @NotNull
     public List<DiscordRequest> getQueuedRequests() {
         return queuedRequests;
     }
     /**
      * Get channel cache
      */
+    @NotNull
     public Cache<Channel> getChannelCache() {
         return channelCache;
+    }
+    /**
+     * Adds an intent
+     */
+    public void addIntent(@NotNull Intent intent) {
+        intents.add(intent);
     }
 }

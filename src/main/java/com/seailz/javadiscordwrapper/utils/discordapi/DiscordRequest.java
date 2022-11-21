@@ -4,6 +4,7 @@ import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -70,8 +71,8 @@ public record DiscordRequest(
             }
 
             con.connect();
-
             int responseCode = con.getResponseCode();
+
             if (responseCode == 200) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String inputLine;
@@ -125,13 +126,7 @@ public record DiscordRequest(
 
                 return new DiscordResponse(responseCode, new JSONObject(response.toString()), headers);
             }
-
             if (responseCode == 204) return null;
-
-            System.out.println("Response Code : " + responseCode);
-            System.out.println(con.getResponseMessage());
-            System.out.println(body.toString());
-
             if (responseCode == 429) {
                 Logger logger = Logger.getLogger("DiscordJv");
                 logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + con.getHeaderField("Retry-After") + " seconds");
@@ -145,6 +140,9 @@ public record DiscordRequest(
                 }, "RateLimitQueue").start();
                 return null;
             }
+
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.valueOf(responseCode),
+                    con.getResponseMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }

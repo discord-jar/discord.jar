@@ -17,7 +17,7 @@ public final class URLS {
         URLS.version = version;
     }
 
-    public static final String BASE_URL = "https://discord.com/api/v" + version;
+    public static final String BASE_URL = "https://discord.com/api/v" + version.getCode();
 
     public static class POST {
         public static class INTERACTIONS {

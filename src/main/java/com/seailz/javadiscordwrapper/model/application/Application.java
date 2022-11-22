@@ -12,32 +12,6 @@ import org.json.JSONObject;
 import java.util.EnumSet;
 import java.util.List;
 
-/**
- * Represents a Discord application, which is usually a bot.
- * @param id The id of the application.
- * @param name The name of the application.
- * @param iconUrl The icon url of the application.
- * @param description The description of the application.
- * @param rpcOrigins The rpc origins of the application.
- * @param botPublic Whether the bot is public or not.
- * @param botRequireCodeGrant Whether the bot requires code grant or not.
- * @param termsOfServiceUrl The terms of service url of the application.
- * @param privacyPolicyUrl The privacy policy url of the application.
- * @param owner The owner of the application.
- * @param summary The summary of the application.
- * @param verifyKey The verify key of the application.
- * @param team The team of the application.
- * @param guildId The guild id of the application.
- * @param primary_sku_id The primary sku id of the application.
- * @param slug The slug of the application.
- * @param coverImage The cover image of the application.
- * @param flags The flags of the application.
- * @param flagsRaw The raw flags of the application.
- * @param tags The tags of the application.
- * @param customInstallUrl The custom install url of the application.
- * @param installParams The install params of the application.
- * @param roleConnectionsVerificationUrl The role connections verification url of the application.
- */
 public record Application(
         String id,
         String name,
@@ -61,8 +35,7 @@ public record Application(
         int flagsRaw,
         List<String> tags,
         String customInstallUrl,
-        InstallParams installParams,
-        String roleConnectionsVerificationUrl
+        InstallParams installParams
 ) implements Compilerable {
 
     @Override
@@ -87,8 +60,7 @@ public record Application(
                 .put("cover_image", coverImage)
                 .put("flags", flagsRaw)
                 .put("tags", tags)
-                .put("custom_install_url", customInstallUrl)
-                .put("role_connections_verification_url", roleConnectionsVerificationUrl);
+                .put("custom_install_url", customInstallUrl);
     }
 
     public static Application decompile(JSONObject obj, DiscordJv discordJv) {
@@ -114,7 +86,6 @@ public record Application(
         List<String> tags;
         String customInstallUrl;
         InstallParams installParams;
-        String roleConnectionsVerificationUrl;
 
         try {
             id = obj.getString("id");
@@ -243,12 +214,6 @@ public record Application(
             installParams = null;
         }
 
-        try {
-            roleConnectionsVerificationUrl = obj.getString("role_connections_verification_url");
-        } catch (JSONException e) {
-            roleConnectionsVerificationUrl = null;
-        }
-
         return new Application(
                 id,
                 name,
@@ -271,8 +236,7 @@ public record Application(
                 flagsRaw,
                 tags,
                 customInstallUrl,
-                installParams,
-                roleConnectionsVerificationUrl
+                installParams
         );
 
     }

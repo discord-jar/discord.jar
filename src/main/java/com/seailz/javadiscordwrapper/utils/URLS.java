@@ -17,7 +17,7 @@ public final class URLS {
         URLS.version = version;
     }
 
-    public static final String BASE_URL = "https://discord.com/api/v" + version;
+    public static final String BASE_URL = "https://discord.com/api/v" + version.getCode();
 
     public static class POST {
         public static class INTERACTIONS {
@@ -93,10 +93,15 @@ public final class URLS {
 
         public static class APPLICATIONS {
             /**
-             * Returns an {@link com.seailz.javadiscordwrapper.model.application.Application object containing information about the application of the bot selected}
+             * Returns an {@link com.seailz.javadiscordwrapper.model.application.Application} object containing information about the application of the bot selected
              * @param id the id of the bot
              */
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
+            /**
+             * Returns a list of {@link com.seailz.javadiscordwrapper.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
+             * @param id the id of the app
+             */
+            public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
         }
     }
 
@@ -107,6 +112,12 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
+        }
+    }
+
+    public static class PUT {
+        public static class APPLICATIONS {
+            public static String MODIFY_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
         }
     }
 

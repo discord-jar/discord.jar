@@ -5,11 +5,21 @@ import com.seailz.javadiscordwrapper.core.Compilerable;
 import com.seailz.javadiscordwrapper.model.scopes.InstallParams;
 import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.team.Team;
+import com.seailz.javadiscordwrapper.utils.Checker;
+import com.seailz.javadiscordwrapper.utils.URLS;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
+import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
 import com.seailz.javadiscordwrapper.utils.flag.FlagUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -62,7 +72,8 @@ public record Application(
         List<String> tags,
         String customInstallUrl,
         InstallParams installParams,
-        String roleConnectionsVerificationUrl
+        String roleConnectionsVerificationUrl,
+        DiscordJv discordJv
 ) implements Compilerable {
 
     @Override
@@ -272,8 +283,65 @@ public record Application(
                 tags,
                 customInstallUrl,
                 installParams,
-                roleConnectionsVerificationUrl
+                roleConnectionsVerificationUrl,
+                discordJv
         );
+    }
 
+    /**
+     * Returns a list of application role connection metadata objects for the given application.
+     * @return {@link List} of {@link ApplicationRoleConnectionMetadata}
+     */
+    @Nullable
+    public List<ApplicationRoleConnectionMetadata> getRoleConnections() {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS
+                        .replace("{application.id}", id),
+                discordJv,
+                URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS,
+                RequestMethod.GET
+        ).invoke();
+
+        if (response.code() == 200) {
+            System.out.println(response.body());
+            return new JSONArray(response.body()).toList().stream()
+                    .map(o -> ApplicationRoleConnectionMetadata.decompile((JSONObject) o))
+                    .toList();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Updates a list of application role connection metadata objects for the given application.
+     * An application can have up to 5 metadata records.
+     *
+     * @param roleConnections The list of role connection metadata objects to update.
+     *
+     * @throws com.seailz.javadiscordwrapper.utils.Checker.NullArgumentException if the list is null.
+     * @throws IllegalArgumentException if the list has more than 5 elements.
+     */
+    public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) {
+        Checker.notNull(roleConnections, "Role connections must not be null");
+        Checker.sizeLessThan(roleConnections, 5, "You can only have up to 5 role connections.");
+        JSONArray roleConnectionsArray = new JSONArray();
+        roleConnections.stream().map(ApplicationRoleConnectionMetadata::compile).forEach(roleConnectionsArray::put);
+
+        System.out.println("{\"data\":" + roleConnectionsArray.toString() + "}");
+        new DiscordRequest(
+                new JSONObject("{\"data\":" + roleConnectionsArray.toString() + "}"),
+                new HashMap<>(),
+                URLS.PUT.APPLICATIONS.MODIFY_APPLICATION_ROLE_CONNECTIONS
+                        .replace("{application.id}", id),
+                discordJv,
+                URLS.PUT.APPLICATIONS.MODIFY_APPLICATION_ROLE_CONNECTIONS,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    public void setRoleConnections(ApplicationRoleConnectionMetadata... roleConnections) {
+        setRoleConnections(Arrays.asList(roleConnections));
     }
 }

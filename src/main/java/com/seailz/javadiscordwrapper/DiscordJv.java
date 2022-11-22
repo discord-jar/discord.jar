@@ -427,7 +427,7 @@ public class DiscordJv {
         intents.add(intent);
     }
 
-    public void registerCommand(Command command) {
+    private void registerCommand(Command command) {
         new DiscordRequest(
                 command.compile(),
                 new HashMap<>(),

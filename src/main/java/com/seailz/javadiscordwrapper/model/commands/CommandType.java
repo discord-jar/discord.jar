@@ -1,9 +1,13 @@
 package com.seailz.javadiscordwrapper.model.commands;
 
+/**
+ * The types a {@link Command} can be registered as.
+ */
 public enum CommandType {
     SLASH_COMMAND(1),
     USER(2),
-    MESSAGE(3);
+    MESSAGE(3),
+    UNKNOWN(-1);
 
     private int code;
 

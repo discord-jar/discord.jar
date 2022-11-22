@@ -6,6 +6,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an option of an app {@link Command}.
+ * @param name The name of the option.
+ * @param description The description of the option.
+ * @param type The type of the option.
+ * @param required Whether the option is required.
+ * @param choices Any choices the option has.
+ */
 public record CommandOption(
         String name,
         String description,

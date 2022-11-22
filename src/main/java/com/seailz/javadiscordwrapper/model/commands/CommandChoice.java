@@ -3,6 +3,11 @@ package com.seailz.javadiscordwrapper.model.commands;
 import com.seailz.javadiscordwrapper.core.Compilerable;
 import org.json.JSONObject;
 
+/**
+ * Represents a choice of a {@link CommandOption}.
+ * @param name The name of the option.
+ * @param value The internal value of the option.
+ */
 public record CommandChoice(
         String name,
         String value

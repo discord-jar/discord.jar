@@ -485,7 +485,7 @@ public record Guild(
         ).invoke();
     }
 
-    public void registerCommand(Command command) {
+    private void registerCommand(Command command) {
         new DiscordRequest(
                 command.compile(),
                 new HashMap<>(),

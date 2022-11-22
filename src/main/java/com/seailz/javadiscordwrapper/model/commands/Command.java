@@ -7,9 +7,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an application command.
+ * @param name The name of the app command
+ * @param type The type of the app command. See {@link CommandType}
+ * @param description The description of the app command.
+ * @param options Any options the app command will have.
+ * @author itstotallyjan
+ */
 public record Command(
         String name,
-        int type,
+        CommandType type,
         String description,
         List<CommandOption> options
 ) implements Compilerable {
@@ -27,7 +35,7 @@ public record Command(
 
     public static Command decompile(JSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
-        int type = obj.has("type") ? obj.getInt("type") : null;
+        CommandType type = obj.has("type") ? CommandType.fromCode(obj.getInt("type")) : CommandType.UNKNOWN;
         String description = obj.has("description") ? obj.getString("description") : null;
         List<CommandOption> options = new ArrayList<>();
 

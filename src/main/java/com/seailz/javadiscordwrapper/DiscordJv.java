@@ -19,6 +19,7 @@ import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.status.Status;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
 import com.seailz.javadiscordwrapper.model.status.activity.ActivityType;
+import com.seailz.javadiscordwrapper.utils.Checker;
 import com.seailz.javadiscordwrapper.utils.discordapi.*;
 import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
@@ -259,6 +260,7 @@ public class DiscordJv {
      */
     @Nullable
     public User getUserById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
         return userCache.getById(id);
     }
 
@@ -289,6 +291,7 @@ public class DiscordJv {
      */
     @Nullable
     public User getUserById(long id) {
+        Checker.isSnowflake(String.valueOf(id), "Given id is not a snowflake");
         return getUserById(String.valueOf(id));
     }
 
@@ -301,6 +304,7 @@ public class DiscordJv {
      */
     @Nullable
     public Channel getChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
        return getChannelCache().getById(id);
     }
 
@@ -314,6 +318,7 @@ public class DiscordJv {
      */
     @Nullable
     public Guild getGuildById(long id) {
+        Checker.isSnowflake(String.valueOf(id), "Given id is not a snowflake");
         return getGuildById(String.valueOf(id));
     }
 
@@ -327,6 +332,7 @@ public class DiscordJv {
      */
     @Nullable
     public Guild getGuildById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
         return getGuildCache().getById(id);
     }
 

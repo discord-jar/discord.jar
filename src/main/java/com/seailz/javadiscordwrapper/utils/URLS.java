@@ -24,6 +24,11 @@ public final class URLS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
         }
 
+        public static class COMMANDS {
+            public static final String REGISTER_GLOBAL_COMMAND = "/applications/{application.id}/commands";
+            public static final String REGISTER_GUILD_COMMAND = "/applications/{application.id}/guilds/{guild.id}/commands";
+        }
+
         public static class MESSAGES {
             public static final String SEND = "/channels/{channel.id}/messages";
         }

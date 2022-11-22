@@ -8,6 +8,7 @@ import com.seailz.javadiscordwrapper.events.model.interaction.modal.ModalInterac
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
+import com.seailz.javadiscordwrapper.model.commands.Command;
 import com.seailz.javadiscordwrapper.model.component.ActionRow;
 import com.seailz.javadiscordwrapper.model.component.button.Button;
 import com.seailz.javadiscordwrapper.model.component.text.TextInput;
@@ -424,5 +425,15 @@ public class DiscordJv {
      */
     public void addIntent(@NotNull Intent intent) {
         intents.add(intent);
+    }
+
+    public void registerCommand(Command command) {
+        new DiscordRequest(
+                command.compile(),
+                new HashMap<>(),
+                URLS.POST.COMMANDS.REGISTER_GLOBAL_COMMAND.replace("{application.id}", getSelfInfo().id()),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.POST).invoke();
     }
 }

@@ -24,10 +24,10 @@ or
 `other[description]`.
 
 ## Dependencies
-**Springframework - web sockets - may be removed soon**,
-\n**org.json - json managing - may be removed soon**,\n
-**jetbrains annotations (should stay?)**,\n
-**lombok - may be removed soon**
+Springframework - web sockets - may be removed soon, <p>
+org.json - json managing - may be removed soon, <p>
+jetbrains annotations (should stay?), <p>
+lombok - may be removed soon
 
 ## License
 License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE)

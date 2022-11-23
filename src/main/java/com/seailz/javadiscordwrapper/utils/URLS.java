@@ -17,20 +17,35 @@ public final class URLS {
         URLS.version = version;
     }
 
+    /**
+     * The base Discord API URL.
+     */
     public static final String BASE_URL = "https://discord.com/api/v" + version.getCode();
 
     public static class POST {
         public static class INTERACTIONS {
+            /**
+             * Endpoint for Interaction callbacks.
+             */
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
         }
 
         public static class COMMANDS {
 
+            /**
+             * Endpoint for global commands.
+             */
             public static final String GLOBAL_COMMANDS = "/applications/{application.id}/commands";
+            /**
+             * Endpoint for guild commands.
+             */
             public static final String GUILD_COMMANDS = "/applications/{application.id}/guilds/{guild.id}/commands";
         }
 
         public static class MESSAGES {
+            /**
+             * Endpoint for sending messages in a channel.
+             */
             public static final String SEND = "/channels/{channel.id}/messages";
         }
 

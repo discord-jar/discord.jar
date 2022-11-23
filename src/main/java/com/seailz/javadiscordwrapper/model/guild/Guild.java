@@ -489,7 +489,7 @@ public record Guild(
         new DiscordRequest(
                 command.compile(),
                 new HashMap<>(),
-                URLS.POST.COMMANDS.REGISTER_GUILD_COMMAND.replace("{application.id}", discordJv.getSelfInfo().id()).replace("{guild.id}", id),
+                URLS.POST.COMMANDS.GUILD_COMMANDS.replace("{application.id}", discordJv.getSelfInfo().id()).replace("{guild.id}", id),
                 discordJv,
                 URLS.BASE_URL,
                 RequestMethod.POST

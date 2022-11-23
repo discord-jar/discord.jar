@@ -17,7 +17,7 @@ import java.util.List;
 public record CommandOption(
         String name,
         String description,
-        int type,
+        CommandOptionType type,
         boolean required,
         List<CommandChoice> choices
 ) implements Compilerable {
@@ -29,7 +29,7 @@ public record CommandOption(
         return new JSONObject()
                 .put("name", name)
                 .put("description", description)
-                .put("type", type)
+                .put("type", type.getCode())
                 .put("required", required)
                 .put("choices", choicesJson);
     }
@@ -37,7 +37,7 @@ public record CommandOption(
     public static CommandOption decompile(JSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
         String description = obj.has("description") ? obj.getString("description") : null;
-        int type = obj.has("type") ? obj.getInt("type") : 0;
+        CommandOptionType type = obj.has("type") ? CommandOptionType.fromCode(obj.getInt("type")) : CommandOptionType.STRING;
         boolean required = obj.has("required") && obj.getBoolean("required");
         List<CommandChoice> choices = new ArrayList<>();
 

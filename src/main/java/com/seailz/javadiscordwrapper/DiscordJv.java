@@ -2,20 +2,15 @@ package com.seailz.javadiscordwrapper;
 
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
-import com.seailz.javadiscordwrapper.events.annotation.EventMethod;
-import com.seailz.javadiscordwrapper.events.model.interaction.button.ButtonInteractionEvent;
-import com.seailz.javadiscordwrapper.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
 import com.seailz.javadiscordwrapper.model.commands.Command;
-import com.seailz.javadiscordwrapper.model.component.ActionRow;
-import com.seailz.javadiscordwrapper.model.component.button.Button;
-import com.seailz.javadiscordwrapper.model.component.text.TextInput;
-import com.seailz.javadiscordwrapper.model.component.text.TextInputStyle;
+import com.seailz.javadiscordwrapper.model.commands.CommandOption;
+import com.seailz.javadiscordwrapper.model.commands.CommandOptionType;
+import com.seailz.javadiscordwrapper.model.commands.CommandType;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.application.Intent;
-import com.seailz.javadiscordwrapper.model.interaction.modal.Modal;
 import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.status.Status;
 import com.seailz.javadiscordwrapper.model.status.activity.Activity;
@@ -26,18 +21,13 @@ import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
 import com.seailz.javadiscordwrapper.utils.version.APIVersion;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -170,42 +160,54 @@ public class DiscordJv {
             e.printStackTrace();
         }
         DiscordJv discordJv = new DiscordJv(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
-        discordJv.registerListeners(
-                new DiscordListener() {
-                    @Override
-                    @EventMethod
-                    public void onButtonClickInteractionEvent(@NotNull ButtonInteractionEvent event) {
-                        event.replyModal(new Modal("test", "test", ActionRow.of(
-                                new TextInput(
-                                        "test",
-                                        TextInputStyle.SHORT,
-                                        "test"
-                                )
-                        ))).run();
-                        //event.reply("hi").run();
-                    }
-                },
-                new DiscordListener() {
-                    @Override
-                    @EventMethod
-                    public void onModalInteractionEvent(@NotNull ModalInteractionEvent event) {
-                        event.reply("You did it!").run();
-                    }
-                }
+        ArrayList<CommandOption> options = new ArrayList<>();
+        options.add(
+                new CommandOption(
+                        "test1",
+                        "test1",
+                        CommandOptionType.STRING,
+                        false,
+                        Collections.emptyList()
+                )
         );
+        options.add(
+                new CommandOption(
+                        "test2",
+                        "test2",
+                        CommandOptionType.CHANNEL,
+                        false,
+                        Collections.emptyList()
+                )
+        );
+        options.add(
+                new CommandOption(
+                        "test3",
+                        "test3",
+                        CommandOptionType.BOOLEAN,
+                        false,
+                        Collections.emptyList()
+                )
+        );
+        options.add(
+                new CommandOption(
+                        "test4",
+                        "test4",
+                        CommandOptionType.ATTACHMENT,
+                        false,
+                        Collections.emptyList()
+                )
+        );
+        discordJv.registerCommand(new Command("foo", CommandType.SLASH_COMMAND, "multi options", options.stream().toList()));
+
+        discordJv.clearCommands();
 
         ArrayList<Activity> activities = new ArrayList<>();
         activities.add(
                 new Activity("Hello World2", ActivityType.WATCHING)
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
-        discordJv. setStatus(status);
-        discordJv.getChannelById("993461660792651829").sendMessage("hello, world.")
-                .addComponent(
-                        ActionRow.of(
-                                Button.primary("primary button", "p-b")
-                        )
-                ).run();
+        discordJv.setStatus(status);
+        discordJv.getChannelById("1042459398213210164").sendMessage("hello, world.").run();
     }
 
     /**
@@ -428,12 +430,29 @@ public class DiscordJv {
     }
 
     private void registerCommand(Command command) {
-        new DiscordRequest(
+        DiscordRequest commandReq = new DiscordRequest(
                 command.compile(),
                 new HashMap<>(),
-                URLS.POST.COMMANDS.REGISTER_GLOBAL_COMMAND.replace("{application.id}", getSelfInfo().id()),
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
                 this,
                 URLS.BASE_URL,
-                RequestMethod.POST).invoke();
+                RequestMethod.POST);
+        commandReq.invoke();
+    }
+
+    /**
+     * Clears all the global commands for this app. Cannot be undone.
+     * @apiNote This currently does not work, don't use.
+     */
+    public void clearCommands() {
+        DiscordRequest cmdDelReq = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.PUT
+        );
+        cmdDelReq.invoke();
     }
 }

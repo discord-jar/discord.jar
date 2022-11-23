@@ -28,7 +28,7 @@ public record Command(
 
         return new JSONObject()
                 .put("name", name)
-                .put("type", type)
+                .put("type", type.getCode())
                 .put("description", description)
                 .put("options", optionsJson);
     }

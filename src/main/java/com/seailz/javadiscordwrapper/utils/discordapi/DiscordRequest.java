@@ -59,6 +59,7 @@ public record DiscordRequest(
             con.setRequestProperty("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
             con.setRequestProperty("Authorization", "Bot " + djv.getToken());
             con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Content-Length", String.valueOf(body.length()));
             headers.forEach(con::setRequestProperty);
 
             byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);

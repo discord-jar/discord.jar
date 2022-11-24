@@ -1,5 +1,8 @@
 package com.seailz.javadiscordwrapper.utils;
 
+import com.seailz.javadiscordwrapper.model.commands.Command;
+import com.seailz.javadiscordwrapper.model.commands.CommandChoice;
+import com.seailz.javadiscordwrapper.model.commands.CommandOption;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +39,16 @@ public class Checker {
     @Contract("null, _ -> fail")
     public void notNull(@Nullable Object object, @NotNull String message) {
         if (object == null) throw new IllegalArgumentException(message);
+    }
+
+    /**
+     * Checks a boolean and throws a message if it fails.
+     *
+     * @param check The boolean to check.
+     * @param message The message to throw on failure.
+     */
+    public static void check(boolean check, @NotNull String message) {
+        if (check) throw new IllegalArgumentException(message);
     }
 
 }

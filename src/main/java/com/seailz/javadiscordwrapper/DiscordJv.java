@@ -1,14 +1,12 @@
 package com.seailz.javadiscordwrapper;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.seailz.javadiscordwrapper.events.DiscordListener;
 import com.seailz.javadiscordwrapper.events.EventDispatcher;
 import com.seailz.javadiscordwrapper.gateway.GatewayFactory;
 import com.seailz.javadiscordwrapper.model.application.Application;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
-import com.seailz.javadiscordwrapper.model.commands.Command;
-import com.seailz.javadiscordwrapper.model.commands.CommandOption;
-import com.seailz.javadiscordwrapper.model.commands.CommandOptionType;
-import com.seailz.javadiscordwrapper.model.commands.CommandType;
+import com.seailz.javadiscordwrapper.model.commands.*;
 import com.seailz.javadiscordwrapper.model.guild.Guild;
 import com.seailz.javadiscordwrapper.model.application.Intent;
 import com.seailz.javadiscordwrapper.model.user.User;
@@ -430,6 +428,22 @@ public class DiscordJv {
     }
 
     private void registerCommand(Command command) {
+        // validate command attributes
+        if (!(command.name().length() > 1 && command.name().length() < 32)) throw new IllegalArgumentException("Command name must be within 1 and 32 characters!");
+        if (!(command.description().length() > 1 && command.description().length() < 100)) throw new IllegalArgumentException("Command description must be within 1 and 100 characters!");
+        if (command.options().size() > 25) throw new IllegalArgumentException("Application commands can only have up to 25 options!");
+
+        for (CommandOption o:command.options()) {
+            if (!(o.name().length() > 1 && o.name().length() < 32)) throw new IllegalArgumentException("Option name must be within 1 and 32 characters!");
+            if (!(o.description().length() > 1 && o.description().length() < 100)) throw new IllegalArgumentException("Option description must be within 1 and 100 characters!");
+            if (o.choices().size() > 25) throw new IllegalArgumentException("Command options can only have up to 25 choices!");
+
+            for (CommandChoice c:o.choices()) {
+                if (!(c.name().length() > 1 && c.name().length() < 100)) throw new IllegalArgumentException("Choice name must be within 1 and 100 characters!");
+                if (!(c.value().length() > 1 && c.value().length() < 100)) throw new IllegalArgumentException("Choice value must be within 1 and 100 characters!");
+            }
+        }
+
         DiscordRequest commandReq = new DiscordRequest(
                 command.compile(),
                 new HashMap<>(),
@@ -446,7 +460,7 @@ public class DiscordJv {
      */
     public void clearCommands() {
         DiscordRequest cmdDelReq = new DiscordRequest(
-                new JSONObject(),
+                new JSONObject("{[]}"),
                 new HashMap<>(),
                 URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
                 this,

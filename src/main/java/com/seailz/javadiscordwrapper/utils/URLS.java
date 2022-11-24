@@ -34,6 +34,7 @@ public final class URLS {
 
             /**
              * Endpoint for global commands.
+             * @param {application.id} The ID of the application to add a global command to
              */
             public static final String GLOBAL_COMMANDS = "/applications/{application.id}/commands";
             /**

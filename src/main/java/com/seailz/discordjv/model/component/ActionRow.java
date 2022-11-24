@@ -1,9 +1,11 @@
 package com.seailz.discordjv.model.component;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.component.select.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,11 +60,15 @@ public class ActionRow implements DisplayComponent {
     }
 
     @NotNull
-    public static ActionRow decompile(JSONObject obj) {
+    public static ActionRow decompile(JSONObject obj, DiscordJv discordJv) {
         ActionRow row = new ActionRow();
         List<RawComponent> comp = new ArrayList<>();
 
-        Component.decompileList(obj.getJSONArray("components")).forEach(component -> comp.add((RawComponent) component));
+        try {
+            Component.decompileList(obj.getJSONArray("components"), discordJv).forEach(component -> comp.add((RawComponent) component));
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         return row;
     }
 }

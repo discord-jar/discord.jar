@@ -1,5 +1,6 @@
 package com.seailz.discordjv.model.component;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.component.select.SelectMenu;
 import com.seailz.discordjv.model.interaction.modal.Modal;
@@ -54,19 +55,26 @@ public interface Component extends Compilerable {
      * @param arr The {@link JSONArray} to decompile
      * @return A list of {@link Component}s
      */
-    static List<Component> decompileList(JSONArray arr) {
+    static List<Component> decompileList(JSONArray arr, DiscordJv discordJv) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Component> components = new ArrayList<>();
         for (int i = 0; i < arr.length(); i++) {
             ComponentType type = ComponentType.getType(arr.getJSONObject(i).getInt("type"));
             Class<? extends Component> clazz = type.getClazz();
+            Method method = null;
             try {
-                Method method = clazz.getMethod("decompile", arr.getJSONObject(i).getClass());
+                method = clazz.getMethod("decompile", arr.getJSONObject(i).getClass());
                 method.setAccessible(true);
 
                 Component comp = (Component) method.invoke(null, arr.getJSONObject(i));
                 components.add(comp);
-            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                method = clazz.getMethod("decompile", arr.getJSONObject(i).getClass(), DiscordJv.class);
+                method.setAccessible(true);
+
+                Component comp = (Component) method.invoke(null, arr.getJSONObject(i), discordJv);
+                components.add(comp);
             }
         }
         return components;

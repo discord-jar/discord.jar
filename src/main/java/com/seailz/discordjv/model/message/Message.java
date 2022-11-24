@@ -153,7 +153,7 @@ public record Message(
 
         try {
             JSONArray componentsJson = obj.getJSONArray("components");
-            List<Component> componentsDecompiled = Component.decompileList(componentsJson);
+            List<Component> componentsDecompiled = Component.decompileList(componentsJson, discordJv);
             List<DisplayComponent> displayComponents = new ArrayList<>();
             for (Component component : componentsDecompiled) {
                 if (component instanceof DisplayComponent) {
@@ -162,6 +162,9 @@ public record Message(
             }
         } catch (JSONException e) {
             components = null;
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            components = null;
+            e.printStackTrace();
         }
 
         try {

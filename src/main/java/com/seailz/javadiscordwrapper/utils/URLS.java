@@ -38,6 +38,8 @@ public final class URLS {
             public static final String GLOBAL_COMMANDS = "/applications/{application.id}/commands";
             /**
              * Endpoint for guild commands.
+             * @param {application.id} The ID of the application to add a guild command to
+             * @param {guild.id} The guild to add the command to
              */
             public static final String GUILD_COMMANDS = "/applications/{application.id}/guilds/{guild.id}/commands";
         }

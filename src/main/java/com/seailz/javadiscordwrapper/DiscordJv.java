@@ -25,7 +25,6 @@ import com.seailz.javadiscordwrapper.utils.URLS;
 import com.seailz.javadiscordwrapper.utils.cache.Cache;
 import com.seailz.javadiscordwrapper.model.status.StatusType;
 import com.seailz.javadiscordwrapper.utils.version.APIVersion;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;

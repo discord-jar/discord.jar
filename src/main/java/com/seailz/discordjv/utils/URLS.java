@@ -92,6 +92,22 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String GET_GUILD = "/guilds/{guild.id}";
+
+            public static class STICKERS {
+                /**
+                 * Returns a list of guild stickers
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String GET_GUILD_STICKERS = "/guilds/{guild.id}/stickers";
+                /**
+                 * Returns a guild sticker
+                 *
+                 * @param id The id of the guild
+                 * @param sticker.id The id of the sticker
+                 */
+                public static String GET_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
+            }
         }
 
         public static class APPLICATIONS {
@@ -101,6 +117,19 @@ public final class URLS {
              * @param id the id of the bot
              */
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
+        }
+
+        public static class STICKER {
+            /**
+             * Returns a {@link com.seailz.discordjv.model.emoji.sticker.Sticker} object containing information about the sticker
+             *
+             * @param id The id of the sticker
+             */
+            public static String GET_STICKER = "/stickers/{sticker.id}";
+            /**
+             * Returns a list of {@link com.seailz.discordjv.model.emoji.sticker.StickerPack} objects containing information about the sticker packs Nitro users can use
+             */
+            public static String GET_NITRO_STICKER_PACKS = "/sticker-packs";
         }
     }
 
@@ -112,6 +141,29 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
+            public static class STICKER {
+                /**
+                 * Deletes a guild sticker
+                 *
+                 * @param id The id of the guild
+                 * @param sticker.id The id of the sticker
+                 */
+                public static String DELETE_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
+            }
+        }
+    }
+
+    public static class PATCH {
+        public static class GUILD {
+            public static class STICKER {
+                /**
+                 * Modifies a guild sticker
+                 *
+                 * @param id The id of the guild
+                 * @param sticker.id The id of the sticker
+                 */
+                public static String MODIFY_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
+            }
         }
     }
 

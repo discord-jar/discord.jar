@@ -13,6 +13,8 @@ import com.seailz.discordjv.model.component.ActionRow;
 import com.seailz.discordjv.model.component.button.Button;
 import com.seailz.discordjv.model.component.text.TextInput;
 import com.seailz.discordjv.model.component.text.TextInputStyle;
+import com.seailz.discordjv.model.emoji.sticker.Sticker;
+import com.seailz.discordjv.model.emoji.sticker.StickerPack;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.interaction.modal.Modal;
 import com.seailz.discordjv.model.status.Status;
@@ -322,6 +324,36 @@ public class DiscordJv {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return getGuildCache().getById(id);
     }
+
+    /**
+     * Returns info about a {@link Sticker}
+     *
+     * @param id The id of the sticker
+     * @return A {@link Sticker} object
+     */
+    @Nullable
+    public Sticker getStickerById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return Sticker.decompile(new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.STICKER.GET_STICKER.replace("{sticker.id}", id),
+                this, URLS.GET.STICKER.GET_STICKER, RequestMethod.GET
+        ).invoke().body(), this);
+    }
+
+    /**
+     * Returns a list of {@link StickerPack StickerPacks} that nitro subscribers can use
+     * @return List of {@link StickerPack StickerPacks}
+     */
+    public List<StickerPack> getNitroStickerPacks() {
+        return StickerPack.decompileList(new DiscordRequest(
+                new JSONObject(), new HashMap<>(),
+                URLS.GET.STICKER.GET_NITRO_STICKER_PACKS,
+                this, URLS.GET.STICKER.GET_NITRO_STICKER_PACKS, RequestMethod.GET
+        ).invoke().body(), this);
+    }
+
+
 
     /**
      * Registers a listener, or multiple, with the event dispatcher

@@ -48,4 +48,11 @@ public record StickerPack(
                 json.has("banner_id") ? json.getString("banner_id") : null
         );
     }
+
+    public static List<StickerPack> decompileList(JSONObject json, DiscordJv discordJv) {
+        JSONArray arr = json.getJSONArray("sticker_packs");
+        List<StickerPack> packs = new ArrayList<>();
+        arr.forEach(object -> packs.add(decompile((JSONObject) object, discordJv)));
+        return packs;
+    }
 }

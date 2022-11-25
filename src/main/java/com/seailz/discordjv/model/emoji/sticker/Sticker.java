@@ -4,8 +4,12 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a sticker
@@ -145,5 +149,13 @@ public record Sticker(
         }
 
         return new Sticker(id, packId, name, description, tags, type, format, available, guildId, user, sortValue);
+    }
+
+    public static List<Sticker> decompileList(JSONArray array, DiscordJv discordJv) {
+        List<Sticker> stickers = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            stickers.add(decompile(array.getJSONObject(i), discordJv));
+        }
+        return stickers;
     }
 }

@@ -162,52 +162,52 @@ public record Application(
         try {
             team = Team.decompile(obj.getJSONObject("team"), discordJv);
         } catch (JSONException e) {
-            team = null;   
+            team = null;
         }
-        
+
         try {
             guildId = obj.getString("guild_id");
         } catch (JSONException e) {
             guildId = null;
         }
-        
+
         try {
             primary_sku_id = obj.getString("primary_sku_id");
         } catch (JSONException e) {
             primary_sku_id = null;
         }
-        
+
         try {
             slug = obj.getString("slug");
         } catch (JSONException e) {
             slug = null;
         }
-        
+
         try {
             coverImage = obj.getString("cover_image");
         } catch (JSONException e) {
             coverImage = null;
         }
-        
+
         try {
             flagsRaw = obj.getInt("flags");
             flags = FlagUtil.getApplicationFlagsByInt(flagsRaw);
         } catch (JSONException e) {
             flagsRaw = 0;
         }
-        
+
         try {
             tags = obj.getJSONArray("tags").toList().stream().map(Object::toString).toList();
         } catch (JSONException e) {
             tags = null;
         }
-        
+
         try {
             customInstallUrl = obj.getString("custom_install_url");
         } catch (JSONException e) {
             customInstallUrl = null;
         }
-        
+
         try {
             installParams = InstallParams.decompile(obj.getJSONObject("install_params"));
         } catch (JSONException e) {
@@ -238,6 +238,6 @@ public record Application(
                 customInstallUrl,
                 installParams
         );
-        
+
     }
 }

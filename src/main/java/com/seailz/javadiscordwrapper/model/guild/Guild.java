@@ -2,6 +2,7 @@ package com.seailz.javadiscordwrapper.model.guild;
 
 import com.seailz.javadiscordwrapper.DiscordJv;
 import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.javadiscordwrapper.model.commands.Command;
 import com.seailz.javadiscordwrapper.model.role.Role;
 import com.seailz.javadiscordwrapper.model.user.User;
 import com.seailz.javadiscordwrapper.model.channel.Channel;
@@ -481,6 +482,17 @@ public record Guild(
                 discordJv,
                 URLS.DELETE.GUILD.LEAVE_GUILD,
                 RequestMethod.DELETE
+        ).invoke();
+    }
+
+    private void registerCommand(Command command) {
+        new DiscordRequest(
+                command.compile(),
+                new HashMap<>(),
+                URLS.POST.COMMANDS.GUILD_COMMANDS.replace("{application.id}", discordJv.getSelfInfo().id()).replace("{guild.id}", id),
+                discordJv,
+                URLS.BASE_URL,
+                RequestMethod.POST
         ).invoke();
     }
 }

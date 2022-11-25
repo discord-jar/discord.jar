@@ -1,7 +1,7 @@
-package com.seailz.javadiscordwrapper.model.emoji.sticker;
+package com.seailz.discordjv.model.emoji.sticker;
 
-import com.seailz.javadiscordwrapper.DiscordJv;
-import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.core.Compilerable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

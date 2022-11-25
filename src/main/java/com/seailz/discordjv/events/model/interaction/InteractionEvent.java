@@ -10,10 +10,11 @@ import com.seailz.discordjv.model.interaction.InteractionData;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjv.model.interaction.reply.InteractionMessageResponse;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Represents an interaction event
@@ -36,9 +37,12 @@ public class InteractionEvent extends Event {
      * @return {@link Interaction} object containing the interaction data.
      */
     @NotNull
-    @SneakyThrows
     public Interaction getInteraction() {
-        return Interaction.decompile(getJson().getJSONObject("d"), getBot());
+        try {
+            return Interaction.decompile(getJson().getJSONObject("d"), getBot());
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -49,7 +53,6 @@ public class InteractionEvent extends Event {
      * @return {@link InteractionType}
      */
     @NotNull
-    @SneakyThrows
     public InteractionType getInteractionType() {
         return getInteraction().type();
     }
@@ -61,7 +64,6 @@ public class InteractionEvent extends Event {
      * @return {@link Guild} object containing the guild data.
      */
     @Nullable
-    @SneakyThrows
     public Guild getGuild() {
         return getInteraction().guild();
     }
@@ -75,7 +77,6 @@ public class InteractionEvent extends Event {
      * @return {@link InteractionData} object containing the interaction data.
      */
     @Nullable
-    @SneakyThrows
     public InteractionData getInteractionData() {
         return getInteraction().data();
     }

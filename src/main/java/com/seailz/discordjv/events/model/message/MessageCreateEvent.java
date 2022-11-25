@@ -3,7 +3,6 @@ package com.seailz.discordjv.events.model.message;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.message.Message;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -44,7 +43,6 @@ public class MessageCreateEvent extends MessageEvent {
      * @return A {@link Guild} object
      */
     @NotNull
-    @SneakyThrows
     public Guild getGuild() {
         return getBot().getGuildCache().getById((getJson().getJSONObject("d").getString("guild_id")));
     }

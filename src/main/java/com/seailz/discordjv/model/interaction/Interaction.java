@@ -8,7 +8,6 @@ import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.model.message.Message;
 import com.seailz.discordjv.model.user.User;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -127,11 +126,20 @@ public class Interaction implements Compilerable {
     }
 
     @Override
-    @SneakyThrows
     public JSONObject compile() {
         Class<? extends InteractionData> dataClass = data.getClass();
-        Method compileMethod = dataClass.getMethod("compile");
-        JSONObject data = (JSONObject) compileMethod.invoke(this.data);
+        Method compileMethod = null;
+        try {
+            compileMethod = dataClass.getMethod("compile");
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        JSONObject data = null;
+        try {
+            data = (JSONObject) compileMethod.invoke(this.data);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
 
         return new JSONObject()
                 .put("id", id)

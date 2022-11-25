@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.guild;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.sticker.ModifyStickerAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.emoji.Emoji;
@@ -481,6 +482,78 @@ public record Guild(
                 ),
                 discordJv,
                 URLS.DELETE.GUILD.LEAVE_GUILD,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+    /**
+     * Lists the stickers in the guild
+     */
+    public List<Sticker> getStickers() {
+        return Sticker.decompileList(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS.replace(
+                                "{guild.id}",
+                                id
+                        ),
+                        discordJv,
+                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS,
+                        RequestMethod.GET
+                ).invoke().arr(),
+                discordJv
+        );
+    }
+
+    /**
+     * Gets a sticker by id
+     *
+     * @param stickerId The sticker id
+     */
+    public Sticker getStickerById(String stickerId) {
+        return Sticker.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER.replace(
+                                "{guild.id}",
+                                id
+                        ).replace(
+                                "{sticker.id}",
+                                stickerId
+                        ),
+                        discordJv,
+                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER,
+                        RequestMethod.GET
+                ).invoke().body(),
+                discordJv
+        );
+    }
+
+    /**
+     * Modifies a sticker's properties
+     */
+    public ModifyStickerAction modifySticker(String stickerId) {
+        return new ModifyStickerAction(stickerId, discordJv);
+    }
+
+    /**
+     * Deletes a sticker
+     */
+    public void deleteSticker(String stickerId) {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER.replace(
+                        "{guild.id}",
+                        id
+                ).replace(
+                        "{sticker.id}",
+                        stickerId
+                ),
+                discordJv,
+                URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER,
                 RequestMethod.DELETE
         ).invoke();
     }

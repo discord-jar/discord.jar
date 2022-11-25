@@ -2,6 +2,7 @@ package com.seailz.discordjv.utils.discordapi;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.server.ResponseStatusException;
@@ -52,7 +53,7 @@ public record DiscordRequest(
             if (djv.getRateLimits().containsKey(baseUrl) && djv.getRateLimits().get(baseUrl).remaining() == 0) {
                 Logger.getLogger("DiscordJv").warning("[RATE LIMIT] Rate limit reached for " + baseUrl + ". Queuing request.");
                 djv.getQueuedRequests().add(this);
-                return new DiscordResponse(429, new JSONObject(), new HashMap<>());
+                return new DiscordResponse(429, new JSONObject(), new HashMap<>(), null);
             }
 
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -125,7 +126,14 @@ public record DiscordRequest(
                     }
                 }).start();
 
-                return new DiscordResponse(responseCode, new JSONObject(response.toString()), headers);
+                var body = new Object();
+
+                if (response.toString().startsWith("["))
+                    body = new JSONArray(response.toString());
+                else
+                    body = new JSONObject(response.toString());
+
+                return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
             }
             if (responseCode == 204) return null;
             if (responseCode == 429) {

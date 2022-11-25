@@ -26,8 +26,7 @@ or
 ## Dependencies
 Springframework - web sockets - may be removed soon, <p>
 org.json - json managing - may be removed soon, <p>
-jetbrains annotations (should stay?), <p>
-lombok - may be removed soon
+jetbrains annotations (should stay?)
 
 ## License
 License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE)

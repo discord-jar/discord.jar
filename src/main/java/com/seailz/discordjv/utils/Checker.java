@@ -1,6 +1,6 @@
 package com.seailz.discordjv.utils;
 
-import lombok.experimental.UtilityClass;
+import com.seailz.discordjv.utils.annotation.UtilityClass;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +34,7 @@ public class Checker {
      * @param message The message to throw if the object is null.
      */
     @Contract("null, _ -> fail")
-    public void notNull(@Nullable Object object, @NotNull String message) {
+    public static void notNull(@Nullable Object object, @NotNull String message) {
         if (object == null) throw new IllegalArgumentException(message);
     }
 

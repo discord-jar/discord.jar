@@ -337,6 +337,16 @@ public class DiscordJv {
     }
 
     /**
+     * Returns info about a {@link com.seailz.javadiscordwrapper.model.emoji.sticker.Sticker}
+     *
+     * @param id
+     *       The id of the sticker
+     *
+     * @return A {@link com.seailz.javadiscordwrapper.model.emoji.sticker.Sticker} object
+     */
+
+
+    /**
      * Registers a listener, or multiple, with the event dispatcher
      * @param listeners The listeners to register
      */

@@ -8,6 +8,7 @@ import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.events.annotation.EventMethod;
 import com.seailz.discordjv.events.model.interaction.button.ButtonInteractionEvent;
+import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.discordjv.gateway.GatewayFactory;
 import com.seailz.discordjv.model.application.Application;
@@ -182,29 +183,6 @@ public class DiscordJv {
             e.printStackTrace();
         }
         DiscordJv discordJv = new DiscordJv(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
-        discordJv.registerListeners(
-                new DiscordListener() {
-                    @Override
-                    @EventMethod
-                    public void onButtonClickInteractionEvent(@NotNull ButtonInteractionEvent event) {
-                        event.replyModal(new Modal("test", "test", ActionRow.of(
-                                new TextInput(
-                                        "test",
-                                        TextInputStyle.SHORT,
-                                        "test"
-                                )
-                        ))).run();
-                        //event.reply("hi").run();
-                    }
-                },
-                new DiscordListener() {
-                    @Override
-                    @EventMethod
-                    public void onModalInteractionEvent(@NotNull ModalInteractionEvent event) {
-                        event.reply("You did it!").run();
-                    }
-                }
-        );
 
         ArrayList<Activity> activities = new ArrayList<>();
         activities.add(
@@ -212,12 +190,6 @@ public class DiscordJv {
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv.setStatus(status);
-        discordJv.getChannelById("993461660792651829").sendMessage("hello, world.")
-                .addComponent(
-                        ActionRow.of(
-                                Button.primary("primary button", "p-b")
-                        )
-                ).run();
     }
 
     /**
@@ -430,6 +402,14 @@ public class DiscordJv {
     }
 
     /**
+     * Returns the command dispatcher
+     */
+    @NotNull
+    public CommandDispatcher getCommandDispatcher() {
+        return commandDispatcher;
+    }
+
+    /**
      * Returns the rate-limit info
      */
     @NotNull
@@ -483,8 +463,8 @@ public class DiscordJv {
      */
     public void registerCommands(CommandListener... listeners) {
         for (CommandListener listener : listeners) {
-            Checker.check(listener.getClass().isAnnotationPresent(CommandInfo.class), "CommandListener class must be annotated with @CommandInfo");
             CommandInfo ann = listener.getClass().getAnnotation(CommandInfo.class);
+            Checker.check(!listener.getClass().isAnnotationPresent(CommandInfo.class) || ann == null, "CommandListener class must be annotated with @CommandInfo");
             registerCommand(
                     new Command(
                             ann.name(),

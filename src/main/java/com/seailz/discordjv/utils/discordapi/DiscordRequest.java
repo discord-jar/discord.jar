@@ -150,6 +150,8 @@ public record DiscordRequest(
                 return null;
             }
 
+            if (responseCode == 201) return null;
+
             throw new ResponseStatusException(org.springframework.http.HttpStatus.valueOf(responseCode),
                     con.getResponseMessage());
         } catch (Exception e) {

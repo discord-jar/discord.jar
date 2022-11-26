@@ -8,12 +8,17 @@ import com.seailz.discordjv.events.model.general.ReadyEvent;
 import com.seailz.discordjv.events.model.guild.GuildCreateEvent;
 import com.seailz.discordjv.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
+import com.seailz.discordjv.events.model.interaction.command.MessageContextCommandInteractionEvent;
+import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
+import com.seailz.discordjv.events.model.interaction.command.UserContextCommandInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjv.events.model.message.MessageCreateEvent;
+import com.seailz.discordjv.gateway.GatewayFactory;
+import com.seailz.discordjv.model.commands.CommandType;
 import com.seailz.discordjv.model.component.ComponentType;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
@@ -73,6 +78,16 @@ public enum DispatchedEvents {
                 ).invoke();
             }
             case APPLICATION_COMMAND -> {
+                CommandInteractionEvent event = null;
+
+                switch (CommandType.fromCode(p.getJSONObject("d").getJSONObject("data").getInt("type"))) {
+                    case SLASH_COMMAND -> event = new SlashCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                    case USER -> event = new UserContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                    case MESSAGE -> event = new MessageContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                }
+
+                d.getCommandDispatcher().dispatch(p.getJSONObject("d").getJSONObject("data").getString("name"),
+                        event);
                 return CommandInteractionEvent.class;
             }
             case MESSAGE_COMPONENT -> {

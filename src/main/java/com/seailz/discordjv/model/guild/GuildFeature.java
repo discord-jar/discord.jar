@@ -50,6 +50,8 @@ public enum GuildFeature {
     VIP_REGIONS,
     // guild has enabled the welcome screen
     WELCOME_SCREEN_ENABLED,
+    // has perms v2
+    APPLICATION_COMMAND_PERMISSIONS_V2,
 
     ;
 

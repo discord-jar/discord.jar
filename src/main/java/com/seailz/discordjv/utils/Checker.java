@@ -20,6 +20,10 @@ public class Checker {
         if (condition) illegalArgument(message);
     }
 
+    public static void checkInvert(boolean condition, @NotNull String message) {
+        if (condition) illegalArgument(message);
+    }
+
     /**
      * Checks if a given string is a snowflake.
      *

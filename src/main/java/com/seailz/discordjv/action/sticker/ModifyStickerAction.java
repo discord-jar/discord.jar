@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 public class ModifyStickerAction {
 
@@ -49,8 +50,9 @@ public class ModifyStickerAction {
         return tags;
     }
 
-    public Sticker run() {
-        return Sticker.decompile(
+    public CompletableFuture<Sticker> run() {
+        CompletableFuture<Sticker> stickerCompletableFuture = new CompletableFuture<>();
+        stickerCompletableFuture.completeAsync(() -> Sticker.decompile(
                 new DiscordRequest(
                         new JSONObject()
                                 .put("name", name != null ? name : JSONObject.NULL)
@@ -66,7 +68,8 @@ public class ModifyStickerAction {
                         RequestMethod.PATCH
                 ).invoke().body(),
                 discordJv
-        );
+        ));
+        return stickerCompletableFuture;
     }
 
 }

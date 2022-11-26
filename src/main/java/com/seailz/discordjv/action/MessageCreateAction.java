@@ -1,7 +1,6 @@
 package com.seailz.discordjv.action;
 
 import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.action.finished.FinishedAction;
 import com.seailz.discordjv.model.component.DisplayComponent;
 import com.seailz.discordjv.model.message.Attachment;
 import com.seailz.discordjv.model.message.Message;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Used to create a message and define extra properties
@@ -175,62 +175,66 @@ public class MessageCreateAction {
         return this;
     }
 
-    public FinishedAction<Message> run() {
-        String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
+    public CompletableFuture<Message> run() {
+        CompletableFuture<Message> future = new CompletableFuture<>();
+        future.completeAsync(() -> {
+            String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
 
-        JSONObject payload = new JSONObject();
-        if (this.text != null) payload.put("content", this.text);
-        if (this.nonce != null) payload.put("nonce", this.nonce);
-        if (this.tts) payload.put("tts", true);
-        if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
+            JSONObject payload = new JSONObject();
+            if (this.text != null) payload.put("content", this.text);
+            if (this.nonce != null) payload.put("nonce", this.nonce);
+            if (this.tts) payload.put("tts", true);
+            if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
 
-        JSONArray components = new JSONArray();
-        if (this.components != null) {
-            for (DisplayComponent component : this.components) {
-                components.put(component.compile());
+            JSONArray components = new JSONArray();
+            if (this.components != null) {
+                for (DisplayComponent component : this.components) {
+                    components.put(component.compile());
+                }
             }
-        }
 
-        if (this.components != null)
-            payload.put("components", components);
+            if (this.components != null)
+                payload.put("components", components);
 
-        JSONArray stickerIds = new JSONArray();
-        if (this.stickerIds != null) {
-            for (String stickerId : this.stickerIds) {
-                stickerIds.put(stickerId);
+            JSONArray stickerIds = new JSONArray();
+            if (this.stickerIds != null) {
+                for (String stickerId : this.stickerIds) {
+                    stickerIds.put(stickerId);
+                }
             }
-        }
 
-        if (this.stickerIds != null)
-            payload.put("sticker_ids", stickerIds);
+            if (this.stickerIds != null)
+                payload.put("sticker_ids", stickerIds);
 
-        JSONArray attachments = new JSONArray();
-        if (this.attachments != null) {
-            for (Attachment attachment : this.attachments) {
-                attachments.put(attachment.compile());
+            JSONArray attachments = new JSONArray();
+            if (this.attachments != null) {
+                for (Attachment attachment : this.attachments) {
+                    attachments.put(attachment.compile());
+                }
             }
-        }
 
-        if (this.attachments != null)
-            payload.put("attachments", attachments);
+            if (this.attachments != null)
+                payload.put("attachments", attachments);
 
-        if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
+            if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
 
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("Content-Length", payload.has("content") ? String.valueOf(payload.getString("content").length()) : "0");
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put("Content-Length", payload.has("content") ? String.valueOf(payload.getString("content").length()) : "0");
 
 
-        DiscordRequest request = new DiscordRequest(
-                payload,
-                headers,
-                url,
-                discordJv,
-                URLS.POST.MESSAGES.SEND,
-                RequestMethod.POST
-        );
+            DiscordRequest request = new DiscordRequest(
+                    payload,
+                    headers,
+                    url,
+                    discordJv,
+                    URLS.POST.MESSAGES.SEND,
+                    RequestMethod.POST
+            );
 
-        DiscordResponse response = request.invoke();
-        return new FinishedAction<>(Message.decompile(response.body(), discordJv));
+            DiscordResponse response = request.invoke();
+            return Message.decompile(response.body(), discordJv);
+        });
+        return future;
     }
 
 }

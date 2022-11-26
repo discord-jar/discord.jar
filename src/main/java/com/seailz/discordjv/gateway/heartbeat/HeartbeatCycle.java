@@ -33,7 +33,7 @@ public class HeartbeatCycle {
     public void sendHeartbeat() throws IOException, ExecutionException, InterruptedException {
         JSONObject payload = new JSONObject();
         payload.put("op", 1);
-        payload.put("d", factory.getLastSequence());
+        payload.put("d", GatewayFactory.getLastSequence());
 
         if (!factory.getClientSession().isOpen())
             factory.reconnect();

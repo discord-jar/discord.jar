@@ -50,13 +50,19 @@ public enum GuildFeature {
     VIP_REGIONS,
     // guild has enabled the welcome screen
     WELCOME_SCREEN_ENABLED,
+    // has perms v2
+    APPLICATION_COMMAND_PERMISSIONS_V2,
 
-    ;
+    UNKNOWN;
 
     public static EnumSet<GuildFeature> getGuildFeatures(String[] features) {
         EnumSet<GuildFeature> guildFeatures = EnumSet.noneOf(GuildFeature.class);
         for (String feature : features) {
-            guildFeatures.add(GuildFeature.valueOf(feature.toUpperCase()));
+            try {
+                guildFeatures.add(GuildFeature.valueOf(feature.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                guildFeatures.add(GuildFeature.UNKNOWN);
+            }
         }
         return guildFeatures;
     }

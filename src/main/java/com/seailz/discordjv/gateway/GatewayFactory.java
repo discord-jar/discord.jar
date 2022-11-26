@@ -2,6 +2,7 @@ package com.seailz.discordjv.gateway;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.events.model.Event;
+import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
 import com.seailz.discordjv.gateway.events.GatewayEvents;
 import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
@@ -34,7 +35,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private final DiscordJv discordJv;
     private final String url;
     private WebSocketSession clientSession;
-    private int lastSequence;
+    private static int lastSequence;
     private HeartbeatCycle heartbeatCycle;
     private final Logger logger;
     private String resumeUrl;
@@ -166,8 +167,11 @@ public class GatewayFactory extends TextWebSocketHandler {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, discordJv);
+        if (eventClass.equals(CommandInteractionEvent.class)) return;
         if (eventClass == null) {
             logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t"));
+            logger.info("This is usually ok, if a new feature has recently been added to Discord as discord.jv may not support it yet.");
+            logger.info("If that is not the case, please report this to the discord.jv developers.");
             return;
         }
 
@@ -230,7 +234,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    public int getLastSequence() {
+    public static int getLastSequence() {
         return lastSequence;
     }
 

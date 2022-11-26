@@ -4,19 +4,9 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.events.model.interaction.InteractionEvent;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.interaction.data.command.ApplicationCommandInteractionData;
-import com.seailz.discordjv.model.interaction.data.command.ResolvedCommandOption;
-import com.seailz.discordjv.model.message.Message;
-import com.seailz.discordjv.model.user.User;
-import com.seailz.discordjv.utils.URLS;
-import com.seailz.discordjv.utils.discordapi.DiscordRequest;
-import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.HashMap;
-import java.util.List;
 
 public class CommandInteractionEvent extends InteractionEvent {
     public CommandInteractionEvent(@NotNull DiscordJv bot, long sequence, @NotNull JSONObject data) {

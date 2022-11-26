@@ -9,9 +9,11 @@ public enum CommandType {
     MESSAGE(3),
     UNKNOWN(-1);
 
-    private int code;
+    private final int code;
 
-    CommandType(int code) {this.code = code;}
+    CommandType(int code) {
+        this.code = code;
+    }
 
     public int getCode() {
         return code;

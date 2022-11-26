@@ -81,9 +81,11 @@ public enum DispatchedEvents {
                 CommandInteractionEvent event = null;
 
                 switch (CommandType.fromCode(p.getJSONObject("d").getJSONObject("data").getInt("type"))) {
-                    case SLASH_COMMAND -> event = new SlashCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                    case SLASH_COMMAND ->
+                            event = new SlashCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
                     case USER -> event = new UserContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
-                    case MESSAGE -> event = new MessageContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                    case MESSAGE ->
+                            event = new MessageContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
                 }
 
                 d.getCommandDispatcher().dispatch(p.getJSONObject("d").getJSONObject("data").getString("name"),

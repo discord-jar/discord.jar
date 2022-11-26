@@ -28,11 +28,13 @@ public final class URLS {
 
             /**
              * Endpoint for global commands.
+             *
              * @param {application.id} The ID of the application to add a global command to
              */
             public static final String GLOBAL_COMMANDS = "/applications/{application.id}/commands";
             /**
              * Endpoint for guild commands.
+             *
              * @param {application.id} The ID of the application to add a guild command to
              * @param {guild.id} The guild to add the command to
              */
@@ -156,6 +158,7 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
+
             public static class STICKER {
                 /**
                  * Deletes a guild sticker

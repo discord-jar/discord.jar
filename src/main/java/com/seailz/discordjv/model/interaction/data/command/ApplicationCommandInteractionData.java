@@ -7,7 +7,6 @@ import com.seailz.discordjv.model.interaction.data.ResolvedData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**

@@ -9,10 +9,11 @@ import java.util.List;
 
 /**
  * Represents an application command.
- * @param name The name of the app command
- * @param type The type of the app command. See {@link CommandType}
+ *
+ * @param name        The name of the app command
+ * @param type        The type of the app command. See {@link CommandType}
  * @param description The description of the app command.
- * @param options Any options the app command will have.
+ * @param options     Any options the app command will have.
  * @author itstotallyjan
  */
 public record Command(

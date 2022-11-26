@@ -51,8 +51,8 @@ public class Checker {
     /**
      * Checks if a given string matches a given regex.
      *
-     * @param regex The regex to match.
-     * @param string The string to check.
+     * @param regex   The regex to match.
+     * @param string  The string to check.
      * @param message The message to throw if the string does not match the regex.
      */
     public void matches(String regex, String string, String message, boolean invert) {
@@ -68,8 +68,8 @@ public class Checker {
     /**
      * Checks the length of a given string.
      *
-     * @param length The length to check.
-     * @param string The string to check.
+     * @param length  The length to check.
+     * @param string  The string to check.
      * @param message The message to throw if the string is not the given length.
      */
     public void length(int length, String string, String message) {
@@ -91,6 +91,7 @@ public class Checker {
     private static void illegalArgument(String message) {
         throw new IllegalArgumentException(message);
     }
+
     private static void nullArgument(String message) {
         throw new NullArgumentException(message);
     }

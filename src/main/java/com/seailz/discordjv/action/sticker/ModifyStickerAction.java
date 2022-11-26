@@ -4,7 +4,6 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
-import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 

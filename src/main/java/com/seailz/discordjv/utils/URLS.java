@@ -24,6 +24,21 @@ public final class URLS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
         }
 
+        public static class COMMANDS {
+
+            /**
+             * Endpoint for global commands.
+             * @param {application.id} The ID of the application to add a global command to
+             */
+            public static final String GLOBAL_COMMANDS = "/applications/{application.id}/commands";
+            /**
+             * Endpoint for guild commands.
+             * @param {application.id} The ID of the application to add a guild command to
+             * @param {guild.id} The guild to add the command to
+             */
+            public static final String GUILD_COMMANDS = "/applications/{application.id}/guilds/{guild.id}/commands";
+        }
+
         public static class MESSAGES {
             public static final String SEND = "/channels/{channel.id}/messages";
         }

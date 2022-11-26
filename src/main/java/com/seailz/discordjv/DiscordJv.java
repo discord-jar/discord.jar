@@ -1,5 +1,9 @@
 package com.seailz.discordjv;
 
+import com.seailz.discordjv.command.CommandDispatcher;
+import com.seailz.discordjv.command.listeners.CommandListener;
+import com.seailz.discordjv.command.listeners.SlashCommandListener;
+import com.seailz.discordjv.command.annotation.CommandInfo;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.events.annotation.EventMethod;
@@ -9,6 +13,9 @@ import com.seailz.discordjv.gateway.GatewayFactory;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.channel.Channel;
+import com.seailz.discordjv.model.commands.Command;
+import com.seailz.discordjv.model.commands.CommandChoice;
+import com.seailz.discordjv.model.commands.CommandOption;
 import com.seailz.discordjv.model.component.ActionRow;
 import com.seailz.discordjv.model.component.button.Button;
 import com.seailz.discordjv.model.component.text.TextInput;
@@ -96,6 +103,10 @@ public class DiscordJv {
      * Value: The amount of requests left
      */
     private final HashMap<String, RateLimit> rateLimits;
+    /**
+     * The command dispatcher
+     */
+    protected final CommandDispatcher commandDispatcher;
 
     /**
      * Creates a new instance of the DiscordJv class
@@ -113,6 +124,7 @@ public class DiscordJv {
         this.intents = intents;
         new URLS(version);
         logger = Logger.getLogger("DiscordJv");
+        this.commandDispatcher = new CommandDispatcher();
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
         this.gatewayFactory = new GatewayFactory(this);
@@ -446,5 +458,84 @@ public class DiscordJv {
      */
     public void addIntent(@NotNull Intent intent) {
         intents.add(intent);
+    }
+
+    /**
+     * Registers command(s) with Discord.
+     * @param listeners The listeners to register
+     *
+     * @throws IllegalArgumentException <ul>
+     *     <li>If the command name is less than 1 character or more than 32 characters</li>
+     *
+     *     <li>If the command description is less than 1 character or more than 100 characters</li>
+     *
+     *     <li>If the command options are more than 25</li>
+     *
+     *     <li>If a command option name is less than 1 character or more than 32 characters</li>
+     *
+     *     <li>If a command option description is less than 1 character or more than 100 characters</li>
+     *
+     *     <li>If a command option choices are more than 25</li>
+     *
+     *     <li>If a command option choice name is less than 1 character or more than 100 characters</li>
+     *
+     *     <li>If a command option choice value is less than 1 character or more than 100 characters</li></ul>
+     */
+    public void registerCommands(CommandListener... listeners) {
+        for (CommandListener listener : listeners) {
+            Checker.check(listener.getClass().isAnnotationPresent(CommandInfo.class), "CommandListener class must be annotated with @CommandInfo");
+            CommandInfo ann = listener.getClass().getAnnotation(CommandInfo.class);
+            registerCommand(
+                    new Command(
+                            ann.name(),
+                            listener.getType(),
+                            ann.description(),
+                            (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>()
+                    )
+            );
+            commandDispatcher.registerCommand(ann.name(), listener);
+        }
+    }
+
+    protected void registerCommand(Command command) {
+        Checker.check(!(command.name().length() > 1 && command.name().length() < 32), "Command name must be within 1 and 32 characters!");
+        Checker.check(!(command.description().length() > 1 && command.description().length() < 100), "Command description must be within 1 and 100 characters!");
+        Checker.check(command.options().size() > 25, "Application commands can only have up to 25 options!");
+
+        for (CommandOption o:command.options()) {
+            Checker.check(!(o.name().length() > 1 && o.name().length() < 32), "Option name must be within 1 and 32 characters!");
+            Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
+            Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
+
+            for (CommandChoice c:o.choices()) {
+                Checker.check(!(c.name().length() > 1 && c.name().length() < 100), "Choice name must be within 1 and 100 characters!");
+                Checker.check(!(c.value().length() > 1 && c.value().length() < 100), "Choice value must be within 1 and 100 characters!");
+            }
+        }
+
+        DiscordRequest commandReq = new DiscordRequest(
+                command.compile(),
+                new HashMap<>(),
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.POST);
+        commandReq.invoke();
+    }
+
+    /**
+     * Clears all the global commands for this app. Cannot be undone.
+     * @apiNote This currently does not work, don't use.
+     */
+    public void clearCommands() {
+        DiscordRequest cmdDelReq = new DiscordRequest(
+                new JSONObject("{[]}"),
+                new HashMap<>(),
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.PUT
+        );
+        cmdDelReq.invoke();
     }
 }

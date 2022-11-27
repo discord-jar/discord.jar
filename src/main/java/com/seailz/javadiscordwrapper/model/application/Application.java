@@ -1,15 +1,15 @@
-package com.seailz.javadiscordwrapper.model.application;
+package com.seailz.discordjv.model.application;
 
-import com.seailz.javadiscordwrapper.DiscordJv;
-import com.seailz.javadiscordwrapper.core.Compilerable;
-import com.seailz.javadiscordwrapper.model.scopes.InstallParams;
-import com.seailz.javadiscordwrapper.model.user.User;
-import com.seailz.javadiscordwrapper.model.team.Team;
-import com.seailz.javadiscordwrapper.utils.Checker;
-import com.seailz.javadiscordwrapper.utils.URLS;
-import com.seailz.javadiscordwrapper.utils.discordapi.DiscordRequest;
-import com.seailz.javadiscordwrapper.utils.discordapi.DiscordResponse;
-import com.seailz.javadiscordwrapper.utils.flag.FlagUtil;
+import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.model.scopes.InstallParams;
+import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.model.team.Team;
+import com.seailz.discordjv.utils.Checker;
+import com.seailz.discordjv.utils.URLS;
+import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.discordapi.DiscordResponse;
+import com.seailz.discordjv.utils.flag.FlagUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -320,7 +320,7 @@ public record Application(
      *
      * @param roleConnections The list of role connection metadata objects to update.
      *
-     * @throws com.seailz.javadiscordwrapper.utils.Checker.NullArgumentException if the list is null.
+     * @throws com.seailz.discordjv.utils.Checker.NullArgumentException if the list is null.
      * @throws IllegalArgumentException if the list has more than 5 elements.
      */
     public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) {

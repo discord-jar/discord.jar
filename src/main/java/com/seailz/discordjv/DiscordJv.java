@@ -3,7 +3,7 @@ package com.seailz.discordjv;
 import com.seailz.discordjv.command.CommandDispatcher;
 import com.seailz.discordjv.command.annotation.CommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
-import com.seailz.discordjv.command.listeners.SlashCommandListener;
+import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
@@ -439,7 +439,7 @@ public class DiscordJv {
     /**
      * Registers command(s) with Discord.
      *
-     * @param listeners The listeners to register
+     * @param listeners The listeners/commands to register
      * @throws IllegalArgumentException <ul>
      *                                  <li>If the command name is less than 1 character or more than 32 characters</li>
      *

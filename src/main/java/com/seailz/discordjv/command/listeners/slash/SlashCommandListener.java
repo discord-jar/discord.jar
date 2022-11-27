@@ -1,8 +1,10 @@
-package com.seailz.discordjv.command.listeners;
+package com.seailz.discordjv.command.listeners.slash;
 
+import com.seailz.discordjv.command.listeners.CommandListener;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjv.model.commands.CommandOption;
+import com.seailz.discordjv.model.commands.CommandOptionType;
 import com.seailz.discordjv.model.commands.CommandType;
 
 import java.util.ArrayList;
@@ -11,6 +13,30 @@ import java.util.List;
 public interface SlashCommandListener extends CommandListener {
 
     List<CommandOption> options = new ArrayList<>();
+
+    default void addSubCommandGroup(SubCommandGroup group) {
+        options.add(new CommandOption(
+                group.getName(),
+                group.getDescription(),
+                CommandOptionType.SUB_COMMAND_GROUP,
+                true,
+                new ArrayList<>(),
+                group.getSubCommands().keySet().stream().toList(),
+                new ArrayList<>()
+        ));
+    }
+
+    default void addSubCommand(SlashSubCommand subCommand, SubCommandListener listener) {
+        options.add(new CommandOption(
+                subCommand.getName(),
+                subCommand.getDescription(),
+                CommandOptionType.SUB_COMMAND,
+                true,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                subCommand.getOptions()
+        ));
+    }
 
     /**
      * Returns the type of command this listener is listening for.

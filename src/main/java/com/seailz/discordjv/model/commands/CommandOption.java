@@ -1,5 +1,6 @@
 package com.seailz.discordjv.model.commands;
 
+import com.seailz.discordjv.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjv.core.Compilerable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,11 +22,13 @@ public record CommandOption(
         String description,
         CommandOptionType type,
         boolean required,
-        List<CommandChoice> choices
+        List<CommandChoice> choices,
+        List<SlashSubCommand> subCommands,
+        List<CommandOption> options
 ) implements Compilerable {
 
     public CommandOption(String name, String description, CommandOptionType type, boolean required) {
-        this(name, description, type, required, new ArrayList<>());
+        this(name, description, type, required, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     public CommandOption addChoice(CommandChoice choice) {
@@ -33,17 +36,30 @@ public record CommandOption(
         return this;
     }
 
+    public CommandOption addSubCommand(SlashSubCommand subCommand) {
+        subCommands.add(subCommand);
+        return this;
+    }
+
     @Override
     public JSONObject compile() {
         JSONArray choicesJson = new JSONArray();
-        choices.forEach((commandChoice -> choicesJson.put(commandChoice.compile())));
+        if (this.choices != null) {
+            choices.forEach((commandChoice -> choicesJson.put(commandChoice.compile())));
+        }
+
+        JSONArray subCommandsJson = new JSONArray();
+        if (this.subCommands != null) {
+            subCommands.forEach((subCommand -> subCommandsJson.put(subCommand.compile())));
+        }
 
         return new JSONObject()
                 .put("name", name)
                 .put("description", description)
                 .put("type", type.getCode())
                 .put("required", required)
-                .put("choices", choicesJson);
+                .put("choices", this.choices != null ? choicesJson : null)
+                .put("options", this.subCommands != null ? subCommandsJson : null);
     }
 
     public static CommandOption decompile(JSONObject obj) {
@@ -52,6 +68,7 @@ public record CommandOption(
         CommandOptionType type = obj.has("type") ? CommandOptionType.fromCode(obj.getInt("type")) : CommandOptionType.STRING;
         boolean required = obj.has("required") && obj.getBoolean("required");
         List<CommandChoice> choices = new ArrayList<>();
+        List<CommandOption> options = new ArrayList<>();
 
         if (obj.has("choices")) {
             for (Object v : obj.getJSONArray("choices")) {
@@ -59,12 +76,29 @@ public record CommandOption(
             }
         }
 
+        List<SlashSubCommand> subCommands = new ArrayList<>();
+        if (obj.has("options") && type == CommandOptionType.SUB_COMMAND_GROUP) {
+            for (Object v : obj.getJSONArray("options")) {
+                subCommands.add(SlashSubCommand.decompile((JSONObject) v));
+            }
+        }
+
+        if (obj.has("options") && type == CommandOptionType.SUB_COMMAND) {
+            for (Object v : obj.getJSONArray("options")) {
+                options.add(CommandOption.decompile((JSONObject) v));
+            }
+        }
+
+
+
         return new CommandOption(
                 name,
                 description,
                 type,
                 required,
-                choices
+                choices,
+                subCommands,
+                options
         );
     }
 }

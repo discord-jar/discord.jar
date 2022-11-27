@@ -9,7 +9,7 @@
 - [ ] Documentation
 
 <!-- Replace 0 with the issue to close that is linked to this PR (if there is one) -->
-Closes Issue: 0
+Closes #0
 
 ## Description
 Replace this sentence with a description of what this adds/fixes.

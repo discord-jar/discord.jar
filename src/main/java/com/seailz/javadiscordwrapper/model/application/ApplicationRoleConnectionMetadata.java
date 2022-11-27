@@ -1,6 +1,6 @@
-package com.seailz.javadiscordwrapper.model.application;
+package com.seailz.discordjv.model.application;
 
-import com.seailz.javadiscordwrapper.core.Compilerable;
+import com.seailz.discordjv.core.Compilerable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;

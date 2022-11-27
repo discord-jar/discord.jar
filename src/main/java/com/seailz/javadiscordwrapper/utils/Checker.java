@@ -1,4 +1,4 @@
-package com.seailz.javadiscordwrapper.utils;
+package com.seailz.discordjv.utils;
 
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;

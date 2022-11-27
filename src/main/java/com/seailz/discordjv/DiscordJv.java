@@ -181,6 +181,7 @@ public class DiscordJv {
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv.setStatus(status);
+
     }
 
     /**

@@ -3,9 +3,9 @@ package com.seailz.discordjv.command.listeners.slash;
 import com.seailz.discordjv.command.listeners.CommandListener;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
-import com.seailz.discordjv.model.commands.CommandOption;
-import com.seailz.discordjv.model.commands.CommandOptionType;
-import com.seailz.discordjv.model.commands.CommandType;
+import com.seailz.discordjv.command.CommandOption;
+import com.seailz.discordjv.command.CommandOptionType;
+import com.seailz.discordjv.command.CommandType;
 
 import java.util.ArrayList;
 import java.util.List;

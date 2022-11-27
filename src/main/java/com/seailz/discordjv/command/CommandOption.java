@@ -1,4 +1,4 @@
-package com.seailz.discordjv.model.commands;
+package com.seailz.discordjv.command;
 
 import com.seailz.discordjv.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjv.core.Compilerable;

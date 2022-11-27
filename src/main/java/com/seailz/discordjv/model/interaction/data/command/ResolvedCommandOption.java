@@ -1,7 +1,7 @@
 package com.seailz.discordjv.model.interaction.data.command;
 
 import com.seailz.discordjv.core.Compilerable;
-import com.seailz.discordjv.model.commands.CommandOptionType;
+import com.seailz.discordjv.command.CommandOptionType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;

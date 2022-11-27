@@ -1,4 +1,4 @@
-package com.seailz.discordjv.model.commands;
+package com.seailz.discordjv.command;
 
 public enum CommandOptionType {
 

@@ -2,7 +2,7 @@ package com.seailz.discordjv.events.model.command;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.events.model.Event;
-import com.seailz.discordjv.model.commands.permissions.ApplicationCommandPermissions;
+import com.seailz.discordjv.command.permissions.ApplicationCommandPermissions;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

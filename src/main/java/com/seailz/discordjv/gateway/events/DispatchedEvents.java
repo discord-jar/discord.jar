@@ -18,7 +18,7 @@ import com.seailz.discordjv.events.model.interaction.select.entity.RoleSelectMen
 import com.seailz.discordjv.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjv.events.model.message.MessageCreateEvent;
 import com.seailz.discordjv.gateway.GatewayFactory;
-import com.seailz.discordjv.model.commands.CommandType;
+import com.seailz.discordjv.command.CommandType;
 import com.seailz.discordjv.model.component.ComponentType;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;

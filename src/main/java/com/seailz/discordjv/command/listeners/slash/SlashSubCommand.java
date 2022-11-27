@@ -1,10 +1,8 @@
 package com.seailz.discordjv.command.listeners.slash;
 
-import com.seailz.discordjv.command.annotation.CommandInfo;
 import com.seailz.discordjv.core.Compilerable;
-import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
-import com.seailz.discordjv.model.commands.CommandOption;
-import com.seailz.discordjv.model.commands.CommandOptionType;
+import com.seailz.discordjv.command.CommandOption;
+import com.seailz.discordjv.command.CommandOptionType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

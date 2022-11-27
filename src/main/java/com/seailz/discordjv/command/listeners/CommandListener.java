@@ -3,7 +3,7 @@ package com.seailz.discordjv.command.listeners;
 import com.seailz.discordjv.command.annotation.CommandInfo;
 import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
-import com.seailz.discordjv.model.commands.CommandType;
+import com.seailz.discordjv.command.CommandType;
 
 /**
  * This interface is used to create a command listener,

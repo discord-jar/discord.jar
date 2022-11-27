@@ -2,7 +2,7 @@ package com.seailz.discordjv.command.listeners;
 
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.events.model.interaction.command.MessageContextCommandInteractionEvent;
-import com.seailz.discordjv.model.commands.CommandType;
+import com.seailz.discordjv.command.CommandType;
 
 public interface MessageContextCommandListener extends CommandListener {
     /**

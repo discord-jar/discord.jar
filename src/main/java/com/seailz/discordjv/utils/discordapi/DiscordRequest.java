@@ -50,7 +50,7 @@ public record DiscordRequest(
      *
      * @return The {@link DiscordResponse} from the Discord API
      */
-    public DiscordResponse invoke() {
+    private DiscordResponse invoke(String json) {
         try {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
@@ -81,6 +81,7 @@ public record DiscordRequest(
             headers.forEach(con::header);
 
             byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
+
 
             HttpRequest request = con.build();
             HttpClient client = HttpClient.newHttpClient();
@@ -165,6 +166,18 @@ public record DiscordRequest(
             e.printStackTrace();
         }
         return null;
+    }
+
+    public DiscordResponse invoke(JSONObject body) {
+        return invoke(body.toString());
+    }
+
+    public DiscordResponse invoke(JSONArray arr) {
+        return invoke(arr.toString());
+    }
+
+    public DiscordResponse invoke() {
+        return invoke(body.toString());
     }
 
     /**

@@ -31,6 +31,7 @@ import com.seailz.discordjv.utils.discordapi.RequestQueueHandler;
 import com.seailz.discordjv.utils.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -501,18 +502,16 @@ public class DiscordJv {
 
     /**
      * Clears all the global commands for this app. Cannot be undone.
-     *
-     * @apiNote This currently does not work, don't use.
      */
     public void clearCommands() {
         DiscordRequest cmdDelReq = new DiscordRequest(
-                new JSONObject("{[]}"),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
                 this,
                 URLS.BASE_URL,
                 RequestMethod.PUT
         );
-        cmdDelReq.invoke();
+        cmdDelReq.invoke(new JSONArray());
     }
 }

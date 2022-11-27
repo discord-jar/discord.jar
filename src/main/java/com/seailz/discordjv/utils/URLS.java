@@ -151,6 +151,22 @@ public final class URLS {
                  */
                 public static String GET_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
             }
+
+            public static class MEMBERS {
+                /**
+                 * Returns a list of guild members
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String LIST_GUILD_MEMBERS = "/guilds/{guild.id}/members";
+                /**
+                 * Returns a guild member
+                 *
+                 * @param guild.id The id of the guild
+                 * @param user.id The id of the user
+                 */
+                public static String GET_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
+            }
         }
 
         public static class APPLICATIONS {
@@ -209,6 +225,15 @@ public final class URLS {
 
     public static class PATCH {
         public static class GUILD {
+            public static class MEMBER {
+                /**
+                 * Modifies a guild member
+                 *
+                 * @param guild.id The id of the guild
+                 * @param user.id The id of the user
+                 */
+                public static String MODIFY_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
+            }
             public static class AUTOMOD {
                 /**
                  * Updates an automod rule

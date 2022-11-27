@@ -167,13 +167,13 @@ public class GatewayFactory extends TextWebSocketHandler {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, discordJv);
-        if (eventClass.equals(CommandInteractionEvent.class)) return;
         if (eventClass == null) {
             logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t"));
             logger.info("This is usually ok, if a new feature has recently been added to Discord as discord.jv may not support it yet.");
             logger.info("If that is not the case, please report this to the discord.jv developers.");
             return;
         }
+        if (eventClass.equals(CommandInteractionEvent.class)) return;
 
         Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class).newInstance(discordJv, lastSequence, payload);
         discordJv.getEventDispatcher().dispatchEvent(event, eventClass, discordJv);

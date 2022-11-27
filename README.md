@@ -6,7 +6,7 @@ discord.jv [![loc - discord.jv](https://sloc.xyz/github/seailz/discord.jv)](http
 Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if you're interested in helping out it would be greatly appreciated!
 
 ## Documentation
-There is currently no documentation, but it will be avaliable [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready.
+There is currently no documentation, but it will be avaliable [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready. Although there is no documentation, there are still examples which are avaliable [here](https://github.com/discord-jv/discord.jv/tree/main/examples)
 
 ## Contributing
 If you want to contribute to this project, feel free to do so! Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab,

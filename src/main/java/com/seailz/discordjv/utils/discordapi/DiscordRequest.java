@@ -10,8 +10,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
@@ -56,37 +61,39 @@ public record DiscordRequest(
                 return new DiscordResponse(429, new JSONObject(), new HashMap<>(), null);
             }
 
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod(requestMethod.toString());
-            con.setRequestProperty("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
-            con.setRequestProperty("Authorization", "Bot " + djv.getToken());
-            con.setRequestProperty("Content-Type", "application/json");
-            headers.forEach(con::setRequestProperty);
+            HttpRequest.Builder con = HttpRequest.newBuilder();
+
+            con.uri(obj.toURI());
+
+            if (requestMethod == RequestMethod.POST) {
+                con.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
+            } else if (requestMethod == RequestMethod.PATCH) {
+                con.method("PATCH", HttpRequest.BodyPublishers.ofString(body.toString()));
+            } else if (requestMethod == RequestMethod.DELETE) {
+                con.DELETE();
+            } else if (requestMethod == RequestMethod.GET) {
+                con.GET();
+            }
+
+            con.header("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
+            con.header("Authorization", "Bot " + djv.getToken());
+            con.header("Content-Type", "application/json");
+            headers.forEach(con::header);
 
             byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
 
-            if (requestMethod == RequestMethod.POST || requestMethod == RequestMethod.PATCH) {
-                con.setDoOutput(true);
-                try (OutputStream os = con.getOutputStream()) {
-                    os.write(out);
-                }
-            }
+            HttpRequest request = con.build();
+            HttpClient client = HttpClient.newHttpClient();
 
-            con.connect();
-            int responseCode = con.getResponseCode();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
+            int responseCode = response.statusCode();
+            System.out.println(request.uri() + " " + request.method());
 
             if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
                 HashMap<String, String> headers = new HashMap<>();
-                for (String key : con.getHeaderFields().keySet())
-                    headers.put(key, con.getHeaderField(key));
+                response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
                 if (headers.containsKey("X-RateLimit-Limit") &&
                         headers.containsKey("X-RateLimit-Remaining") &&
@@ -128,20 +135,21 @@ public record DiscordRequest(
 
                 var body = new Object();
 
-                if (response.toString().startsWith("["))
-                    body = new JSONArray(response.toString());
-                else
-                    body = new JSONObject(response.toString());
+                if (response.body().startsWith("[")) {
+                    body = new JSONArray(response.body());
+                } else {
+                    body = new JSONObject(response.body());
+                }
 
                 return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
             }
             if (responseCode == 204) return null;
             if (responseCode == 429) {
                 Logger logger = Logger.getLogger("DiscordJv");
-                logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + con.getHeaderField("Retry-After") + " seconds");
+                logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + response.headers().map().get("Retry-After").get(0) + " seconds");
                 new Thread(() -> {
                     try {
-                        Thread.sleep(Integer.parseInt(con.getHeaderField("Retry-After")));
+                        Thread.sleep(Integer.parseInt(response.headers().map().get("Retry-After").get(0)));
                         this.invoke();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
@@ -152,8 +160,7 @@ public record DiscordRequest(
 
             if (responseCode == 201) return null;
 
-            throw new ResponseStatusException(org.springframework.http.HttpStatus.valueOf(responseCode),
-                    con.getResponseMessage());
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.valueOf(responseCode), "Error when sending request to Discord API");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -631,5 +631,44 @@ public record Guild(
         ).invoke();
     }
 
+    public Member getMemberById(String id) {
+        return Member.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
+                                "{guild.id}",
+                                this.id
+                        ).replace(
+                                "{user.id}",
+                                id
+                        ),
+                        discordJv,
+                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                        RequestMethod.GET
+                ).invoke().body(),
+                discordJv,
+                this.id
+        );
+    }
+
+    public List<Member> getMembers() {
+        JSONArray arr = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
+                        "{guild.id}",
+                        id
+                ),
+                discordJv,
+                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
+                RequestMethod.GET
+        ).invoke().arr();
+
+        List<Member> members = new ArrayList<>();
+        arr.forEach(o -> members.add(Member.decompile((JSONObject) o, discordJv, id)));
+        return members;
+    }
+
 
 }

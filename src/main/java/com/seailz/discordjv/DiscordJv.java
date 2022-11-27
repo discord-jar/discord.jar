@@ -182,6 +182,10 @@ public class DiscordJv {
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv.setStatus(status);
 
+        discordJv.getGuildById(993461660792651826L).getMemberById("987788314151104512").timeout(100);
+        System.out.println(
+                discordJv.getGuildById(993461660792651826L).getMemberById("987788314151104512").communicationDisabledUntil()
+        );
     }
 
     /**

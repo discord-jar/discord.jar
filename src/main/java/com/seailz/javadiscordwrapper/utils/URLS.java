@@ -1,13 +1,13 @@
-package com.seailz.javadiscordwrapper.utils;
+package com.seailz.discordjv.utils;
 
-import com.seailz.javadiscordwrapper.utils.version.APIVersion;
+import com.seailz.discordjv.utils.version.APIVersion;
 
 /**
  * A list of all endpoints used by Discord.jv
  *
  * @author Seailz
  * @since 1.0
- * @see com.seailz.javadiscordwrapper.utils.version.APIVersion
+ * @see com.seailz.discordjv.utils.version.APIVersion
  */
 public final class URLS {
 
@@ -85,7 +85,7 @@ public final class URLS {
 
         public static class GUILDS {
             /**
-             * Returns a {@link com.seailz.javadiscordwrapper.model.guild.Guild} object containing information about the guild
+             * Returns a {@link com.seailz.discordjv.model.guild.Guild} object containing information about the guild
              * @param id The id of the guild
              */
             public static String GET_GUILD = "/guilds/{guild.id}";
@@ -93,12 +93,12 @@ public final class URLS {
 
         public static class APPLICATIONS {
             /**
-             * Returns an {@link com.seailz.javadiscordwrapper.model.application.Application} object containing information about the application of the bot selected
+             * Returns an {@link com.seailz.discordjv.model.application.Application} object containing information about the application of the bot selected
              * @param id the id of the bot
              */
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
             /**
-             * Returns a list of {@link com.seailz.javadiscordwrapper.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
+             * Returns a list of {@link com.seailz.discordjv.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
              * @param id the id of the app
              */
             public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";

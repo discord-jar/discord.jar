@@ -45,6 +45,16 @@ public final class URLS {
             public static final String SEND = "/channels/{channel.id}/messages";
         }
 
+        public static class GUILDS {
+            public static class AUTOMOD {
+                /**
+                 * Creates an automod rule
+                 * @param {guild.id} The guild to create the rule in
+                 */
+                public static final String CREATE_AUTO_MOD_RULE = "/guilds/{guild.id}/auto-moderation/rules";
+            }
+        }
+
         public static class USERS {
             /**
              * Opens a DM channel with a user
@@ -125,6 +135,22 @@ public final class URLS {
                  */
                 public static String GET_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
             }
+
+            public static class AUTOMOD {
+                /**
+                 * Returns a list of guild automod settings
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String LIST_AUTOMOD_RULES = "/guilds/{guild.id}/auto-moderation/rules";
+                /**
+                 * Returns an automod rule
+                 *
+                 * @param guild.id The id of the guild
+                 * @param rule.id The id of the rule
+                 */
+                public static String GET_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
+            }
         }
 
         public static class APPLICATIONS {
@@ -159,6 +185,16 @@ public final class URLS {
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
 
+            public static class AUTOMOD {
+                /**
+                 * Deletes an automod rule
+                 *
+                 * @param guild.id The id of the guild
+                 * @param rule.id The id of the rule
+                 */
+                public static String DELETE_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
+            }
+
             public static class STICKER {
                 /**
                  * Deletes a guild sticker
@@ -173,6 +209,15 @@ public final class URLS {
 
     public static class PATCH {
         public static class GUILD {
+            public static class AUTOMOD {
+                /**
+                 * Updates an automod rule
+                 *
+                 * @param guild.id The id of the guild
+                 * @param rule.id The id of the rule
+                 */
+                public static String UPDATE_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
+            }
             public static class STICKER {
                 /**
                  * Modifies a guild sticker

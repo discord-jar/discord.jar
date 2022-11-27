@@ -1,8 +1,10 @@
 package com.seailz.discordjv.model.guild;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.automod.AutomodRuleCreateAction;
 import com.seailz.discordjv.action.sticker.ModifyStickerAction;
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.model.automod.AutomodRule;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.emoji.Emoji;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
@@ -16,6 +18,7 @@ import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -557,4 +560,76 @@ public record Guild(
                 RequestMethod.DELETE
         ).invoke();
     }
+
+    /**
+     * Returns a list of {@link AutomodRule automod rules} that the guild has
+     */
+    @NotNull
+    public List<AutomodRule> getAutomodRules() {
+        return AutomodRule.decompileList(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES.replace(
+                                "{guild.id}",
+                                id
+                        ),
+                        discordJv,
+                        URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES,
+                        RequestMethod.GET
+                ).invoke().arr(),
+                discordJv
+        );
+    }
+
+    @NotNull
+    @Contract("_ -> new")
+    public AutomodRule getAutomodRuleById(String id) {
+        return AutomodRule.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE.replace(
+                                "{guild.id}",
+                                this.id
+                        ).replace(
+                                "{rule.id}",
+                                id
+                        ),
+                        discordJv,
+                        URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE,
+                        RequestMethod.GET
+                ).invoke().body(),
+                discordJv
+        );
+    }
+
+    @NotNull
+    @Contract("_ -> new")
+    public AutomodRule getAutomodRuleById(long id)  {
+        return getAutomodRuleById(Long.toString(id));
+    }
+
+    public AutomodRuleCreateAction createAutomodRule(String name, AutomodRule.EventType eventType, AutomodRule.TriggerType triggerType, List<AutomodRule.Action> actions) {
+        return new AutomodRuleCreateAction(name, eventType, triggerType, actions, this, discordJv);
+    }
+
+    public void deleteAutoModRule(String id) {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE.replace(
+                        "{guild.id}",
+                        this.id
+                ).replace(
+                        "{rule.id}",
+                        id
+                ),
+                discordJv,
+                URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+
 }

@@ -678,7 +678,7 @@ public record Guild(
      * Lists the guild's custom emojis.
      * @return A list of the guild emojis.
      */
-    public List<Emoji> getGuildEmojis() {
+    public List<Emoji> getEmojis() {
         List<Emoji> emojis = new ArrayList<>();
 
         new DiscordRequest(
@@ -693,5 +693,30 @@ public record Guild(
         return emojis;
     }
 
+    /**
+     * Gets a guild emoji by its id.
+     * @return The emoji if it exists. Returns {@code null} if it does not exist.
+     */
+    public Emoji getEmojiById(String emojiId) {
+        return Emoji.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.EMOJIS.GET_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
+                        discordJv,
+                        URLS.GET.GUILDS.GET_GUILD,
+                        RequestMethod.GET
+                ).invoke().body(),
+                discordJv
+        );
+    }
+
+    /**
+     * Gets a guild emoji by its id.
+     * @return The emoji if it exists. Returns {@code null} if it does not exist.
+     */
+    public Emoji getEmojiById(long emojiId) {
+        return getEmojiById(String.valueOf(emojiId));
+    }
 
 }

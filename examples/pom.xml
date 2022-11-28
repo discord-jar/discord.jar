@@ -25,7 +25,16 @@
             <!-- Replace the version tag with the latest version of the api, <!-->
             <!-- which can be found on the releases page of the GitHub repo. -->
             <!-- If there is no versions released, use the latest commit's hash. -->
-            <version>2c22751bfe24888a1201cbe44903057cd6ad3c89</version>
+            <version>62ff208459a50b863970a3d92cdccdf68470fab7</version>
+        </dependency>
+
+
+        <!-- This dependency is only needed for the examples module. Please don't include it in your project. -->
+        <dependency>
+            <groupId>com.seailz</groupId>
+            <artifactId>discord.jv</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

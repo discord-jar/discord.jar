@@ -23,6 +23,9 @@ or
 or
 `other[description]`.
 
+To contribute to the `/examples` module, please see [here](https://github.com/discord-jv/discord.jv/tree/main/examples).
+`/.github` is off limits for contirubtions, please make an issue if there is an error in that folder.
+
 ## Dependencies
 Springframework - web sockets - may be removed soon, <p>
 org.json - json managing - may be removed soon, <p>

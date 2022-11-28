@@ -120,6 +120,20 @@ public final class URLS {
              */
             public static String GET_GUILD = "/guilds/{guild.id}";
 
+            public static class EMOJIS {
+                /**
+                 * Gets guild emojis
+                 * @param id The id of the guild
+                 */
+                public static String GUILD_EMOJIS = "/guilds/{guild.id}/emojis";
+                /**
+                 * Gets a guild emoji by id
+                 * @param id The id of the guild
+                 * @param emoji.id The id of the emoji
+                 */
+                public static String GET_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
+            }
+
             public static class STICKERS {
                 /**
                  * Returns a list of guild stickers

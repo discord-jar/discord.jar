@@ -44,9 +44,6 @@
             </resource>
         </resources>
     </build>
-    <modules>
-        <module>examples</module>
-    </modules>
 
     <dependencies>
         <dependency>

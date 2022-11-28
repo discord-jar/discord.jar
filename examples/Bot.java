@@ -1,5 +1,3 @@
-package com.seailz.discordjv.examples;
-
 import com.seailz.discordjv.DiscordJv;
 
 import java.util.concurrent.ExecutionException;

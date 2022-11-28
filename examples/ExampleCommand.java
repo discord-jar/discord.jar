@@ -1,5 +1,3 @@
-package com.seailz.discordjv.examples;
-
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.command.CommandOptionType;

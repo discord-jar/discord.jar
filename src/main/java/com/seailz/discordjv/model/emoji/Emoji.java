@@ -2,6 +2,7 @@ package com.seailz.discordjv.model.emoji;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Mentionable;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
 import org.json.JSONObject;
@@ -30,7 +31,7 @@ public record Emoji(
         boolean managed,
         boolean animated,
         boolean available
-) implements Compilerable {
+) implements Compilerable, Mentionable {
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
@@ -108,5 +109,11 @@ public record Emoji(
             available = false;
         }
         return new Emoji(id, name, roles, user, requireColons, managed, animated, available);
+    }
+
+    @Override
+    public String getAsMention() {
+        if (animated) return "<a:{name}:{id}>";
+        else return "<:" + name + ":" + id + ">";
     }
 }

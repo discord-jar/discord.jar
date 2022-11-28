@@ -51,7 +51,7 @@ public class Cache<T> {
      *
      * @param t The object to add
      */
-    public void add(T t) {
+    public void cache(T t) {
         cache.add(t);
     }
 

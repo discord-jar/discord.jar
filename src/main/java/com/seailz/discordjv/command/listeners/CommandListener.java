@@ -1,6 +1,6 @@
 package com.seailz.discordjv.command.listeners;
 
-import com.seailz.discordjv.command.annotation.CommandInfo;
+import com.seailz.discordjv.command.annotation.SlashCommandInfo;
 import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.command.CommandType;
@@ -14,7 +14,7 @@ import com.seailz.discordjv.command.CommandType;
  * <p>
  * This interface shouldn't be implemented directly, instead use a sub interface.
  * <p>
- * All implementations of this interface <b>must</b> have the {@link CommandInfo} annotation.
+ * All implementations of this interface <b>must</b> have the {@link SlashCommandInfo} annotation.
  * The annotation is used to define information about the command listener to give to the command dispatcher & register.
  *
  * @author Seailz

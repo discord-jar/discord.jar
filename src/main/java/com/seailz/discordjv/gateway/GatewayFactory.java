@@ -6,6 +6,7 @@ import com.seailz.discordjv.events.model.interaction.command.CommandInteractionE
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
 import com.seailz.discordjv.gateway.events.GatewayEvents;
 import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
+import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
@@ -195,7 +196,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 queue.clear();
                 break;
             case GUILD_CREATE:
-                //
+                discordJv.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJv));
                 break;
             case RESUMED:
                 logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");

@@ -25,7 +25,7 @@
             <!--Replace the version tag with the latest version of the api,
             // which can be found on the releases page of the GitHub repo.
             // if there are no versions released, use the latest commit's hash. -->
-            <version>-a027ea05bc-1</version>
+            <version>4369ba18f1</version>
         </dependency>
     </dependencies>
 

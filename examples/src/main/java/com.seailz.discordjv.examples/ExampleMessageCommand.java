@@ -1,14 +1,14 @@
-package com.seailz.djv.examples;
+package com.seailz.discordjv.examples;
 
-import com.seailz.discordjv.command.annotation.CommandInfo;
+import com.seailz.discordjv.command.annotation.SlashCommandInfo;
 import com.seailz.discordjv.command.listeners.MessageContextCommandListener;
 import com.seailz.discordjv.events.model.interaction.command.MessageContextCommandInteractionEvent;
 
 /**
  * This is an example of a message context command implementation.
- * See {@link com.seailz.djv.examples.ExampleCommand ExampleCommand} for more information.
+ * See {@link com.seailz.discordjv.examples.ExampleCommand ExampleCommand} for more information.
  */
-@CommandInfo(
+@SlashCommandInfo(
         name = "message",
         description = "This is an example of a message context command."
 )

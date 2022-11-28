@@ -1,4 +1,4 @@
-package com.seailz.djv.examples;
+package com.seailz.discordjv.examples;
 
 import com.seailz.discordjv.DiscordJv;
 

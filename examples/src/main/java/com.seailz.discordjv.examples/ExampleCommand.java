@@ -1,4 +1,4 @@
-package com.seailz.djv.examples;
+package com.seailz.discordjv.examples;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.command.CommandOption;
@@ -18,7 +18,7 @@ import com.seailz.discordjv.events.model.interaction.command.SlashCommandInterac
  * You can also implement other types of commands,
  * like {@link com.seailz.discordjv.command.listeners.MessageContextCommandListener MessageContextCommandListener} and {@link com.seailz.discordjv.command.listeners.UserContextCommandListener UserContextCommandListener}.
  * <p>
- * When setting up your command, you must use the {@link com.seailz.discordjv.command.annotation.CommandInfo CommandInfo} annotation to provide info about the command to discord.jv
+ * When setting up your command, you must use the {@link com.seailz.discordjv.command.annotation.SlashCommandInfo SlashCommandInfo} annotation to provide info about the command to discord.jv
  *
  * @author Seailz
  * @since 1.0
@@ -34,7 +34,7 @@ public class ExampleCommand implements SlashCommandListener {
      */
     public ExampleCommand() {
         // This is how you register sub commands.
-        /*
+
         addSubCommand(
                 new SlashSubCommand(
                         "sub",
@@ -62,7 +62,7 @@ public class ExampleCommand implements SlashCommandListener {
                         CommandOptionType.STRING,
                         true
                 )
-        ); */
+        );
     }
 
     @Override
@@ -78,10 +78,10 @@ public class ExampleCommand implements SlashCommandListener {
      * To register sub commands, you'll need to use the {@code addSubCommand} method in the constructor
      * of your base command.
      */
-    /*static class ExampleSubCommand implements SubCommandListener {
+    static class ExampleSubCommand implements SubCommandListener {
         @Override
         public void onSubCommand(SlashCommandInteractionEvent event) {
             event.reply("Hello from a sub command!");
         }
-    } */
+    }
 }

@@ -22,7 +22,7 @@ import com.seailz.discordjv.events.model.interaction.command.SlashCommandInterac
  *
  * @author Seailz
  * @since 1.0
- * @date 2022-11-28 Added sub commands
+ * @Date: <b>2022-11-28</b> - Added sub commands
  * @see DiscordJv#registerCommands(CommandListener...)
  * @see com.seailz.discordjv.command.listeners.MessageContextCommandListener
  * @see com.seailz.discordjv.command.listeners.UserContextCommandListener

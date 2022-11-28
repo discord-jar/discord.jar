@@ -25,7 +25,13 @@
             <!--Replace the version tag with the latest version of the api,
             // which can be found on the releases page of the GitHub repo.
             // if there are no versions released, use the latest commit's hash. -->
-            <version>62ff208459a50b863970a3d92cdccdf68470fab7</version>
+            <version>-a027ea05bc-1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seailz</groupId>
+            <artifactId>discord.jv</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

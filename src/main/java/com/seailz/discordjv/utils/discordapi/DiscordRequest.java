@@ -3,6 +3,7 @@ package com.seailz.discordjv.utils.discordapi;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -161,7 +162,35 @@ public record DiscordRequest(
             if (responseCode == 201) return null;
 
             System.out.println(body);
-            throw new DiscordAPIErrorException(responseCode, "Error while sending request to Discord API.", response.body());
+
+            JSONObject error = new JSONObject(response.body());
+            JSONArray errorArray;
+
+            try {
+                errorArray = error.getJSONArray("errors").getJSONArray(3);
+            } catch (JSONException e) {
+                try {
+                    errorArray = error.getJSONArray("errors").getJSONArray(1);
+                } catch (JSONException ex) {
+                    try {
+                        errorArray = error.getJSONArray("errors").getJSONArray(0);
+                    } catch (JSONException exx) {
+                        throw new UnhandledDiscordAPIErrorException(
+                                responseCode,
+                                "Unhandled Discord API Error"
+                        );
+                    }
+                }
+            }
+
+            errorArray.forEach(o -> {
+                JSONObject errorObject = (JSONObject) o;
+                throw new DiscordAPIErrorException(
+                        responseCode,
+                        errorObject.getString("code"),
+                        errorObject.getString("message")
+                );
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,9 +216,15 @@ public record DiscordRequest(
         return Optional.ofNullable(djv.getRateLimits().get(baseUrl));
     }
 
-    public class DiscordAPIErrorException extends RuntimeException {
-        public DiscordAPIErrorException(int code, String message, String body) {
-            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + message + " ");
+    public static class DiscordAPIErrorException extends RuntimeException {
+        public DiscordAPIErrorException(int code, String errorCode, String error) {
+            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + errorCode + " " + error);
+        }
+    }
+
+    public static class UnhandledDiscordAPIErrorException extends RuntimeException {
+        public UnhandledDiscordAPIErrorException(int code, String error) {
+            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
         }
     }
 }

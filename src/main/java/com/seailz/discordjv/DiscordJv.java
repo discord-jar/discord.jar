@@ -3,16 +3,18 @@ package com.seailz.discordjv;
 import com.seailz.discordjv.command.CommandDispatcher;
 import com.seailz.discordjv.command.annotation.CommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
-import com.seailz.discordjv.command.listeners.SlashCommandListener;
+import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
+import com.seailz.discordjv.command.listeners.slash.SlashSubCommand;
+import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.channel.Channel;
-import com.seailz.discordjv.model.commands.Command;
-import com.seailz.discordjv.model.commands.CommandChoice;
-import com.seailz.discordjv.model.commands.CommandOption;
+import com.seailz.discordjv.command.Command;
+import com.seailz.discordjv.command.CommandChoice;
+import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.emoji.sticker.StickerPack;
 import com.seailz.discordjv.model.guild.Guild;
@@ -31,6 +33,7 @@ import com.seailz.discordjv.utils.discordapi.RequestQueueHandler;
 import com.seailz.discordjv.utils.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -182,10 +185,7 @@ public class DiscordJv {
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv.setStatus(status);
 
-        discordJv.getGuildById(993461660792651826L).getMemberById("987788314151104512").timeout(100);
-        System.out.println(
-                discordJv.getGuildById(993461660792651826L).getMemberById("987788314151104512").communicationDisabledUntil()
-        );
+        discordJv.clearCommands();
     }
 
     /**
@@ -439,7 +439,7 @@ public class DiscordJv {
     /**
      * Registers command(s) with Discord.
      *
-     * @param listeners The listeners to register
+     * @param listeners The listeners/commands to register
      * @throws IllegalArgumentException <ul>
      *                                  <li>If the command name is less than 1 character or more than 32 characters</li>
      *
@@ -470,6 +470,26 @@ public class DiscordJv {
                     )
             );
             commandDispatcher.registerCommand(ann.name(), listener);
+            if (!(listener instanceof SlashCommandListener)) return;
+            SlashCommandListener slashCommandListener = (SlashCommandListener) listener;
+            if (slashCommandListener.getSubCommands().isEmpty()) return;
+
+            for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
+                registerCommand(
+                        new Command(
+                                subCommand.getName(),
+                                listener.getType(),
+                                subCommand.getDescription(),
+                                subCommand.getOptions()
+                        )
+                );
+                SubCommandListener subListener =
+                        slashCommandListener.getSubCommands().values().stream().toList().get(
+                                slashCommandListener.getSubCommands().keySet().stream().toList()
+                                        .indexOf(subCommand)
+                        );
+                commandDispatcher.registerSubCommand(slashCommandListener, subCommand, subListener);
+            }
         }
     }
 
@@ -480,12 +500,14 @@ public class DiscordJv {
 
         for (CommandOption o : command.options()) {
             Checker.check(!(o.name().length() > 1 && o.name().length() < 32), "Option name must be within 1 and 32 characters!");
-            Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
-            Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
+            if (o.description() != null) Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
+            if (o.choices() != null) Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
 
-            for (CommandChoice c : o.choices()) {
-                Checker.check(!(c.name().length() > 1 && c.name().length() < 100), "Choice name must be within 1 and 100 characters!");
-                Checker.check(!(c.value().length() > 1 && c.value().length() < 100), "Choice value must be within 1 and 100 characters!");
+            if (o.choices() != null) {
+                for (CommandChoice c : o.choices()) {
+                    Checker.check(!(c.name().length() > 1 && c.name().length() < 100), "Choice name must be within 1 and 100 characters!");
+                    Checker.check(!(c.value().length() > 1 && c.value().length() < 100), "Choice value must be within 1 and 100 characters!");
+                }
             }
         }
 
@@ -501,18 +523,20 @@ public class DiscordJv {
 
     /**
      * Clears all the global commands for this app. Cannot be undone.
-     *
-     * @apiNote This currently does not work, don't use.
      */
     public void clearCommands() {
         DiscordRequest cmdDelReq = new DiscordRequest(
-                new JSONObject("{[]}"),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
                 this,
                 URLS.BASE_URL,
                 RequestMethod.PUT
         );
-        cmdDelReq.invoke();
+        cmdDelReq.invoke(new JSONArray());
+    }
+
+    public void registerSubCommand(SubCommandListener sub, SlashSubCommand details) {
+
     }
 }

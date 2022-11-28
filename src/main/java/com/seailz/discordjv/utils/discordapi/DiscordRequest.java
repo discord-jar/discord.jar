@@ -3,16 +3,11 @@ package com.seailz.discordjv.utils.discordapi;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -50,7 +45,7 @@ public record DiscordRequest(
      *
      * @return The {@link DiscordResponse} from the Discord API
      */
-    public DiscordResponse invoke() {
+    private DiscordResponse invoke(String json) {
         try {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
@@ -69,10 +64,15 @@ public record DiscordRequest(
                 con.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
             } else if (requestMethod == RequestMethod.PATCH) {
                 con.method("PATCH", HttpRequest.BodyPublishers.ofString(body.toString()));
-            } else if (requestMethod == RequestMethod.DELETE) {
+            } else if (requestMethod == RequestMethod.PUT) {
+                con.method("PUT", HttpRequest.BodyPublishers.ofString(body.toString()));
+            }
+            else if (requestMethod == RequestMethod.DELETE) {
                 con.DELETE();
             } else if (requestMethod == RequestMethod.GET) {
                 con.GET();
+            } else {
+                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(body.toString()));
             }
 
             con.header("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
@@ -81,6 +81,7 @@ public record DiscordRequest(
             headers.forEach(con::header);
 
             byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
+
 
             HttpRequest request = con.build();
             HttpClient client = HttpClient.newHttpClient();
@@ -160,11 +161,52 @@ public record DiscordRequest(
 
             if (responseCode == 201) return null;
 
-            throw new ResponseStatusException(org.springframework.http.HttpStatus.valueOf(responseCode), "Error when sending request to Discord API");
+            System.out.println(body);
+
+            JSONObject error = new JSONObject(response.body());
+            JSONArray errorArray;
+
+            try {
+                errorArray = error.getJSONArray("errors").getJSONArray(3);
+            } catch (JSONException e) {
+                try {
+                    errorArray = error.getJSONArray("errors").getJSONArray(1);
+                } catch (JSONException ex) {
+                    try {
+                        errorArray = error.getJSONArray("errors").getJSONArray(0);
+                    } catch (JSONException exx) {
+                        throw new UnhandledDiscordAPIErrorException(
+                                responseCode,
+                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv."
+                        );
+                    }
+                }
+            }
+
+            errorArray.forEach(o -> {
+                JSONObject errorObject = (JSONObject) o;
+                throw new DiscordAPIErrorException(
+                        responseCode,
+                        errorObject.getString("code"),
+                        errorObject.getString("message")
+                );
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public DiscordResponse invoke(JSONObject body) {
+        return invoke(body.toString());
+    }
+
+    public DiscordResponse invoke(JSONArray arr) {
+        return invoke(arr.toString());
+    }
+
+    public DiscordResponse invoke() {
+        return invoke(body.toString());
     }
 
     /**
@@ -174,4 +216,15 @@ public record DiscordRequest(
         return Optional.ofNullable(djv.getRateLimits().get(baseUrl));
     }
 
+    public static class DiscordAPIErrorException extends RuntimeException {
+        public DiscordAPIErrorException(int code, String errorCode, String error) {
+            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + errorCode + " " + error);
+        }
+    }
+
+    public static class UnhandledDiscordAPIErrorException extends RuntimeException {
+        public UnhandledDiscordAPIErrorException(int code, String error) {
+            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.seailz.discordjv.model.commands;
+package com.seailz.discordjv.command;
 
 import com.seailz.discordjv.core.Compilerable;
 import org.json.JSONArray;

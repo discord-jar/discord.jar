@@ -1,4 +1,4 @@
-package com.seailz.discordjv.model.commands.permissions;
+package com.seailz.discordjv.command.permissions;
 
 public enum ApplicationCommandPermissionType {
 

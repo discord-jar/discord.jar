@@ -47,7 +47,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
         name = obj.has("name") ? obj.getString("name") : null;
         resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved")) : null;
 
-        if (obj.has("options")) {
+        if (obj.has("options") && this.options != null) {
             JSONArray optionsArray = obj.getJSONArray("options");
             for (int i = 0; i < optionsArray.length(); i++) {
                 options.add(ResolvedCommandOption.decompile(optionsArray.getJSONObject(i)));

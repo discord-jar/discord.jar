@@ -3,8 +3,10 @@ package com.seailz.discordjv.events.model.interaction.command;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.interaction.data.command.ResolvedCommandOption;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SlashCommandInteractionEvent extends CommandInteractionEvent {
@@ -20,7 +22,12 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
      */
     @NotNull
     public List<ResolvedCommandOption> getOptions() {
-        return getCommandData().options();
+        JSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
+        List<ResolvedCommandOption> decompiled = new ArrayList<>();
+        for (Object option : options) {
+            decompiled.add(ResolvedCommandOption.decompile((JSONObject) option));
+        }
+        return decompiled;
     }
 
 }

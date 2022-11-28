@@ -1,4 +1,4 @@
-package com.seailz.discordjv.model.commands;
+package com.seailz.discordjv.command;
 
 /**
  * The types a {@link Command} can be registered as.

@@ -681,53 +681,14 @@ public record Guild(
     public List<Emoji> getGuildEmojis() {
         List<Emoji> emojis = new ArrayList<>();
 
-        JSONArray arr = new DiscordRequest(
+        new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS.replace("{guild.id}", id),
                 discordJv,
                 URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
                 RequestMethod.GET
-        ).invoke().arr();
-
-        for (Object o:arr) {
-            JSONObject obj = (JSONObject) o;
-
-            ArrayList<Role> rolesList = new ArrayList<>();
-            obj.getJSONArray("roles").forEach((object) -> {
-                rolesList.add(Role.decompile((JSONObject) object));
-            });
-
-            emojis.add(
-                    new Emoji(
-                            obj.getString("id"),
-                            obj.getString("name"),
-                            rolesList.toArray(new Role[0]),
-                            new User(
-                                    obj.getJSONObject("user").getString("id"),
-                                    obj.getJSONObject("user").getString("username"),
-                                    obj.getJSONObject("user").getString("discriminator"),
-                                    obj.getJSONObject("user").getString("avatar"),
-                                    obj.getJSONObject("user").getBoolean("bot"),
-                                    obj.getJSONObject("user").getBoolean("system"),
-                                    obj.getJSONObject("user").getBoolean("mfaEnabled"),
-                                    obj.getJSONObject("user").getString("locale"),
-                                    obj.getJSONObject("user").getBoolean("verified"),
-                                    obj.getJSONObject("user").getString("email"),
-                                    FlagUtil.getFlagsByInt(obj.getJSONObject("user").getInt("flags")),
-                                    obj.getJSONObject("user").getInt("flags"),
-                                    PremiumType.fromId(obj.getJSONObject("user").getInt("premium_type")),
-                                    FlagUtil.getFlagsByInt(obj.getJSONObject("user").getInt("public_flags")),
-                                    obj.getJSONObject("user").getInt("public_flags"),
-                                    discordJv
-                            ),
-                            obj.getBoolean("requireColons"),
-                            obj.getBoolean("managed"),
-                            obj.getBoolean("animated"),
-                            obj.getBoolean("available")
-                    )
-            );
-        }
+        ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJv)));
 
         return emojis;
     }

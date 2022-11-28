@@ -695,6 +695,7 @@ public record Guild(
 
     /**
      * Gets a guild emoji by its id.
+     * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
     public Emoji getEmojiById(String emojiId) {
@@ -713,6 +714,7 @@ public record Guild(
 
     /**
      * Gets a guild emoji by its id.
+     * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
     public Emoji getEmojiById(long emojiId) {

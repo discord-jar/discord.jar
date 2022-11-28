@@ -53,13 +53,24 @@ public record CommandOption(
             subCommands.forEach((subCommand -> subCommandsJson.put(subCommand.compile())));
         }
 
-        return new JSONObject()
+        JSONObject obj = new JSONObject()
                 .put("name", name)
                 .put("description", description)
-                .put("type", type.getCode())
-                .put("required", required)
-                .put("choices", this.choices != null ? choicesJson : null)
-                .put("options", this.subCommands != null ? subCommandsJson : null);
+                .put("type", type.getCode());
+
+        if (type != CommandOptionType.SUB_COMMAND && type != CommandOptionType.SUB_COMMAND_GROUP)
+            obj.put("required", required);
+
+        if (this.choices != null && !this.choices.isEmpty())
+            obj.put("choices", choicesJson);
+        if (this.subCommands != null && !this.subCommands.isEmpty())
+            obj.put("options", subCommandsJson);
+        if (this.options != null && !this.options.isEmpty()) {
+            JSONArray optionsJson = new JSONArray();
+            options.forEach((option) -> optionsJson.put(option.compile()));
+            obj.put("options", optionsJson);
+        }
+        return obj;
     }
 
     public static CommandOption decompile(JSONObject obj) {

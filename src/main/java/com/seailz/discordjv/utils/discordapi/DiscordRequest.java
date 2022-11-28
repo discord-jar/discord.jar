@@ -4,15 +4,9 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -69,10 +63,15 @@ public record DiscordRequest(
                 con.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
             } else if (requestMethod == RequestMethod.PATCH) {
                 con.method("PATCH", HttpRequest.BodyPublishers.ofString(body.toString()));
-            } else if (requestMethod == RequestMethod.DELETE) {
+            } else if (requestMethod == RequestMethod.PUT) {
+                con.method("PUT", HttpRequest.BodyPublishers.ofString(body.toString()));
+            }
+            else if (requestMethod == RequestMethod.DELETE) {
                 con.DELETE();
             } else if (requestMethod == RequestMethod.GET) {
                 con.GET();
+            } else {
+                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(body.toString()));
             }
 
             con.header("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
@@ -161,7 +160,8 @@ public record DiscordRequest(
 
             if (responseCode == 201) return null;
 
-            throw new ResponseStatusException(org.springframework.http.HttpStatus.valueOf(responseCode), "Error when sending request to Discord API");
+            System.out.println(body);
+            throw new DiscordAPIErrorException(responseCode, "Error while sending request to Discord API.", response.body());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,4 +187,9 @@ public record DiscordRequest(
         return Optional.ofNullable(djv.getRateLimits().get(baseUrl));
     }
 
+    public class DiscordAPIErrorException extends RuntimeException {
+        public DiscordAPIErrorException(int code, String message, String body) {
+            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + message + " ");
+        }
+    }
 }

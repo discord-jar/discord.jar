@@ -1,6 +1,7 @@
 package com.seailz.discordjv.command.listeners.slash;
 
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Checker;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -42,11 +43,14 @@ public class SubCommandGroup implements Compilerable {
         subCommands.put(subCommand, listener);
         return this;
     }
-
     @Override
     public JSONObject compile() {
         JSONArray subCommandsJson = new JSONArray();
         subCommands.keySet().forEach((subCommand -> subCommandsJson.put(subCommand.compile())));
+
+        Checker.notNull(name, "Name cannot be null");
+        Checker.notNull(description, "Description cannot be null");
+
         return new JSONObject()
                 .put("type", 1)
                 .put("description", description)

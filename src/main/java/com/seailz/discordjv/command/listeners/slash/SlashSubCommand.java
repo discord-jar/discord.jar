@@ -42,7 +42,7 @@ public class SlashSubCommand implements Compilerable {
         json.put("description", description);
         JSONArray optionsJson = new JSONArray();
         options.forEach((option -> optionsJson.put(option.compile())));
-        json.put("options", optionsJson);
+        if (options.isEmpty()) json.put("options", optionsJson);
 
         return json;
     }

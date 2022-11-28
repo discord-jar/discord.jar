@@ -8,11 +8,13 @@ import com.seailz.discordjv.command.CommandOptionType;
 import com.seailz.discordjv.command.CommandType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface SlashCommandListener extends CommandListener {
 
     List<CommandOption> options = new ArrayList<>();
+    HashMap<SlashSubCommand, SubCommandListener> subCommands = new HashMap<>();
 
     default void addSubCommandGroup(SubCommandGroup group) {
         options.add(new CommandOption(
@@ -24,6 +26,7 @@ public interface SlashCommandListener extends CommandListener {
                 group.getSubCommands().keySet().stream().toList(),
                 new ArrayList<>()
         ));
+        subCommands.putAll(group.getSubCommands());
     }
 
     default void addSubCommand(SlashSubCommand subCommand, SubCommandListener listener) {
@@ -36,6 +39,7 @@ public interface SlashCommandListener extends CommandListener {
                 new ArrayList<>(),
                 subCommand.getOptions()
         ));
+        subCommands.put(subCommand, listener);
     }
 
     /**
@@ -66,5 +70,9 @@ public interface SlashCommandListener extends CommandListener {
     default SlashCommandListener addOption(CommandOption option) {
         options.add(option);
         return this;
+    }
+
+    default HashMap<SlashSubCommand, SubCommandListener> getSubCommands() {
+        return subCommands;
     }
 }

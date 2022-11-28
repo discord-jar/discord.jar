@@ -4,6 +4,8 @@ import com.seailz.discordjv.command.CommandDispatcher;
 import com.seailz.discordjv.command.annotation.CommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
 import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
+import com.seailz.discordjv.command.listeners.slash.SlashSubCommand;
+import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
@@ -183,10 +185,7 @@ public class DiscordJv {
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
         discordJv.setStatus(status);
 
-        discordJv.getGuildById(993461660792651826L).getMemberById("987788314151104512").timeout(100);
-        System.out.println(
-                discordJv.getGuildById(993461660792651826L).getMemberById("987788314151104512").communicationDisabledUntil()
-        );
+        discordJv.clearCommands();
     }
 
     /**
@@ -471,6 +470,26 @@ public class DiscordJv {
                     )
             );
             commandDispatcher.registerCommand(ann.name(), listener);
+            if (!(listener instanceof SlashCommandListener)) return;
+            SlashCommandListener slashCommandListener = (SlashCommandListener) listener;
+            if (slashCommandListener.getSubCommands().isEmpty()) return;
+
+            for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
+                registerCommand(
+                        new Command(
+                                subCommand.getName(),
+                                listener.getType(),
+                                subCommand.getDescription(),
+                                subCommand.getOptions()
+                        )
+                );
+                SubCommandListener subListener =
+                        slashCommandListener.getSubCommands().values().stream().toList().get(
+                                slashCommandListener.getSubCommands().keySet().stream().toList()
+                                        .indexOf(subCommand)
+                        );
+                commandDispatcher.registerSubCommand(slashCommandListener, subCommand, subListener);
+            }
         }
     }
 
@@ -481,12 +500,14 @@ public class DiscordJv {
 
         for (CommandOption o : command.options()) {
             Checker.check(!(o.name().length() > 1 && o.name().length() < 32), "Option name must be within 1 and 32 characters!");
-            Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
-            Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
+            if (o.description() != null) Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
+            if (o.choices() != null) Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
 
-            for (CommandChoice c : o.choices()) {
-                Checker.check(!(c.name().length() > 1 && c.name().length() < 100), "Choice name must be within 1 and 100 characters!");
-                Checker.check(!(c.value().length() > 1 && c.value().length() < 100), "Choice value must be within 1 and 100 characters!");
+            if (o.choices() != null) {
+                for (CommandChoice c : o.choices()) {
+                    Checker.check(!(c.name().length() > 1 && c.name().length() < 100), "Choice name must be within 1 and 100 characters!");
+                    Checker.check(!(c.value().length() > 1 && c.value().length() < 100), "Choice value must be within 1 and 100 characters!");
+                }
             }
         }
 
@@ -513,5 +534,9 @@ public class DiscordJv {
                 RequestMethod.PUT
         );
         cmdDelReq.invoke(new JSONArray());
+    }
+
+    public void registerSubCommand(SubCommandListener sub, SlashSubCommand details) {
+
     }
 }

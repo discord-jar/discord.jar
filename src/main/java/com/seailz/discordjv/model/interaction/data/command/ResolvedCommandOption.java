@@ -56,12 +56,13 @@ public class ResolvedCommandOption implements Compilerable {
             }
         }
 
+        JSONObject value = obj.has("value") ? obj.getJSONObject("value") : null;
         return new ResolvedCommandOption(
                 obj.getString("name"),
-                obj.getJSONObject("value"),
+                value,
                 CommandOptionType.fromCode(obj.getInt("type")),
                 options,
-                obj.getBoolean("focused")
+                obj.has("focused") && obj.getBoolean("focused")
         );
     }
 

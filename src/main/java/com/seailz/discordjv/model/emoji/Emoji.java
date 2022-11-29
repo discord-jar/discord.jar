@@ -115,7 +115,11 @@ public record Emoji(
      * @return The emoji mention as a String
      */
     public String getAsMention() {
-        if (animated) return "<a:" + name + ":" + id + ">";
-        else return "<:" + name + ":" + id + ">";
+        StringBuilder mentionBuilder = new StringBuilder();
+        mentionBuilder.append("<");
+        if (animated) mentionBuilder.append("a");
+        mentionBuilder.append(":").append(name).append(":").append(id).append(">");
+
+        return mentionBuilder.toString();
     }
 }

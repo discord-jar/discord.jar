@@ -208,4 +208,5 @@ public record ScheduledEvent(
                         .put("location", location);
             }
         }
+
 }

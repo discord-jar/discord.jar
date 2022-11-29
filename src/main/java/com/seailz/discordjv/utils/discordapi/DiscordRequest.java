@@ -75,7 +75,7 @@ public record DiscordRequest(
                 con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(body.toString()));
             }
 
-            con.header("User-Agent", "DiscordJv (www.seailz.com, 1.0)");
+            con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "application/json");
             headers.forEach(con::header);

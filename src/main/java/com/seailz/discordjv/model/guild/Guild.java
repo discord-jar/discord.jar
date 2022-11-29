@@ -15,11 +15,16 @@ import com.seailz.discordjv.model.guild.premium.PremiumTier;
 import com.seailz.discordjv.model.guild.verification.VerificationLevel;
 import com.seailz.discordjv.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjv.model.role.Role;
+import com.seailz.discordjv.model.user.PremiumType;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.model.user.UserFlag;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.discordapi.DiscordResponse;
+import com.seailz.discordjv.utils.flag.FlagUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -670,5 +675,51 @@ public record Guild(
         return members;
     }
 
+    /**
+     * Lists the guild's custom emojis.
+     * @return A list of the guild emojis.
+     */
+    public List<Emoji> getEmojis() {
+        List<Emoji> emojis = new ArrayList<>();
+
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS.replace("{guild.id}", id),
+                discordJv,
+                URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
+                RequestMethod.GET
+        ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJv)));
+
+        return emojis;
+    }
+
+    /**
+     * Gets a guild emoji by its id.
+     * @param emojiId The id of the emoji to get.
+     * @return The emoji if it exists. Returns {@code null} if it does not exist.
+     */
+    public Emoji getEmojiById(@NotNull String emojiId) {
+        return Emoji.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.EMOJIS.GET_GUILD_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
+                        discordJv,
+                        URLS.GET.GUILDS.GET_GUILD,
+                        RequestMethod.GET
+                ).invoke().body(),
+                discordJv
+        );
+    }
+
+    /**
+     * Gets a guild emoji by its id.
+     * @param emojiId The id of the emoji to get.
+     * @return The emoji if it exists. Returns {@code null} if it does not exist.
+     */
+    public @NotNull Emoji getEmojiById(long emojiId) {
+        return getEmojiById(String.valueOf(emojiId));
+    }
 
 }

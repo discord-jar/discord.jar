@@ -109,4 +109,17 @@ public record Emoji(
         }
         return new Emoji(id, name, roles, user, requireColons, managed, animated, available);
     }
+
+    /**
+     * Gets an emoji is a mention that can be added in a {@link com.seailz.discordjv.model.message.Message}
+     * @return The emoji mention as a String
+     */
+    public String getAsMention() {
+        StringBuilder mentionBuilder = new StringBuilder();
+        mentionBuilder.append("<");
+        if (animated) mentionBuilder.append("a");
+        mentionBuilder.append(":").append(name).append(":").append(id).append(">");
+
+        return mentionBuilder.toString();
+    }
 }

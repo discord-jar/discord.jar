@@ -8,7 +8,7 @@ Everything that needs doing can be found in the [Issues](https://github.com/seai
 ## Documentation
 There is currently no documentation, but it will be avaliable [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready. Although there is no documentation, there are still examples which are avaliable [here](https://github.com/discord-jv/discord.jv/tree/main/examples)
 
-Javadocs can be found [here](https://discord-jv.github.io/discord.jv). (Chrome currently considers this a dangerous website, most likely because it doesn't like GitHub pages. I've subbmited a report, so hopefuly this should be fixed shortly.)
+Javadocs can be found [here](https://discord-jv.github.io/discord.jv).
 
 ## Contributing
 If you want to contribute to this project, feel free to do so! Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab,

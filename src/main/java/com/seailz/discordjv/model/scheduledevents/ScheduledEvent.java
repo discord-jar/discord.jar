@@ -125,7 +125,6 @@ public record ScheduledEvent(
             return UNKNOWN;
         }
     }
-
     /**
      * The status of the scheduled event
      */
@@ -154,7 +153,6 @@ public record ScheduledEvent(
             return UNKNOWN;
         }
     }
-
     /**
      * the type of the scheduled event
      */
@@ -183,7 +181,6 @@ public record ScheduledEvent(
             return UNKNOWN;
         }
     }
-
     /**
      * Metadata about the scheduled event entity
      */
@@ -195,7 +192,6 @@ public record ScheduledEvent(
             return null;
         }
     }
-
     /**
     * Metadata about an external event entity
     *

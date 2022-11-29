@@ -192,7 +192,7 @@ public class DiscordJv {
     /**
      * Stops the bot from shutting down when processes are finished
      */
-    public void initiateNoShutdown() {
+    protected void initiateNoShutdown() {
         // stop program from shutting down
         new Thread(() -> {
             while (true) {
@@ -205,7 +205,7 @@ public class DiscordJv {
         }).start();
     }
 
-    public void initiateShutdownHooks() {
+    protected void initiateShutdownHooks() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 Thread.sleep(300);

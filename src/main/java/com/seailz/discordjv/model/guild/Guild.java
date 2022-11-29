@@ -24,6 +24,7 @@ import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import com.seailz.discordjv.utils.flag.FlagUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -698,12 +699,12 @@ public record Guild(
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public Emoji getEmojiById(String emojiId) {
+    public Emoji getEmojiById(@NotNull String emojiId) {
         return Emoji.decompile(
                 new DiscordRequest(
                         new JSONObject(),
                         new HashMap<>(),
-                        URLS.GET.GUILDS.EMOJIS.GET_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
+                        URLS.GET.GUILDS.EMOJIS.GET_GUILD_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
                         discordJv,
                         URLS.GET.GUILDS.GET_GUILD,
                         RequestMethod.GET
@@ -717,7 +718,7 @@ public record Guild(
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public Emoji getEmojiById(long emojiId) {
+    public @NotNull Emoji getEmojiById(long emojiId) {
         return getEmojiById(String.valueOf(emojiId));
     }
 

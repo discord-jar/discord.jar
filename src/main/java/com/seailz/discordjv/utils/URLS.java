@@ -131,7 +131,7 @@ public final class URLS {
                  * @param id The id of the guild
                  * @param emoji.id The id of the emoji
                  */
-                public static String GET_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
+                public static String GET_GUILD_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
             }
 
             public static class STICKERS {

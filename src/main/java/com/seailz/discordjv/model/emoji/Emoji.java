@@ -110,6 +110,10 @@ public record Emoji(
         return new Emoji(id, name, roles, user, requireColons, managed, animated, available);
     }
 
+    /**
+     * Gets an emoji is a mention that can be added in a {@link com.seailz.discordjv.model.message.Message}
+     * @return The emoji mention as a String
+     */
     public String getAsMention() {
         if (animated) return "<a:" + name + ":" + id + ">";
         else return "<:" + name + ":" + id + ">";

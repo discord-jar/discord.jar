@@ -120,7 +120,7 @@ public record ResolvedData(
             HashMap<String, Role> finalRoles = roles;
             rolesObj.toMap().forEach((key, value) -> finalRoles.put(key, Role.decompile((JSONObject) value)));
         } catch (Exception e) {
-            roles = null;
+            e.printStackTrace();
         }
 
         try {

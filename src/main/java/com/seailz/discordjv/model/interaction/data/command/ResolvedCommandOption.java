@@ -2,6 +2,8 @@ package com.seailz.discordjv.model.interaction.data.command;
 
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.command.CommandOptionType;
+import com.seailz.discordjv.model.interaction.data.ResolvedData;
+import com.seailz.discordjv.model.role.Role;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,6 +25,7 @@ public class ResolvedCommandOption implements Compilerable {
     // Present if this option is a group or subcommand
     private final List<ResolvedCommandOption> options;
     private final boolean focused;
+    private ResolvedData resolved;
 
     public ResolvedCommandOption(String name, JSONObject data, CommandOptionType type, List<ResolvedCommandOption> options, boolean focused) {
         this.name = name;
@@ -47,23 +50,25 @@ public class ResolvedCommandOption implements Compilerable {
     }
 
     @NotNull
-    public static ResolvedCommandOption decompile(JSONObject obj) {
+    public static ResolvedCommandOption decompile(JSONObject obj, ResolvedData resolvedData) {
         List<ResolvedCommandOption> options = new ArrayList<>();
         if (obj.has("options")) {
             JSONArray optionsArray = obj.getJSONArray("options");
             for (int i = 0; i < optionsArray.length(); i++) {
-                options.add(decompile(optionsArray.getJSONObject(i)));
+                options.add(decompile(optionsArray.getJSONObject(i), resolvedData));
             }
         }
 
         JSONObject value = obj.has("value") ? obj.getJSONObject("value") : null;
-        return new ResolvedCommandOption(
+        ResolvedCommandOption res = new ResolvedCommandOption(
                 obj.getString("name"),
                 value,
                 CommandOptionType.fromCode(obj.getInt("type")),
                 options,
                 obj.has("focused") && obj.getBoolean("focused")
         );
+        res.resolved = resolvedData;
+        return res;
     }
 
     public String name() {
@@ -80,6 +85,10 @@ public class ResolvedCommandOption implements Compilerable {
 
     public boolean getAsBoolean() {
         return data.getBoolean("value");
+    }
+
+    public Role getAsRole() {
+        return this.resolved.roles().get(data.getString("value"));
     }
 
     public CommandOptionType type() {

@@ -50,7 +50,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
         if (obj.has("options") && this.options != null) {
             JSONArray optionsArray = obj.getJSONArray("options");
             for (int i = 0; i < optionsArray.length(); i++) {
-                options.add(ResolvedCommandOption.decompile(optionsArray.getJSONObject(i)));
+                options.add(ResolvedCommandOption.decompile(optionsArray.getJSONObject(i), resolved));
             }
         }
 

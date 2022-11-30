@@ -27,7 +27,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
         JSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
         List<ResolvedCommandOption> decompiled = new ArrayList<>();
         for (Object option : options) {
-            decompiled.add(ResolvedCommandOption.decompile((JSONObject) option));
+            decompiled.add(ResolvedCommandOption.decompile((JSONObject) option, getCommandData().resolved()));
         }
         return decompiled;
     }

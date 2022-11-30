@@ -218,13 +218,10 @@ public class MessageCreateAction {
 
             if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
 
-            HashMap<String, String> headers = new HashMap<>();
-            headers.put("Content-Length", payload.has("content") ? String.valueOf(payload.getString("content").length()) : "0");
-
 
             DiscordRequest request = new DiscordRequest(
                     payload,
-                    headers,
+                    new HashMap<>(),
                     url,
                     discordJv,
                     URLS.POST.MESSAGES.SEND,

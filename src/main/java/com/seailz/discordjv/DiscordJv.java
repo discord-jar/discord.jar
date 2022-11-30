@@ -115,6 +115,7 @@ public class DiscordJv {
      * @throws InterruptedException If an error occurs while connecting to the gateway
      */
     public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         token = token.replaceAll("\\r\\n", "");
         this.token = token;
         this.intents = intents;

@@ -78,7 +78,6 @@ public record DiscordRequest(
             con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "application/json");
-            headers.forEach(con::header);
 
             byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
 

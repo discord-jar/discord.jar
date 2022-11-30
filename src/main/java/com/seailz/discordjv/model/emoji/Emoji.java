@@ -131,13 +131,13 @@ public record Emoji(
         String[] emojiString;
         emojiString = emoji.split(":");
 
-        String name = emojiString[1];
-        String id = emojiString[0].replaceFirst("<", "");
+        String name = emojiString[0];
+        String id = emojiString[1].replaceFirst("<", "");
         boolean animated = false;
 
         if (id.equals("a")) {
-            id = emojiString[1];
-            name = emojiString[2];
+            id = emojiString[2];
+            name = emojiString[1];
             animated = true;
         }
 

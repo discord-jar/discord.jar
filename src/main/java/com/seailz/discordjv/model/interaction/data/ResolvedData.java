@@ -87,9 +87,9 @@ public record ResolvedData(
 
     @NotNull
     public static ResolvedData decompile(JSONObject obj) {
-        HashMap<String, User> users = new HashMap<>();
+        HashMap<String, User> users;
         HashMap<String, Member> members;
-        HashMap<String, Role> roles;
+        HashMap<String, Role> roles = null;
         HashMap<String, Channel> channels;
         HashMap<String, Message> messages;
         HashMap<String, Attachment> attachments;
@@ -118,7 +118,7 @@ public record ResolvedData(
             HashMap<String, Role> finalRoles = roles;
             rolesObj.toMap().forEach((key, value) -> finalRoles.put(key, (Role) value));
         } catch (Exception e) {
-            roles = null;
+            e.printStackTrace();
         }
 
         try {

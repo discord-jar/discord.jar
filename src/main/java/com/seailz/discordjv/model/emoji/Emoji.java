@@ -129,16 +129,17 @@ public record Emoji(
 
     public static Emoji from(String emoji) {
         String[] emojiString;
+        emoji = emoji.replaceFirst("<:", "");
         emojiString = emoji.split(":");
 
         String name = emojiString[0];
-        String id = emojiString[1].replaceFirst("<", "");
+        String id = emojiString[1].replaceFirst(">", "");
         boolean animated = false;
 
-        if (id.equals("a")) {
-            id = emojiString[2];
-            name = emojiString[1];
+        if (emojiString.length == 3) {
             animated = true;
+            name = emojiString[1];
+            id = emojiString[2].replaceFirst(">", "");
         }
 
         return Emoji.from(id, name, animated);

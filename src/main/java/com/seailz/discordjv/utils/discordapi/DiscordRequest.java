@@ -176,7 +176,7 @@ public record DiscordRequest(
                     } catch (JSONException exx) {
                         throw new UnhandledDiscordAPIErrorException(
                                 responseCode,
-                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv."
+                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv." + error.toString()
                         );
                     }
                 }

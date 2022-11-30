@@ -23,7 +23,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
     private final ResolvedData resolved;
     private List<ResolvedCommandOption> options;
     private final Guild guild;
-    private final int targetId;
+    private final String targetId;
 
     /**
      * @param id       The ID of the invoked command
@@ -33,7 +33,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
      * @param guild    The guild it was sent from
      * @param targetId The id of the target
      */
-    public ApplicationCommandInteractionData(String id, String name, ResolvedData resolved, List<ResolvedCommandOption> options, Guild guild, int targetId) {
+    public ApplicationCommandInteractionData(String id, String name, ResolvedData resolved, List<ResolvedCommandOption> options, Guild guild, String targetId) {
         this.id = id;
         this.name = name;
         this.resolved = resolved;
@@ -55,7 +55,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
         }
 
         guild = obj.has("guild_id") ? discordJv.getGuildCache().getById(obj.getString("guild_id")) : null;
-        targetId = obj.has("target_id") ? obj.getInt("target_id") : 0;
+        targetId = obj.has("target_id") ? obj.getString("target_id") : null;
     }
 
     public String id() {
@@ -78,7 +78,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
         return guild;
     }
 
-    public int targetId() {
+    public String targetId() {
         return targetId;
     }
 

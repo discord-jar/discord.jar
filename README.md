@@ -8,6 +8,8 @@ Everything that needs doing can be found in the [Issues](https://github.com/seai
 ## Documentation
 There is currently no documentation, but it will be avaliable [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready. Although there is no documentation, there are still examples which are avaliable [here](https://github.com/discord-jv/discord.jv/tree/main/examples)
 
+Javadocs can be found [here](https://discord-jv.github.io/discord.jv).
+
 ## Contributing
 If you want to contribute to this project, feel free to do so! Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab,
  and if an issue there has the **avaliable** tag you are free to make a PR fixing/adding it! :)

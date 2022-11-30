@@ -1,8 +1,11 @@
 package com.seailz.discordjv;
 
 import com.seailz.discordjv.command.CommandDispatcher;
-import com.seailz.discordjv.command.annotation.CommandInfo;
+import com.seailz.discordjv.command.annotation.ContextCommandInfo;
+import com.seailz.discordjv.command.annotation.SlashCommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
+import com.seailz.discordjv.command.listeners.MessageContextCommandListener;
+import com.seailz.discordjv.command.listeners.UserContextCommandListener;
 import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjv.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
@@ -41,10 +44,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -169,7 +170,7 @@ public class DiscordJv {
     /**
      * Stops the bot from shutting down when processes are finished
      */
-    public void initiateNoShutdown() {
+    protected void initiateNoShutdown() {
         // stop program from shutting down
         new Thread(() -> {
             while (true) {
@@ -182,7 +183,7 @@ public class DiscordJv {
         }).start();
     }
 
-    public void initiateShutdownHooks() {
+    protected void initiateShutdownHooks() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 Thread.sleep(300);
@@ -437,19 +438,24 @@ public class DiscordJv {
      */
     public void registerCommands(CommandListener... listeners) {
         for (CommandListener listener : listeners) {
-            CommandInfo ann = listener.getClass().getAnnotation(CommandInfo.class);
-            Checker.check(!listener.getClass().isAnnotationPresent(CommandInfo.class) || ann == null, "CommandListener class must be annotated with @CommandInfo");
+            Checker.check((listener instanceof SlashCommandListener) && !listener.getClass().isAnnotationPresent(SlashCommandInfo.class), "SlashCommandListener must have @SlashCommandInfo annotation");
+            Checker.check((listener instanceof MessageContextCommandListener || listener instanceof UserContextCommandListener)
+                    && !listener.getClass().isAnnotationPresent(ContextCommandInfo.class), "Context commands must have @ContextCommandInfo annotation");
+
+            Annotation ann = listener.getClass().isAnnotationPresent(SlashCommandInfo.class) ? listener.getClass().getAnnotation(SlashCommandInfo.class) : listener.getClass().getAnnotation(ContextCommandInfo.class);
+            String name = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).name() : ((ContextCommandInfo) ann).value();
+            String description =  (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).description() : "";
             registerCommand(
                     new Command(
-                            ann.name(),
+                            name,
                             listener.getType(),
-                            ann.description(),
+                            description,
                             (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>()
                     )
             );
-            commandDispatcher.registerCommand(ann.name(), listener);
-            if (!(listener instanceof SlashCommandListener)) return;
-            SlashCommandListener slashCommandListener = (SlashCommandListener) listener;
+            commandDispatcher.registerCommand(name, listener);
+
+            if (!(listener instanceof SlashCommandListener slashCommandListener)) return;
             if (slashCommandListener.getSubCommands().isEmpty()) return;
 
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
@@ -473,7 +479,7 @@ public class DiscordJv {
 
     protected void registerCommand(Command command) {
         Checker.check(!(command.name().length() > 1 && command.name().length() < 32), "Command name must be within 1 and 32 characters!");
-        Checker.check(!(command.description().length() > 1 && command.description().length() < 100), "Command description must be within 1 and 100 characters!");
+        Checker.check(!Objects.equals(command.description(), "") && !(command.description().length() > 1 && command.description().length() < 100), "Command description must be within 1 and 100 characters!");
         Checker.check(command.options().size() > 25, "Application commands can only have up to 25 options!");
 
         for (CommandOption o : command.options()) {
@@ -512,9 +518,5 @@ public class DiscordJv {
                 RequestMethod.PUT
         );
         cmdDelReq.invoke(new JSONArray());
-    }
-
-    public void registerSubCommand(SubCommandListener sub, SlashSubCommand details) {
-
     }
 }

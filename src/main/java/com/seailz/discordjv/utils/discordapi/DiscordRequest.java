@@ -187,7 +187,8 @@ public record DiscordRequest(
                 throw new DiscordAPIErrorException(
                         responseCode,
                         errorObject.getString("code"),
-                        errorObject.getString("message")
+                        errorObject.getString("message"),
+                        error.toString()
                 );
             });
         } catch (Exception e) {
@@ -216,8 +217,8 @@ public record DiscordRequest(
     }
 
     public static class DiscordAPIErrorException extends RuntimeException {
-        public DiscordAPIErrorException(int code, String errorCode, String error) {
-            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + errorCode + " " + error);
+        public DiscordAPIErrorException(int code, String errorCode, String error, String body) {
+            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + errorCode + " " + error + "\n" + body);
         }
     }
 

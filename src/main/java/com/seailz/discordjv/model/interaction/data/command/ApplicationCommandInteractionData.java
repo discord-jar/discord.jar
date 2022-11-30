@@ -45,7 +45,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
     public ApplicationCommandInteractionData(JSONObject obj, DiscordJv discordJv) {
         id = obj.has("id") ? obj.getString("id") : null;
         name = obj.has("name") ? obj.getString("name") : null;
-        resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved")) : null;
+        resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved"), discordJv) : null;
 
         if (obj.has("options") && this.options != null) {
             JSONArray optionsArray = obj.getJSONArray("options");

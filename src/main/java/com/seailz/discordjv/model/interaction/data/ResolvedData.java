@@ -1,5 +1,6 @@
 package com.seailz.discordjv.model.interaction.data;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.guild.Member;
@@ -86,7 +87,7 @@ public record ResolvedData(
     }
 
     @NotNull
-    public static ResolvedData decompile(JSONObject obj) {
+    public static ResolvedData decompile(JSONObject obj, DiscordJv discordJv) {
         HashMap<String, User> users;
         HashMap<String, Member> members;
         HashMap<String, Role> roles = null;
@@ -98,7 +99,7 @@ public record ResolvedData(
             JSONObject resolved = obj.getJSONObject("users");
             users = new HashMap<>();
             HashMap<String, User> finalUsers = users;
-            resolved.toMap().forEach((key, value) -> finalUsers.put(key, (User) value));
+            resolved.toMap().forEach((key, value) -> finalUsers.put(key, User.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             users = null;
         }
@@ -107,7 +108,7 @@ public record ResolvedData(
             JSONObject resolved = obj.getJSONObject("members");
             members = new HashMap<>();
             HashMap<String, Member> finalMembers = members;
-            resolved.toMap().forEach((key, value) -> finalMembers.put(key, (Member) value));
+            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJv, null)));
         } catch (Exception e) {
             members = null;
         }
@@ -115,17 +116,18 @@ public record ResolvedData(
         try {
             JSONObject rolesObj = obj.getJSONObject("roles");
             roles = new HashMap<>();
+
             HashMap<String, Role> finalRoles = roles;
-            rolesObj.toMap().forEach((key, value) -> finalRoles.put(key, (Role) value));
+            rolesObj.toMap().forEach((key, value) -> finalRoles.put(key, Role.decompile((JSONObject) value)));
         } catch (Exception e) {
-            e.printStackTrace();
+            roles = null;
         }
 
         try {
             JSONObject channelsObj = obj.getJSONObject("channels");
             channels = new HashMap<>();
             HashMap<String, Channel> finalChannels = channels;
-            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, (Channel) value));
+            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             channels = null;
         }
@@ -134,7 +136,7 @@ public record ResolvedData(
             JSONObject messagesObj = obj.getJSONObject("messages");
             messages = new HashMap<>();
             HashMap<String, Message> finalMessages = messages;
-            messagesObj.toMap().forEach((key, value) -> finalMessages.put(key, (Message) value));
+            messagesObj.toMap().forEach((key, value) -> finalMessages.put(key, Message.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             messages = null;
         }
@@ -143,7 +145,7 @@ public record ResolvedData(
             JSONObject attachmentsObj = obj.getJSONObject("attachments");
             attachments = new HashMap<>();
             HashMap<String, Attachment> finalAttachments = attachments;
-            attachmentsObj.toMap().forEach((key, value) -> finalAttachments.put(key, (Attachment) value));
+            attachmentsObj.toMap().forEach((key, value) -> finalAttachments.put(key, Attachment.decompile((JSONObject) value)));
         } catch (Exception e) {
             attachments = null;
         }

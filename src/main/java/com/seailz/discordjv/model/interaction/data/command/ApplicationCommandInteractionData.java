@@ -91,7 +91,7 @@ public class ApplicationCommandInteractionData extends InteractionData {
 
         obj.put("id", id);
         obj.put("name", name);
-        obj.put("resolved", resolved.compile());
+        // obj.put("resolved", resolved.compile());
         obj.put("options", options);
         obj.put("guild_id", guild.id());
         obj.put("target_id", targetId);

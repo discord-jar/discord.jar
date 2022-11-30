@@ -36,9 +36,10 @@ public record ResolvedData(
         HashMap<String, Channel> channels,
         HashMap<String, Message> messages,
         HashMap<String, Attachment> attachments
-) implements Compilerable {
+)// implements Compilerable
+{
 
-    @Override
+    /* @Override
     public JSONObject compile() {
         HashMap<String, Compilerable> users;
         HashMap<String, Compilerable> members;
@@ -84,7 +85,7 @@ public record ResolvedData(
                 .put("channels", channels == null ? JSONObject.NULL : mapToJson(channels))
                 .put("messages", messages == null ? JSONObject.NULL : mapToJson(messages))
                 .put("attachments", attachments == null ? JSONObject.NULL : mapToJson(attachments));
-    }
+    } */
 
     @NotNull
     public static ResolvedData decompile(JSONObject obj, DiscordJv discordJv) {
@@ -118,7 +119,10 @@ public record ResolvedData(
             roles = new HashMap<>();
 
             HashMap<String, Role> finalRoles = roles;
-            rolesObj.toMap().forEach((key, value) -> finalRoles.put(key, Role.decompile((JSONObject) value)));
+            rolesObj.toMap().forEach((key, value) -> {
+                String json = new com.google.gson.Gson().toJson(value);
+                finalRoles.put(key, Role.decompile(new JSONObject(json)));
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -151,16 +155,6 @@ public record ResolvedData(
         }
 
         return new ResolvedData(users, members, roles, channels, messages, attachments);
-    }
-
-    public JSONArray mapToJson(HashMap<String, Compilerable> map) {
-        JSONArray arr = new JSONArray();
-        for (String key : map.keySet()) {
-            JSONObject obj = new JSONObject();
-            obj.put(key, map.get(key).compile());
-            arr.put(obj);
-        }
-        return arr;
     }
 
     public static HashMap<String, Resolvable> jsonToMap(JSONArray arr) {

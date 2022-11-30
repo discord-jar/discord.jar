@@ -20,14 +20,14 @@ import java.util.List;
  */
 public class ResolvedCommandOption implements Compilerable {
     private final String name;
-    private final JSONObject data;
+    private final Object data;
     private final CommandOptionType type;
     // Present if this option is a group or subcommand
     private final List<ResolvedCommandOption> options;
     private final boolean focused;
     private ResolvedData resolved;
 
-    public ResolvedCommandOption(String name, JSONObject data, CommandOptionType type, List<ResolvedCommandOption> options, boolean focused) {
+    public ResolvedCommandOption(String name, Object data, CommandOptionType type, List<ResolvedCommandOption> options, boolean focused) {
         this.name = name;
         this.data = data;
         this.type = type;
@@ -43,7 +43,7 @@ public class ResolvedCommandOption implements Compilerable {
 
         return new JSONObject()
                 .put("name", name)
-                .put("value", data.get("value"))
+                .put("value", data)
                 .put("type", type.getCode())
                 .put("options", options)
                 .put("focused", focused);
@@ -59,7 +59,7 @@ public class ResolvedCommandOption implements Compilerable {
             }
         }
 
-        JSONObject value = obj.has("value") ? obj.getJSONObject("value") : null;
+        Object value = obj.has("value") ? obj.get("value") : null;
         ResolvedCommandOption res = new ResolvedCommandOption(
                 obj.getString("name"),
                 value,
@@ -76,19 +76,19 @@ public class ResolvedCommandOption implements Compilerable {
     }
 
     public String getAsString() {
-        return data.getString("value");
+        return (String) data;
     }
 
     public int getAsInt() {
-        return data.getInt("value");
+        return (int) data;
     }
 
     public boolean getAsBoolean() {
-        return data.getBoolean("value");
+        return (boolean) data;
     }
 
     public Role getAsRole() {
-        return this.resolved.roles().get(data.getString("value"));
+        return this.resolved.roles().get(getAsString());
     }
 
     public CommandOptionType type() {

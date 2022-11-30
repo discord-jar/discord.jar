@@ -122,4 +122,8 @@ public record Emoji(
 
         return mentionBuilder.toString();
     }
+
+    public static Emoji from(String id, String name, boolean animated) {
+        return new Emoji(id, name, null, null, false, false, animated, false);
+    }
 }

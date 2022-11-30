@@ -32,4 +32,12 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
         return decompiled;
     }
 
+    public ResolvedCommandOption getOption(String name) {
+        if (getOptions() == null) return null;
+        for (ResolvedCommandOption option : getOptions()) {
+            if (option.name().equals(name)) return option;
+        }
+        return null;
+    }
+
 }

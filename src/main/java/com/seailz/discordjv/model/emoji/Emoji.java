@@ -126,4 +126,21 @@ public record Emoji(
     public static Emoji from(String id, String name, boolean animated) {
         return new Emoji(id, name, null, null, false, false, animated, false);
     }
+
+    public static Emoji from(String emoji) {
+        String[] emojiString;
+        emojiString = emoji.split(":");
+
+        String name = emojiString[1];
+        String id = emojiString[0].replaceFirst("<", "");
+        boolean animated = false;
+
+        if (id.equals("a")) {
+            id = emojiString[1];
+            name = emojiString[2];
+            animated = true;
+        }
+
+        return Emoji.from(id, name, animated);
+    }
 }

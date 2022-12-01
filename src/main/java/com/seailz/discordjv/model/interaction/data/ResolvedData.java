@@ -1,7 +1,6 @@
 package com.seailz.discordjv.model.interaction.data;
 
 import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.model.message.Attachment;
@@ -14,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents resolved data from an interaction

@@ -47,7 +47,7 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
     /**
      * Returns the selected channels of the {@link com.seailz.discordjv.model.component.select.entity.ChannelSelectMenu ChannelSelectMenu}.
      *
-     * @return A list of {@link com.seailz.discordjv.model.channel.Channel} objects containing the selected channels.
+     * @return A list of {@link Channel} objects containing the selected channels.
      * @throws IllegalStateException if the event was not fied in a {@link com.seailz.discordjv.model.guild.Guild Guild}.
      */
     public List<Channel> getSelectedChannels() {

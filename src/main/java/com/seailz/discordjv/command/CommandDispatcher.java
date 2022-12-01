@@ -77,7 +77,6 @@ public class CommandDispatcher {
                     }
                 }
             }
-            listeners.get(name).onCommand(event);
         }
         listeners.get(name).onCommand(event);
     }

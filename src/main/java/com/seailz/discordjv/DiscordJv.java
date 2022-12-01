@@ -1,5 +1,6 @@
 package com.seailz.discordjv;
 
+import com.seailz.discordjv.action.guild.GetCurrentUserGuildsAction;
 import com.seailz.discordjv.command.CommandDispatcher;
 import com.seailz.discordjv.command.annotation.ContextCommandInfo;
 import com.seailz.discordjv.command.annotation.SlashCommandInfo;
@@ -519,5 +520,19 @@ public class DiscordJv {
                 RequestMethod.PUT
         );
         cmdDelReq.invoke(new JSONArray());
+    }
+
+    /**
+     * Retrieves up to 200 guilds the bot is in.
+     * <br>If you want to retrieve more guilds than that, you need to specify the last guild id in the <b>after</b> parameter.
+     *<p>
+     * Please be aware of the fact that this method is rate limited quite heavily.
+     * <br>It is recommended that only smaller bots use this method.
+     *<p>
+     * If you need to retrieve a (possibly inaccurate) list of guilds as a larger bot, use {@link #getGuildCache()} instead.
+     * <br>All guilds retrieved from this method will be cached.
+     */
+    public GetCurrentUserGuildsAction getGuilds() {
+        return new GetCurrentUserGuildsAction(this);
     }
 }

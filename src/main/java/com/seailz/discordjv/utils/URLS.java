@@ -1,5 +1,6 @@
 package com.seailz.discordjv.utils;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.version.APIVersion;
 
 /**
@@ -119,6 +120,11 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String GET_GUILD = "/guilds/{guild.id}";
+
+            /**
+             * Read {@link DiscordJv#getGuilds()} for more information
+             */
+            public static String GET_CURRENT_USER_GUILDS = "/users/@me/guilds";
 
             public static class EMOJIS {
                 /**

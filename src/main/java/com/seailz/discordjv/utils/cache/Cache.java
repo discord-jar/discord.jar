@@ -3,6 +3,7 @@ package com.seailz.discordjv.utils.cache;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -51,7 +52,26 @@ public class Cache<T> {
      *
      * @param t The object to add
      */
-    public void cache(T t) {
+    public void cache(@NotNull T t)  {
+        String id;
+        try {
+             id = (String) t.getClass().getMethod("id").invoke(t);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (T cacheMember : cache) {
+            String cacheId;
+            try {
+                cacheId = (String) cacheMember.getClass().getMethod("id").invoke(cacheMember);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+            if (cacheId.equals(id)) {
+                cache.remove(cacheMember);
+                break;
+            }
+        }
         cache.add(t);
     }
 

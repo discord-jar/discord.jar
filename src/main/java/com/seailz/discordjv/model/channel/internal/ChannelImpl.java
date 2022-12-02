@@ -1,15 +1,15 @@
 package com.seailz.discordjv.model.channel.internal;
 
-import com.seailz.discordjv.model.channel.Channel1;
+import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 /**
- * Impl of {@link Channel1}
+ * Impl of {@link Channel}
  */
-public class ChannelImpl implements Channel1 {
+public class ChannelImpl implements Channel {
 
     private final String id;
     private final ChannelType type;

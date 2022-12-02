@@ -13,38 +13,38 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
 
     private final Guild guild;
     private final int position;
-    private final String topic;
     private final List<PermissionOverwrite> permissionOverwrites;
+    private final boolean nsfw;
 
-    public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, String topic, List<PermissionOverwrite> permissionOverwrites) {
+    public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw) {
         super(id, type, name);
 
         this.guild = guild;
         this.position = position;
-        this.topic = topic;
         this.permissionOverwrites = permissionOverwrites;
+        this.nsfw = nsfw;
     }
 
     @Override
     public @NotNull Guild guild() {
-        return null;
+        return this.guild;
     }
 
     // Will return 0 if not found
     @Override
     public int position() {
-        return 0;
-    }
-
-    @Override
-    public @NotNull String topic() {
-        return null;
+        return this.position;
     }
 
     @Nullable
     @Override
     public List<PermissionOverwrite> permissionOverwrites() {
-        return null;
+        return this.permissionOverwrites;
+    }
+
+    @Override
+    public boolean nsfw() {
+        return nsfw;
     }
 
 }

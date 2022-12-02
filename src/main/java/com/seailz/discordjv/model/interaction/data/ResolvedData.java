@@ -129,7 +129,7 @@ public record ResolvedData(
             JSONObject channelsObj = obj.getJSONObject("channels");
             channels = new HashMap<>();
             HashMap<String, Channel> finalChannels = channels;
-            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value, discordJv)));
+            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value)));
         } catch (Exception e) {
             channels = null;
         }

@@ -126,6 +126,15 @@ public final class URLS {
              */
             public static String GET_CURRENT_USER_GUILDS = "/users/@me/guilds";
 
+            public static class CHANNELS {
+                /**
+                 * Returns a list of {@link com.seailz.discordjv.model.channel.Channel} objects
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String GET_GUILD_CHANNELS = "/guilds/{guild.id}/channels";
+            }
+
             public static class EMOJIS {
                 /**
                  * Gets guild emojis

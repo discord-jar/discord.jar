@@ -42,4 +42,15 @@ public interface Category extends GuildChannel {
         return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, nsfw, channels);
     }
 
+    static Category fromId(String id, DiscordJv discordJv) {
+        return discordJv.getGuilds().run().stream()
+                .map(Guild::getChannels)
+                .flatMap(List::stream)
+                .filter(channel -> channel instanceof Category)
+                .map(channel -> (Category) channel)
+                .filter(category -> category.id().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
 }

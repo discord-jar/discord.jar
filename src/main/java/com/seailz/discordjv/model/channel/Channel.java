@@ -5,6 +5,7 @@ import com.seailz.discordjv.model.channel.internal.ChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.resolve.Resolvable;
 import com.seailz.discordjv.utils.Mentionable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -43,7 +44,9 @@ public interface Channel extends Compilerable, Resolvable, Mentionable {
         return "<#" + id() + ">";
     }
 
-    static Channel decompile(JSONObject obj) {
+    @NotNull
+    @Contract("_ -> new")
+    static Channel decompile(@NotNull JSONObject obj) {
         return new ChannelImpl(
                 obj.getString("id"),
                 ChannelType.fromCode(obj.getInt("type")),

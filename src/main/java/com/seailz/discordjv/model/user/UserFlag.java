@@ -33,8 +33,8 @@ public enum UserFlag {
     VERIFIED_BOT(16),
     // User is a verified bot developer
     EARLY_VERIFIED_BOT_DEVELOPER(17),
-    // User is a discord certified moderator
-    DISCORD_CERTIFIED_MODERATOR(18),
+    // User is a Certified Moderator Alumni
+    CERTIFIED_MODERATOR_ALUMNI(18),
     // User only uses HTTP interactions and is shown in the only member list
     BOT_HTTP_INTERACTIONS(19),
     ;

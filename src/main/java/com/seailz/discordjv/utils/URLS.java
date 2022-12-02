@@ -73,6 +73,15 @@ public final class URLS {
 
     public static class GET {
 
+        public static class VOICE {
+            public static class REGIONS {
+                /**
+                 * Retrieves a list of {@link com.seailz.discordjv.model.channel.audio.VoiceRegion VoiceRegion} objects for the given guild.
+                 */
+                public static final String GET_VOICE_REGIONS = "/voice/regions";
+            }
+        }
+
         public static class GATEWAY {
             /**
              * Returns the gateway URL

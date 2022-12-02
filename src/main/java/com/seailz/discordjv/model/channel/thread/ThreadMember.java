@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.channel.thread;
 
 import com.seailz.discordjv.core.Compilerable;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 /**
@@ -20,8 +21,13 @@ public record ThreadMember(
 
 
     @Override
-    public JSONObject compile() {
-        return null;
+    public @NotNull JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("id", id());
+        obj.put("user_id", userId());
+        obj.put("join_timestamp", joinTimestamp());
+        obj.put("flags", flags());
+        return obj;
     }
 
     public static ThreadMember decompile(JSONObject obj) {

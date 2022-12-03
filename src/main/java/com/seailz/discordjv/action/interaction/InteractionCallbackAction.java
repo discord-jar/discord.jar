@@ -2,6 +2,7 @@ package com.seailz.discordjv.action.interaction;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
+import com.seailz.discordjv.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjv.model.interaction.reply.InteractionReply;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
@@ -42,7 +43,7 @@ public class InteractionCallbackAction {
         return reply;
     }
 
-    public void run() {
+    public InteractionHandler run() {
         JSONObject json = new JSONObject();
         json.put("type", this.type.getCode());
         json.put("data", this.reply.compile());
@@ -53,6 +54,7 @@ public class InteractionCallbackAction {
                                 .replace("{interaction.token}", this.token), discordJv, URLS.POST.INTERACTIONS.CALLBACK,
                         RequestMethod.POST);
         request.invoke();
+        return InteractionHandler.from(token, id, discordJv);
     }
 
 

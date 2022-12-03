@@ -23,6 +23,7 @@ public final class URLS {
     public static class POST {
         public static class INTERACTIONS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
+            public static final String FOLLOWUP = "/webhooks/application.id/interaction.token";
         }
 
         public static class COMMANDS {
@@ -189,6 +190,11 @@ public final class URLS {
             }
         }
 
+        public static class INTERACTIONS {
+            public static String GET_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+            public static String GET_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
+        }
+
         public static class APPLICATIONS {
             /**
              * Returns an {@link com.seailz.discordjv.model.application.Application object containing information about the application of the bot selected}
@@ -240,6 +246,11 @@ public final class URLS {
                  */
                 public static String DELETE_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
             }
+        }
+
+        public static class INTERACTION {
+            public static String DELETE_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
+            public static String DELETE_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
         }
     }
 

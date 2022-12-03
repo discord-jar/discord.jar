@@ -33,6 +33,9 @@ public class InteractionMessageResponse implements InteractionReply {
         this.content = content;
     }
 
+    public InteractionMessageResponse() {
+    }
+
     public InteractionMessageResponse(
             boolean tts,
             String content,

@@ -24,6 +24,8 @@ import java.util.List;
  * Although this class is deprecated, we will still offer support for it,
  * <br>so if any new features are added to both group DMs and DMs, this class will be updated.
  * <br>If a feature is added to DMs, but not group DMs, this class will be updated and the deprecated annotation will be removed.
+ * <p>
+ * {@code TL;DR}: <b>Class is deprecated, use {@link DMChannel} instead. This class will continue to be supported, however.</b>
  * @author Seailz
  * @since  1.0
  * @see    DMChannel

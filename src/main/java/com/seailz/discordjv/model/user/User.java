@@ -2,6 +2,7 @@ package com.seailz.discordjv.model.user;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.model.channel.DMChannel;
 import com.seailz.discordjv.model.channel.TextChannel;
 import com.seailz.discordjv.model.resolve.Resolvable;
 import com.seailz.discordjv.utils.Mentionable;
@@ -205,10 +206,10 @@ public record User(
      * DMs should generally be initiated by a user action.
      * If you open a significant amount of DMs too quickly, your bot may be rate limited or blocked from opening new ones.
      *
-     * @return {@link TextChannel} object of the DM channel
+     * @return {@link DMChannel} object
      */
     @Nullable
-    public TextChannel createDM() {
+    public DMChannel createDM() {
         JSONObject obj = new JSONObject()
                 .put("recipient_id", id);
         DiscordResponse resp = new DiscordRequest(
@@ -220,7 +221,7 @@ public record User(
                 RequestMethod.POST
         ).invoke();
 
-        return resp != null && resp.body() != null ? TextChannel.decompile(resp.body(), discordJv) : null;
+        return resp != null && resp.body() != null ? DMChannel.decompile(resp.body(), discordJv) : null;
     }
 
 

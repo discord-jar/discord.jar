@@ -8,7 +8,7 @@ import com.seailz.discordjv.utils.Mentionable;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
-import com.seailz.discordjv.utils.flag.FlagUtil;
+import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -177,7 +177,7 @@ public record User(
         }
 
         try {
-            flags = FlagUtil.getFlagsByInt(obj.getInt("flags"));
+            flags = new BitwiseUtil<UserFlag>().get(obj.getInt("flags"), UserFlag.class);
             flagsRaw = obj.getInt("flags");
         } catch (JSONException e) {
             flags = null;
@@ -190,7 +190,7 @@ public record User(
         }
 
         try {
-            publicFlags = FlagUtil.getFlagsByInt(obj.getInt("public_flags"));
+            publicFlags = flags = new BitwiseUtil<UserFlag>().get(obj.getInt("public_flags"), UserFlag.class);
             publicFlagsRaw = obj.getInt("public_flags");
         } catch (JSONException e) {
             publicFlags = null;

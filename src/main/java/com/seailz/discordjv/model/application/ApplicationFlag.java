@@ -1,5 +1,7 @@
 package com.seailz.discordjv.model.application;
 
+import com.seailz.discordjv.utils.flag.Bitwiseable;
+
 /**
  * Represents a flag on an application's account.
  * This is used to determine if an application has a certain feature enabled or not.
@@ -7,7 +9,7 @@ package com.seailz.discordjv.model.application;
  * @author Seailz
  * @since 1.0
  */
-public enum ApplicationFlag {
+public enum ApplicationFlag implements Bitwiseable {
 
     // Intent required for bots in 100 or more servers to receive presence_update events
     GATEWAY_PRESENCE(12),
@@ -37,7 +39,13 @@ public enum ApplicationFlag {
         this.id = id;
     }
 
+    @Override
     public int getLeftShiftId() {
         return 1 << id;
+    }
+
+    @Override
+    public int id() {
+        return id;
     }
 }

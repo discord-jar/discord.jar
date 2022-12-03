@@ -1,5 +1,7 @@
 package com.seailz.discordjv.model.user;
 
+import com.seailz.discordjv.utils.flag.Bitwiseable;
+
 /**
  * Represents a flag on a user's account.
  * This is used to determine if a user has a certain feature enabled or not, and USUALLY represents "badges" on a user's account.
@@ -7,7 +9,7 @@ package com.seailz.discordjv.model.user;
  * @author Seailz
  * @since 1.0
  */
-public enum UserFlag {
+public enum UserFlag implements Bitwiseable {
 
     // User is a staff member
     STAFF(0),
@@ -45,7 +47,13 @@ public enum UserFlag {
         this.id = id;
     }
 
+    @Override
     public int getLeftShiftId() {
         return 1 << id;
+    }
+
+    @Override
+    public int id() {
+        return id;
     }
 }

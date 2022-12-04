@@ -34,7 +34,8 @@ org.json - json managing - may be removed soon, <p>
 jetbrains annotations (should stay?)
 
 ## License
-License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE)
+License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE). This project is licensed under GNU General Public License V3
+
 
 ## Contact
 [![](https://dcbadge.vercel.app/api/server/3cF5xeT3eV)]([https://discord.gg/INVITEID](https://discord.gg/3cF5xeT3eV))

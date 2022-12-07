@@ -68,7 +68,7 @@ public record DiscordRequest(
                 con.method("PUT", HttpRequest.BodyPublishers.ofString(body.toString()));
             }
             else if (requestMethod == RequestMethod.DELETE) {
-                con.method("DELETE", body.toString().isEmpty() || body.toString().equals("{}") ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(body.toString()));
+                con.method("DELETE", HttpRequest.BodyPublishers.ofString(body.toString()));
             } else if (requestMethod == RequestMethod.GET) {
                 con.GET();
             } else {

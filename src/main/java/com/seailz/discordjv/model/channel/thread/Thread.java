@@ -1,254 +1,167 @@
 package com.seailz.discordjv.model.channel.thread;
 
 import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.core.Compilerable;
-import com.seailz.discordjv.model.channel.Channel;
-import com.seailz.discordjv.model.channel.utils.ChannelFlags;
+import com.seailz.discordjv.model.channel.CategoryMember;
+import com.seailz.discordjv.model.channel.GuildChannel;
+import com.seailz.discordjv.model.channel.TextChannel;
+import com.seailz.discordjv.model.channel.internal.GuildChannelImpl;
+import com.seailz.discordjv.model.channel.internal.ThreadImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
+import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.permission.PermissionOverwrite;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Represents a thread
+ * Represents a Thread object.
+ * <p>
+ * Threads can be either archived or active. Archived threads are generally immutable.
+ * <br>To send a message or add a reaction, a thread must first be unarchived.
+ * <br>The API will helpfully automatically unarchive a thread when sending a message in that thread.
+ *
+ * Unlike with channels, the API will only sync updates to users about threads the current user can view.
+ * <br>When receiving a guild create payload, the API will only include active threads the current user can view.
+ * <p>
+ * Threads inside private channels are completely private to the members of that private channel.
+ * <br>As such, when gaining access to a channel the API sends a thread list sync, which includes all active threads in that channel.
+ *
+ * Threads also track membership. Users must be added to a thread before sending messages in them.
+ * <br>The API will helpfully automatically add users to a thread when sending a message in that thread.
+ *
+ * Guilds have limits on the number of active threads and members per thread.
+ * <br>Once these are reached additional threads cannot be created or unarchived, and users cannot be added.
+ * <br>Threads do not count against the per-guild channel limit.
  *
  * @author Seailz
- * @since 1.0
+ * @since  1.0
+ * @see    GuildChannel
  */
-public class Thread extends Channel implements Compilerable {
+public interface Thread extends GuildChannel {
 
-    private final String ownerId;
-    private final int messageCount;
-    private final int memberCount;
-    private final ThreadMetadata metadata;
-    private final ThreadMember member;
-    private final int defaultAutoArchiveDuration;
-    private final ChannelFlags[] flags;
-    private final int totalMessageSent;
+    /**
+     * The id of the parent channel
+     */
+    TextChannel owner();
 
-    public Thread(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, String topic, boolean nsfw, String lastMessageId, String parentId, String lastPinTimestamp, String permissions, int defaultThreadRateLimitPerUser, String ownerId, int messageCount, int memberCount, ThreadMetadata metadata, ThreadMember member, int defaultAutoArchiveDuration, ChannelFlags[] flags, int totalMessageSent, DiscordJv discordJv) {
-        super(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
-        this.ownerId = ownerId;
-        this.messageCount = messageCount;
-        this.memberCount = memberCount;
-        this.metadata = metadata;
-        this.member = member;
-        this.defaultAutoArchiveDuration = defaultAutoArchiveDuration;
-        this.flags = flags;
-        this.totalMessageSent = totalMessageSent;
-    }
+    /**
+     * Message sending rate limit in seconds.
+     */
+    int rateLimitPerUser();
 
-    public String ownerId() {
-        return ownerId;
-    }
+    /**
+     * ID of the {@link com.seailz.discordjv.model.user.User User} who created the thread.
+     */
+    String creatorId();
 
-    public int messageCount() {
-        return messageCount;
-    }
+    /**
+     * The timestamp of when the last message was pinned.
+     * Null if no messages have been pinned.
+     */
+    String lastPinTimestamp();
 
-    public int memberCount() {
-        return memberCount;
-    }
+    /**
+     * Number of messages (not including the initial message or deleted messages) in a thread.
+     */
+    int messageCount();
 
-    public ThreadMetadata metadata() {
-        return metadata;
-    }
+    /**
+     * Metadata about the thread.
+     * @return {@link ThreadMetadata}
+     */
+    ThreadMetadata metadata();
 
-    public ThreadMember member() {
-        return member;
-    }
+    /**
+     * {@link ThreadMember} object for the current user, if they have joined the thread.
+     */
+    ThreadMember member();
 
-    public int defaultAutoArchiveDuration() {
-        return defaultAutoArchiveDuration;
-    }
+    /**
+     * Similar to {@link #messageCount()} however this returns the total number of messages including deleted messages sent.
+     */
+    int totalMessageSent();
 
-    public ChannelFlags[] flags() {
-        return flags;
-    }
+    /**
+     * Returns the thread creation ratelimit of the parent channel when the thread was created.
+     */
+    int defaultThreadRateLimitPerUser();
 
-    public int totalMessageSent() {
-        return totalMessageSent;
-    }
-
+    /**
+     * ID of the last message sent in the thread.
+     */
+    String lastMessageId();
 
     @Override
-    public JSONObject compile() {
-        int flagTotal = 0;
-        for (ChannelFlags flag : flags) {
-            flagTotal += flag.getLeftShiftId();
+    default JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("id", id());
+        obj.put("type", type().getCode());
+        obj.put("name", name());
+        obj.put("guild_id", guild().id());
+        obj.put("position", position());
+        obj.put("nsfw", nsfw());
+        obj.put("parent_id", owner().id());
+        obj.put("rate_limit_per_user", rateLimitPerUser());
+        obj.put("last_pin_timestamp", lastPinTimestamp());
+        obj.put("last_message_id", lastMessageId());
+        obj.put("thread_metadata", metadata().compile());
+        obj.put("member", member().compile());
+        obj.put("creator_id", creatorId());
+
+
+        if (permissionOverwrites() != null) {
+            JSONArray array = new JSONArray();
+            for (PermissionOverwrite overwrite : permissionOverwrites())
+                array.put(overwrite.compile());
         }
-        return new JSONObject()
-                .put("owner_id", ownerId)
-                .put("message_count", messageCount)
-                .put("member_count", memberCount)
-                .put("metadata", metadata.compile())
-                .put("member", member.compile())
-                .put("default_auto_archive_duration", defaultAutoArchiveDuration)
-                .put("flags", flags)
-                .put("total_message_sent", totalMessageSent)
-                .put("id", id())
-                .put("type", type().getCode())
-                .put("guild_id", guildId())
-                .put("position", position())
-                .put("permission_overwrites", permissionOverwrites())
-                .put("name", name())
-                .put("nsfw", nsfw())
-                .put("parent_id", parentId())
-                .put("permissions", permissions());
+
+        obj.put("permission_overwrites", permissionOverwrites());
+        return obj;
     }
 
-    public static Thread decompile(JSONObject json, DiscordJv discordJv) {
-        String id;
-        ChannelType type;
-        String guildId;
-        int position;
-        PermissionOverwrite[] permissionOverwrites;
-        String name;
-        String topic;
-        boolean nsfw;
-        String lastMessageId;
-        String parentId;
-        String lastPinTimestamp;
-        String permissions;
-        int defaultThreadRateLimitPerUser;
-        String ownerId;
-        int messageCount;
-        int memberCount;
-        ThreadMetadata metadata;
-        ThreadMember member;
-        int defaultAutoArchiveDuration;
-        ChannelFlags[] flags;
-        int totalMessageSent;
+    /**
+     * Decompile a {@link JSONObject} into a {@link GuildChannel}
+     *
+     * @param obj The {@link JSONObject} to decompile
+     * @param discordJv The {@link DiscordJv} instance
+     *
+     * @return The {@link GuildChannel} instance
+     */
+    @NotNull
+    @Contract("_, _ -> new")
+    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJv discordJv) {
+        String id = obj.getString("id");
+        ChannelType type = ChannelType.fromCode(obj.getInt("type"));
+        String name = obj.getString("name");
+        Guild guild = obj.has("guild_id") ? discordJv.getGuildById(obj.getString("guild_id")) : null;
+        int position = obj.getInt("position");
+        boolean nsfw = obj.getBoolean("nsfw");
+        TextChannel owner = obj.has("parent_id") ? (TextChannel) discordJv.getChannelById(obj.getString("parent_id")) : null;
+        int rateLimitPerUser = obj.has("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
+        String creatorId = obj.has("creator_id") ? obj.getString("creator_id") : null;
+        String lastPinTimestamp = obj.has("last_pin_timestamp") ? obj.getString("last_pin_timestamp") : null;
+        int messageCount = obj.has("message_count") ? obj.getInt("message_count") : 0;
+        ThreadMetadata metadata = obj.has("thread_metadata") ? ThreadMetadata.decompile(obj.getJSONObject("thread_metadata")) : null;
+        ThreadMember member = obj.has("member") ? ThreadMember.decompile(obj.getJSONObject("member")) : null;
+        int totalMessageSent = obj.has("total_message_sent") ? obj.getInt("total_message_sent") : 0;
+        int defaultThreadRateLimitPerUser = obj.has("default_thread_rate_limit_per_user") ? obj.getInt("default_thread_rate_limit_per_user") : 0;
+        String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
 
-        try {
-            id = json.getString("id");
-        } catch (Exception e) {
-            id = null;
-        }
-
-        try {
-            type = ChannelType.fromCode(json.getInt("type"));
-        } catch (Exception e) {
-            type = null;
-        }
-
-        try {
-            guildId = json.getString("guild_id");
-        } catch (Exception e) {
-            guildId = null;
-        }
-
-        try {
-            position = json.getInt("position");
-        } catch (Exception e) {
-            position = 0;
-        }
-
-        try {
-            permissionOverwrites = new PermissionOverwrite[json.getJSONArray("permission_overwrites").length()];
-            for (int i = 0; i < json.getJSONArray("permission_overwrites").length(); i++) {
-                permissionOverwrites[i] = PermissionOverwrite.decompile(json.getJSONArray("permission_overwrites").getJSONObject(i));
+        List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
+        if (obj.has("permission_overwrites")) {
+            JSONArray array = obj.getJSONArray("permission_overwrites");
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject overwrite = array.getJSONObject(i);
+                permissionOverwrites.add(PermissionOverwrite.decompile(overwrite));
             }
-        } catch (Exception e) {
-            permissionOverwrites = null;
         }
 
-        try {
-            name = json.getString("name");
-        } catch (Exception e) {
-            name = null;
-        }
-
-        try {
-            topic = json.getString("topic");
-        } catch (Exception e) {
-            topic = null;
-        }
-
-        try {
-            nsfw = json.getBoolean("nsfw");
-        } catch (Exception e) {
-            nsfw = false;
-        }
-
-        try {
-            lastMessageId = json.getString("last_message_id");
-        } catch (Exception e) {
-            lastMessageId = null;
-        }
-
-        try {
-            parentId = json.getString("parent_id");
-        } catch (Exception e) {
-            parentId = null;
-        }
-
-        try {
-            lastPinTimestamp = json.getString("last_pin_timestamp");
-        } catch (Exception e) {
-            lastPinTimestamp = null;
-        }
-
-        try {
-            permissions = json.getString("permissions");
-        } catch (Exception e) {
-            permissions = null;
-        }
-
-        try {
-            defaultThreadRateLimitPerUser = json.getInt("default_thread_rate_limit_per_user");
-        } catch (Exception e) {
-            defaultThreadRateLimitPerUser = 0;
-        }
-
-        try {
-            ownerId = json.getString("owner_id");
-        } catch (Exception e) {
-            ownerId = null;
-        }
-
-        try {
-            messageCount = json.getInt("message_count");
-        } catch (Exception e) {
-            messageCount = 0;
-        }
-
-        try {
-            memberCount = json.getInt("member_count");
-        } catch (Exception e) {
-            memberCount = 0;
-        }
-
-        try {
-            metadata = ThreadMetadata.decompile(json.getJSONObject("metadata"));
-        } catch (Exception e) {
-            metadata = null;
-        }
-
-        try {
-            member = ThreadMember.decompile(json.getJSONObject("member"));
-        } catch (Exception e) {
-            member = null;
-        }
-
-        try {
-            defaultAutoArchiveDuration = json.getInt("default_auto_archive_duration");
-        } catch (Exception e) {
-            defaultAutoArchiveDuration = 0;
-        }
-
-        // flags
-        try {
-            flags = ChannelFlags.getChannelFlagsByInt(json.getInt("flags")).toArray(new ChannelFlags[0]);
-        } catch (Exception e) {
-            flags = null;
-        }
-
-        try {
-            totalMessageSent = json.getInt("total_message_sent");
-        } catch (Exception e) {
-            totalMessageSent = 0;
-        }
-
-        return new Thread(id, type, guildId, position, permissionOverwrites, name, topic, nsfw, lastMessageId, parentId, lastPinTimestamp, permissions, defaultThreadRateLimitPerUser, ownerId, messageCount, memberCount, metadata, member, defaultAutoArchiveDuration, flags, totalMessageSent, discordJv);
+        return new ThreadImpl(id, type, name, guild, position, permissionOverwrites, nsfw, owner, rateLimitPerUser, creatorId, lastPinTimestamp, messageCount, metadata,
+                member, totalMessageSent, defaultThreadRateLimitPerUser, lastMessageId);
     }
+
 }

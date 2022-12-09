@@ -47,10 +47,10 @@ public class StringSelectMenuInteractionEvent extends InteractionEvent {
      * <p>
      * This SHOULD not ever return null.
      *
-     * @return A list of {@link SelectOption} objects containing the selected options.
+     * @return A list of {@link SelectOption.ResolvedSelectOption} objects containing the selected options.
      */
     @NotNull
-    public List<SelectOption> getSelectedOptions() {
+    public List<SelectOption.ResolvedSelectOption> getSelectedOptions() {
         return List.of(getInteractionData().selectOptions());
     }
 

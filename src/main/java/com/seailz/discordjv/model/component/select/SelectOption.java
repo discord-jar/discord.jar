@@ -107,4 +107,10 @@ public class SelectOption implements Compilerable {
         }
         return option;
     }
+
+    public record ResolvedSelectOption(String value) {
+        public static ResolvedSelectOption decompile(String value) {
+            return new ResolvedSelectOption(value);
+        }
+    }
 }

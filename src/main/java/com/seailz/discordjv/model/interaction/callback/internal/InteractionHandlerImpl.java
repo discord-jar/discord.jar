@@ -47,7 +47,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.id}", id).replace("{application.id}", discordJv.getSelfInfo().id()),
+                URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJv.getSelfInfo().id()),
                 discordJv,
                 URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE,
                 RequestMethod.DELETE

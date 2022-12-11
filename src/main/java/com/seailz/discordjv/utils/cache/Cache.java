@@ -150,4 +150,11 @@ public class Cache<T> {
         if (returnObject.get() != null) cache.add((T) returnObject.get());
         return returnObject.get() == null ? null : (T) returnObject.get();
     }
+
+    public JSONObject getFresh(String id) {
+        DiscordResponse response = new DiscordRequest(
+                discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJv, discordRequest.url(), RequestMethod.GET
+        ).invoke();
+        return response.body();
+    }
 }

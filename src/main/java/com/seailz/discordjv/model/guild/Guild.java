@@ -6,6 +6,7 @@ import com.seailz.discordjv.action.sticker.ModifyStickerAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.automod.AutomodRule;
 import com.seailz.discordjv.model.channel.Channel;
+import com.seailz.discordjv.model.channel.GuildChannel;
 import com.seailz.discordjv.model.emoji.Emoji;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.guild.filter.ExplicitContentFilterLevel;
@@ -250,7 +251,7 @@ public record Guild(
         }
 
         try {
-            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"), discordJv);
+            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"));
         } catch (JSONException e) {
             afkChannel = null;
         }
@@ -715,6 +716,25 @@ public record Guild(
      */
     public @NotNull Emoji getEmojiById(long emojiId) {
         return getEmojiById(String.valueOf(emojiId));
+    }
+
+    /**
+     * Returns a list of {@link com.seailz.discordjv.model.channel.GuildChannel GuildChannels} that the guild has.
+     * Does not include threads.
+     */
+    @NotNull
+    public List<GuildChannel> getChannels() {
+        List<GuildChannel> channels = new ArrayList<>();
+        JSONArray res = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
+                discordJv,
+                URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS,
+                RequestMethod.GET
+        ).invoke().arr();
+        res.forEach(o -> channels.add(GuildChannel.decompile((JSONObject) o, discordJv)));
+        return channels;
     }
 
 }

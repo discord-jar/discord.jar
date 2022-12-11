@@ -19,13 +19,11 @@ import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.command.Command;
 import com.seailz.discordjv.command.CommandChoice;
 import com.seailz.discordjv.command.CommandOption;
+import com.seailz.discordjv.model.channel.audio.VoiceRegion;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.emoji.sticker.StickerPack;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.status.Status;
-import com.seailz.discordjv.model.status.StatusType;
-import com.seailz.discordjv.model.status.activity.Activity;
-import com.seailz.discordjv.model.status.activity.ActivityType;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
@@ -41,9 +39,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -535,4 +530,31 @@ public class DiscordJv {
     public GetCurrentUserGuildsAction getGuilds() {
         return new GetCurrentUserGuildsAction(this);
     }
+
+    /**
+     * Retrieves all voice regions.
+     * <br>They can be used to specify the rtc_region of a voice or stage channel.
+     *
+     * <p>You can find the RTC region of an {@link com.seailz.discordjv.model.channel.AudioChannel AudioChannel} by using {@link com.seailz.discordjv.model.channel.AudioChannel#region() AudioChannel#region()}.
+     * <br>Avoid switching to deprecated regions.
+     *
+     * @return A list of all voice regions.
+     */
+    public List<VoiceRegion> getVoiceRegions() {
+        DiscordRequest request = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.VOICE.REGIONS.GET_VOICE_REGIONS,
+                this,
+                URLS.GET.VOICE.REGIONS.GET_VOICE_REGIONS,
+                RequestMethod.GET
+        );
+        JSONArray response = request.invoke().arr();
+        List<VoiceRegion> regions = new ArrayList<>();
+        for (int i = 0; i < response.length(); i++) {
+            regions.add(VoiceRegion.decompile(response.getJSONObject(i)));
+        }
+        return regions;
+    }
+
 }

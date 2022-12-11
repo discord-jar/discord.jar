@@ -74,6 +74,15 @@ public final class URLS {
 
     public static class GET {
 
+        public static class VOICE {
+            public static class REGIONS {
+                /**
+                 * Retrieves a list of {@link com.seailz.discordjv.model.channel.audio.VoiceRegion VoiceRegion} objects for the given guild.
+                 */
+                public static final String GET_VOICE_REGIONS = "/voice/regions";
+            }
+        }
+
         public static class GATEWAY {
             /**
              * Returns the gateway URL
@@ -126,6 +135,15 @@ public final class URLS {
              * Read {@link DiscordJv#getGuilds()} for more information
              */
             public static String GET_CURRENT_USER_GUILDS = "/users/@me/guilds";
+
+            public static class CHANNELS {
+                /**
+                 * Returns a list of {@link com.seailz.discordjv.model.channel.Channel} objects
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String GET_GUILD_CHANNELS = "/guilds/{guild.id}/channels";
+            }
 
             public static class EMOJIS {
                 /**

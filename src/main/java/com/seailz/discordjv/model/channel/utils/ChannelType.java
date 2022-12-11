@@ -19,7 +19,6 @@ public enum ChannelType {
     GUILD_STAGE_VOICE(13, "Stage Channel", false, true),
     GUILD_DIRECTORY(14, "Student Hub Directory", false, true),
     GUILD_FORUM(15, " Forum", false, true),
-
     ;
     private final int code;
     private final String name;

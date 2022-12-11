@@ -135,7 +135,7 @@ public class Cache<T> {
             try {
                 System.out.println(decompile.getParameterCount());
                 returnObject.set(decompile.invoke(null, response.body(), discordJv));
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
                 Logger.getLogger("DiscordJv").warning("Was unable to return object from cache, attempting to remove discord.jv instance...");
                 try {
                     returnObject.set(decompile.invoke(null, response.body()));

@@ -135,8 +135,14 @@ public class Cache<T> {
             try {
                 returnObject.set(decompile.invoke(null, response.body(), discordJv));
             } catch (IllegalAccessException | InvocationTargetException e) {
-                Logger.getLogger("DiscordJv").severe("Was unable to return object from cache, please report this to discord.jv's github!");
-                throw new RuntimeException(e);
+                Logger.getLogger("DiscordJv").warning("Was unable to return object from cache, attempting to remove discord.jv instance...");
+                try {
+                    returnObject.set(decompile.invoke(null, response.body()));
+                    Logger.getLogger("discord.jv").info("Successfully retrieved object from cache!");
+                } catch (IllegalAccessException | InvocationTargetException ex) {
+                    Logger.getLogger("DiscordJv").severe("Was unable to return user from cache, please report this to discord.jv's github!");
+                    throw new RuntimeException(ex);
+                }
             }
         }
 

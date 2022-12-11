@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -134,7 +133,7 @@ public class Cache<T> {
             }
 
             try {
-                System.out.println(Arrays.toString(Arrays.stream(decompile.getParameterTypes()).map(Class::getName).toArray()));
+                System.out.println(decompile.getParameterCount());
                 returnObject.set(decompile.invoke(null, response.body(), discordJv));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 Logger.getLogger("DiscordJv").warning("Was unable to return object from cache, attempting to remove discord.jv instance...");

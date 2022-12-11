@@ -1,7 +1,10 @@
 package com.seailz.discordjv;
 
 import com.seailz.discordjv.action.guild.GetCurrentUserGuildsAction;
+import com.seailz.discordjv.command.Command;
+import com.seailz.discordjv.command.CommandChoice;
 import com.seailz.discordjv.command.CommandDispatcher;
+import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.command.annotation.ContextCommandInfo;
 import com.seailz.discordjv.command.annotation.SlashCommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
@@ -16,9 +19,6 @@ import com.seailz.discordjv.gateway.GatewayFactory;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.channel.Channel;
-import com.seailz.discordjv.command.Command;
-import com.seailz.discordjv.command.CommandChoice;
-import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.model.channel.audio.VoiceRegion;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.emoji.sticker.StickerPack;
@@ -456,14 +456,6 @@ public class DiscordJv {
             if (slashCommandListener.getSubCommands().isEmpty()) return;
 
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
-                registerCommand(
-                        new Command(
-                                subCommand.getName(),
-                                listener.getType(),
-                                subCommand.getDescription(),
-                                subCommand.getOptions()
-                        )
-                );
                 SubCommandListener subListener =
                         slashCommandListener.getSubCommands().values().stream().toList().get(
                                 slashCommandListener.getSubCommands().keySet().stream().toList()

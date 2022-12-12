@@ -208,7 +208,7 @@ public final class URLS {
             }
 
             public static class ROLES {
-                public static String GET_GUILD_ROLES = "guilds/{guild.id}/roles";
+                public static String GET_GUILD_ROLES = "/guilds/{guild.id}/roles";
             }
         }
 

@@ -1,9 +1,13 @@
 package com.seailz.discordjv.events.model.interaction.command;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjv.events.model.interaction.InteractionEvent;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjv.model.interaction.data.command.ApplicationCommandInteractionData;
+import com.seailz.discordjv.model.interaction.modal.Modal;
+import com.seailz.discordjv.model.interaction.reply.InteractionModalResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -37,5 +41,15 @@ public class CommandInteractionEvent extends InteractionEvent {
     @NotNull
     public ApplicationCommandInteractionData getCommandData() {
         return (ApplicationCommandInteractionData) getInteraction().data();
+    }
+
+    public ModalInteractionCallbackAction replyModal(Modal modal) {
+        return new ModalInteractionCallbackAction(
+                InteractionCallbackType.MODAL,
+                new InteractionModalResponse(modal.title(), modal.customId(), modal.components()),
+                getInteraction().token(),
+                getInteraction().id(),
+                getBot()
+        );
     }
 }

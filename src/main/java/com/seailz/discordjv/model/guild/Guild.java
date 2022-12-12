@@ -737,4 +737,19 @@ public record Guild(
         return channels;
     }
 
+    public List<Role> roles() {
+        List<Role> roles = new ArrayList<>();
+        JSONArray res = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
+                discordJv,
+                URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
+                RequestMethod.GET
+        ).invoke().arr();
+        res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
+        return roles;
+    }
+
+
 }

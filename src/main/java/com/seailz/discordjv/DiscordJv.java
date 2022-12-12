@@ -20,9 +20,7 @@ import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.channel.MessagingChannel;
-import com.seailz.discordjv.model.channel.TextChannel;
 import com.seailz.discordjv.model.channel.audio.VoiceRegion;
-import com.seailz.discordjv.model.channel.internal.TextChannelImpl;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.emoji.sticker.StickerPack;
 import com.seailz.discordjv.model.guild.Guild;
@@ -267,9 +265,9 @@ public class DiscordJv {
      * @return A {@link Channel} object
      */
     @Nullable
-    public TextChannel getTextChannelById(String id) {
+    public MessagingChannel getTextChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return (TextChannelImpl) MessagingChannel.decompile(getChannelCache().getFresh(id), this);
+        return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
     }
 
     /**

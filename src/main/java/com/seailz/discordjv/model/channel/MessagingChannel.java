@@ -68,6 +68,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         }
 
         int slowMode = obj.has("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
+        System.out.println(obj.getJSONObject("topic").toString());
         String topic = obj.has("topic") ? obj.getString("topic") : null;
         String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
         int defaultAutoArchiveDuration = obj.has("default_auto_archive_duration") ? obj.getInt("default_auto_archive_duration") : 0;

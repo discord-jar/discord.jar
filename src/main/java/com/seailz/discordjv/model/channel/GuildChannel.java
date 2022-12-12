@@ -62,8 +62,8 @@ public interface GuildChannel extends Channel {
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
         Guild guild = obj.has("guild_id") ? discordJv.getGuildById(obj.getString("guild_id")) : null;
-        int position = obj.getInt("position");
-        boolean nsfw = obj.getBoolean("nsfw");
+        int position = obj.has("position") ? obj.getInt("position") : 0;
+        boolean nsfw = obj.has("nsfw") && obj.getBoolean("nsfw");
 
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (obj.has("permission_overwrites")) {

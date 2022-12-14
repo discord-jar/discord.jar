@@ -45,7 +45,7 @@ public record DiscordRequest(
      *
      * @return The {@link DiscordResponse} from the Discord API
      */
-    private DiscordResponse invoke(String json) {
+    private DiscordResponse invoke(String contentType, boolean auth) {
         try {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
@@ -76,8 +76,9 @@ public record DiscordRequest(
             }
 
             con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
-            con.header("Authorization", "Bot " + djv.getToken());
-            con.header("Content-Type", "application/json");
+            if (auth) con.header("Authorization", "Bot " + djv.getToken());
+            if (contentType == null) con.header("Content-Type", "application/json");
+            if (contentType != null) con.header("Content-Type", contentType); // switch to url search params
 
             byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
 
@@ -129,6 +130,7 @@ public record DiscordRequest(
                                     rateLimit.remaining() - 1,
                                     rateLimit.resetAfter()
                             ));
+                            running = false;
                         }
                     }
                 }).start();
@@ -198,15 +200,23 @@ public record DiscordRequest(
     }
 
     public DiscordResponse invoke(JSONObject body) {
-        return invoke(body.toString());
+        return invoke(null, true);
+    }
+
+    public DiscordResponse invokeNoAuth(JSONObject body) {
+        return invoke(null, false);
+    }
+
+    public DiscordResponse invokeNoAuthCustomContent(String contentType) {
+        return invoke(contentType, false);
     }
 
     public DiscordResponse invoke(JSONArray arr) {
-        return invoke(arr.toString());
+        return invoke(null, true);
     }
 
     public DiscordResponse invoke() {
-        return invoke(body.toString());
+        return invoke(null, true);
     }
 
     /**

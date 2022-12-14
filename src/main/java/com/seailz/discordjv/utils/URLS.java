@@ -308,6 +308,13 @@ public final class URLS {
         }
     }
 
+    public static class OAUTH2 {
+        /**
+         * Token URL
+         */
+        public static String TOKEN_URL = "/oauth2/token";
+    }
+
     public static class GATEWAY {
         public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
     }

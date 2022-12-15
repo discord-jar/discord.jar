@@ -26,6 +26,7 @@ public class HeartbeatCycle {
     public HeartbeatCycle(int interval, GatewayFactory factory) throws InterruptedException {
         this.interval = interval;
         this.factory = factory;
+        sendFirst();
         start();
         // sessionCheck();
         shouldBeSendingHeartbeats = true;
@@ -40,6 +41,8 @@ public class HeartbeatCycle {
             System.out.println("GATEWAY IS CLOSED");
             factory.getClientSession().close(CloseStatus.GOING_AWAY);
             factory.startAgain();
+
+            factory.heartbeatCycle = null;
             shouldBeSendingHeartbeats = false;
             return;
         }

@@ -37,7 +37,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private String url;
     private WebSocketSession clientSession;
     private static int lastSequence;
-    private HeartbeatCycle heartbeatCycle;
+    public HeartbeatCycle heartbeatCycle;
     private Logger logger;
     private String resumeUrl;
     private String sessionId;
@@ -59,13 +59,16 @@ public class GatewayFactory extends TextWebSocketHandler {
             logger = Logger.getLogger("DISCORD.JV");
             try {
                 initiateConnection();
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
             logger.info("[DISCORD.JV] Connected to gateway");
         }, "Gateway").start();
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        System.out.println(status.getReason());
     }
 
     /**
@@ -83,7 +86,24 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void startAgain() throws ExecutionException, InterruptedException {
-        initiateConnection();
+        new Thread(() -> {
+            this.heartbeatCycle = null;
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJv,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+            this.url = response.body().getString("url");
+            logger = Logger.getLogger("DISCORD.JV");
+            try {
+                initiateConnection();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("[DISCORD.JV] Connected to gateway");
+        }, "Gateway").start();
     }
 
     private void initiateConnection() throws ExecutionException, InterruptedException {
@@ -134,6 +154,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
+        System.out.println(payload);
 
         try {
             lastSequence = payload.getInt("s");
@@ -170,6 +191,14 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void handleHello(JSONObject payload) throws InterruptedException {
         // Start heartbeat cycle
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
+        try {
+            heartbeatCycle.sendHeartbeat();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void handleDispatched(JSONObject payload) throws ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {

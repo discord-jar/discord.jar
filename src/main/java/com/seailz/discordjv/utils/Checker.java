@@ -80,7 +80,7 @@ public class Checker {
         if (list.size() != size) illegalArgument(message);
     }
 
-    public void sizeLessThan(List<?> list, int size, String message) {
+    public static void sizeLessThan(List<?> list, int size, String message) {
         if (list.size() > size) illegalArgument(message);
     }
 

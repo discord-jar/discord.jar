@@ -70,6 +70,7 @@ public class LinkedRolesRestController {
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
             System.out.println(res.body());
 
+
             response.setHeader("Location", "https://discord.com/oauth2/authorized");
             response.setStatus(302);
         }

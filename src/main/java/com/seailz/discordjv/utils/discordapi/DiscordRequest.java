@@ -17,25 +17,33 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-/**
- * A class that represents a Discord request
- *
- * @param body    The body of the request
- * @param headers The headers of the request
- * @param url     The URL of the request
- * @param baseUrl The endpoint URL of the request
- * @author Seailz
- * @see DiscordJv
- * @since 1.0
- */
-public record DiscordRequest(
-        JSONObject body,
-        HashMap<String, String> headers,
-        String url,
-        DiscordJv djv,
-        String baseUrl,
-        RequestMethod requestMethod
-) {
+public class DiscordRequest {
+
+
+    private JSONObject body;
+    private HashMap<String, String> headers;
+    private String url;
+    private DiscordJv djv;
+    private String baseUrl;
+    private RequestMethod requestMethod;
+    private JSONArray aBody;
+
+    public DiscordRequest(JSONObject body, HashMap<String, String> headers, String url, DiscordJv djv, String baseUrl, RequestMethod requestMethod) {
+        this.body = body;
+        this.headers = headers;
+        this.url = url;
+        this.djv = djv;
+        this.baseUrl = baseUrl;
+        this.requestMethod = requestMethod;
+    }
+    public DiscordRequest(JSONArray body, HashMap<String, String> headers, String url, DiscordJv djv, String baseUrl, RequestMethod requestMethod) {
+        this.aBody = body;
+        this.headers = headers;
+        this.url = url;
+        this.djv = djv;
+        this.baseUrl = baseUrl;
+        this.requestMethod = requestMethod;
+    }
 
     /**
      * Sends the request to the Discord API
@@ -60,28 +68,27 @@ public record DiscordRequest(
 
             con.uri(obj.toURI());
 
+            String s = body != null ? body.toString() : aBody.toString();
             if (requestMethod == RequestMethod.POST) {
-                con.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
+                con.POST(HttpRequest.BodyPublishers.ofString(s));
             } else if (requestMethod == RequestMethod.PATCH) {
-                con.method("PATCH", HttpRequest.BodyPublishers.ofString(body.toString()));
+                con.method("PATCH", HttpRequest.BodyPublishers.ofString(s));
             } else if (requestMethod == RequestMethod.PUT) {
-                con.method("PUT", HttpRequest.BodyPublishers.ofString(body.toString()));
+                con.method("PUT", HttpRequest.BodyPublishers.ofString(s));
             }
             else if (requestMethod == RequestMethod.DELETE) {
-                con.method("DELETE", HttpRequest.BodyPublishers.ofString(body.toString()));
+                con.method("DELETE", HttpRequest.BodyPublishers.ofString(s));
             } else if (requestMethod == RequestMethod.GET) {
                 con.GET();
             } else {
-                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(body.toString()));
+                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(s));
             }
 
             con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
             if (auth) con.header("Authorization", "Bot " + djv.getToken());
             if (contentType == null) con.header("Content-Type", "application/json");
             if (contentType != null) con.header("Content-Type", contentType); // switch to url search params
-
-            byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
-
+            headers.forEach(con::header);
 
             HttpRequest request = con.build();
             HttpClient client = HttpClient.newHttpClient();
@@ -162,7 +169,7 @@ public record DiscordRequest(
 
             if (responseCode == 201) return null;
 
-            System.out.println(body);
+            System.out.println(body == null ? aBody : body);
 
             JSONObject error = new JSONObject(response.body());
             JSONArray errorArray;
@@ -237,4 +244,22 @@ public record DiscordRequest(
             super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
         }
     }
+
+    public JSONObject body() {
+        return body;
+    }
+
+    public JSONArray array() {
+        return aBody;
+    }
+
+    public HashMap<String, String> headers() {
+        return headers;
+    }
+
+    public String url() {
+        return url;
+    }
+
+
 }

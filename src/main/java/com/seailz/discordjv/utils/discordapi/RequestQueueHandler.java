@@ -25,8 +25,10 @@ public class RequestQueueHandler {
                     RateLimit limit = req.getRateLimit().get();
                     if (limit.remaining() == 0) continue;
 
-                    jv.getQueuedRequests().remove(req);
-                    req.invoke();
+                    if(limit.resetAfter() == 0) {
+                        jv.getQueuedRequests().remove(req);
+                        req.invoke();
+                    }
                 }
             }
         }).start();

@@ -41,7 +41,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private Logger logger;
     private String resumeUrl;
     private String sessionId;
-    private List<JSONObject> queue = new ArrayList<>();
+    private final List<JSONObject> queue = new ArrayList<>();
     private boolean ready;
 
 
@@ -110,6 +110,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
         this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
+        clientSession.setTextMessageSizeLimit(1000000);
+        clientSession.setBinaryMessageSizeLimit(1000000);
     }
 
     private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
@@ -154,7 +156,6 @@ public class GatewayFactory extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
-        System.out.println(payload);
 
         try {
             lastSequence = payload.getInt("s");

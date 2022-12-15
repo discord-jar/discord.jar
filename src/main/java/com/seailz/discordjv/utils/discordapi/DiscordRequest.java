@@ -12,7 +12,6 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -21,11 +20,11 @@ public class DiscordRequest {
 
 
     private JSONObject body;
-    private HashMap<String, String> headers;
-    private String url;
-    private DiscordJv djv;
-    private String baseUrl;
-    private RequestMethod requestMethod;
+    private final HashMap<String, String> headers;
+    private final String url;
+    private final DiscordJv djv;
+    private final String baseUrl;
+    private final RequestMethod requestMethod;
     private JSONArray aBody;
 
     public DiscordRequest(JSONObject body, HashMap<String, String> headers, String url, DiscordJv djv, String baseUrl, RequestMethod requestMethod) {
@@ -171,6 +170,7 @@ public class DiscordRequest {
 
             System.out.println(body == null ? aBody : body);
 
+            System.out.println(response.body());
             JSONObject error = new JSONObject(response.body());
             JSONArray errorArray;
 
@@ -185,7 +185,7 @@ public class DiscordRequest {
                     } catch (JSONException exx) {
                         throw new UnhandledDiscordAPIErrorException(
                                 responseCode,
-                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv." + error.toString()
+                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv." + error
                         );
                     }
                 }

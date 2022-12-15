@@ -4,16 +4,18 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.linked.response.Response;
 import com.seailz.discordjv.linked.response.error.CodeNotPresentResponse;
 import com.seailz.discordjv.linked.response.error.InvalidEndpointResponse;
+import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
-import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.URI;
@@ -43,8 +45,19 @@ public class LinkedRolesRestController {
     private static String redirectEndpoint;
     private static String redirectUrl;
     private static DiscordJv discordJv;
+    private static boolean redirectBackToDiscord;
+    /**
+     * Logic to run when the user is redirected to the redirect endpoint & discord.jv has completed its processing.
+     * {@link TriConsumer} parameters:
+     * <ol>
+     *     <li><b>HttpServletRequest</b> - Allows you to respond to the request.</li>
+     *     <li><b>String</b> - ID of the user who completed authentication</li>
+     *     <li><b>String</b> - Authorization code that was retrieved..</li>
+     * </ol>
+     */
+    private static TriConsumer<HttpServletResponse, String, String> onCodeReceived;
 
-    @RequestMapping(value="/*", method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST})
+    @RequestMapping(value = "/*", method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST})
     protected Response request(@RequestParam Map<String, String> reqParam, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, InterruptedException, URISyntaxException {
         String endpoint = request.getRequestURI();
         if (endpoint.equals(redirectEndpoint) && !endpoint.equals("")) {
@@ -68,22 +81,34 @@ public class LinkedRolesRestController {
                     .headers("Content-Type", "application/x-www-form-urlencoded")
                     .build();
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-            System.out.println(res.body());
+
+            // store token with user id in database
+            String userId = getUser(
+                    new JSONObject(res.body()).getString("access_token")
+            ).id();
+
+            String accessToken = new JSONObject(res.body()).getString("access_token");
+
+            onCodeReceived.accept(response, userId, accessToken);
 
 
-            response.setHeader("Location", "https://discord.com/oauth2/authorized");
-            response.setStatus(302);
+            if (redirectBackToDiscord) {
+                response.setHeader("Location", "https://discord.com/oauth2/authorized");
+                response.setStatus(302);
+            }
+
         }
 
         return new InvalidEndpointResponse();
     }
 
-    protected static void set(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, DiscordJv discordJv) {
+    protected static void set(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, boolean redirectBackToDiscord, DiscordJv discordJv) {
         LinkedRolesRestController.clientId = clientId;
         LinkedRolesRestController.clientSecret = clientSecret;
         LinkedRolesRestController.redirectEndpoint = redirectEndpoint;
         LinkedRolesRestController.discordJv = discordJv;
         LinkedRolesRestController.redirectUrl = redirectUrl;
+        LinkedRolesRestController.redirectBackToDiscord = redirectBackToDiscord;
     }
 
     private HttpRequest.BodyPublisher getParamsUrlEncoded(Map<String, String> parameters) {
@@ -92,5 +117,21 @@ public class LinkedRolesRestController {
                 .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
                 .collect(Collectors.joining("&"));
         return HttpRequest.BodyPublishers.ofString(urlEncoded);
+    }
+
+    private User getUser(String accessToken) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + accessToken);
+        return User.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        headers,
+                        URLS.GET.USER.GET_USER
+                                .replace("{user.id}", "@me"),
+                        discordJv,
+                        URLS.GET.USER.GET_USER,
+                        RequestMethod.GET
+                ).invoke().body(), discordJv
+        );
     }
 }

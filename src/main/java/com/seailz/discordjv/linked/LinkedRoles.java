@@ -1,13 +1,12 @@
 package com.seailz.discordjv.linked;
 
 import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.model.application.ApplicationRoleConnectionMetadata;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.json.JSONObject;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -40,31 +39,30 @@ public class LinkedRoles {
 
     /**
      * Creates a new LinkedRoles instance.
-     * @param clientId The client ID of the bot.
-     * @param clientSecret The client secret of the bot.
      *
-     * @param redirectEndpoint
-     *          The redirect endpoint that you set in the developer portal. This endpoint is important as it tells discord.jv where to listen.
-     *          For example, if my bot's IP is 1111, in the developer portal you'd set the redirect URL to something like <b>http://1111:8080/redirect</b>.
-     *          In this case, the redirect endpoint would be <b>/request</b>. This endpoint can be anything you want,
-     *          but it must be the same as the one you set in the developer portal.
-     * @param discordJv The discord.jv instance.
+     * @param clientId              The client ID of the bot.
+     * @param clientSecret          The client secret of the bot.
+     * @param redirectEndpoint      The redirect endpoint that you set in the developer portal. This endpoint is important as it tells discord.jv where to listen.
+     *                              For example, if my bot's IP is 1111, in the developer portal you'd set the redirect URL to something like <b>http://1111:8080/redirect</b>.
+     *                              In this case, the redirect endpoint would be <b>/request</b>. This endpoint can be anything you want,
+     *                              but it must be the same as the one you set in the developer portal.
+     * @param applicationId         The ID of the application.
+     * @param redirectUrl           The redirect URL that you set in the developer portal.
+     * @param redirectBackToDiscord Whether to redirect back to <a href="https://discord.com/oauth2/authorized">Discord's Authorization Finished page</a> after the user has been redirected to the redirect endpoint. This is recommended, however if you have an external login page you may not want to redirect back to Discord.
+     * @param discordJv             The discord.jv instance.
      */
-    public LinkedRoles(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, String applicationId, DiscordJv discordJv) {
+    public LinkedRoles(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, String applicationId, boolean redirectBackToDiscord, DiscordJv discordJv) {
         if (isInstance)
             throw new IllegalStateException("LinkedRoles is already instantiated.");
-        LinkedRolesRestController.set(clientId, clientSecret, redirectUrl, redirectEndpoint, discordJv);
+        LinkedRolesRestController.set(clientId, clientSecret, redirectUrl, redirectEndpoint, redirectBackToDiscord, discordJv);
 
         SpringApplication app = new SpringApplication(LinkedRoles.class);
         Properties props = new Properties();
         // Stops spring from logging start up messages
         props.setProperty("spring.main.log-startup-info", "false");
-        // Disables the whitelabel error page
-        //props.setProperty("server.error.whitelabel.enabled", "false");
-        // stop spring from stealing log messages
-        //props.setProperty("logging.level.root", "OFF");
         app.setDefaultProperties(props);
         app.run();
+        SLF4JBridgeHandler.uninstall();
 
         Logger.getLogger("discord.jv").info("Linked Roles is now running.");
         isInstance = true;

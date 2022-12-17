@@ -79,12 +79,16 @@ public class GatewayFactory extends TextWebSocketHandler {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
         this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
+        clientSession.setTextMessageSizeLimit(1000000);
+        clientSession.setBinaryMessageSizeLimit(1000000);
     }
 
     private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
         this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
+        clientSession.setTextMessageSizeLimit(1000000);
+        clientSession.setBinaryMessageSizeLimit(1000000);
     }
 
     public void reconnect() throws ExecutionException, InterruptedException, IOException {

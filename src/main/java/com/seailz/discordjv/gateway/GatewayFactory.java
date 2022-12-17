@@ -163,6 +163,13 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        Logger logger = Logger.getLogger("DISCORD.JV");
+        logger.info("[DISCORD.JV] Gateway connection closed, reconnecting...");
+        logger.info("Was disconnected with status [" + status.getCode() + "]" + " " + status.getReason());
+    }
+
     private void handleHello(JSONObject payload) throws InterruptedException {
         // Start heartbeat cycle
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);

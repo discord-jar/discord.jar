@@ -751,5 +751,18 @@ public record Guild(
         return roles;
     }
 
+    public Role getRoleById(String id) {
+        return Role.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLE.replace("{guild.id}", this.id).replace("{role.id}", id),
+                        discordJv,
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLE,
+                        RequestMethod.GET
+                ).invoke().body()
+        );
+    }
+
 
 }

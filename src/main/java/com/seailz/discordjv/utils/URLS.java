@@ -24,6 +24,7 @@ public final class URLS {
         public static class INTERACTIONS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
             public static final String FOLLOWUP = "/webhooks/application.id/interaction.token";
+
         }
 
         public static class COMMANDS {

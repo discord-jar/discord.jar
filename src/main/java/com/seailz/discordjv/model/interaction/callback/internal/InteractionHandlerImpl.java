@@ -34,7 +34,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
                 new DiscordRequest(
                         new JSONObject(),
                         new HashMap<>(),
-                        URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.id}", id).replace("{application.id}", discordJv.getSelfInfo().id()),
+                        URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJv.getSelfInfo().id()),
                         discordJv,
                         URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE,
                         RequestMethod.GET
@@ -60,7 +60,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
                 new DiscordRequest(
                         new JSONObject(),
                         new HashMap<>(),
-                        URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE.replace("{interaction.id}", id).replace("{application.id}", discordJv.getSelfInfo().id())
+                        URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJv.getSelfInfo().id())
                                 .replace("{message.id}", id),
                         discordJv,
                         URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE,
@@ -74,11 +74,23 @@ public class InteractionHandlerImpl implements InteractionHandler {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE.replace("{interaction.id}", id).replace("{application.id}", discordJv.getSelfInfo().id())
+                URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJv.getSelfInfo().id())
                         .replace("{message.id}", id),
                 discordJv,
                 URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE,
                 RequestMethod.DELETE
+        ).invoke();
+    }
+
+    @Override
+    public void defer(boolean ephemeral) {
+        new DiscordRequest(
+                new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
+                new HashMap<>(),
+                URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
+                discordJv,
+                URLS.POST.INTERACTIONS.CALLBACK,
+                RequestMethod.POST
         ).invoke();
     }
 

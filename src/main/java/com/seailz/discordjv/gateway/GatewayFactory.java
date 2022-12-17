@@ -103,7 +103,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
             logger.info("[DISCORD.JV] Client was disconnected from gateway, reconnecting...");
             try {
-                initiateConnection(resumeUrl);
+                initiateConnection(resumeUrl == null ? url : resumeUrl);
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }

@@ -6,6 +6,7 @@ import com.seailz.discordjv.events.model.interaction.command.CommandInteractionE
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
 import com.seailz.discordjv.gateway.events.GatewayEvents;
 import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
+import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
@@ -216,11 +217,14 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private void sendIdentify() throws IOException {
-
         AtomicInteger intents = new AtomicInteger();
-        discordJv.getIntents().forEach(intent -> {
-            intents.getAndAdd(intent.getLeftShiftId());
-        });
+        if (discordJv.getIntents().contains(Intent.ALL))
+            intents.set(3243773);
+        else {
+            discordJv.getIntents().forEach(intent -> {
+                intents.getAndAdd(intent.getLeftShiftId());
+            });
+        }
 
         JSONObject payload = new JSONObject();
         payload.put("op", 2);

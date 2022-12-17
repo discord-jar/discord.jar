@@ -78,13 +78,13 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void initiateConnection() throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
+        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
     }
 
     private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
+        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
     }
 
     public void reconnect() throws ExecutionException, InterruptedException, IOException {

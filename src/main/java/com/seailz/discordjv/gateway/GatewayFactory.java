@@ -6,6 +6,7 @@ import com.seailz.discordjv.events.model.interaction.command.CommandInteractionE
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
 import com.seailz.discordjv.gateway.events.GatewayEvents;
 import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
+import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
@@ -109,7 +110,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void initiateConnection() throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
+        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
         clientSession.setTextMessageSizeLimit(1000000);
         clientSession.setBinaryMessageSizeLimit(1000000);
     }
@@ -117,7 +118,9 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
+        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
+        clientSession.setTextMessageSizeLimit(1000000);
+        clientSession.setBinaryMessageSizeLimit(1000000);
     }
 
     public void reconnect() throws ExecutionException, InterruptedException, IOException {
@@ -134,7 +137,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 throw new RuntimeException(e);
             }
             try {
-                initiateConnection(resumeUrl);
+                initiateConnection(resumeUrl == null ? url : resumeUrl);
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -187,6 +190,13 @@ public class GatewayFactory extends TextWebSocketHandler {
                 logger.info("[DISCORD.JV] Heartbeat acknowledged");
                 break;
         }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        Logger logger = Logger.getLogger("DISCORD.JV");
+        logger.info("[DISCORD.JV] Gateway connection closed, reconnecting...");
+        logger.info("Was disconnected with status [" + status.getCode() + "]" + " " + status.getReason());
     }
 
     private void handleHello(JSONObject payload) throws InterruptedException {
@@ -243,11 +253,14 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private void sendIdentify() throws IOException {
-
         AtomicInteger intents = new AtomicInteger();
-        discordJv.getIntents().forEach(intent -> {
-            intents.getAndAdd(intent.getLeftShiftId());
-        });
+        if (discordJv.getIntents().contains(Intent.ALL))
+            intents.set(3243773);
+        else {
+            discordJv.getIntents().forEach(intent -> {
+                intents.getAndAdd(intent.getLeftShiftId());
+            });
+        }
 
         JSONObject payload = new JSONObject();
         payload.put("op", 2);

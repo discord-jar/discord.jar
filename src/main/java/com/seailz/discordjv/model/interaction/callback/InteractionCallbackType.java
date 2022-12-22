@@ -1,7 +1,7 @@
 package com.seailz.discordjv.model.interaction.callback;
 
 /**
- * Reperesents the type of a callback sent to an interaction.
+ * Represents the type of a callback sent to an interaction.
  *
  * @author Seailz
  * @see com.seailz.discordjv.model.interaction.Interaction

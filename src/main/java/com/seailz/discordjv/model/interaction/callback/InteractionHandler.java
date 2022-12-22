@@ -10,17 +10,26 @@ import com.seailz.discordjv.model.message.Message;
  */
 public interface InteractionHandler {
 
-
     InteractionFollowupAction followup(String content);
+
     Message getOriginalResponse();
     // TODO: editing
 
     void deleteOriginalResponse();
+
     Message getFollowup(String id);
+
     void deleteFollowup(String id);
+
+    void defer(boolean ephemeral);
+
+    default void defer() {
+        defer(false);
+    }
 
 
     String getToken();
+
     String getId();
 
     /**

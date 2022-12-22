@@ -48,7 +48,8 @@ public class LinkedRolesRestController {
     private static boolean redirectBackToDiscord;
     /**
      * Logic to run when the user is redirected to the redirect endpoint & discord.jv has completed its processing.
-     * {@link TriConsumer} parameters:
+     * <br>discord.jv will automatically refresh tokens for you if they are expired, so no need to worry about that.
+     * <p>{@link TriConsumer} parameters:
      * <ol>
      *     <li><b>HttpServletRequest</b> - Allows you to respond to the request.</li>
      *     <li><b>String</b> - ID of the user who completed authentication</li>
@@ -81,14 +82,15 @@ public class LinkedRolesRestController {
                     .headers("Content-Type", "application/x-www-form-urlencoded")
                     .build();
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            System.out.println(res.body());
 
-            // store token with user id in database
+            // store refresh with user id in database
             String userId = getUser(
                     new JSONObject(res.body()).getString("access_token")
             ).id();
+            String refreshToken = new JSONObject(res.body()).getString("refresh_token");
 
             String accessToken = new JSONObject(res.body()).getString("access_token");
-
             onCodeReceived.accept(response, userId, accessToken);
 
 
@@ -126,12 +128,11 @@ public class LinkedRolesRestController {
                 new DiscordRequest(
                         new JSONObject(),
                         headers,
-                        URLS.GET.USER.GET_USER
-                                .replace("{user.id}", "@me"),
+                        URLS.OAUTH2.GET.GET_CURRENT_AUTH_INFO,
                         discordJv,
-                        URLS.GET.USER.GET_USER,
+                        URLS.OAUTH2.GET.GET_CURRENT_AUTH_INFO,
                         RequestMethod.GET
-                ).invoke().body(), discordJv
+                ).invoke().body().getJSONObject("user"), discordJv
         );
     }
 }

@@ -334,6 +334,10 @@ public final class URLS {
                 }
             }
         }
+
+        public static class GET {
+            public static String GET_CURRENT_AUTH_INFO = "/oauth2/@me";
+        }
     }
 
     public static class GATEWAY {

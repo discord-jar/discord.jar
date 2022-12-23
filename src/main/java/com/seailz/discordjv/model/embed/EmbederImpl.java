@@ -129,7 +129,7 @@ public class EmbederImpl implements Embeder {
         obj.put("description", description);
         obj.put("url", url);
         obj.put("timestamp", timestamp);
-        obj.put("color", color != null ? String.format("#%06x", color.getRGB() & 0x00FFFFFF) : JSONObject.NULL);
+        obj.put("color", color != null ? Integer.valueOf(String.format("#%06x", color.getRGB() & 0x00FFFFFF).replace("#", "")) : JSONObject.NULL);
         obj.put("footer", footer != null ? footer.compile() : JSONObject.NULL);
         obj.put("image", image != null ? image.compile() : JSONObject.NULL);
         obj.put("thumbnail", thumbnail != null ? thumbnail.compile() : JSONObject.NULL);

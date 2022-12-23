@@ -2,6 +2,7 @@ package com.seailz.discordjv.action;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.component.DisplayComponent;
+import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.message.Attachment;
 import com.seailz.discordjv.model.message.Message;
 import com.seailz.discordjv.model.message.MessageFlag;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,7 +35,7 @@ public class MessageCreateAction {
     private String text;
     private String nonce;
     private boolean tts;
-    // TODO: embeds
+    private List<Embeder> embeds;
     // TODO: allowed mentions
     private MessageReference messageReference;
     private List<DisplayComponent> components;
@@ -57,7 +59,13 @@ public class MessageCreateAction {
         this.discordJv = discordJv;
     }
 
-    public MessageCreateAction(List<Attachment> attachments, @NotNull String channelId, @NotNull DiscordJv discordJv) {
+    public MessageCreateAction(List<Embeder> embeds, @NotNull String channelId, @NotNull DiscordJv discordJv) {
+        this.embeds = embeds;
+        this.channelId = channelId;
+        this.discordJv = discordJv;
+    }
+
+    public MessageCreateAction(LinkedList<Attachment> attachments, @NotNull String channelId, @NotNull DiscordJv discordJv) {
         this.attachments = attachments;
         this.channelId = channelId;
         this.discordJv = discordJv;
@@ -175,6 +183,28 @@ public class MessageCreateAction {
         return this;
     }
 
+    public MessageCreateAction addEmbed(Embeder embed) {
+        if (this.embeds == null)
+            this.embeds = new ArrayList<>();
+        this.embeds.add(embed);
+        return this;
+    }
+
+    public MessageCreateAction addEmbeds(Embeder... embeds) {
+        if (this.embeds == null)
+            this.embeds = new ArrayList<>();
+        this.embeds.addAll(List.of(embeds));
+        return this;
+    }
+
+    public MessageCreateAction addEmbeds(List<Embeder> embeds) {
+        if (this.embeds == null)
+            this.embeds = new ArrayList<>();
+        this.embeds.addAll(embeds);
+        return this;
+    }
+
+
     public CompletableFuture<Message> run() {
         CompletableFuture<Message> future = new CompletableFuture<>();
         future.completeAsync(() -> {
@@ -195,6 +225,16 @@ public class MessageCreateAction {
 
             if (this.components != null)
                 payload.put("components", components);
+
+            JSONArray embeds = new JSONArray();
+            if (this.embeds != null) {
+                for (Embeder embed : this.embeds) {
+                    embeds.put(embed.compile());
+                }
+            }
+
+            if (this.embeds != null)
+                payload.put("embeds", embeds);
 
             JSONArray stickerIds = new JSONArray();
             if (this.stickerIds != null) {

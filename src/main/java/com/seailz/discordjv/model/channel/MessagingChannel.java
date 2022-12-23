@@ -5,6 +5,7 @@ import com.seailz.discordjv.action.MessageCreateAction;
 import com.seailz.discordjv.model.channel.internal.MessagingChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.component.DisplayComponent;
+import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.permission.PermissionOverwrite;
 import org.json.JSONArray;
@@ -51,6 +52,10 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
 
     default MessageCreateAction sendComponents(DisplayComponent... components) {
         return new MessageCreateAction(new ArrayList<>(List.of(components)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendEmbeds(Embeder... embeds) {
+        return new MessageCreateAction(new ArrayList<>(List.of(embeds)), id(), discordJv());
     }
 
     static MessagingChannel decompile(JSONObject obj, DiscordJv discordJv) {

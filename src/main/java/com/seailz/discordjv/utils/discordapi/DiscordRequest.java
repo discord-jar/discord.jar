@@ -90,50 +90,49 @@ public record DiscordRequest(
 
             int responseCode = response.statusCode();
             System.out.println(request.uri() + " " + request.method());
-            System.out.println(responseCode);
 
-            if (responseCode == 200) {
-                HashMap<String, String> headers = new HashMap<>();
-                response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
+            HashMap<String, String> headers = new HashMap<>();
+            response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
-                if (headers.containsKey("X-RateLimit-Limit") &&
-                        headers.containsKey("X-RateLimit-Remaining") &&
-                        headers.containsKey("X-RateLimit-Reset-After")) {
+            if (headers.containsKey("X-RateLimit-Limit") &&
+                    headers.containsKey("X-RateLimit-Remaining") &&
+                    headers.containsKey("X-RateLimit-Reset-After")) {
 
-                    djv.getRateLimits().remove(baseUrl);
-                    djv.getRateLimits().put(baseUrl, new RateLimit(
-                            Integer.parseInt(headers.get("X-RateLimit-Limit")),
-                            Integer.parseInt(headers.get("X-RateLimit-Remaining")),
-                            Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
-                    ));
-                }
-                // remove after rate limit is over
-                new Thread(() -> {
-                    boolean running = true;
-                    while (running) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (djv.getRateLimits().containsKey(baseUrl)) {
-                            RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
-                            if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
-                                djv.getRateLimits().remove(baseUrl);
-                                running = false;
-                                continue;
-                            }
-
-                            djv.getRateLimits().remove(baseUrl);
-                            djv.getRateLimits().put(baseUrl, new RateLimit(
-                                    rateLimit.limit(),
-                                    rateLimit.remaining() - 1,
-                                    rateLimit.resetAfter()
-                            ));
-                        }
+                djv.getRateLimits().remove(baseUrl);
+                djv.getRateLimits().put(baseUrl, new RateLimit(
+                        Integer.parseInt(headers.get("X-RateLimit-Limit")),
+                        Integer.parseInt(headers.get("X-RateLimit-Remaining")),
+                        Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
+                ));
+            }
+            // remove after rate limit is over
+            new Thread(() -> {
+                boolean running = true;
+                while (running) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                }).start();
+                    if (djv.getRateLimits().containsKey(baseUrl)) {
+                        RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
+                        if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
+                            djv.getRateLimits().remove(baseUrl);
+                            running = false;
+                            continue;
+                        }
 
+                        djv.getRateLimits().remove(baseUrl);
+                        djv.getRateLimits().put(baseUrl, new RateLimit(
+                                rateLimit.limit(),
+                                rateLimit.remaining() - 1,
+                                rateLimit.resetAfter()
+                        ));
+                    }
+                }
+            }).start();
+
+            if (responseCode == 200 || responseCode == 201) {
                 var body = new Object();
 
                 if (response.body().startsWith("[")) {
@@ -158,8 +157,6 @@ public record DiscordRequest(
                 }, "RateLimitQueue").start();
                 return null;
             }
-
-            if (responseCode == 201) return null;
 
             System.out.println(body);
 

@@ -21,7 +21,6 @@ public interface Category extends GuildChannel {
         String name = obj.getString("name");
         Guild guild = obj.has("guild_id") ? discordJv.getGuildById(obj.getString("guild_id")) : null;
         int position = obj.getInt("position");
-        boolean nsfw = obj.getBoolean("nsfw");
 
         JSONArray array = obj.getJSONArray("permission_overwrites");
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
@@ -39,7 +38,7 @@ public interface Category extends GuildChannel {
                         channels.add((CategoryMember) channel);
             });
         }
-        return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, nsfw, channels);
+        return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, channels);
     }
 
     static Category fromId(String id, DiscordJv discordJv) {

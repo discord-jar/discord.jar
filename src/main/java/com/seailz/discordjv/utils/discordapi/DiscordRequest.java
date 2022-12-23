@@ -49,9 +49,6 @@ public record DiscordRequest(
         try {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
-            if (url.contains("commands")) {
-                System.out.println(body.toString());
-            }
 
             if (djv.getRateLimits().containsKey(baseUrl) && djv.getRateLimits().get(baseUrl).remaining() == 0) {
                 Logger.getLogger("DiscordJv").warning("[RATE LIMIT] Rate limit reached for " + baseUrl + ". Queuing request.");
@@ -144,6 +141,9 @@ public record DiscordRequest(
                     body = new JSONObject(response.body());
                 }
 
+                if (url.contains("channels")) {
+                    System.out.println(body);
+                }
                 return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
             }
             if (responseCode == 204) return null;

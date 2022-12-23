@@ -49,6 +49,9 @@ public record DiscordRequest(
         try {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
+            if (url.contains("commands")) {
+                System.out.println(body.toString());
+            }
 
             if (djv.getRateLimits().containsKey(baseUrl) && djv.getRateLimits().get(baseUrl).remaining() == 0) {
                 Logger.getLogger("DiscordJv").warning("[RATE LIMIT] Rate limit reached for " + baseUrl + ". Queuing request.");
@@ -176,7 +179,7 @@ public record DiscordRequest(
                     } catch (JSONException exx) {
                         throw new UnhandledDiscordAPIErrorException(
                                 responseCode,
-                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv." + error.toString()
+                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv." + error
                         );
                     }
                 }

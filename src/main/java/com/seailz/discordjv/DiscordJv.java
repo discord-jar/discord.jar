@@ -18,6 +18,7 @@ import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
+import com.seailz.discordjv.model.channel.Category;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.channel.MessagingChannel;
 import com.seailz.discordjv.model.channel.audio.VoiceRegion;
@@ -268,6 +269,18 @@ public class DiscordJv {
     public MessagingChannel getTextChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
+    }
+
+    /**
+     * Returns info about a {@link Category}
+     *
+     * @param id The id of the category
+     * @return A {@link Category} object
+     */
+    @Nullable
+    public Category getCategoryById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return Category.decompile(getChannelCache().getFresh(id), this);
     }
 
     /**

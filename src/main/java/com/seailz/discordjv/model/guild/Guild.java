@@ -2,11 +2,13 @@ package com.seailz.discordjv.model.guild;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.action.automod.AutomodRuleCreateAction;
+import com.seailz.discordjv.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjv.action.sticker.ModifyStickerAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.automod.AutomodRule;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.channel.GuildChannel;
+import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.emoji.Emoji;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.guild.filter.ExplicitContentFilterLevel;
@@ -762,6 +764,10 @@ public record Guild(
                         RequestMethod.GET
                 ).invoke().body()
         );
+    }
+
+    public CreateGuildChannelAction createChannel(String name, ChannelType type) {
+        return new CreateGuildChannelAction(name, type, this, discordJv);
     }
 
 

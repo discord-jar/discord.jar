@@ -52,9 +52,17 @@ public final class URLS {
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule
+                 *
                  * @param {guild.id} The guild to create the rule in
                  */
                 public static final String CREATE_AUTO_MOD_RULE = "/guilds/{guild.id}/auto-moderation/rules";
+            }
+
+            public static class CHANNELS {
+                /**
+                 * Creates a channel
+                 */
+                public static final String CREATE = "/guilds/{guild.id}/channels";
             }
         }
 

@@ -90,6 +90,7 @@ public record DiscordRequest(
 
             int responseCode = response.statusCode();
             System.out.println(request.uri() + " " + request.method());
+            System.out.println(responseCode);
 
             if (responseCode == 200) {
                 HashMap<String, String> headers = new HashMap<>();
@@ -141,9 +142,6 @@ public record DiscordRequest(
                     body = new JSONObject(response.body());
                 }
 
-                if (url.contains("channels")) {
-                    System.out.println(body);
-                }
                 return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
             }
             if (responseCode == 204) return null;

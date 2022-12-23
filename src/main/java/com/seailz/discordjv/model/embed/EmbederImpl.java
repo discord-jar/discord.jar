@@ -10,7 +10,7 @@ public class EmbederImpl implements Embeder {
     private String description;
     private String url;
     private String timestamp;
-    private EmbedField[] fields;
+    private EmbedField[] fields = new EmbedField[0];
     private Color color;
     private EmbedFooter footer;
     private EmbedImage image;

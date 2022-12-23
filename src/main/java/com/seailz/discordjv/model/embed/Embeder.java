@@ -1,5 +1,7 @@
 package com.seailz.discordjv.model.embed;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -37,6 +39,11 @@ public interface Embeder {
     Embeder author(String name, String url, String iconUrl);
 
     JSONObject compile();
+
+    @Contract(value = " -> new", pure = true)
+    static @NotNull Embeder e() {
+        return new EmbederImpl();
+    }
 
 
 }

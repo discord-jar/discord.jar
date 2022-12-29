@@ -92,6 +92,6 @@ public interface ForumChannel extends GuildChannel {
         DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
         List<ForumTag> tags = obj.has("available_tags") ? obj.getJSONArray("available_tags").toList().stream().map(o -> ForumTag.decompile((JSONObject) o)).toList() : null;
         Guild guild = discordJv.getGuildById(obj.getString("guild_id"));
-        return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId);
+        return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJv);
     }
 }

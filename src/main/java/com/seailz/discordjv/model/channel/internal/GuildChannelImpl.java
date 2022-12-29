@@ -1,11 +1,13 @@
 package com.seailz.discordjv.model.channel.internal;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.channel.GuildChannel;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.permission.PermissionOverwrite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -15,14 +17,15 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
     private final int position;
     private final List<PermissionOverwrite> permissionOverwrites;
     private final boolean nsfw;
+    private final DiscordJv discordJv;
 
-    public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw) {
-        super(id, type, name);
-
+    public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, JSONObject raw, DiscordJv discordJv) {
+        super(id, type, name, raw);
         this.guild = guild;
         this.position = position;
         this.permissionOverwrites = permissionOverwrites;
         this.nsfw = nsfw;
+        this.discordJv = discordJv;
     }
 
     @Override
@@ -47,4 +50,9 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
         return nsfw;
     }
 
+    @NotNull
+    @Override
+    public DiscordJv discordJv() {
+        return this.discordJv;
+    }
 }

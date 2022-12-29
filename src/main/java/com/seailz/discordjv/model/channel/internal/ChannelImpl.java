@@ -14,11 +14,13 @@ public class ChannelImpl implements Channel {
     private final String id;
     private final ChannelType type;
     private final String name;
+    private final JSONObject raw;
 
-    public ChannelImpl(String id, ChannelType type, String name) {
+    public ChannelImpl(String id, ChannelType type, String name, JSONObject raw) {
         this.id = id;
         this.type = type;
         this.name = name;
+        this.raw = raw;
     }
 
     @NotNull
@@ -27,7 +29,7 @@ public class ChannelImpl implements Channel {
         return new ChannelImpl(
                 obj.getString("id"),
                 ChannelType.fromCode(obj.getInt("type")),
-                obj.getString("name")
+                obj.getString("name"), obj
         );
     }
 
@@ -55,5 +57,11 @@ public class ChannelImpl implements Channel {
     @Override
     public String name() {
         return name;
+    }
+
+    @NotNull
+    @Override
+    public JSONObject raw() {
+        return raw;
     }
 }

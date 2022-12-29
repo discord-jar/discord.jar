@@ -52,6 +52,6 @@ public interface AudioChannel extends GuildChannel, CategoryMember {
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         Guild guild = obj.has("guild_id") ? discordJv.getGuildById(obj.getString("guild_id")) : null;
 
-        return new AudioChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, lastMessageId, region.get(), category, bitrate);
+        return new AudioChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, lastMessageId, region.get(), category, bitrate, obj, discordJv);
     }
 }

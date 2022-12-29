@@ -43,7 +43,7 @@ public interface UserDM extends DMChannel {
         recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, djv)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
-        return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv);
+        return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv, obj);
     }
 
 }

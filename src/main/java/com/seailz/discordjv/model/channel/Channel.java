@@ -50,7 +50,11 @@ public interface Channel extends Compilerable, Resolvable, Mentionable {
         return new ChannelImpl(
                 obj.getString("id"),
                 ChannelType.fromCode(obj.getInt("type")),
-                obj.has("name") ? obj.getString("name") : "DM"
+                obj.has("name") ? obj.getString("name") : "DM",
+                obj
         );
     }
+
+    @NotNull
+    JSONObject raw();
 }

@@ -22,6 +22,8 @@ public interface Embeder {
 
     Embeder color(float color);
 
+    Embeder color(Color color);
+
     Embeder footer(EmbedFooter footer);
 
     Embeder footer(String text, String iconUrl);

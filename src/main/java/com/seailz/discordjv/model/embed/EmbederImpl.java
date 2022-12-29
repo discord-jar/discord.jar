@@ -12,7 +12,7 @@ public class EmbederImpl implements Embeder {
     private String url;
     private String timestamp;
     private EmbedField[] fields = new EmbedField[0];
-    private Color color;
+    private float color = -1;
     private EmbedFooter footer;
     private EmbedImage image;
     private EmbedImage thumbnail;
@@ -21,7 +21,7 @@ public class EmbederImpl implements Embeder {
     public EmbederImpl() {
     }
 
-    public EmbederImpl(String title, String description, String url, String timestamp, EmbedField[] fields, Color color, EmbedFooter footer, EmbedImage image, EmbedImage thumbnail, EmbedAuthor author) {
+    public EmbederImpl(String title, String description, String url, String timestamp, EmbedField[] fields, float color, EmbedFooter footer, EmbedImage image, EmbedImage thumbnail, EmbedAuthor author) {
         this.title = title;
         this.description = description;
         this.url = url;
@@ -118,9 +118,14 @@ public class EmbederImpl implements Embeder {
     }
 
     @Override
-    public Embeder color(Color color) {
+    public Embeder color(float color) {
         this.color = color;
         return this;
+    }
+
+    @Override
+    public Embeder color(Color color) {
+        return color(Float.parseFloat(Integer.toHexString(color.getRGB() & 0x00ffffff)));
     }
 
     @Override
@@ -130,7 +135,7 @@ public class EmbederImpl implements Embeder {
         obj.put("description", description);
         obj.put("url", url);
         obj.put("timestamp", timestamp);
-        obj.put("color", color != null ? Integer.valueOf(String.format("#%06x", color.getRGB() & 0x00FFFFFF).replace("#", "")) : JSONObject.NULL);
+        obj.put("color", color != -1 ? color : JSONObject.NULL);
         obj.put("footer", footer != null ? footer.compile() : JSONObject.NULL);
         obj.put("image", image != null ? image.compile() : JSONObject.NULL);
         obj.put("thumbnail", thumbnail != null ? thumbnail.compile() : JSONObject.NULL);

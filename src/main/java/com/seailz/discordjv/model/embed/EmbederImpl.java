@@ -1,5 +1,6 @@
 package com.seailz.discordjv.model.embed;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -134,6 +135,13 @@ public class EmbederImpl implements Embeder {
         obj.put("image", image != null ? image.compile() : JSONObject.NULL);
         obj.put("thumbnail", thumbnail != null ? thumbnail.compile() : JSONObject.NULL);
         obj.put("author", author != null ? author.compile() : JSONObject.NULL);
+
+        // fields
+        JSONArray fields = new JSONArray();
+        for (EmbedField field : this.fields) {
+            fields.put(field.compile());
+        }
+        obj.put("fields", fields);
         return obj;
     }
 

@@ -161,7 +161,7 @@ public interface Thread extends GuildChannel {
         }
 
         return new ThreadImpl(id, type, name, guild, position, permissionOverwrites, nsfw, owner, rateLimitPerUser, creatorId, lastPinTimestamp, messageCount, metadata,
-                member, totalMessageSent, defaultThreadRateLimitPerUser, lastMessageId);
+                member, totalMessageSent, defaultThreadRateLimitPerUser, lastMessageId, obj, discordJv);
     }
 
 }

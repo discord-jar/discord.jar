@@ -147,6 +147,11 @@ public record DiscordRequest(
             if (responseCode == 429) {
                 Logger logger = Logger.getLogger("DiscordJv");
                 logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + response.headers().map().get("Retry-After").get(0) + " seconds");
+                djv.getRateLimits().put(baseUrl, new RateLimit(
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Limit").get(0)),
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Remaining").get(0)),
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Reset-After").get(0))
+                ));
                 new Thread(() -> {
                     try {
                         Thread.sleep(Integer.parseInt(response.headers().map().get("Retry-After").get(0)));

@@ -71,164 +71,164 @@ public class ModifyBaseChannelAction {
         this.djv = djv;
     }
 
-    private String name() {
+    public String name() {
         return name;
     }
 
-    private ChannelType type() {
+    public ChannelType type() {
         return type;
     }
 
-    private String topic() {
+    public String topic() {
         return topic;
     }
 
-    private int position() {
+    public int position() {
         return position;
     }
 
-    private boolean nsfw() {
+    public boolean nsfw() {
         return nsfw;
     }
 
-    private int bitrate() {
+    public int bitrate() {
         return bitrate;
     }
 
-    private int rateLimitPerUser() {
+    public int rateLimitPerUser() {
         return rateLimitPerUser;
     }
 
-    private int userLimit() {
+    public int userLimit() {
         return userLimit;
     }
 
-    private List<PermissionOverwrite> permissionOverwrites() {
+    public List<PermissionOverwrite> permissionOverwrites() {
         return permissionOverwrites;
     }
 
-    private Category parent() {
+    public Category parent() {
         return parent;
     }
 
-    private String rtcRegion() {
+    public String rtcRegion() {
         return rtcRegion;
     }
 
-    private VideoQualityMode videoQualityMode() {
+    public VideoQualityMode videoQualityMode() {
         return videoQualityMode;
     }
 
-    private String defaultAutoArchiveDuration() {
+    public String defaultAutoArchiveDuration() {
         return defaultAutoArchiveDuration;
     }
 
-    private int flags() {
+    public int flags() {
         return flags;
     }
 
-    private List<ForumTag> availableTags() {
+    public List<ForumTag> availableTags() {
         return availableTags;
     }
 
-    private DefaultReaction defaultReactionEmoji() {
+    public DefaultReaction defaultReactionEmoji() {
         return defaultReactionEmoji;
     }
 
-    private int defaultThreadRateLimitPerUser() {
+    public int defaultThreadRateLimitPerUser() {
         return defaultThreadRateLimitPerUser;
     }
 
-    private DefaultSortOrder defaultSortOrder() {
+    public DefaultSortOrder defaultSortOrder() {
         return defaultSortOrder;
     }
 
-    private ModifyBaseChannelAction setName(String name) {
+    public ModifyBaseChannelAction setName(String name) {
         this.name = name;
         return this;
     }
 
-    private ModifyBaseChannelAction setType(ChannelType type) {
+    public ModifyBaseChannelAction setType(ChannelType type) {
         this.type = type;
         return this;
     }
 
-    private ModifyBaseChannelAction setTopic(String topic) {
+    public ModifyBaseChannelAction setTopic(String topic) {
         this.topic = topic;
         return this;
     }
 
-    private ModifyBaseChannelAction setPosition(int position) {
+    public ModifyBaseChannelAction setPosition(int position) {
         this.position = position;
         return this;
     }
 
-    private ModifyBaseChannelAction setNsfw(boolean nsfw) {
+    public ModifyBaseChannelAction setNsfw(boolean nsfw) {
         this.nsfw = nsfw;
         return this;
     }
 
-    private ModifyBaseChannelAction setBitrate(int bitrate) {
+    public ModifyBaseChannelAction setBitrate(int bitrate) {
         this.bitrate = bitrate;
         return this;
     }
 
-    private ModifyBaseChannelAction setRateLimitPerUser(int rateLimitPerUser) {
+    public ModifyBaseChannelAction setRateLimitPerUser(int rateLimitPerUser) {
         this.rateLimitPerUser = rateLimitPerUser;
         return this;
     }
 
-    private ModifyBaseChannelAction setUserLimit(int userLimit) {
+    public ModifyBaseChannelAction setUserLimit(int userLimit) {
         this.userLimit = userLimit;
         return this;
     }
 
-    private ModifyBaseChannelAction setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
+    public ModifyBaseChannelAction setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
         this.permissionOverwrites = permissionOverwrites;
         return this;
     }
 
-    private ModifyBaseChannelAction setParent(Category parent) {
+    public ModifyBaseChannelAction setParent(Category parent) {
         this.parent = parent;
         return this;
     }
 
-    private ModifyBaseChannelAction setRtcRegion(String rtcRegion) {
+    public ModifyBaseChannelAction setRtcRegion(String rtcRegion) {
         this.rtcRegion = rtcRegion;
         return this;
     }
 
-    private ModifyBaseChannelAction setVideoQualityMode(VideoQualityMode videoQualityMode) {
+    public ModifyBaseChannelAction setVideoQualityMode(VideoQualityMode videoQualityMode) {
         this.videoQualityMode = videoQualityMode;
         return this;
     }
 
-    private ModifyBaseChannelAction setDefaultAutoArchiveDuration(String defaultAutoArchiveDuration) {
+    public ModifyBaseChannelAction setDefaultAutoArchiveDuration(String defaultAutoArchiveDuration) {
         this.defaultAutoArchiveDuration = defaultAutoArchiveDuration;
         return this;
     }
 
-    private ModifyBaseChannelAction setFlags(int flags) {
+    public ModifyBaseChannelAction setFlags(int flags) {
         this.flags = flags;
         return this;
     }
 
-    private ModifyBaseChannelAction setAvailableTags(List<ForumTag> availableTags) {
+    public ModifyBaseChannelAction setAvailableTags(List<ForumTag> availableTags) {
         this.availableTags = availableTags;
         return this;
     }
 
-    private ModifyBaseChannelAction setDefaultReactionEmoji(DefaultReaction defaultReactionEmoji) {
+    public ModifyBaseChannelAction setDefaultReactionEmoji(DefaultReaction defaultReactionEmoji) {
         this.defaultReactionEmoji = defaultReactionEmoji;
         return this;
     }
 
-    private ModifyBaseChannelAction setDefaultThreadRateLimitPerUser(int defaultThreadRateLimitPerUser) {
+    public ModifyBaseChannelAction setDefaultThreadRateLimitPerUser(int defaultThreadRateLimitPerUser) {
         this.defaultThreadRateLimitPerUser = defaultThreadRateLimitPerUser;
         return this;
     }
 
-    private ModifyBaseChannelAction setDefaultSortOrder(DefaultSortOrder defaultSortOrder) {
+    public ModifyBaseChannelAction setDefaultSortOrder(DefaultSortOrder defaultSortOrder) {
         this.defaultSortOrder = defaultSortOrder;
         return this;
     }

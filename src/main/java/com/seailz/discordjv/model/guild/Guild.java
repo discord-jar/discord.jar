@@ -253,7 +253,7 @@ public record Guild(
         }
 
         try {
-            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"));
+            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"), discordJv);
         } catch (JSONException e) {
             afkChannel = null;
         }

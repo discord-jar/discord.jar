@@ -15,7 +15,7 @@ public record PermissionOverwrite(
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
         obj.put("id", id);
-        obj.put("type", type);
+        obj.put("type", type.getCode());
         obj.put("allow", allow);
         obj.put("deny", deny);
         return obj;

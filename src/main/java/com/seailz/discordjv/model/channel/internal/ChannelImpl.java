@@ -1,5 +1,6 @@
 package com.seailz.discordjv.model.channel.internal;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import org.jetbrains.annotations.Contract;
@@ -15,22 +16,14 @@ public class ChannelImpl implements Channel {
     private final ChannelType type;
     private final String name;
     private final JSONObject raw;
+    private final DiscordJv discordJv;
 
-    public ChannelImpl(String id, ChannelType type, String name, JSONObject raw) {
+    public ChannelImpl(String id, ChannelType type, String name, JSONObject raw, DiscordJv discordJv) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.raw = raw;
-    }
-
-    @NotNull
-    @Contract("_ -> new")
-    public static ChannelImpl decompile(@NotNull JSONObject obj) {
-        return new ChannelImpl(
-                obj.getString("id"),
-                ChannelType.fromCode(obj.getInt("type")),
-                obj.getString("name"), obj
-        );
+        this.discordJv = discordJv;
     }
 
     @Override
@@ -63,5 +56,11 @@ public class ChannelImpl implements Channel {
     @Override
     public JSONObject raw() {
         return raw;
+    }
+
+    @NotNull
+    @Override
+    public DiscordJv djv() {
+        return discordJv;
     }
 }

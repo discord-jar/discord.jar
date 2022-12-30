@@ -322,6 +322,10 @@ public final class URLS {
                 public static String MODIFY_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
             }
         }
+
+        public static class CHANNEL {
+            public static String MODIFY_CHANNEL = "/channels/{channel.id}";
+        }
     }
 
     public static class GATEWAY {

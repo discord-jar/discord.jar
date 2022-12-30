@@ -19,7 +19,7 @@ public class DMChannelImpl extends ChannelImpl implements DMChannel, UserDM {
     private final DiscordJv discordJv;
 
     public DMChannelImpl(String id, ChannelType type, String name, String lastMessageId, List<User> recipients, DiscordJv discordJv, JSONObject raw) {
-        super(id, type, name, raw);
+        super(id, type, name, raw, discordJv);
         this.lastMessageId = lastMessageId;
         this.recipients = recipients;
         this.discordJv = discordJv;

@@ -20,7 +20,7 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
     private final DiscordJv discordJv;
 
     public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, JSONObject raw, DiscordJv discordJv) {
-        super(id, type, name, raw);
+        super(id, type, name, raw, discordJv);
         this.guild = guild;
         this.position = position;
         this.permissionOverwrites = permissionOverwrites;

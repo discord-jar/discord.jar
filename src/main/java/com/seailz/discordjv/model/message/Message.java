@@ -14,13 +14,17 @@ import com.seailz.discordjv.model.message.activity.MessageActivity;
 import com.seailz.discordjv.model.resolve.Resolvable;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.URLS;
+import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public record Message(
@@ -77,7 +81,8 @@ public record Message(
         // the thread that was started from this message, includes thread member object
         Thread thread,
         // sent if the message contains components like buttons, action rows, or other interactive components
-        List<DisplayComponent> components
+        List<DisplayComponent> components,
+        DiscordJv discordJv
 ) implements Compilerable, Resolvable {
 
     @NonNull
@@ -306,7 +311,7 @@ public record Message(
             thread = null;
         }
 
-        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components);
+        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, discordJv);
     }
 
     @Override
@@ -393,6 +398,12 @@ public record Message(
                 .put("interaction", interaction == null ? JSONObject.NULL : interaction.compile())
                 .put("thread", thread == null ? JSONObject.NULL : thread.compile())
                 .put("components", componentsArray);
+    }
+
+    public void delete() {
+        new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
+                .replace("{channel.id}", channelId).replace("{message.id}", id),
+                discordJv, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
     }
 }
 

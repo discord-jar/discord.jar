@@ -284,6 +284,12 @@ public final class URLS {
             public static String DELETE_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
             public static String DELETE_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
         }
+
+        public static class CHANNEL {
+            public static class MESSAGE {
+                public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+            }
+        }
     }
 
     public static class PATCH {

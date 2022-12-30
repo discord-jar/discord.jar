@@ -35,13 +35,9 @@ public interface Channel extends Compilerable, Resolvable, Mentionable {
     @NotNull
     String name();
 
-    /**
-     * Returns the channel as a mention
-     */
-    @NotNull
     @Override
-    default String getAsMention() {
-        return "<#" + id() + ">";
+    default String getMentionablePrefix() {
+        return "#";
     }
 
     @NotNull

@@ -225,4 +225,8 @@ public record User(
     }
 
 
+    @Override
+    public String getMentionablePrefix() {
+        return "@";
+    }
 }

@@ -12,7 +12,7 @@ public class EmbederImpl implements Embeder {
     private String url;
     private String timestamp;
     private EmbedField[] fields = new EmbedField[0];
-    private float color = -1;
+    private int color = -1;
     private EmbedFooter footer;
     private EmbedImage image;
     private EmbedImage thumbnail;
@@ -21,7 +21,7 @@ public class EmbederImpl implements Embeder {
     public EmbederImpl() {
     }
 
-    public EmbederImpl(String title, String description, String url, String timestamp, EmbedField[] fields, float color, EmbedFooter footer, EmbedImage image, EmbedImage thumbnail, EmbedAuthor author) {
+    public EmbederImpl(String title, String description, String url, String timestamp, EmbedField[] fields, int color, EmbedFooter footer, EmbedImage image, EmbedImage thumbnail, EmbedAuthor author) {
         this.title = title;
         this.description = description;
         this.url = url;
@@ -118,14 +118,9 @@ public class EmbederImpl implements Embeder {
     }
 
     @Override
-    public Embeder color(float color) {
-        this.color = color;
-        return this;
-    }
-
-    @Override
     public Embeder color(Color color) {
-        return color(Float.parseFloat(Integer.toHexString(color.getRGB() & 0x00ffffff)));
+        this.color = color.getRGB();
+        return this;
     }
 
     @Override

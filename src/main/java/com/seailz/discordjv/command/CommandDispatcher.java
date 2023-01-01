@@ -12,6 +12,7 @@ import com.seailz.discordjv.model.interaction.data.command.ResolvedCommandOption
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Simple class for dispatching commands to their respective listeners.
@@ -45,8 +46,11 @@ public class CommandDispatcher {
                                                     .toList().indexOf(details)
                                     );
 
-                            details.listener.onCommand(event);
-                            return;
+                            System.out.println(name);
+                            if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name() + " " + option.name())) {
+                                details.listener.onCommand(event);
+                                System.out.println("Dispatched sub command " + option.name() + " to " + details.listener.getClass().getName());
+                            }
                             /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
                             }*/
                         }

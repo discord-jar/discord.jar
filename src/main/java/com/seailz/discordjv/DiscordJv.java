@@ -481,7 +481,6 @@ public class DiscordJv {
             if (slashCommandListener.getSubCommands().isEmpty()) return;
 
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
-                System.out.println("Registering subcommand " + subCommand.getName());
                 SubCommandListener subListener =
                         slashCommandListener.getSubCommands().values().stream().toList().get(
                                 slashCommandListener.getSubCommands().keySet().stream().toList()

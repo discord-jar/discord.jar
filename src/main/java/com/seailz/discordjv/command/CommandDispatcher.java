@@ -37,6 +37,9 @@ public class CommandDispatcher {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
                     System.out.println("option was sub command");
+                    subListeners.values().forEach(details -> {
+                        System.out.println(details.sub().getName());
+                    });
                     for (SlashSubCommandDetails details : subListeners.values()) {
                         System.out.println("checking sub command " + option.name());
                         System.out.println(details.sub.getName());

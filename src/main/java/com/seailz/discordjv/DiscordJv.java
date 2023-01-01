@@ -486,9 +486,6 @@ public class DiscordJv {
                                 slashCommandListener.getSubCommands().keySet().stream().toList()
                                         .indexOf(subCommand)
                         );
-                slashCommandListener.getSubCommands().keySet().forEach(sub -> {
-                    System.out.println(sub.getName());
-                });
                 commandDispatcher.registerSubCommand(slashCommandListener, subCommand, subListener);
             }
         }

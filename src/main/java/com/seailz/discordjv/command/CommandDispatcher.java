@@ -36,6 +36,7 @@ public class CommandDispatcher {
         if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptions() != null && !((SlashCommandInteractionEvent) event).getOptions().isEmpty()) {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
+                    System.out.println("found sub command");
                     for (SlashSubCommandDetails details : subListeners.values()) {
                         if (details.sub.getName().equals(option.name())) {
                             SlashCommandListener top
@@ -45,7 +46,7 @@ public class CommandDispatcher {
                                                             .toList().indexOf(details)
                                             );
 
-                            if (top.getClass().getAnnotation(SlashCommandInfo.class).name().equals(event.getName())) {
+                            if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
                                 details.listener.onCommand(event);
                                 return;
                             }

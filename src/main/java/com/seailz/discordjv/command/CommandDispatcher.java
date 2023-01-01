@@ -12,7 +12,6 @@ import com.seailz.discordjv.model.interaction.data.command.ResolvedCommandOption
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Simple class for dispatching commands to their respective listeners.
@@ -37,8 +36,11 @@ public class CommandDispatcher {
         if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptions() != null && !((SlashCommandInteractionEvent) event).getOptions().isEmpty()) {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
+                    System.out.println("option was sub command");
                     for (SlashSubCommandDetails details : subListeners.values()) {
+                        System.out.println("checking sub command " + option.name());
                         if (details.sub.getName().equals(option.name())) {
+                            System.out.println("found sub command " + option.name());
                             SlashCommandListener top
                                     = subListeners.keySet().stream()
                                     .toList().get(
@@ -46,11 +48,8 @@ public class CommandDispatcher {
                                                     .toList().indexOf(details)
                                     );
 
-                            System.out.println(name);
-                            if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name() + " " + option.name())) {
-                                details.listener.onCommand(event);
-                                System.out.println("Dispatched sub command " + option.name() + " to " + details.listener.getClass().getName());
-                            }
+                            details.listener.onCommand(event);
+                            return;
                             /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
                             }*/
                         }

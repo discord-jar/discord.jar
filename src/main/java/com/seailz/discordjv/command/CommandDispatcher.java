@@ -48,12 +48,8 @@ public class CommandDispatcher {
                     for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
                         for (SlashSubCommandDetails details : detailsList) {
                             if (details.sub.getName().equals(option.name())) {
-                                SlashCommandListener top
-                                        = subListeners.keySet().stream()
-                                        .toList().get(
-                                                subListeners.values().stream()
-                                                        .toList().indexOf(details)
-                                        );
+                                SlashCommandListener top = subListeners.keySet().stream().toList()
+                                        .get(subListeners.values().stream().toList().indexOf(detailsList));
 
                                 if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
                                     System.out.println("found top command " + name);

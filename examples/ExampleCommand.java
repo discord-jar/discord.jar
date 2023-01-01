@@ -25,7 +25,7 @@ import com.seailz.discordjv.events.model.interaction.command.SlashCommandInterac
  * @see com.seailz.discordjv.command.listeners.MessageContextCommandListener
  * @see com.seailz.discordjv.command.listeners.UserContextCommandListener
  */
-public class ExampleCommand implements SlashCommandListener {
+public class ExampleCommand extends SlashCommandListener {
 
     /**
      * This is for sub commands, and options.

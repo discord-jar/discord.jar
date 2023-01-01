@@ -24,43 +24,45 @@ import java.util.Objects;
 public class CommandDispatcher {
 
     private final HashMap<String, CommandListener> listeners = new HashMap<>();
-    private final HashMap<SlashCommandListener, SlashSubCommandDetails> subListeners = new HashMap<>();
+    private final HashMap<SlashCommandListener, ArrayList<SlashSubCommandDetails>> subListeners = new HashMap<>();
 
     public void registerCommand(String name, CommandListener listener) {
         listeners.put(name, listener);
     }
     public void registerSubCommand(SlashCommandListener top, SlashSubCommand sub, SubCommandListener listener) {
-        System.out.println("added " + sub.getName() + " to " + top.getClass().getAnnotation(SlashCommandInfo.class).name());
-        subListeners.put(top, new SlashSubCommandDetails(sub, listener));
+        if (subListeners.containsKey(top)) {
+            ArrayList<SlashSubCommandDetails> exist = subListeners.get(top);
+            exist.add(new SlashSubCommandDetails(sub, listener));
+            subListeners.put(top, exist);
+            return;
+        }
+        ArrayList<SlashSubCommandDetails> list = new ArrayList<>();
+        list.add(new SlashSubCommandDetails(sub, listener));
+        subListeners.put(top, list);
     }
 
     public void dispatch(String name, CommandInteractionEvent event) {
         if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptions() != null && !((SlashCommandInteractionEvent) event).getOptions().isEmpty()) {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
-                    System.out.println("option was sub command");
-                    subListeners.values().forEach(details -> {
-                        System.out.println(details.sub().getName());
-                    });
-                    for (SlashSubCommandDetails details : subListeners.values()) {
-                        System.out.println("checking sub command " + option.name());
-                        System.out.println(details.sub.getName());
-                        if (details.sub.getName().equals(option.name())) {
-                            System.out.println("found sub command " + option.name());
-                            SlashCommandListener top
-                                    = subListeners.keySet().stream()
-                                    .toList().get(
-                                            subListeners.values().stream()
-                                                    .toList().indexOf(details)
-                                    );
+                    for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
+                        for (SlashSubCommandDetails details : detailsList) {
+                            if (details.sub.getName().equals(option.name())) {
+                                SlashCommandListener top
+                                        = subListeners.keySet().stream()
+                                        .toList().get(
+                                                subListeners.values().stream()
+                                                        .toList().indexOf(details)
+                                        );
 
-                            if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                System.out.println("found top command " + name);
-                                details.listener().onCommand(event);
-                            }
-                            return;
+                                if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                                    System.out.println("found top command " + name);
+                                    details.listener().onCommand(event);
+                                }
+                                return;
                             /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
                             }*/
+                            }
                         }
                     }
                 } else if (option.type() == CommandOptionType.SUB_COMMAND_GROUP) {
@@ -71,18 +73,20 @@ public class CommandDispatcher {
                     }
 
                     for (ResolvedCommandOption subs : option.options()) {
-                        for (SlashSubCommandDetails details : subListeners.values()) {
-                            if (details.sub.getName().equals(subs.name())) {
-                                SlashCommandListener top
-                                        = subListeners.keySet().stream()
-                                                .toList().get(
-                                                        subListeners.values().stream()
-                                                                .toList().indexOf(details)
-                                                );
+                        for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
+                            for (SlashSubCommandDetails details : detailsList) {
+                                if (details.sub.getName().equals(subs.name())) {
+                                    SlashCommandListener top
+                                            = subListeners.keySet().stream()
+                                            .toList().get(
+                                                    subListeners.values().stream()
+                                                            .toList().indexOf(details)
+                                            );
 
-                                if (top.getClass().getAnnotation(SlashCommandInfo.class).name().equals(event.getName())) {
-                                    details.listener.onCommand(event);
-                                    return;
+                                    if (top.getClass().getAnnotation(SlashCommandInfo.class).name().equals(event.getName())) {
+                                        details.listener.onCommand(event);
+                                        return;
+                                    }
                                 }
                             }
                         }

@@ -4,6 +4,7 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.channel.GroupDM;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.user.User;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -15,8 +16,8 @@ public class GroupDMImpl extends DMChannelImpl implements GroupDM {
     private final User owner;
     private final String iconUrl;
 
-    public GroupDMImpl(String id, ChannelType type, String name, String lastMessageId, List<User> recipients, DiscordJv discordJv, User owner, String iconUrl) {
-        super(id, type, name, lastMessageId, recipients, discordJv);
+    public GroupDMImpl(String id, ChannelType type, String name, String lastMessageId, List<User> recipients, DiscordJv discordJv, User owner, String iconUrl, JSONObject raw) {
+        super(id, type, name, lastMessageId, recipients, discordJv, raw);
         this.owner = owner;
         this.iconUrl = iconUrl;
     }

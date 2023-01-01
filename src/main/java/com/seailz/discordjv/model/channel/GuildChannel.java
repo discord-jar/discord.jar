@@ -5,6 +5,7 @@ import com.seailz.discordjv.model.channel.internal.GuildChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.permission.PermissionOverwrite;
+import com.seailz.discordjv.utils.Checker;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +27,8 @@ public interface GuildChannel extends Channel {
     List<PermissionOverwrite> permissionOverwrites();
 
     boolean nsfw();
+
+    @NotNull JSONObject raw();
 
     @Override
     default JSONObject compile() {
@@ -74,6 +77,23 @@ public interface GuildChannel extends Channel {
             }
         }
 
-        return new GuildChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw);
+        return new GuildChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, obj, discordJv);
+    }
+
+    @NotNull
+    DiscordJv discordJv();
+
+    /**
+     * Returns this class as a {@link MessagingChannel}, or null if it is not a messaging channel.
+     * @throws IllegalArgumentException If the channel is not a messaging channel
+     */
+    @Nullable
+    default MessagingChannel asMessagingChannel() {
+        try {
+            return MessagingChannel.decompile(raw(), discordJv());
+        } catch (Exception e) {
+            Checker.check(true, "This channel is not a messaging channel");
+        }
+        return null;
     }
 }

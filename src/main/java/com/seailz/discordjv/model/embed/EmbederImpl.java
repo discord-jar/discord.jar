@@ -1,5 +1,6 @@
 package com.seailz.discordjv.model.embed;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -11,7 +12,7 @@ public class EmbederImpl implements Embeder {
     private String url;
     private String timestamp;
     private EmbedField[] fields = new EmbedField[0];
-    private Color color;
+    private int color = -1;
     private EmbedFooter footer;
     private EmbedImage image;
     private EmbedImage thumbnail;
@@ -20,7 +21,7 @@ public class EmbederImpl implements Embeder {
     public EmbederImpl() {
     }
 
-    public EmbederImpl(String title, String description, String url, String timestamp, EmbedField[] fields, Color color, EmbedFooter footer, EmbedImage image, EmbedImage thumbnail, EmbedAuthor author) {
+    public EmbederImpl(String title, String description, String url, String timestamp, EmbedField[] fields, int color, EmbedFooter footer, EmbedImage image, EmbedImage thumbnail, EmbedAuthor author) {
         this.title = title;
         this.description = description;
         this.url = url;
@@ -118,7 +119,7 @@ public class EmbederImpl implements Embeder {
 
     @Override
     public Embeder color(Color color) {
-        this.color = color;
+        this.color = color.getRGB();
         return this;
     }
 
@@ -129,11 +130,18 @@ public class EmbederImpl implements Embeder {
         obj.put("description", description);
         obj.put("url", url);
         obj.put("timestamp", timestamp);
-        obj.put("color", color != null ? Integer.valueOf(String.format("#%06x", color.getRGB() & 0x00FFFFFF).replace("#", "")) : JSONObject.NULL);
+        obj.put("color", color != -1 ? color + 0xFFFFFF : JSONObject.NULL);
         obj.put("footer", footer != null ? footer.compile() : JSONObject.NULL);
         obj.put("image", image != null ? image.compile() : JSONObject.NULL);
         obj.put("thumbnail", thumbnail != null ? thumbnail.compile() : JSONObject.NULL);
         obj.put("author", author != null ? author.compile() : JSONObject.NULL);
+
+        // fields
+        JSONArray fields = new JSONArray();
+        for (EmbedField field : this.fields) {
+            fields.put(field.compile());
+        }
+        obj.put("fields", fields);
         return obj;
     }
 

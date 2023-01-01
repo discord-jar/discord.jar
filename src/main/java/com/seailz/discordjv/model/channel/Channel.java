@@ -1,5 +1,7 @@
 package com.seailz.discordjv.model.channel;
 
+import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.channel.ModifyBaseChannelAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.channel.internal.ChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
@@ -35,22 +37,30 @@ public interface Channel extends Compilerable, Resolvable, Mentionable {
     @NotNull
     String name();
 
-    /**
-     * Returns the channel as a mention
-     */
     @NotNull
+    DiscordJv djv();
+
     @Override
-    default String getAsMention() {
-        return "<#" + id() + ">";
+    default String getMentionablePrefix() {
+        return "#";
     }
 
+
     @NotNull
-    @Contract("_ -> new")
-    static Channel decompile(@NotNull JSONObject obj) {
+    @Contract("_, _ -> new")
+    static Channel decompile(@NotNull JSONObject obj, DiscordJv discordJv) {
         return new ChannelImpl(
                 obj.getString("id"),
                 ChannelType.fromCode(obj.getInt("type")),
-                obj.has("name") ? obj.getString("name") : "DM"
+                obj.has("name") ? obj.getString("name") : "DM",
+                obj, discordJv
         );
+    }
+
+    @NotNull
+    JSONObject raw();
+
+    default ModifyBaseChannelAction modify() {
+        return new ModifyBaseChannelAction(djv(), id());
     }
 }

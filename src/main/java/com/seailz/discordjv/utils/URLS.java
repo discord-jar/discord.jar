@@ -284,6 +284,12 @@ public final class URLS {
             public static String DELETE_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
             public static String DELETE_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
         }
+
+        public static class CHANNEL {
+            public static class MESSAGE {
+                public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+            }
+        }
     }
 
     public static class PATCH {
@@ -314,6 +320,28 @@ public final class URLS {
                  * @param sticker.id The id of the sticker
                  */
                 public static String MODIFY_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
+            }
+        }
+
+        public static class CHANNEL {
+            public static String MODIFY_CHANNEL = "/channels/{channel.id}";
+        }
+    }
+
+
+    public static class PUT {
+        public static class GUILD {
+            public static class MEMBERS {
+                public static class ROLES {
+                    /**
+                     * Adds a role to a guild member
+                     *
+                     * @param guild.id The id of the guild
+                     * @param user.id The id of the user
+                     * @param role.id The id of the role
+                     */
+                    public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
+                }
             }
         }
     }

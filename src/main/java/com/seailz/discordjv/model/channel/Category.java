@@ -38,7 +38,7 @@ public interface Category extends GuildChannel {
                         channels.add((CategoryMember) channel);
             });
         }
-        return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, channels);
+        return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, channels, obj, discordJv);
     }
 
     static Category fromId(String id, DiscordJv discordJv) {

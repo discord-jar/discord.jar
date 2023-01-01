@@ -40,7 +40,7 @@ public interface GroupDM extends DMChannel {
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
         User owner = recipients.stream().filter(u -> u.id().equals(obj.getString("owner_id"))).findFirst().orElse(null);
         String iconUrl = obj.has("icon") ? ImageUtils.getUrl(obj.getString("icon"), ImageUtils.ImageType.DM_ICON, obj.getString("id")) : null;
-        return new GroupDMImpl(obj.getString("id"), ChannelType.GROUP_DM, name, lastMessageId, recipients, discordJv, owner, iconUrl);
+        return new GroupDMImpl(obj.getString("id"), ChannelType.GROUP_DM, name, lastMessageId, recipients, discordJv, owner, iconUrl, obj);
     }
 
 }

@@ -114,7 +114,6 @@ public class DiscordJv {
      */
     public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-        token = token.replaceAll("\\r\\n", "");
         this.token = token;
         this.intents = intents;
         new URLS(version);

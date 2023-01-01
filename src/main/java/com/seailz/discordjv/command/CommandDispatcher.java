@@ -36,20 +36,19 @@ public class CommandDispatcher {
         if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptions() != null && !((SlashCommandInteractionEvent) event).getOptions().isEmpty()) {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
-                    System.out.println("found sub command");
                     for (SlashSubCommandDetails details : subListeners.values()) {
                         if (details.sub.getName().equals(option.name())) {
                             SlashCommandListener top
                                     = subListeners.keySet().stream()
-                                            .toList().get(
-                                                    subListeners.values().stream()
-                                                            .toList().indexOf(details)
-                                            );
+                                    .toList().get(
+                                            subListeners.values().stream()
+                                                    .toList().indexOf(details)
+                                    );
 
-                            if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                details.listener.onCommand(event);
-                                return;
-                            }
+                            details.listener.onCommand(event);
+                            return;
+                            /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                            }*/
                         }
                     }
                 } else if (option.type() == CommandOptionType.SUB_COMMAND_GROUP) {

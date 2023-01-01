@@ -30,6 +30,7 @@ public class CommandDispatcher {
         listeners.put(name, listener);
     }
     public void registerSubCommand(SlashCommandListener top, SlashSubCommand sub, SubCommandListener listener) {
+        System.out.println("added " + sub.getName() + " to " + top.getClass().getAnnotation(SlashCommandInfo.class).name());
         subListeners.put(top, new SlashSubCommandDetails(sub, listener));
     }
 

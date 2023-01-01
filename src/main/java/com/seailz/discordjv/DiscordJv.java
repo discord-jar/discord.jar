@@ -480,7 +480,6 @@ public class DiscordJv {
             if (!(listener instanceof SlashCommandListener slashCommandListener)) return;
             if (slashCommandListener.getSubCommands().isEmpty()) return;
 
-            System.out.println(slashCommandListener + " has subcommands: ");
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
                 System.out.println("Registering subcommand " + subCommand.getName());
                 SubCommandListener subListener =
@@ -488,7 +487,6 @@ public class DiscordJv {
                                 slashCommandListener.getSubCommands().keySet().stream().toList()
                                         .indexOf(subCommand)
                         );
-                System.out.println("registering sub command for command " + name + ":" + subCommand.getName());
                 commandDispatcher.registerSubCommand(slashCommandListener, subCommand, subListener);
             }
         }

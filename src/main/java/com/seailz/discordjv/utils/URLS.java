@@ -328,6 +328,24 @@ public final class URLS {
         }
     }
 
+
+    public static class PUT {
+        public static class GUILD {
+            public static class MEMBERS {
+                public static class ROLES {
+                    /**
+                     * Adds a role to a guild member
+                     *
+                     * @param guild.id The id of the guild
+                     * @param user.id The id of the user
+                     * @param role.id The id of the role
+                     */
+                    public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
+                }
+            }
+        }
+    }
+
     public static class GATEWAY {
         public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
     }

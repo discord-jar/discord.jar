@@ -186,4 +186,20 @@ public record Member(
                 RequestMethod.PATCH
         ).invoke();
     }
+
+    /**
+     * Adds a role to a member.
+     * Requires `MANAGE_ROLES` permission.
+     * @param role the role to add
+     */
+    public void addRole(Role role) {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                discordJv,
+                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
+                RequestMethod.PUT
+        ).invoke();
+    }
 }

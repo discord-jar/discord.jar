@@ -39,6 +39,7 @@ public class CommandDispatcher {
                     System.out.println("option was sub command");
                     for (SlashSubCommandDetails details : subListeners.values()) {
                         System.out.println("checking sub command " + option.name());
+                        System.out.println(details.sub.getName());
                         if (details.sub.getName().equals(option.name())) {
                             System.out.println("found sub command " + option.name());
                             SlashCommandListener top

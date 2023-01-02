@@ -8,6 +8,8 @@ import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.flag.BitwiseUtil;
+import com.seailz.discordjv.utils.permission.Permission;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +43,7 @@ public record Member(
         boolean deaf,
         boolean mute,
         boolean pending,
-        String permissions,
+        List<Permission> permissions,
         String communicationDisabledUntil,
         String guildId,
         DiscordJv discordJv
@@ -49,6 +51,10 @@ public record Member(
 
     @Override
     public JSONObject compile() {
+        int permissions = 0;
+        for (Permission permission : this.permissions) {
+            permissions += permission.getLeftShiftId();
+        }
         JSONObject obj = new JSONObject();
         obj.put("user", user.compile());
         obj.put("nick", nick);
@@ -75,7 +81,7 @@ public record Member(
         boolean deaf;
         boolean mute;
         boolean pending;
-        String permissions;
+        List<Permission> permissions;
         String communicationDisabledUntil;
 
         try {
@@ -137,7 +143,10 @@ public record Member(
         }
 
         try {
-            permissions = obj.getString("permissions");
+            BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
+            List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
+                    Integer.parseInt(obj.getString("permissions")), Permission.class));
+            permissions = permissionsList;
         } catch (Exception e) {
             permissions = null;
         }
@@ -201,5 +210,9 @@ public record Member(
                 URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
                 RequestMethod.PUT
         ).invoke();
+    }
+
+    public boolean hasPermission(Permission perm) {
+        return permissions.contains(perm);
     }
 }

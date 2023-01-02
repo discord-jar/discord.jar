@@ -143,6 +143,7 @@ public record Member(
         }
 
         try {
+            System.out.println(obj.getString("permissions"));
             BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
             List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
                     Integer.parseInt(obj.getString("permissions")), Permission.class));

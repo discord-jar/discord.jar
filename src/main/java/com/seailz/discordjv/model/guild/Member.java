@@ -72,11 +72,11 @@ public record Member(
     }
 
     @NonNull
-    public static Member decompile(JSONObject obj, DiscordJv discordJv, String guildId) {
+    public static Member decompile(JSONObject obj, DiscordJv discordJv, String guildId, Guild guild) {
         User user;
         String nick;
         String avatar;
-        Role[] roles;
+        Role[] roles = new Role[0];
         String joinedAt;
         String premiumSince;
         boolean deaf;
@@ -106,11 +106,13 @@ public record Member(
         }
 
         try {
-            List<Role> rolesList = new ArrayList<>();
-            for (Object o : obj.getJSONArray("roles")) {
-                rolesList.add(discordJv.getGuildById(guildId).getRoleById(o.toString()));
+            if (guild != null) {
+                List<Role> rolesList = new ArrayList<>();
+                for (Object o : obj.getJSONArray("roles")) {
+                    rolesList.add(guild.getRoleById(o.toString()));
+                }
+                roles = rolesList.toArray(new Role[0]);
             }
-            roles = rolesList.toArray(new Role[0]);
         } catch (JSONException e) {
             roles = null;
         }

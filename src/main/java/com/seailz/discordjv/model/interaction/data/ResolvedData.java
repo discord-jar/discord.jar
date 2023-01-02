@@ -107,7 +107,7 @@ public record ResolvedData(
             JSONObject resolved = obj.getJSONObject("members");
             members = new HashMap<>();
             HashMap<String, Member> finalMembers = members;
-            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJv, null)));
+            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJv, null, null)));
         } catch (Exception e) {
             members = null;
         }

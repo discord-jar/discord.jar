@@ -651,7 +651,8 @@ public record Guild(
                         RequestMethod.GET
                 ).invoke().body(),
                 discordJv,
-                this.id
+                this.id,
+                this
         );
     }
 
@@ -669,7 +670,7 @@ public record Guild(
         ).invoke().arr();
 
         List<Member> members = new ArrayList<>();
-        arr.forEach(o -> members.add(Member.decompile((JSONObject) o, discordJv, id)));
+        arr.forEach(o -> members.add(Member.decompile((JSONObject) o, discordJv, id, this)));
         return members;
     }
 

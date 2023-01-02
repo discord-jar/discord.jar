@@ -109,7 +109,11 @@ public record Member(
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
                 for (Object o : obj.getJSONArray("roles")) {
-                    rolesList.add(guild.getRoleById(o.toString()));
+                    try {
+                        rolesList.add(guild.getRoleById(o.toString()));
+                    } catch (Exception ignored) {
+                        continue;
+                    }
                 }
                 roles = rolesList.toArray(new Role[0]);
             }

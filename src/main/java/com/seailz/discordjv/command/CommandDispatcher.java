@@ -72,16 +72,12 @@ public class CommandDispatcher {
                         for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
                             for (SlashSubCommandDetails details : detailsList) {
                                 if (details.sub.getName().equals(subs.name())) {
-                                    SlashCommandListener top
-                                            = subListeners.keySet().stream()
-                                            .toList().get(
-                                                    subListeners.values().stream()
-                                                            .toList().indexOf(details)
-                                            );
+                                    SlashCommandListener top = subListeners.keySet().stream().toList()
+                                            .get(subListeners.values().stream().toList().indexOf(detailsList));
 
-                                    if (top.getClass().getAnnotation(SlashCommandInfo.class).name().equals(event.getName())) {
-                                        details.listener.onCommand(event);
-                                        return;
+                                    if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                                        System.out.println("found top command " + name);
+                                        details.listener().onCommand(event);
                                     }
                                 }
                             }

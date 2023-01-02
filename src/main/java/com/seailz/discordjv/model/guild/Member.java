@@ -111,7 +111,7 @@ public record Member(
                 for (Object o : obj.getJSONArray("roles")) {
                     try {
                         rolesList.add(guild.getRoleById(o.toString()));
-                    } catch (Exception ignored) {
+                    } catch (DiscordRequest.DiscordAPIErrorException ignored) {
                         continue;
                     }
                 }

@@ -133,8 +133,6 @@ public record DiscordRequest(
             }).start();
 
             if (responseCode == 200 || responseCode == 201) {
-                if (response.body().contains("\"roles\":"))
-                    System.out.println(response.body());
 
                 var body = new Object();
 

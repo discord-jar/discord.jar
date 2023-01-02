@@ -10,6 +10,7 @@ import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import com.seailz.discordjv.utils.permission.Permission;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -110,7 +111,7 @@ public record Member(
                 rolesList.add(Role.decompile((JSONObject) o));
             }
             roles = rolesList.toArray(new Role[0]);
-        } catch (Exception e) {
+        } catch (JSONException e) {
             roles = null;
         }
 
@@ -149,7 +150,7 @@ public record Member(
             List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
                     Integer.parseInt(obj.getString("permissions")), Permission.class));
             permissions = permissionsList;
-        } catch (Exception e) {
+        } catch (JSONException e) {
             permissions = null;
         }
 

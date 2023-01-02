@@ -108,7 +108,7 @@ public record Member(
         try {
             List<Role> rolesList = new ArrayList<>();
             for (Object o : obj.getJSONArray("roles")) {
-                rolesList.add(Role.decompile((JSONObject) o));
+                rolesList.add(discordJv.getGuildById(guildId).getRoleById(o.toString()));
             }
             roles = rolesList.toArray(new Role[0]);
         } catch (JSONException e) {

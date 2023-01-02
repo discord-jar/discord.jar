@@ -8,16 +8,17 @@ import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
-import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import com.seailz.discordjv.utils.permission.Permission;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents a member of a guild
@@ -82,7 +83,7 @@ public record Member(
         boolean deaf;
         boolean mute;
         boolean pending;
-        List<Permission> permissions;
+        List<Permission> permissions = null;
         String communicationDisabledUntil;
 
         System.out.println(obj);
@@ -151,14 +152,14 @@ public record Member(
             pending = false;
         }
 
-        try {
+        /*try {
             BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
             List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
                     Integer.parseInt(obj.getString("permissions")), Permission.class));
             permissions = permissionsList;
         } catch (JSONException e) {
             permissions = null;
-        }
+        }*/
 
         try {
             communicationDisabledUntil = obj.getString("communication_disabled_until");

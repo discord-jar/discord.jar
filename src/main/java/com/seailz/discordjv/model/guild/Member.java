@@ -105,7 +105,7 @@ public record Member(
             avatar = null;
         }
 
-        try {
+        /*try {
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
                 for (Object o : obj.getJSONArray("roles")) {
@@ -119,7 +119,7 @@ public record Member(
             }
         } catch (JSONException e) {
             roles = null;
-        }
+        }*/
 
         try {
             joinedAt = obj.getString("joined_at");

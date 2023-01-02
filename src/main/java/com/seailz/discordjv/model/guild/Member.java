@@ -84,6 +84,8 @@ public record Member(
         List<Permission> permissions;
         String communicationDisabledUntil;
 
+        System.out.println(obj);
+
         try {
             user = User.decompile(obj.getJSONObject("user"), discordJv);
         } catch (Exception e) {

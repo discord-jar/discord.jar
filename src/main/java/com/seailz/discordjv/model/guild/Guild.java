@@ -670,7 +670,11 @@ public record Guild(
         ).invoke().arr();
 
         List<Member> members = new ArrayList<>();
-        arr.forEach(o -> members.add(Member.decompile((JSONObject) o, discordJv, id, this)));
+        for (Object obj : arr) {
+            members.add(Member.decompile((JSONObject) obj, discordJv, id, this));
+        }
+        System.out.println(arr);
+
         return members;
     }
 

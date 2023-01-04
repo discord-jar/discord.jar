@@ -164,7 +164,6 @@ public record DiscordRequest(
                 return null;
             }
 
-            System.out.println(body);
 
             JSONObject error = new JSONObject(response.body());
             JSONArray errorArray;

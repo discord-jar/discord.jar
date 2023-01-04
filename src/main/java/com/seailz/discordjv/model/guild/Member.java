@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a member of a guild
@@ -106,21 +103,18 @@ public record Member(
             avatar = null;
         }
 
-        /*try {
+        if (obj.has("roles")) {
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
                 for (Object o : obj.getJSONArray("roles")) {
-                    try {
-                        rolesList.add(guild.getRoleById(o.toString()));
-                    } catch (DiscordRequest.DiscordAPIErrorException ignored) {
-                        continue;
-                    }
+                    guild.roles().stream()
+                            .filter(role -> role.id().equals(o.toString()))
+                            .findFirst()
+                            .ifPresent(rolesList::add);
                 }
                 roles = rolesList.toArray(new Role[0]);
             }
-        } catch (JSONException e) {
-            roles = null;
-        }*/
+        }
 
         try {
             joinedAt = obj.getString("joined_at");

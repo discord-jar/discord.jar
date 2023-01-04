@@ -145,7 +145,6 @@ public class GatewayFactory extends TextWebSocketHandler {
                 heartbeatCycle.sendHeartbeat();
                 break;
             case DISPATCHED:
-                System.out.println(message.getPayload());
                 handleDispatched(payload);
                 break;
             case RECONNECT:

@@ -56,7 +56,7 @@ public final class URLS {
                  * @param {guild.id} The guild to create the rule in
                  */
                 public static final String CREATE_AUTO_MOD_RULE = "/guilds/{guild.id}/auto-moderation/rules";
-            }
+             }
 
             public static class CHANNELS {
                 /**
@@ -218,7 +218,6 @@ public final class URLS {
 
             public static class ROLES {
                 public static String GET_GUILD_ROLES = "/guilds/{guild.id}/roles";
-                public static String GET_GUILD_ROLE = "/guilds/{guild.id}/role/{role.id}";
             }
         }
 

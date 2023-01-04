@@ -658,7 +658,7 @@ public record Guild(
     }
 
     public List<Member> getMembers(int limit, String after) {
-        Checker.check(limit > 0, "Limit must be greater than 0");
+        Checker.check(limit <= 0, "Limit must be greater than 0");
         Checker.check(limit <= 1000, "Limit must be less than or equal to 1000");
         JSONArray arr = new DiscordRequest(
                 new JSONObject(),

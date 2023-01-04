@@ -106,8 +106,9 @@ public record Member(
         if (obj.has("roles")) {
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
+                List<Role> guildRoles = guild.roles();
                 for (Object o : obj.getJSONArray("roles")) {
-                    guild.roles().stream()
+                    guildRoles.stream()
                             .filter(role -> role.id().equals(o.toString()))
                             .findFirst()
                             .ifPresent(rolesList::add);

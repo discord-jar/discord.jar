@@ -83,7 +83,6 @@ public record Member(
         List<Permission> permissions = null;
         String communicationDisabledUntil;
 
-        System.out.println(obj);
 
         try {
             user = User.decompile(obj.getJSONObject("user"), discordJv);
@@ -187,7 +186,7 @@ public record Member(
                 URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
                 RequestMethod.PATCH
         ).invoke();
-        System.out.println(timeout);
+
     }
 
     public void removeTimeout() {

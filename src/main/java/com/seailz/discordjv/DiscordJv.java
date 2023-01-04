@@ -30,6 +30,7 @@ import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.cache.Cache;
+import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import com.seailz.discordjv.utils.discordapi.RateLimit;
@@ -101,6 +102,10 @@ public class DiscordJv {
      * The command dispatcher
      */
     protected final CommandDispatcher commandDispatcher;
+    /**
+     * A cache storing self user information
+     */
+    private JsonCache selfUserCache;
 
     /**
      * Creates a new instance of the DiscordJv class
@@ -374,11 +379,20 @@ public class DiscordJv {
      */
     @Nullable
     public Application getSelfInfo() {
-        DiscordResponse response = new DiscordRequest(
+        if (this.selfUserCache != null && !selfUserCache.isEmpty())
+            return Application.decompile(selfUserCache.get(), this);
+
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
-        ).invoke();
+        );
+        DiscordResponse response = request.invoke();
+
+        if (this.selfUserCache == null)
+            this.selfUserCache = JsonCache.newc(response.body(), request);
+        this.selfUserCache.update(response.body());
+
         return Application.decompile(response.body(), this);
     }
 

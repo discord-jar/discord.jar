@@ -19,6 +19,7 @@ import com.seailz.discordjv.model.guild.verification.VerificationLevel;
 import com.seailz.discordjv.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Contract;
@@ -655,6 +656,31 @@ public record Guild(
                 this
         );
     }
+
+    public List<Member> getMembers(int limit, String after) {
+        Checker.check(limit > 0, "Limit must be greater than 0");
+        Checker.check(limit <= 1000, "Limit must be less than or equal to 1000");
+        JSONArray arr = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
+                        "{guild.id}",
+                        id
+                ) + "?limit=" + limit + (after == null ? "" : "&after=" + after),
+                discordJv,
+                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
+                RequestMethod.GET
+        ).invoke().arr();
+
+        List<Member> members = new ArrayList<>();
+        for (Object obj : arr) {
+            members.add(Member.decompile((JSONObject) obj, discordJv, id, this));
+        }
+        System.out.println(arr);
+
+        return members;
+    }
+
 
     public List<Member> getMembers() {
         JSONArray arr = new DiscordRequest(

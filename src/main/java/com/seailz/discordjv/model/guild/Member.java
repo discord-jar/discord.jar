@@ -83,7 +83,6 @@ public record Member(
         List<Permission> permissions = null;
         String communicationDisabledUntil;
 
-        System.out.println(obj);
 
         try {
             user = User.decompile(obj.getJSONObject("user"), discordJv);
@@ -106,8 +105,9 @@ public record Member(
         if (obj.has("roles")) {
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
+                List<Role> guildRoles = guild.roles();
                 for (Object o : obj.getJSONArray("roles")) {
-                    guild.roles().stream()
+                    guildRoles.stream()
                             .filter(role -> role.id().equals(o.toString()))
                             .findFirst()
                             .ifPresent(rolesList::add);
@@ -186,7 +186,7 @@ public record Member(
                 URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
                 RequestMethod.PATCH
         ).invoke();
-        System.out.println(timeout);
+
     }
 
     public void removeTimeout() {

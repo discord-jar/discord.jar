@@ -21,6 +21,7 @@ import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
+import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -113,7 +114,8 @@ public record Guild(
         WelcomeScreen welcomeScreen,
         List<Sticker> stickers,
         boolean premiumProgressBarEnabled,
-        DiscordJv discordJv
+        DiscordJv discordJv,
+        JsonCache roleCache
 ) implements Compilerable {
 
 
@@ -471,7 +473,15 @@ public record Guild(
                 welcomeScreen,
                 stickers,
                 premiumProgressBarEnabled,
-                discordJv
+                discordJv,
+                JsonCache.newc(new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
+                        discordJv,
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
+                        RequestMethod.GET
+                ))
         );
     }
 
@@ -770,17 +780,36 @@ public record Guild(
         return channels;
     }
 
+    /**
+     * Retrieves all the roles of a guild.
+     * This method uses caching, the cache will reset every 1 minute.
+     *
+     * @return
+     */
     public List<Role> roles() {
+        if (roleCache != null && !roleCache.isEmpty()) {
+            List<Role> roles = new ArrayList<>();
+            roleCache.get().getJSONArray("data").forEach(
+                    o -> roles.add(Role.decompile((JSONObject) o))
+            );
+            return roles;
+        }
+
         List<Role> roles = new ArrayList<>();
-        JSONArray res = new DiscordRequest(
+        DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
                 discordJv,
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
                 RequestMethod.GET
-        ).invoke().arr();
+        );
+        JSONArray res = req.invoke().arr();
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
+
+        if (roleCache != null) {
+            roleCache.update(new JSONObject().put("data", res));
+        }
         return roles;
     }
 

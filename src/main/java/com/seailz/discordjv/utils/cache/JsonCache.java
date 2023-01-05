@@ -6,6 +6,8 @@ import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.util.Random;
+
 /**
  * A cache that can be used to store JSON objects.
  * <p>
@@ -48,6 +50,30 @@ public interface JsonCache {
      * data relevant to this cache.
      */
     DiscordRequest howToUpdateFresh();
+
+    /**
+     * Given an interval, this method starts
+     * <br>a repeating timer on that interval that
+     * <br>will clear the cache.
+     * <p>
+     * This is to be used if it is harder
+     * <br>to update the cache and a better
+     * <br>option to just set up a repeating clear.
+     *
+     * @param interval The interval on which to invalidate the cache.
+     */
+    default void reset(int interval) {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                invalidate();
+            }
+        }, "CacheInvalidate" + new Random().nextInt(999)).start();
+    }
 
     /**
      * Updates the cached object.

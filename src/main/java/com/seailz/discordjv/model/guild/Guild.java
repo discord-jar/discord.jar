@@ -435,7 +435,7 @@ public record Guild(
             premiumProgressBarEnabled = false;
         }
 
-        return new Guild(
+        Guild g = new Guild(
                 id,
                 name,
                 icon,
@@ -483,6 +483,8 @@ public record Guild(
                         RequestMethod.GET
                 ))
         );
+        g.roleCache.reset(60000);
+        return g;
     }
 
     /**

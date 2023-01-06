@@ -406,5 +406,22 @@ public record Message(
                 .replace("{channel.id}", channelId).replace("{message.id}", id),
                 discordJv, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
     }
+
+    /**
+     * Returns the text of the message as how you would see it in the client.
+     */
+    public String getFormattedText() {
+        String formatted = content;
+
+        for (User user : mentions)
+            formatted = formatted.replaceAll("<@" + user.id() + ">", "@" + user.username());
+
+        for (Role role : mentionRoles)
+            formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
+
+        for (ChannelMention channel : mentionChannels)
+            formatted = formatted.replaceAll("<#" + channel.id() + ">", "#" + channel.name());
+        return formatted;
+    }
 }
 

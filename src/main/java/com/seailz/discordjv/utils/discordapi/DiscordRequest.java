@@ -5,6 +5,7 @@ import com.seailz.discordjv.utils.URLS;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.Buffer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -240,7 +241,9 @@ public record DiscordRequest(
                 index++;
             }
 
-            String body = builder.build().toString();
+            final Buffer buffer = new Buffer();
+            builder.build().writeTo(buffer);
+            String body = buffer.readUtf8();
             System.out.println(body);
 
             if (requestMethod == RequestMethod.POST) {

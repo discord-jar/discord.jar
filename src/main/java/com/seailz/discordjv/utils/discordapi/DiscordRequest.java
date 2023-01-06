@@ -2,6 +2,9 @@ package com.seailz.discordjv.utils.discordapi;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +17,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -229,24 +231,16 @@ public record DiscordRequest(
 
             con.uri(obj.toURI());
 
-            String body =
-                    "--boundary\n" +
-                            "Content-Disposition: form-data; name=\"payload_json\"\n" +
-                            "Content-Type: application/json\n\n";
-
-            String json = this.body.toString();
-            body += json;
+            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+            builder.addFormDataPart("payload_json", null, RequestBody.create(this.body.toString().getBytes()));
 
             int index = 0;
             for (File f : files) {
-                body += "\n--boundary\n" +
-                        "Content-Disposition: form-data; name=\"files[" + index + "]\"; filename=\"" + f.getName() + "\"\n" +
-                        "Content-Type: " + Files.probeContentType(f.toPath()) + "\n\n";
-                System.out.println(body);
-                body += new String(Files.readAllBytes(f.toPath()));
+                builder.addFormDataPart("file[" + index + "]", f.getName(), RequestBody.create(f, MediaType.parse("application/octet-stream")));
                 index++;
             }
-            body += "\n--boundary--";
+
+            String body = builder.build().toString();
 
 
             if (requestMethod == RequestMethod.POST) {
@@ -265,7 +259,7 @@ public record DiscordRequest(
 
             con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
-            con.header("Content-Type", "multipart/form-data");
+            con.header("Content-Type", builder.build().contentType().toString());
 
             byte[] out = body.getBytes(StandardCharsets.UTF_8);
 

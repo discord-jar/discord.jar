@@ -240,7 +240,7 @@ public class MessageCreateAction {
             if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
 
             JSONArray components = new JSONArray();
-            if (this.components != null) {
+            if (this.components != null && !this.components.isEmpty()) {
                 for (DisplayComponent component : this.components) {
                     components.put(component.compile());
                 }
@@ -267,15 +267,8 @@ public class MessageCreateAction {
                 }
             }
 
-            if (this.stickerIds != null)
+            if (this.stickerIds != null && !this.stickerIds.isEmpty())
                 payload.put("sticker_ids", stickerIds);
-
-            JSONArray attachments = new JSONArray();
-            if (this.attachments != null) {
-                for (Attachment attachment : this.attachments) {
-                    attachments.put(attachment.compile());
-                }
-            }
 
             if (this.attachments != null) {
                 JSONArray files = new JSONArray();
@@ -283,7 +276,6 @@ public class MessageCreateAction {
                     files.put(attachment.compile());
                 }
                 payload.put("attachments", files);
-                System.out.println(payload);
             }
 
             if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());

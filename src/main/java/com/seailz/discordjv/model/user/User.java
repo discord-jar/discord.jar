@@ -3,9 +3,10 @@ package com.seailz.discordjv.model.user;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.channel.DMChannel;
-import com.seailz.discordjv.model.channel.TextChannel;
 import com.seailz.discordjv.model.resolve.Resolvable;
+import com.seailz.discordjv.utils.CDNAble;
 import com.seailz.discordjv.utils.Mentionable;
+import com.seailz.discordjv.utils.StringFormatter;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
@@ -39,7 +40,7 @@ import java.util.HashMap;
  * @param id             the user's id
  * @param username       the user's username, not unique across the platform
  * @param discriminator  the user's 4-digit discord-tag
- * @param avatar         the user's avatar hash
+ * @param avatarHash         the user's avatar hash
  * @param bot            whether the user is a bot
  * @param system         whether the user is an Official Discord System user (part of the urgent message system)
  * @param mfaEnabled     whether the user has two factor enabled on their account
@@ -58,12 +59,12 @@ import java.util.HashMap;
  * @since 1.0
  */
 public record User(
-        String id, String username, String discriminator, String avatar, boolean bot,
+        String id, String username, String discriminator, String avatarHash, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
         EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags,
         int publicFlagsRaw,
         DiscordJv discordJv
-) implements Compilerable, Resolvable, Mentionable {
+) implements Compilerable, Resolvable, Mentionable, CDNAble {
 
     /**
      * Converts this User object to a JSONObject
@@ -76,7 +77,7 @@ public record User(
                 .put("id", id)
                 .put("username", username)
                 .put("discriminator", discriminator)
-                .put("avatar", avatar)
+                .put("avatar", avatarHash)
                 .put("bot", bot)
                 .put("system", system)
                 .put("mfa_enabled", mfaEnabled)
@@ -228,5 +229,10 @@ public record User(
     @Override
     public String getMentionablePrefix() {
         return "@";
+    }
+
+    @Override
+    public StringFormatter formatter() {
+        return new StringFormatter("avatars", id, avatarHash());
     }
 }

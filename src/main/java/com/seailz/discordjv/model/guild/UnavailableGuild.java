@@ -4,6 +4,7 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.emoji.Emoji;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +40,7 @@ public record UnavailableGuild(
         int approximatePresenceCount,
         String description,
         List<Sticker> stickers
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {

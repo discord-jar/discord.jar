@@ -19,8 +19,7 @@ import com.seailz.discordjv.model.guild.verification.VerificationLevel;
 import com.seailz.discordjv.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
-import com.seailz.discordjv.utils.Checker;
-import com.seailz.discordjv.utils.URLS;
+import com.seailz.discordjv.utils.*;
 import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Contract;
@@ -117,7 +116,7 @@ public record Guild(
         boolean premiumProgressBarEnabled,
         DiscordJv discordJv,
         JsonCache roleCache
-) implements Compilerable {
+) implements Compilerable, Snowflake, CDNAble {
 
 
     @Override
@@ -836,4 +835,8 @@ public record Guild(
     }
 
 
+    @Override
+    public StringFormatter formatter() {
+        return new StringFormatter("icons/", id, iconHash());
+    }
 }

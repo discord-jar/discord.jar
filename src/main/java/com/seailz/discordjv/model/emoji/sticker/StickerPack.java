@@ -2,6 +2,7 @@ package com.seailz.discordjv.model.emoji.sticker;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,7 +17,7 @@ public record StickerPack(
         String coverStickerId,
         String description,
         String bannerId
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
 
     @Override

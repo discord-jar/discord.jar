@@ -1,23 +1,20 @@
 package com.seailz.discordjv.model.permission;
 
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Snowflake;
 import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import com.seailz.discordjv.utils.permission.Permission;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 public record PermissionOverwrite(
         String id,
         OverwriteType type,
         EnumSet<Permission> allow,
         EnumSet<Permission> deny
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     public PermissionOverwrite(String id, OverwriteType type) {
         this(id, type, EnumSet.noneOf(Permission.class), EnumSet.noneOf(Permission.class));

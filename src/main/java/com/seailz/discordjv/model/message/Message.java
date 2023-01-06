@@ -14,6 +14,7 @@ import com.seailz.discordjv.model.message.activity.MessageActivity;
 import com.seailz.discordjv.model.resolve.Resolvable;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.Snowflake;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.json.JSONArray;
@@ -83,7 +84,7 @@ public record Message(
         // sent if the message contains components like buttons, action rows, or other interactive components
         List<DisplayComponent> components,
         DiscordJv discordJv
-) implements Compilerable, Resolvable {
+) implements Compilerable, Resolvable, Snowflake {
 
     @NonNull
     public static Message decompile(JSONObject obj, DiscordJv discordJv) {
@@ -404,6 +405,20 @@ public record Message(
         new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
                 .replace("{channel.id}", channelId).replace("{message.id}", id),
                 discordJv, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
+    }
+
+    /**
+     * Returns the text of the message as how you would see it in the client.
+     */
+    public String getFormattedText() {
+        String formatted = content;
+
+        for (User user : mentions)
+            formatted = formatted.replaceAll("<@" + user.id() + ">", "@" + user.username());
+
+        for (Role role : mentionRoles)
+            formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
+        return formatted;
     }
 }
 

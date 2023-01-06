@@ -246,7 +246,7 @@ public class MessageCreateAction {
                 }
             }
 
-            if (this.components != null)
+            if (this.components != null && !this.components.isEmpty())
                 payload.put("components", components);
 
             JSONArray embeds = new JSONArray();

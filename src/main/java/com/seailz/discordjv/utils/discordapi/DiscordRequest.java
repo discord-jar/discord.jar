@@ -266,6 +266,8 @@ public record DiscordRequest(
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "multipart/form-data");
 
+            System.out.println(body);
+
             byte[] out = body.getBytes(StandardCharsets.UTF_8);
 
 

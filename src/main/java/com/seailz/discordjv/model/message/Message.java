@@ -418,9 +418,6 @@ public record Message(
 
         for (Role role : mentionRoles)
             formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
-
-        for (ChannelMention channel : mentionChannels)
-            formatted = formatted.replaceAll("<#" + channel.id() + ">", "#" + channel.name());
         return formatted;
     }
 }

@@ -265,6 +265,7 @@ public record DiscordRequest(
             con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "multipart/form-data");
+            System.out.println(body);
 
             byte[] out = body.getBytes(StandardCharsets.UTF_8);
 

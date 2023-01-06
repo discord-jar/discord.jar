@@ -25,6 +25,7 @@ import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -815,10 +816,24 @@ public record Guild(
         return roles;
     }
 
+    /**
+     * Returns the <b>@everyone</b> {@link Role role} of the guild, or if
+     * <br>nothing can be found, returns null.
+     * <p>
+     * Discord assigns the {@link Guild guild} id to the <b>@everyone</b> {@link Role role} id,
+     * <br>so this method loops through all the roles of the guild and checks if the id matches
+     * <br>using Java Streams.
+     *
+     * @return {@link Role role} or <b>null</b>
+     */
+    @Nullable
+    public Role getEveryoneRole() {
+        return roles().stream().filter(r -> r.id().equals(id())).findFirst().orElse(null);
+    }
+
     public CreateGuildChannelAction createChannel(String name, ChannelType type) {
         return new CreateGuildChannelAction(name, type, this, discordJv);
     }
-
 
 
 }

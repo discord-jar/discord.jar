@@ -5,6 +5,8 @@ import com.seailz.discordjv.model.resolve.Resolvable;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
+import java.io.File;
+
 /**
  * Represents a message attachment.
  *
@@ -20,7 +22,7 @@ import org.springframework.lang.NonNull;
  * @param ephemeral   Whether this attachment is ephemeral.
  */
 public record Attachment(
-        String id,
+        int id,
         String fileName,
         String description,
         String type,
@@ -39,19 +41,34 @@ public record Attachment(
         obj.put("id", id);
         obj.put("filename", fileName);
         obj.put("description", description);
-        obj.put("type", type);
-        obj.put("size", size);
-        obj.put("url", url);
-        obj.put("proxy_url", proxyUrl);
-        obj.put("height", height);
-        obj.put("width", width);
-        obj.put("ephemeral", ephemeral);
+        if (type != null) obj.put("type", type);
+        if (size != -1) obj.put("size", size);
+        if (url != null) obj.put("url", url);
+        if (proxyUrl != null) obj.put("proxy_url", proxyUrl);
+        if (height != -1) obj.put("height", height);
+        if (width != -1) obj.put("width", width);
+        if (ephemeral) obj.put("ephemeral", true);
         return obj;
+    }
+
+    public static Attachment fromFile(int id, File file) {
+        return new Attachment(
+                id,
+                file.getName(),
+                "File",
+                null,
+                -1,
+                null,
+                null,
+                -1,
+                -1,
+                false
+        );
     }
 
     @NonNull
     public static Attachment decompile(JSONObject obj) {
-        String id;
+        int id;
         String fileName;
         String description;
         String type;
@@ -63,9 +80,9 @@ public record Attachment(
         boolean ephemeral;
 
         try {
-            id = obj.getString("id");
+            id = obj.getInt("id");
         } catch (Exception e) {
-            id = null;
+            id = 0;
         }
 
         try {

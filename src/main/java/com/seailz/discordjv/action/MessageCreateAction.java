@@ -283,6 +283,7 @@ public class MessageCreateAction {
                     files.put(attachment.compile());
                 }
                 payload.put("attachments", files);
+                System.out.println(payload);
             }
 
             if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());

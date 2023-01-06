@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.status.activity;
 
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +19,7 @@ public record ActivityParty(
         String id,
         int currentSize,
         int maxSize
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {

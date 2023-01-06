@@ -4,6 +4,7 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.interaction.InteractionData;
 import com.seailz.discordjv.model.interaction.data.ResolvedData;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,7 +17,7 @@ import java.util.List;
  * @see com.seailz.discordjv.model.interaction.Interaction
  * @since 1.0
  */
-public class ApplicationCommandInteractionData extends InteractionData {
+public class ApplicationCommandInteractionData extends InteractionData implements Snowflake {
 
     private final String id;
     private final String name;

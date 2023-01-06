@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.channel.audio;
 
 import com.seailz.discordjv.model.channel.audio.internal.VoiceRegionImpl;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -10,11 +11,11 @@ import org.json.JSONObject;
  * <br>Used to specify the location of the voice server.
  *
  * @author Seailz
- * @since  1.0
- * @see    com.seailz.discordjv.model.channel.AudioChannel
- * @see    <a href="https://discordapp.com/developers/docs/resources/voice#voice-region-object">Voice Region Object</a>
+ * @see com.seailz.discordjv.model.channel.AudioChannel
+ * @see <a href="https://discordapp.com/developers/docs/resources/voice#voice-region-object">Voice Region Object</a>
+ * @since 1.0
  */
-public interface VoiceRegion {
+public interface VoiceRegion extends Snowflake {
 
     /**
      * Unique ID for the region.

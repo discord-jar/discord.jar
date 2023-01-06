@@ -262,7 +262,7 @@ public record DiscordRequest(
             con.header("Content-Type", builder.build().contentType().toString());
             con.header("Content-Length", String.valueOf(builder.build().contentLength()));
 
-            byte[] out = body.getBytes(StandardCharsets.UTF_8);
+            System.out.println(builder.build());
 
 
             HttpRequest request = con.build();

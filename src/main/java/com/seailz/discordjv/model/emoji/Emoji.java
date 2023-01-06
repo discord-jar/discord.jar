@@ -4,6 +4,7 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
@@ -30,7 +31,7 @@ public record Emoji(
         boolean managed,
         boolean animated,
         boolean available
-) implements Compilerable {
+) implements Compilerable, Snowflake {
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();

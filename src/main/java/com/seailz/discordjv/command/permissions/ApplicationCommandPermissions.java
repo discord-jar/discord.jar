@@ -1,6 +1,7 @@
 package com.seailz.discordjv.command.permissions;
 
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +23,7 @@ public record ApplicationCommandPermissions(
         String applicationId,
         String guildId,
         ApplicationCommandPermissionsData[] permissions
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {

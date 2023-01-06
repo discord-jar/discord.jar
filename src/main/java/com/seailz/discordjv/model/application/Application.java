@@ -5,7 +5,7 @@ import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.scopes.InstallParams;
 import com.seailz.discordjv.model.team.Team;
 import com.seailz.discordjv.model.user.User;
-import com.seailz.discordjv.model.user.UserFlag;
+import com.seailz.discordjv.utils.Snowflake;
 import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +37,7 @@ public record Application(
         List<String> tags,
         String customInstallUrl,
         InstallParams installParams
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {

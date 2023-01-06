@@ -3,6 +3,7 @@ package com.seailz.discordjv.model.team;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.team.member.TeamMember;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,7 +15,7 @@ public record Team(
         String name,
         List<TeamMember> members,
         String ownerUserId
-) implements Compilerable {
+) implements Compilerable, Snowflake {
     @Override
     public JSONObject compile() {
         JSONArray membersArray = new JSONArray();

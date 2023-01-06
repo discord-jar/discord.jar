@@ -20,6 +20,7 @@ import com.seailz.discordjv.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
+import com.seailz.discordjv.utils.Snowflake;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
@@ -117,7 +118,7 @@ public record Guild(
         boolean premiumProgressBarEnabled,
         DiscordJv discordJv,
         JsonCache roleCache
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
 
     @Override

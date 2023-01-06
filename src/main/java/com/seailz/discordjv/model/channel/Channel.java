@@ -7,6 +7,7 @@ import com.seailz.discordjv.model.channel.internal.ChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.resolve.Resolvable;
 import com.seailz.discordjv.utils.Mentionable;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -15,9 +16,9 @@ import org.json.JSONObject;
  * Represents a Discord channel
  *
  * @author Seailz
- * @since  1.0
+ * @since 1.0
  */
-public interface Channel extends Compilerable, Resolvable, Mentionable {
+public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflake {
 
     /**
      * The id of the channel

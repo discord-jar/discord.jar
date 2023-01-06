@@ -7,12 +7,14 @@ import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.component.DisplayComponent;
 import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.message.Attachment;
 import com.seailz.discordjv.model.permission.PermissionOverwrite;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -57,6 +59,10 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
 
     default MessageCreateAction sendEmbeds(Embeder... embeds) {
         return new MessageCreateAction(new ArrayList<>(List.of(embeds)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendAttachments(Attachment... attachments) {
+        return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
     }
 
     static MessagingChannel decompile(JSONObject obj, DiscordJv discordJv) {

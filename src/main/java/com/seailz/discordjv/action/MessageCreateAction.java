@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,6 +44,7 @@ public class MessageCreateAction {
     // TODO: files
     // TODO: json payload
     private List<Attachment> attachments;
+    private List<File> fileUploads;
     private boolean supressEmbeds;
     private final String channelId;
     private final DiscordJv discordJv;
@@ -204,6 +206,27 @@ public class MessageCreateAction {
         return this;
     }
 
+    public MessageCreateAction addFile(File file) {
+        if (this.fileUploads == null)
+            this.fileUploads = new ArrayList<>();
+        this.fileUploads.add(file);
+        return this;
+    }
+
+    public MessageCreateAction addFiles(File... files) {
+        if (this.fileUploads == null)
+            this.fileUploads = new ArrayList<>();
+        this.fileUploads.addAll(List.of(files));
+        return this;
+    }
+
+    public MessageCreateAction addFiles(List<File> files) {
+        if (this.fileUploads == null)
+            this.fileUploads = new ArrayList<>();
+        this.fileUploads.addAll(files);
+        return this;
+    }
+
 
     public CompletableFuture<Message> run() {
         CompletableFuture<Message> future = new CompletableFuture<>();
@@ -236,6 +259,7 @@ public class MessageCreateAction {
             if (this.embeds != null)
                 payload.put("embeds", embeds);
 
+
             JSONArray stickerIds = new JSONArray();
             if (this.stickerIds != null) {
                 for (String stickerId : this.stickerIds) {
@@ -258,7 +282,6 @@ public class MessageCreateAction {
 
             if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
 
-
             DiscordRequest request = new DiscordRequest(
                     payload,
                     new HashMap<>(),
@@ -268,7 +291,11 @@ public class MessageCreateAction {
                     RequestMethod.POST
             );
 
-            DiscordResponse response = request.invoke();
+            DiscordResponse response = null;
+            if (fileUploads != null && !fileUploads.isEmpty())
+                response = request.invokeWithFiles(new ArrayList<>(fileUploads).toArray(new File[0]));
+            else
+                request.invoke();
             return Message.decompile(response.body(), discordJv);
         });
         return future;

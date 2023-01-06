@@ -232,7 +232,7 @@ public record DiscordRequest(
             String body =
                     "--boundary\n" +
                             "Content-Disposition: form-data; name=\"payload_json\"\n" +
-                            "Content-Type: application/json\n";
+                            "Content-Type: application/json\n\n";
 
             String json = this.body.toString();
             body += json;

@@ -2,7 +2,6 @@ package com.seailz.discordjv.model.message;
 
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.resolve.Resolvable;
-import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
@@ -33,7 +32,7 @@ public record Attachment(
         int height,
         int width,
         boolean ephemeral
-) implements Compilerable, Resolvable, Snowflake {
+) implements Compilerable, Resolvable {
 
 
     @Override

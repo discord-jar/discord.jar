@@ -277,8 +277,13 @@ public class MessageCreateAction {
                 }
             }
 
-            if (this.attachments != null)
-                payload.put("attachments", attachments);
+            if (this.attachments != null) {
+                JSONArray files = new JSONArray();
+                for (Attachment attachment : this.attachments) {
+                    files.put(attachment.compile());
+                }
+                payload.put("attachments", files);
+            }
 
             if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
 

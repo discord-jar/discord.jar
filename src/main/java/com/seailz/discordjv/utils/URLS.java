@@ -130,6 +130,15 @@ public final class URLS {
              * @param message.id The id of the message
              */
             public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+
+            public static class MESSAGES {
+                /**
+                 * Returns a list of messages
+                 *
+                 * @param id The id of the channel
+                 */
+                public static String GET_MESSAGES = "/channels/{channel.id}/messages";
+            }
         }
 
         public static class GUILDS {

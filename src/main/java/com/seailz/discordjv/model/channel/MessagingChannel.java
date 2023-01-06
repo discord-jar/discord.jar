@@ -10,6 +10,7 @@ import com.seailz.discordjv.model.embed.Embed;
 import com.seailz.discordjv.model.embed.EmbedField;
 import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.message.Attachment;
 import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.model.message.Attachment;
 import com.seailz.discordjv.model.message.Message;
@@ -26,7 +27,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.web.bind.annotation.RequestMethod;
-
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -80,6 +82,10 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
 
     default MessageCreateAction sendEmbeds(Embeder... embeds) {
         return new MessageCreateAction(new ArrayList<>(List.of(embeds)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendAttachments(Attachment... attachments) {
+        return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
     }
 
     static MessagingChannel decompile(JSONObject obj, DiscordJv discordJv) {

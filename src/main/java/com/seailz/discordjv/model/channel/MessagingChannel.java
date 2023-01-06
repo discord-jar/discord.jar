@@ -278,6 +278,9 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
      *
      * @return The HTML transcript.
      * @throws IOException If the file cannot be created.
+     * <p><p>
+     * Original author: https://github.com/Ryzeon
+     * <br>Modified for use in discord.jv by Seailz
      */
     default InputStream transcript() throws IOException {
         List<Message> messages = get500Messages();

@@ -136,7 +136,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?before=" + before,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?before=" + before,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -151,7 +151,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?before=" + before + "&limit=" + limit,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?before=" + before + "&limit=" + limit,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -166,7 +166,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?after=" + after + "&limit=" + limit,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?after=" + after + "&limit=" + limit,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -180,7 +180,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?after=" + after,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?after=" + after,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -194,7 +194,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?around=" + around,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?around=" + around,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -209,7 +209,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?around=" + around + "&limit=" + limit,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?around=" + around + "&limit=" + limit,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -224,7 +224,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES + "?limit=" + limit,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?limit=" + limit,
                 djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
@@ -240,7 +240,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 djv(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()),
                 RequestMethod.GET
         );
         List<Message> messages = new ArrayList<>();

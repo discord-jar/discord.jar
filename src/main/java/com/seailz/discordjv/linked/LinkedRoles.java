@@ -1,5 +1,6 @@
 package com.seailz.discordjv.linked;
 
+import com.seailz.databaseapi.Database;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
@@ -50,11 +51,12 @@ public class LinkedRoles {
      * @param redirectUrl           The redirect URL that you set in the developer portal.
      * @param redirectBackToDiscord Whether to redirect back to <a href="https://discord.com/oauth2/authorized">Discord's Authorization Finished page</a> after the user has been redirected to the redirect endpoint. This is recommended, however if you have an external login page you may not want to redirect back to Discord.
      * @param discordJv             The discord.jv instance.
+     * @param db                    The database you'd like to use.
      */
-    public LinkedRoles(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, String applicationId, boolean redirectBackToDiscord, DiscordJv discordJv) {
+    public LinkedRoles(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, String applicationId, boolean redirectBackToDiscord, DiscordJv discordJv, Database db) {
         if (isInstance)
             throw new IllegalStateException("LinkedRoles is already instantiated.");
-        LinkedRolesRestController.set(clientId, clientSecret, redirectUrl, redirectEndpoint, redirectBackToDiscord, discordJv);
+        LinkedRolesRestController.set(clientId, clientSecret, redirectUrl, redirectEndpoint, redirectBackToDiscord, discordJv, db);
 
         SpringApplication app = new SpringApplication(LinkedRoles.class);
         Properties props = new Properties();

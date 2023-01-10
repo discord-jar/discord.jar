@@ -27,7 +27,7 @@ public enum Intent {
     GUILD_SCHEDULED_EVENTS(16),
     AUTO_MOD_CONFIG(20),
     AUTO_MOD_EXECUTION(21),
-    // Represents all intents
+    // Represents all intents excluding privileged intents
     ALL(22);
 
     private final int id;

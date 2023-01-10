@@ -1,5 +1,9 @@
 package com.seailz.discordjv.linked;
 
+import com.seailz.databaseapi.Column;
+import com.seailz.databaseapi.ColumnType;
+import com.seailz.databaseapi.Database;
+import com.seailz.databaseapi.annotation.builder.TableBuilder;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.linked.response.Response;
 import com.seailz.discordjv.linked.response.error.CodeNotPresentResponse;
@@ -25,6 +29,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -46,6 +52,7 @@ public class LinkedRolesRestController {
     private static String redirectUrl;
     private static DiscordJv discordJv;
     private static boolean redirectBackToDiscord;
+    private static Database database;
     /**
      * Logic to run when the user is redirected to the redirect endpoint & discord.jv has completed its processing.
      * <br>discord.jv will automatically refresh tokens for you if they are expired, so no need to worry about that.
@@ -59,7 +66,7 @@ public class LinkedRolesRestController {
     private static TriConsumer<HttpServletResponse, String, String> onCodeReceived;
 
     @RequestMapping(value = "/*", method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST})
-    protected Response request(@RequestParam Map<String, String> reqParam, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, InterruptedException, URISyntaxException {
+    protected Response request(@RequestParam Map<String, String> reqParam, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, InterruptedException, URISyntaxException, SQLException {
         String endpoint = request.getRequestURI();
         if (endpoint.equals(redirectEndpoint) && !endpoint.equals("")) {
             String code = reqParam.get("code");
@@ -90,6 +97,21 @@ public class LinkedRolesRestController {
             ).id();
             String refreshToken = new JSONObject(res.body()).getString("refresh_token");
 
+            HashMap<String, String> data = new HashMap<>();
+            data.put("refresh_token", refreshToken);
+            data.put("user_id", userId);
+
+            if (database.tableExists("discordjv_linked_roles")) {
+                database.insert("discordjv_linked_roles", data);
+            } else {
+                ArrayList<Column> columns = new ArrayList<>();
+                columns.add(new Column(ColumnType.VARCHAR, "refresh_token"));
+                columns.add(new Column(ColumnType.VARCHAR, "user_id"));
+                database.createTable(new TableBuilder("discordjv_linked_roles", columns));
+                database.insert("discordjv_linked_roles", data);
+            }
+
+
             String accessToken = new JSONObject(res.body()).getString("access_token");
             onCodeReceived.accept(response, userId, accessToken);
 
@@ -104,13 +126,14 @@ public class LinkedRolesRestController {
         return new InvalidEndpointResponse();
     }
 
-    protected static void set(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, boolean redirectBackToDiscord, DiscordJv discordJv) {
+    protected static void set(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, boolean redirectBackToDiscord, DiscordJv discordJv, Database database) {
         LinkedRolesRestController.clientId = clientId;
         LinkedRolesRestController.clientSecret = clientSecret;
         LinkedRolesRestController.redirectEndpoint = redirectEndpoint;
         LinkedRolesRestController.discordJv = discordJv;
         LinkedRolesRestController.redirectUrl = redirectUrl;
         LinkedRolesRestController.redirectBackToDiscord = redirectBackToDiscord;
+        LinkedRolesRestController.database = database;
     }
 
     private HttpRequest.BodyPublisher getParamsUrlEncoded(Map<String, String> parameters) {

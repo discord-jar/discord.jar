@@ -31,10 +31,10 @@ new DiscordJv("token");
 You can specify intents to use with the gateway by using the following code:
 
 ```java
-new DiscordJv("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES));
+new DiscordJv("token", EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
 ```
 
-Note: You can use the `Intents.ALL` constant to specify all intents. This does not include privileged intents.
+Note: You can use the `Intent.ALL` constant to specify all intents. This does not include privileged intents.
 
 ### Creating an HTTP-Only bot
 
@@ -42,11 +42,11 @@ To make your bot an <a href="https://discord.com/developers/docs/topics/gateway#
 you'll need to specify a couple more parameters.
 
 ```java
-new DiscordJv("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES),true,
+new DiscordJv("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES), APIVersion.getLatest(), true,
         new HTTPOnlyInfo(
         "interactions",
-        "EXAMPLE_APPLICATION_PUBLIC_KEY", // this cxan be found in your application's page in the dev panel
-        ));
+        "EXAMPLE_APPLICATION_PUBLIC_KEY" // this cxan be found in your application's page in the dev panel
+));
 ```
 
 You should set `"interactions"` to whatever endpoint you want to use to receive post requests from Discord. This will be

@@ -1,10 +1,10 @@
-![discord.jv banner](https://cdn.discordapp.com/attachments/1045606909195071498/1045608115074252800/AB1CEB6F-A4D9-496E-9520-821EB3BA0FCC-removebg-preview.png)
+![discord.jv banner](https://cdn.discordapp.com/attachments/1048910867128922172/1063823409382953042/Birthday__1_-removebg-preview_1.png)
 
 [![seailz - discord.jv](https://img.shields.io/static/v1?label=seailz&message=discord.jv&color=blue&logo=github)](https://github.com/seailz/discord.jv "Go to GitHub repo") [![stars - discord.jv](https://img.shields.io/github/stars/seailz/discord.jv?style=social)](https://github.com/seailz/discord.jv) [![forks - discord.jv](https://img.shields.io/github/forks/seailz/discord.jv?style=social)](https://github.com/seailz/discord.jv) [![License](https://img.shields.io/badge/License-GNU_General_Public_License_v3.0-blue)](#license) [![issues - discord.jv](https://img.shields.io/github/issues/seailz/discord.jv)](https://github.com/seailz/discord.jv/issues)
 
-# discord.jv - a clean Java wrapper for Discord
+# discord.jar - a clean Java wrapper for Discord
 
-discord.jv [![loc - discord.jv](https://sloc.xyz/github/seailz/discord.jv)](https://github.com/seailz/discord.jv) is
+discord.jar [![loc - discord.jar](https://sloc.xyz/github/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar) is
 a **work in progress** Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
 Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if you're
 interested in helping out it would be greatly appreciated!
@@ -13,9 +13,9 @@ interested in helping out it would be greatly appreciated!
 
 ### Prerequisites
 
-You'll need to add discord.jv to your project's dependencies. We are currently using
+You'll need to add discord.jar to your project's dependencies. We are currently using
 jitpack to host our builds. See tutorials for your dependency management
-system [here](https://jitpack.io/#discord-jv/discord.jv/-SNAPSHOT).
+system [here](https://jitpack.io/#discord-jar/discord.jar/-SNAPSHOT).
 
 A Discord bot token is required to use the API. You can get one by creating a bot
 account [here](https://discord.com/developers/applications).
@@ -84,17 +84,17 @@ If it fails to save after that, please contact `Seailz#0001` on Discord.
 There is currently no documentation (excluding the tiny bit above), but it will be
 available [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready. Although there is no
 documentation, there are still examples which are
-avaliable [here](https://github.com/discord-jv/discord.jv/tree/main/examples)
+avaliable [here](https://github.com/discord-jar/discord.jar/tree/main/examples)
 
-Javadocs can be found [here](https://discord-jv.github.io/discord.jv).
+Javadocs can be found [here](https://discord-jar.github.io/discord.jar).
 
 ## Contributing
 
 If you want to contribute to this project, feel free to do so! Everything that needs doing can be found in
-the [Issues](https://github.com/seailz/discord.jv/issues) tab,
+the [Issues](https://github.com/discord-jar/discord.jar/issues) tab,
 and if an issue there has the **available** tag you are free to make a PR fixing/adding it! :)
 
-Make sure you first check the [active PRs](https://github.com/seailz/discord.jv/pulls) and branches for the feature/bug
+Make sure you first check the [active PRs](https://github.com/discord-jar/discord.jar/pulls) and branches for the feature/bug
 you're fixing/adding.
 If you make a PR for an issue with the **claimed** tag, and you are not the one who claimed it, (or in other words if
 there is a PR open for the issue you're looking to fix/add), then your PR will be closed.
@@ -107,7 +107,7 @@ or
 or
 `other[description]`.
 
-To contribute to the `/examples` module, please see [here](https://github.com/discord-jv/discord.jv/tree/main/examples).
+To contribute to the `/examples` module, please see [here](https://github.com/discord-jar/discord.jar/tree/main/examples).
 `/.github` is off limits for contirubtions, please make an issue if there is an error in that folder.
 
 ## Dependencies
@@ -116,7 +116,7 @@ org.json - json managing - may be removed soon, <p>
 jetbrains annotations (should stay?)
 
 ## License
-License info can be found [here](https://github.com/seailz/discord.jv/blob/main/LICENSE). This project is licensed under GNU General Public License V3
+License info can be found [here](https://github.com/discord-jar/discord.jar/blob/main/LICENSE). This project is licensed under GNU General Public License V3
 
 
 ## Contact

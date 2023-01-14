@@ -2,10 +2,6 @@ package com.seailz.discordjv.utils.discordapi;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import okio.Buffer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +14,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -232,39 +231,55 @@ public record DiscordRequest(
 
             con.uri(obj.toURI());
 
-            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-            builder.addFormDataPart("payload_json", null, RequestBody.create(this.body.toString().getBytes()));
+            String boundary = "---1234567890";
+            String crlf = "\r\n";
+            List<byte[]> bodyParts = new ArrayList<>();
+            bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+            bodyParts.add(boundary.getBytes(StandardCharsets.UTF_8));
 
-            int index = 0;
-            for (File f : files) {
-                builder.addFormDataPart("file[" + index + "]", f.getName(), RequestBody.create(f, MediaType.parse("application/octet-stream")));
-                index++;
+// Add JSON payload
+            bodyParts.add((crlf + "Content-Disposition: form-data; name=\"payload_json\"" + crlf + "Content-Type: application/json" + crlf + crlf + this.body + crlf).getBytes(StandardCharsets.UTF_8));
+
+// Add file attachments
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                byte[] fileContent = Files.readAllBytes(file.toPath());
+                bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+                bodyParts.add(boundary.getBytes(StandardCharsets.UTF_8));
+                bodyParts.add((crlf + "Content-Disposition: form-data; name=\"files[" + i + "]\"; filename=\"" + file.getName() + "\"" + crlf + "Content-Type: " + Files.probeContentType(file.toPath()) + crlf + crlf).getBytes(StandardCharsets.UTF_8));
+                bodyParts.add(fileContent);
+                bodyParts.add(crlf.getBytes(StandardCharsets.UTF_8));
             }
 
-            final Buffer buffer = new Buffer();
-            builder.build().writeTo(buffer);
-            String body = buffer.readUtf8();
-            System.out.println(body);
+            bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+            bodyParts.add(boundary.getBytes(StandardCharsets.UTF_8));
+            bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+
+            byte[] body = new byte[bodyParts.stream().mapToInt(part -> part.length).sum()];
+            int offset = 0;
+            for (byte[] part : bodyParts) {
+                System.arraycopy(part, 0, body, offset, part.length);
+                offset += part.length;
+            }
+
 
             if (requestMethod == RequestMethod.POST) {
-                con.POST(HttpRequest.BodyPublishers.ofString(body));
+                con.POST(HttpRequest.BodyPublishers.ofByteArray(body));
             } else if (requestMethod == RequestMethod.PATCH) {
-                con.method("PATCH", HttpRequest.BodyPublishers.ofString(body));
+                con.method("PATCH", HttpRequest.BodyPublishers.ofByteArray(body));
             } else if (requestMethod == RequestMethod.PUT) {
-                con.method("PUT", HttpRequest.BodyPublishers.ofString(body));
+                con.method("PUT", HttpRequest.BodyPublishers.ofByteArray(body));
             } else if (requestMethod == RequestMethod.DELETE) {
-                con.method("DELETE", HttpRequest.BodyPublishers.ofString(body));
+                con.method("DELETE", HttpRequest.BodyPublishers.ofByteArray(body));
             } else if (requestMethod == RequestMethod.GET) {
                 con.GET();
             } else {
-                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(body));
+                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofByteArray(body));
             }
 
-            con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
+            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
-            con.header("Content-Type", builder.build().contentType().toString());
-
-            System.out.println(builder.build());
+            con.header("Content-Type", "multipart/form-data; boundary=" + boundary);
 
 
             HttpRequest request = con.build();

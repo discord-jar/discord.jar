@@ -10,6 +10,7 @@ import com.seailz.discordjv.model.interaction.Interaction;
 import com.seailz.discordjv.model.interaction.InteractionData;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
+import com.seailz.discordjv.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjv.model.interaction.reply.InteractionMessageResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,5 +91,22 @@ public class InteractionEvent extends Event {
     @NotNull
     public MessageInteractionCallbackAction replyWithEmbeds(Embeder... embeds) {
         return new MessageInteractionCallbackAction(InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE, new InteractionMessageResponse(embeds), getInteraction().token(), getInteraction().id(), getBot());
+    }
+
+    @NotNull
+    public InteractionHandler getHandler() {
+        return InteractionHandler.from(getInteraction().token(), getInteraction().id(), getBot());
+    }
+
+    @NotNull
+    public InteractionHandler defer() {
+        getHandler().defer();
+        return getHandler();
+    }
+
+    @NotNull
+    public InteractionHandler defer(boolean ephemeral) {
+        getHandler().defer(ephemeral);
+        return getHandler();
     }
 }

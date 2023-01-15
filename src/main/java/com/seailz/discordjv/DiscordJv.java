@@ -16,6 +16,7 @@ import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
+import com.seailz.discordjv.http.HttpOnlyApplication;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.channel.Category;
@@ -28,6 +29,7 @@ import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.status.Status;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
+import com.seailz.discordjv.utils.HTTPOnlyInfo;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.cache.Cache;
 import com.seailz.discordjv.utils.cache.JsonCache;
@@ -63,7 +65,7 @@ public class DiscordJv {
     /**
      * Used to manage the gateway connection
      */
-    private final GatewayFactory gatewayFactory;
+    private GatewayFactory gatewayFactory;
     /**
      * Stores the logger
      */
@@ -107,17 +109,30 @@ public class DiscordJv {
      */
     private JsonCache selfUserCache;
 
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
+        this(token, intents, version, false, null);
+    }
+
     /**
      * Creates a new instance of the DiscordJv class
      * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
      *
-     * @param token   The token of the bot
-     * @param intents The intents the bot will use
-     * @param version The version of the Discord API the bot will use
+     * @param token        The token of the bot
+     * @param intents      The intents the bot will use
+     * @param version      The version of the Discord API the bot will use
+     * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
+     *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
+     *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
+     *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
+     *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
+     *                     Interaction-based events will still be delivered as usual.
+     *                     For a full tutorial, see the README.md file.
+     * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
+     *                     See the above parameter for more information.
      * @throws ExecutionException   If an error occurs while connecting to the gateway
      * @throws InterruptedException If an error occurs while connecting to the gateway
      */
-    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         this.token = token;
         this.intents = intents;
@@ -126,7 +141,7 @@ public class DiscordJv {
         this.commandDispatcher = new CommandDispatcher();
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
-        this.gatewayFactory = new GatewayFactory(this);
+        if (!httpOnly) this.gatewayFactory = new GatewayFactory(this);
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
                         new JSONObject(),
@@ -157,6 +172,12 @@ public class DiscordJv {
 
         this.eventDispatcher = new EventDispatcher(this);
         new RequestQueueHandler(this);
+
+        if (httpOnly) {
+            if (httpOnlyInfo == null)
+                throw new IllegalArgumentException("httpOnlyInfo cannot be null if httpOnly is true!");
+            HttpOnlyApplication.init(this, httpOnlyInfo.endpoint(), httpOnlyInfo.applicationPublicKey());
+        }
 
         initiateNoShutdown();
         initiateShutdownHooks();
@@ -193,7 +214,7 @@ public class DiscordJv {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            gatewayFactory.close();
+            if (gatewayFactory != null) gatewayFactory.close();
         }));
     }
 
@@ -204,6 +225,8 @@ public class DiscordJv {
      * @throws IOException If an error occurs while setting the status
      */
     public void setStatus(@NotNull Status status) throws IOException {
+        if (gatewayFactory == null)
+            throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);

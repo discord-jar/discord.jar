@@ -29,6 +29,13 @@ public class RequestQueueHandler {
                         jv.getQueuedRequests().remove(req);
                         req.invoke();
                     }
+
+                    System.out.println(limit.remaining());
+                    System.out.println(limit.resetAfter());
+                    System.out.println(limit.limit());
+
+                    jv.getQueuedRequests().remove(req);
+                    req.invoke();
                 }
             }
         }).start();

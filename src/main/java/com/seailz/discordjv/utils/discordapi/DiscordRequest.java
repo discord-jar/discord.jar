@@ -8,11 +8,16 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.File;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -98,38 +103,32 @@ public class DiscordRequest {
             int responseCode = response.statusCode();
             System.out.println(request.uri() + " " + request.method());
 
-            if (responseCode == 200) {
-                HashMap<String, String> headers = new HashMap<>();
-                response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
+            HashMap<String, String> headers = new HashMap<>();
+            response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
-                if (headers.containsKey("X-RateLimit-Limit") &&
-                        headers.containsKey("X-RateLimit-Remaining") &&
-                        headers.containsKey("X-RateLimit-Reset-After")) {
+            if (headers.containsKey("X-RateLimit-Limit") &&
+                    headers.containsKey("X-RateLimit-Remaining") &&
+                    headers.containsKey("X-RateLimit-Reset-After")) {
 
-                    djv.getRateLimits().remove(baseUrl);
-                    djv.getRateLimits().put(baseUrl, new RateLimit(
-                            Integer.parseInt(headers.get("X-RateLimit-Limit")),
-                            Integer.parseInt(headers.get("X-RateLimit-Remaining")),
-                            Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
-                    ));
-                }
-                // remove after rate limit is over
-                new Thread(() -> {
-                    boolean running = true;
-                    while (running) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (djv.getRateLimits().containsKey(baseUrl)) {
-                            RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
-                            if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
-                                djv.getRateLimits().remove(baseUrl);
-                                running = false;
-                                continue;
-                            }
-
+                djv.getRateLimits().remove(baseUrl);
+                djv.getRateLimits().put(baseUrl, new RateLimit(
+                        Integer.parseInt(headers.get("X-RateLimit-Limit")),
+                        Integer.parseInt(headers.get("X-RateLimit-Remaining")),
+                        Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
+                ));
+            }
+            // remove after rate limit is over
+            new Thread(() -> {
+                boolean running = true;
+                while (running) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (djv.getRateLimits().containsKey(baseUrl)) {
+                        RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
+                        if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
                             djv.getRateLimits().remove(baseUrl);
                             djv.getRateLimits().put(baseUrl, new RateLimit(
                                     rateLimit.limit(),
@@ -137,9 +136,20 @@ public class DiscordRequest {
                                     rateLimit.resetAfter()
                             ));
                             running = false;
+                            continue;
                         }
+
+                        djv.getRateLimits().remove(baseUrl);
+                        djv.getRateLimits().put(baseUrl, new RateLimit(
+                                rateLimit.limit(),
+                                rateLimit.remaining() - 1,
+                                rateLimit.resetAfter()
+                        ));
                     }
-                }).start();
+                }
+            }).start();
+
+            if (responseCode == 200 || responseCode == 201) {
 
                 var body = new Object();
 
@@ -155,6 +165,11 @@ public class DiscordRequest {
             if (responseCode == 429) {
                 Logger logger = Logger.getLogger("DiscordJv");
                 logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + response.headers().map().get("Retry-After").get(0) + " seconds");
+                djv.getRateLimits().put(baseUrl, new RateLimit(
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Limit").get(0)),
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Remaining").get(0)),
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Reset-After").get(0))
+                ));
                 new Thread(() -> {
                     try {
                         Thread.sleep(Integer.parseInt(response.headers().map().get("Retry-After").get(0)));
@@ -224,6 +239,190 @@ public class DiscordRequest {
 
     public DiscordResponse invoke() {
         return invoke(null, true);
+    }
+
+    public DiscordResponse invokeWithFiles(File... files) {
+        try {
+            String url = URLS.BASE_URL + this.url;
+            URL obj = new URL(url);
+
+            if (djv.getRateLimits().containsKey(baseUrl) && djv.getRateLimits().get(baseUrl).remaining() == 0) {
+                Logger.getLogger("DiscordJv").warning("[RATE LIMIT] Rate limit reached for " + baseUrl + ". Queuing request.");
+                djv.getQueuedRequests().add(this);
+                return new DiscordResponse(429, new JSONObject(), new HashMap<>(), null);
+            }
+
+            HttpRequest.Builder con = HttpRequest.newBuilder();
+
+            con.uri(obj.toURI());
+
+            String boundary = "---1234567890";
+            String crlf = "\r\n";
+            List<byte[]> bodyParts = new ArrayList<>();
+            bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+            bodyParts.add(boundary.getBytes(StandardCharsets.UTF_8));
+
+// Add JSON payload
+            bodyParts.add((crlf + "Content-Disposition: form-data; name=\"payload_json\"" + crlf + "Content-Type: application/json" + crlf + crlf + this.body + crlf).getBytes(StandardCharsets.UTF_8));
+
+// Add file attachments
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                byte[] fileContent = Files.readAllBytes(file.toPath());
+                bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+                bodyParts.add(boundary.getBytes(StandardCharsets.UTF_8));
+                bodyParts.add((crlf + "Content-Disposition: form-data; name=\"files[" + i + "]\"; filename=\"" + file.getName() + "\"" + crlf + "Content-Type: " + Files.probeContentType(file.toPath()) + crlf + crlf).getBytes(StandardCharsets.UTF_8));
+                bodyParts.add(fileContent);
+                bodyParts.add(crlf.getBytes(StandardCharsets.UTF_8));
+            }
+
+            bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+            bodyParts.add(boundary.getBytes(StandardCharsets.UTF_8));
+            bodyParts.add("--".getBytes(StandardCharsets.UTF_8));
+
+            byte[] body = new byte[bodyParts.stream().mapToInt(part -> part.length).sum()];
+            int offset = 0;
+            for (byte[] part : bodyParts) {
+                System.arraycopy(part, 0, body, offset, part.length);
+                offset += part.length;
+            }
+
+
+            if (requestMethod == RequestMethod.POST) {
+                con.POST(HttpRequest.BodyPublishers.ofByteArray(body));
+            } else if (requestMethod == RequestMethod.PATCH) {
+                con.method("PATCH", HttpRequest.BodyPublishers.ofByteArray(body));
+            } else if (requestMethod == RequestMethod.PUT) {
+                con.method("PUT", HttpRequest.BodyPublishers.ofByteArray(body));
+            } else if (requestMethod == RequestMethod.DELETE) {
+                con.method("DELETE", HttpRequest.BodyPublishers.ofByteArray(body));
+            } else if (requestMethod == RequestMethod.GET) {
+                con.GET();
+            } else {
+                con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofByteArray(body));
+            }
+
+            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/, 1.0.0)");
+            con.header("Authorization", "Bot " + djv.getToken());
+            con.header("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+
+            HttpRequest request = con.build();
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
+            int responseCode = response.statusCode();
+            System.out.println(request.uri() + " " + request.method());
+
+            HashMap<String, String> headers = new HashMap<>();
+            response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
+
+            if (headers.containsKey("X-RateLimit-Limit") &&
+                    headers.containsKey("X-RateLimit-Remaining") &&
+                    headers.containsKey("X-RateLimit-Reset-After")) {
+
+                djv.getRateLimits().remove(baseUrl);
+                djv.getRateLimits().put(baseUrl, new RateLimit(
+                        Integer.parseInt(headers.get("X-RateLimit-Limit")),
+                        Integer.parseInt(headers.get("X-RateLimit-Remaining")),
+                        Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
+                ));
+            }
+            // remove after rate limit is over
+            new Thread(() -> {
+                boolean running = true;
+                while (running) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (djv.getRateLimits().containsKey(baseUrl)) {
+                        RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
+                        if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
+                            djv.getRateLimits().remove(baseUrl);
+                            running = false;
+                            continue;
+                        }
+
+                        djv.getRateLimits().remove(baseUrl);
+                        djv.getRateLimits().put(baseUrl, new RateLimit(
+                                rateLimit.limit(),
+                                rateLimit.remaining() - 1,
+                                rateLimit.resetAfter()
+                        ));
+                    }
+                }
+            }).start();
+
+            if (responseCode == 200 || responseCode == 201) {
+
+                var bodyResponse = new Object();
+
+                if (response.body().startsWith("[")) {
+                    bodyResponse = new JSONArray(response.body());
+                } else {
+                    bodyResponse = new JSONObject(response.body());
+                }
+
+                return new DiscordResponse(responseCode, (bodyResponse instanceof JSONObject) ? (JSONObject) bodyResponse : null, headers, (bodyResponse instanceof JSONArray) ? (JSONArray) bodyResponse : null);
+            }
+            if (responseCode == 204) return null;
+            if (responseCode == 429) {
+                Logger logger = Logger.getLogger("DiscordJv");
+                logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + response.headers().map().get("Retry-After").get(0) + " seconds");
+                djv.getRateLimits().put(baseUrl, new RateLimit(
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Limit").get(0)),
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Remaining").get(0)),
+                        Integer.parseInt(response.headers().map().get("X-RateLimit-Reset-After").get(0))
+                ));
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(Integer.parseInt(response.headers().map().get("Retry-After").get(0)));
+                        this.invoke();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, "RateLimitQueue").start();
+                return null;
+            }
+
+
+            JSONObject error = new JSONObject(response.body());
+            JSONArray errorArray;
+
+            try {
+                errorArray = error.getJSONArray("errors").getJSONArray(3);
+            } catch (JSONException e) {
+                try {
+                    errorArray = error.getJSONArray("errors").getJSONArray(1);
+                } catch (JSONException ex) {
+                    try {
+                        errorArray = error.getJSONArray("errors").getJSONArray(0);
+                    } catch (JSONException exx) {
+                        throw new UnhandledDiscordAPIErrorException(
+                                responseCode,
+                                "Unhandled Discord API Error. Please report this to the developer of DiscordJv." + error
+                        );
+                    }
+                }
+            }
+
+            errorArray.forEach(o -> {
+                JSONObject errorObject = (JSONObject) o;
+                throw new DiscordAPIErrorException(
+                        responseCode,
+                        errorObject.getString("code"),
+                        errorObject.getString("message"),
+                        error.toString()
+                );
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

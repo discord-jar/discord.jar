@@ -64,6 +64,6 @@ public interface VoiceChannel extends AudioChannel {
         int userLimit = obj.getInt("user_limit");
         VideoQualityMode videoQualityMode = VideoQualityMode.fromCode(obj.getInt("video_quality_mode"));
 
-        return new VoiceChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, lastMessageId, region.get(), category, bitrate, userLimit, videoQualityMode);
+        return new VoiceChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, lastMessageId, region.get(), category, bitrate, userLimit, videoQualityMode, obj, discordJv);
     }
 }

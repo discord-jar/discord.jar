@@ -1,10 +1,13 @@
 package com.seailz.discordjv.model.channel;
 
+import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.channel.ModifyBaseChannelAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.channel.internal.ChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.resolve.Resolvable;
 import com.seailz.discordjv.utils.Mentionable;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -13,9 +16,9 @@ import org.json.JSONObject;
  * Represents a Discord channel
  *
  * @author Seailz
- * @since  1.0
+ * @since 1.0
  */
-public interface Channel extends Compilerable, Resolvable, Mentionable {
+public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflake {
 
     /**
      * The id of the channel
@@ -35,22 +38,30 @@ public interface Channel extends Compilerable, Resolvable, Mentionable {
     @NotNull
     String name();
 
-    /**
-     * Returns the channel as a mention
-     */
     @NotNull
+    DiscordJv djv();
+
     @Override
-    default String getAsMention() {
-        return "<#" + id() + ">";
+    default String getMentionablePrefix() {
+        return "#";
     }
 
+
     @NotNull
-    @Contract("_ -> new")
-    static Channel decompile(@NotNull JSONObject obj) {
+    @Contract("_, _ -> new")
+    static Channel decompile(@NotNull JSONObject obj, DiscordJv discordJv) {
         return new ChannelImpl(
                 obj.getString("id"),
                 ChannelType.fromCode(obj.getInt("type")),
-                obj.getString("name")
+                obj.has("name") ? obj.getString("name") : "DM",
+                obj, discordJv
         );
+    }
+
+    @NotNull
+    JSONObject raw();
+
+    default ModifyBaseChannelAction modify() {
+        return new ModifyBaseChannelAction(djv(), id());
     }
 }

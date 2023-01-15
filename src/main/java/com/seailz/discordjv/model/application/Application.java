@@ -10,6 +10,7 @@ import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
+import com.seailz.discordjv.utils.Snowflake;
 import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,7 +76,7 @@ public record Application(
         InstallParams installParams,
         String roleConnectionsVerificationUrl,
         DiscordJv discordJv
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {

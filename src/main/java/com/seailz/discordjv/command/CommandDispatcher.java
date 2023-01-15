@@ -12,6 +12,7 @@ import com.seailz.discordjv.model.interaction.data.command.ResolvedCommandOption
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Simple class for dispatching commands to their respective listeners.
@@ -23,31 +24,39 @@ import java.util.List;
 public class CommandDispatcher {
 
     private final HashMap<String, CommandListener> listeners = new HashMap<>();
-    private final HashMap<SlashCommandListener, SlashSubCommandDetails> subListeners = new HashMap<>();
+    private final HashMap<SlashCommandListener, ArrayList<SlashSubCommandDetails>> subListeners = new HashMap<>();
 
     public void registerCommand(String name, CommandListener listener) {
         listeners.put(name, listener);
     }
     public void registerSubCommand(SlashCommandListener top, SlashSubCommand sub, SubCommandListener listener) {
-        subListeners.put(top, new SlashSubCommandDetails(sub, listener));
+        if (subListeners.containsKey(top)) {
+            ArrayList<SlashSubCommandDetails> exist = subListeners.get(top);
+            exist.add(new SlashSubCommandDetails(sub, listener));
+            subListeners.put(top, exist);
+            return;
+        }
+        ArrayList<SlashSubCommandDetails> list = new ArrayList<>();
+        list.add(new SlashSubCommandDetails(sub, listener));
+        subListeners.put(top, list);
     }
 
     public void dispatch(String name, CommandInteractionEvent event) {
         if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptions() != null && !((SlashCommandInteractionEvent) event).getOptions().isEmpty()) {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
-                    for (SlashSubCommandDetails details : subListeners.values()) {
-                        if (details.sub.getName().equals(option.name())) {
-                            SlashCommandListener top
-                                    = subListeners.keySet().stream()
-                                            .toList().get(
-                                                    subListeners.values().stream()
-                                                            .toList().indexOf(details)
-                                            );
+                    for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
+                        for (SlashSubCommandDetails details : detailsList) {
+                            if (details.sub.getName().equals(option.name())) {
+                                SlashCommandListener top = subListeners.keySet().stream().toList()
+                                        .get(subListeners.values().stream().toList().indexOf(detailsList));
 
-                            if (top.getClass().getAnnotation(SlashCommandInfo.class).name().equals(event.getName())) {
-                                details.listener.onCommand(event);
+                                if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                                    details.listener().onCommand(event);
+                                }
                                 return;
+                            /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                            }*/
                             }
                         }
                     }
@@ -59,18 +68,16 @@ public class CommandDispatcher {
                     }
 
                     for (ResolvedCommandOption subs : option.options()) {
-                        for (SlashSubCommandDetails details : subListeners.values()) {
-                            if (details.sub.getName().equals(subs.name())) {
-                                SlashCommandListener top
-                                        = subListeners.keySet().stream()
-                                                .toList().get(
-                                                        subListeners.values().stream()
-                                                                .toList().indexOf(details)
-                                                );
+                        for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
+                            for (SlashSubCommandDetails details : detailsList) {
+                                if (details.sub.getName().equals(subs.name())) {
+                                    SlashCommandListener top = subListeners.keySet().stream().toList()
+                                            .get(subListeners.values().stream().toList().indexOf(detailsList));
 
-                                if (top.getClass().getAnnotation(SlashCommandInfo.class).name().equals(event.getName())) {
-                                    details.listener.onCommand(event);
-                                    return;
+                                    if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                                        System.out.println("found top command " + name);
+                                        details.listener().onCommand(event);
+                                    }
                                 }
                             }
                         }

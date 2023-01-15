@@ -1,22 +1,22 @@
 package com.seailz.discordjv.command.listeners.slash;
 
-import com.seailz.discordjv.command.listeners.CommandListener;
-import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
-import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.command.CommandOptionType;
 import com.seailz.discordjv.command.CommandType;
+import com.seailz.discordjv.command.listeners.CommandListener;
+import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
+import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public interface SlashCommandListener extends CommandListener {
+public abstract class SlashCommandListener implements CommandListener {
 
-    List<CommandOption> options = new ArrayList<>();
-    HashMap<SlashSubCommand, SubCommandListener> subCommands = new HashMap<>();
+    private final List<CommandOption> options = new ArrayList<>();
+    private final HashMap<SlashSubCommand, SubCommandListener> subCommands = new HashMap<>();
 
-    default void addSubCommandGroup(SubCommandGroup group) {
+    public void addSubCommandGroup(SubCommandGroup group) {
         options.add(new CommandOption(
                 group.getName(),
                 group.getDescription(),
@@ -29,7 +29,7 @@ public interface SlashCommandListener extends CommandListener {
         subCommands.putAll(group.getSubCommands());
     }
 
-    default void addSubCommand(SlashSubCommand subCommand, SubCommandListener listener) {
+    public void addSubCommand(SlashSubCommand subCommand, SubCommandListener listener) {
         options.add(new CommandOption(
                 subCommand.getName(),
                 subCommand.getDescription(),
@@ -46,33 +46,33 @@ public interface SlashCommandListener extends CommandListener {
      * Returns the type of command this listener is listening for.
      */
     @Override
-    default CommandType getType() {
+    public CommandType getType() {
         return CommandType.SLASH_COMMAND;
     }
 
     /**
      * @param event The event that was fired.
      */
-    void onCommand(SlashCommandInteractionEvent event);
+    protected abstract void onCommand(SlashCommandInteractionEvent event);
 
     /**
      * This method should not be overriden, it's used to call the {@link #onCommand(SlashCommandInteractionEvent)} method by the command dispatcher.
      */
     @Override
-    default void onCommand(CommandInteractionEvent event) {
+    public void onCommand(CommandInteractionEvent event) {
         onCommand((SlashCommandInteractionEvent) event);
     }
 
-    default List<CommandOption> getOptions() {
+    public List<CommandOption> getOptions() {
         return options;
     }
 
-    default SlashCommandListener addOption(CommandOption option) {
+    public SlashCommandListener addOption(CommandOption option) {
         options.add(option);
         return this;
     }
 
-    default HashMap<SlashSubCommand, SubCommandListener> getSubCommands() {
+    public HashMap<SlashSubCommand, SubCommandListener> getSubCommands() {
         return subCommands;
     }
 }

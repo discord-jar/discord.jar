@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.interaction.callback.internal;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.interaction.EditInteractionMessageAction;
 import com.seailz.discordjv.action.interaction.followup.InteractionFollowupAction;
 import com.seailz.discordjv.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjv.model.message.Message;
@@ -80,6 +81,28 @@ public class InteractionHandlerImpl implements InteractionHandler {
                 URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE,
                 RequestMethod.DELETE
         ).invoke();
+    }
+
+    @Override
+    public EditInteractionMessageAction editOriginalResponse() {
+        return new EditInteractionMessageAction(
+                discordJv.getSelfInfo().id(),
+                token,
+                discordJv,
+                true,
+                null
+        );
+    }
+
+    @Override
+    public EditInteractionMessageAction editFollowup(String id) {
+        return new EditInteractionMessageAction(
+                discordJv.getSelfInfo().id(),
+                token,
+                discordJv,
+                false,
+                id
+        );
     }
 
     @Override

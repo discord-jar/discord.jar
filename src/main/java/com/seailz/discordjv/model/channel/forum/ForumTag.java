@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.channel.forum;
 
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
@@ -19,7 +20,7 @@ public record ForumTag(
         boolean moderated,
         String emojiId,
         String emojiName
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {

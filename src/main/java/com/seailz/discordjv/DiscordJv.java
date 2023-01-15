@@ -16,8 +16,10 @@ import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
+import com.seailz.discordjv.http.HttpOnlyApplication;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
+import com.seailz.discordjv.model.channel.Category;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.channel.MessagingChannel;
 import com.seailz.discordjv.model.channel.audio.VoiceRegion;
@@ -27,8 +29,10 @@ import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.status.Status;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
+import com.seailz.discordjv.utils.HTTPOnlyInfo;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.cache.Cache;
+import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import com.seailz.discordjv.utils.discordapi.RateLimit;
@@ -61,7 +65,7 @@ public class DiscordJv {
     /**
      * Used to manage the gateway connection
      */
-    private final GatewayFactory gatewayFactory;
+    private GatewayFactory gatewayFactory;
     /**
      * Stores the logger
      */
@@ -100,20 +104,36 @@ public class DiscordJv {
      * The command dispatcher
      */
     protected final CommandDispatcher commandDispatcher;
+    /**
+     * A cache storing self user information
+     */
+    private JsonCache selfUserCache;
+
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
+        this(token, intents, version, false, null);
+    }
 
     /**
      * Creates a new instance of the DiscordJv class
      * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
      *
-     * @param token   The token of the bot
-     * @param intents The intents the bot will use
-     * @param version The version of the Discord API the bot will use
+     * @param token        The token of the bot
+     * @param intents      The intents the bot will use
+     * @param version      The version of the Discord API the bot will use
+     * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
+     *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
+     *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
+     *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
+     *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
+     *                     Interaction-based events will still be delivered as usual.
+     *                     For a full tutorial, see the README.md file.
+     * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
+     *                     See the above parameter for more information.
      * @throws ExecutionException   If an error occurs while connecting to the gateway
      * @throws InterruptedException If an error occurs while connecting to the gateway
      */
-    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-        token = token.replaceAll("\\r\\n", "");
         new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
@@ -122,7 +142,7 @@ public class DiscordJv {
         this.commandDispatcher = new CommandDispatcher();
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
-        this.gatewayFactory = new GatewayFactory(this);
+        if (!httpOnly) this.gatewayFactory = new GatewayFactory(this);
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
                         new JSONObject(),
@@ -152,6 +172,12 @@ public class DiscordJv {
         ));
 
         this.eventDispatcher = new EventDispatcher(this);
+
+        if (httpOnly) {
+            if (httpOnlyInfo == null)
+                throw new IllegalArgumentException("httpOnlyInfo cannot be null if httpOnly is true!");
+            HttpOnlyApplication.init(this, httpOnlyInfo.endpoint(), httpOnlyInfo.applicationPublicKey());
+        }
 
         initiateNoShutdown();
         initiateShutdownHooks();
@@ -188,7 +214,7 @@ public class DiscordJv {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            gatewayFactory.close();
+            if (gatewayFactory != null) gatewayFactory.close();
         }));
     }
 
@@ -199,6 +225,8 @@ public class DiscordJv {
      * @throws IOException If an error occurs while setting the status
      */
     public void setStatus(@NotNull Status status) throws IOException {
+        if (gatewayFactory == null)
+            throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
@@ -268,6 +296,18 @@ public class DiscordJv {
     public MessagingChannel getTextChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
+    }
+
+    /**
+     * Returns info about a {@link Category}
+     *
+     * @param id The id of the category
+     * @return A {@link Category} object
+     */
+    @Nullable
+    public Category getCategoryById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return Category.decompile(getChannelCache().getFresh(id), this);
     }
 
     /**
@@ -362,11 +402,20 @@ public class DiscordJv {
      */
     @Nullable
     public Application getSelfInfo() {
-        DiscordResponse response = new DiscordRequest(
+        if (this.selfUserCache != null && !selfUserCache.isEmpty())
+            return Application.decompile(selfUserCache.get(), this);
+
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
-        ).invoke();
+        );
+        DiscordResponse response = request.invoke();
+
+        if (this.selfUserCache == null)
+            this.selfUserCache = JsonCache.newc(response.body(), request);
+        this.selfUserCache.update(response.body());
+
         return Application.decompile(response.body(), this);
     }
 

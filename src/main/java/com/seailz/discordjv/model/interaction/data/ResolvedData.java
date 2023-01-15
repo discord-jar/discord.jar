@@ -107,7 +107,7 @@ public record ResolvedData(
             JSONObject resolved = obj.getJSONObject("members");
             members = new HashMap<>();
             HashMap<String, Member> finalMembers = members;
-            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJv, null)));
+            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJv, null, null)));
         } catch (Exception e) {
             members = null;
         }
@@ -129,7 +129,7 @@ public record ResolvedData(
             JSONObject channelsObj = obj.getJSONObject("channels");
             channels = new HashMap<>();
             HashMap<String, Channel> finalChannels = channels;
-            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value)));
+            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             channels = null;
         }

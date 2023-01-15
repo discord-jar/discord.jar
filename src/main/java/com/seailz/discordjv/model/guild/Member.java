@@ -8,6 +8,7 @@ import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.permission.Permission;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +42,7 @@ public record Member(
         boolean deaf,
         boolean mute,
         boolean pending,
-        String permissions,
+        List<Permission> permissions,
         String communicationDisabledUntil,
         String guildId,
         DiscordJv discordJv
@@ -49,6 +50,10 @@ public record Member(
 
     @Override
     public JSONObject compile() {
+        int permissions = 0;
+        for (Permission permission : this.permissions) {
+            permissions += permission.getLeftShiftId();
+        }
         JSONObject obj = new JSONObject();
         obj.put("user", user.compile());
         obj.put("nick", nick);
@@ -65,18 +70,19 @@ public record Member(
     }
 
     @NonNull
-    public static Member decompile(JSONObject obj, DiscordJv discordJv, String guildId) {
+    public static Member decompile(JSONObject obj, DiscordJv discordJv, String guildId, Guild guild) {
         User user;
         String nick;
         String avatar;
-        Role[] roles;
+        Role[] roles = new Role[0];
         String joinedAt;
         String premiumSince;
         boolean deaf;
         boolean mute;
         boolean pending;
-        String permissions;
+        List<Permission> permissions = null;
         String communicationDisabledUntil;
+
 
         try {
             user = User.decompile(obj.getJSONObject("user"), discordJv);
@@ -96,14 +102,18 @@ public record Member(
             avatar = null;
         }
 
-        try {
-            List<Role> rolesList = new ArrayList<>();
-            for (Object o : obj.getJSONArray("roles")) {
-                rolesList.add(Role.decompile((JSONObject) o));
+        if (obj.has("roles")) {
+            if (guild != null) {
+                List<Role> rolesList = new ArrayList<>();
+                List<Role> guildRoles = guild.roles();
+                for (Object o : obj.getJSONArray("roles")) {
+                    guildRoles.stream()
+                            .filter(role -> role.id().equals(o.toString()))
+                            .findFirst()
+                            .ifPresent(rolesList::add);
+                }
+                roles = rolesList.toArray(new Role[0]);
             }
-            roles = rolesList.toArray(new Role[0]);
-        } catch (Exception e) {
-            roles = null;
         }
 
         try {
@@ -136,11 +146,14 @@ public record Member(
             pending = false;
         }
 
-        try {
-            permissions = obj.getString("permissions");
-        } catch (Exception e) {
+        /*try {
+            BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
+            List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
+                    Integer.parseInt(obj.getString("permissions")), Permission.class));
+            permissions = permissionsList;
+        } catch (JSONException e) {
             permissions = null;
-        }
+        }*/
 
         try {
             communicationDisabledUntil = obj.getString("communication_disabled_until");
@@ -173,7 +186,7 @@ public record Member(
                 URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
                 RequestMethod.PATCH
         ).invoke();
-        System.out.println(timeout);
+
     }
 
     public void removeTimeout() {
@@ -185,5 +198,25 @@ public record Member(
                 URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
                 RequestMethod.PATCH
         ).invoke();
+    }
+
+    /**
+     * Adds a role to a member.
+     * Requires `MANAGE_ROLES` permission.
+     * @param role the role to add
+     */
+    public void addRole(Role role) {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                discordJv,
+                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    public boolean hasPermission(Permission perm) {
+        return permissions.contains(perm);
     }
 }

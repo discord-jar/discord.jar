@@ -92,7 +92,6 @@ public record DiscordRequest(
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-
             int responseCode = response.statusCode();
             System.out.println(request.uri() + " " + request.method());
 
@@ -244,7 +243,6 @@ public record DiscordRequest(
             final Buffer buffer = new Buffer();
             builder.build().writeTo(buffer);
             String body = buffer.readUtf8();
-            System.out.println(body);
 
             if (requestMethod == RequestMethod.POST) {
                 con.POST(HttpRequest.BodyPublishers.ofString(body));
@@ -263,9 +261,6 @@ public record DiscordRequest(
             con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", builder.build().contentType().toString());
-
-            System.out.println(builder.build());
-
 
             HttpRequest request = con.build();
             HttpClient client = HttpClient.newHttpClient();

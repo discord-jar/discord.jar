@@ -207,6 +207,10 @@ public class DiscordJv {
         }).start();
     }
 
+    public GatewayFactory getGateway() {
+        return gatewayFactory;
+    }
+
     protected void initiateShutdownHooks() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.interaction.callback.internal;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.interaction.EditInteractionMessageAction;
 import com.seailz.discordjv.action.interaction.followup.InteractionFollowupAction;
 import com.seailz.discordjv.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjv.model.message.Message;
@@ -83,9 +84,43 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
+    public EditInteractionMessageAction editOriginalResponse() {
+        return new EditInteractionMessageAction(
+                discordJv.getSelfInfo().id(),
+                token,
+                discordJv,
+                true,
+                null
+        );
+    }
+
+    @Override
+    public EditInteractionMessageAction editFollowup(String id) {
+        return new EditInteractionMessageAction(
+                discordJv.getSelfInfo().id(),
+                token,
+                discordJv,
+                false,
+                id
+        );
+    }
+
+    @Override
     public void defer(boolean ephemeral) {
         new DiscordRequest(
                 new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
+                new HashMap<>(),
+                URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
+                discordJv,
+                URLS.POST.INTERACTIONS.CALLBACK,
+                RequestMethod.POST
+        ).invoke();
+    }
+
+    @Override
+    public void deferEdit() {
+        new DiscordRequest(
+                new JSONObject().put("type", 6),
                 new HashMap<>(),
                 URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
                 discordJv,

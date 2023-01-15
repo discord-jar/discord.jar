@@ -15,11 +15,13 @@ import com.seailz.discordjv.model.guild.premium.PremiumTier;
 import com.seailz.discordjv.model.guild.verification.VerificationLevel;
 import com.seailz.discordjv.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjv.model.role.Role;
+import com.seailz.discordjv.model.scheduledevents.ScheduledEvent;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -668,6 +670,29 @@ public record Guild(
         List<Member> members = new ArrayList<>();
         arr.forEach(o -> members.add(Member.decompile((JSONObject) o, discordJv, id)));
         return members;
+    }
+
+    @Nullable
+    public List<ScheduledEvent> getScheduledEvents() {
+        JSONArray arr = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.SCHEDULED_EVENTS.GET_GUILD_SCHEDULED_EVENTS.replace(
+                        "{guild.id}",
+                        id
+                ),
+                discordJv,
+                URLS.GET.GUILDS.SCHEDULED_EVENTS.GET_GUILD_SCHEDULED_EVENTS,
+                RequestMethod.GET
+        ).invoke().arr();
+
+        if (arr == null) {
+            return null;
+        }
+
+        List<ScheduledEvent> events = new ArrayList<>();
+        arr.forEach(o -> events.add(ScheduledEvent.decompile((JSONObject) o, discordJv)));
+        return events;
     }
 
 

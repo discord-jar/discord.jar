@@ -24,6 +24,17 @@ public final class URLS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
         }
 
+        public static class GULDS {
+            public static class SCHEDULED_EVENTS {
+                /**
+                 * Create a scheduled event in a guild.
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String CREATE_SCHEDULED_EVENTS = "/guilds/{guild.id}/scheduled-events";
+            }
+        }
+
         public static class COMMANDS {
 
             /**
@@ -119,6 +130,15 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static String GET_GUILD = "/guilds/{guild.id}";
+
+            public static class SCHEDULED_EVENTS {
+                /**
+                 * Returns a list of scheduled events in the guild
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String GET_GUILD_SCHEDULED_EVENTS = "/guilds/{guild.id}/scheduled-events";
+            }
 
             public static class STICKERS {
                 /**

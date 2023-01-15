@@ -101,7 +101,7 @@ public record ScheduledEvent(
     /**
      * The privacy level of the scheduled event
      */
-    enum PrivacyLevel {
+    public enum PrivacyLevel {
 
         GUILD_ONLY(2), // 	the scheduled event is only accessible to guild members
         UNKNOWN(-1); // 	unknown privacy level
@@ -125,10 +125,11 @@ public record ScheduledEvent(
             return UNKNOWN;
         }
     }
+
     /**
      * The status of the scheduled event
      */
-    enum EventStatus {
+    public enum EventStatus {
         SCHEDULED(1), // 	the scheduled event has been created, but the scheduled start time has not passed
         ACTIVE(2),    //  the scheduled event’s scheduled start time has passed, but the scheduled end time has not passed
         COMPLETED(3), // 	the scheduled event’s scheduled end time has passed
@@ -153,10 +154,11 @@ public record ScheduledEvent(
             return UNKNOWN;
         }
     }
+
     /**
      * the type of the scheduled event
      */
-    enum EntityType {
+    public enum EntityType {
         STAGE_INSTANCE(1), // 	the scheduled event is associated with a stage instance
         VOICE(2),          // 	the scheduled event is not associated with a stage instance
         EXTERNAL(3),       // 	the scheduled event is associated with an external entity
@@ -181,10 +183,11 @@ public record ScheduledEvent(
             return UNKNOWN;
         }
     }
+
     /**
      * Metadata about the scheduled event entity
      */
-    interface EntityMetadata extends Compilerable {
+    public interface EntityMetadata extends Compilerable {
         static @Nullable EntityMetadata decompile(@NotNull JSONObject obj) {
             if (obj.has("location")) {
                 return new ExternalEntityMetadata(obj.getString("location"));
@@ -192,17 +195,18 @@ public record ScheduledEvent(
             return null;
         }
     }
+
     /**
-    * Metadata about an external event entity
-    *
-    * @param location The location of the scheduled event
-    */
-    record ExternalEntityMetadata(String location) implements EntityMetadata {
-            @Override
-            public JSONObject compile() {
-                return new JSONObject()
-                        .put("location", location);
-            }
+     * Metadata about an external event entity
+     *
+     * @param location The location of the scheduled event
+     */
+    public record ExternalEntityMetadata(String location) implements EntityMetadata {
+        @Override
+        public JSONObject compile() {
+            return new JSONObject()
+                    .put("location", location);
         }
+    }
 
 }

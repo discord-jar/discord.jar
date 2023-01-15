@@ -1,6 +1,7 @@
 package com.seailz.discordjv.model.interaction.callback;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.interaction.EditInteractionMessageAction;
 import com.seailz.discordjv.action.interaction.followup.InteractionFollowupAction;
 import com.seailz.discordjv.model.interaction.callback.internal.InteractionHandlerImpl;
 import com.seailz.discordjv.model.message.Message;
@@ -20,6 +21,10 @@ public interface InteractionHandler {
     Message getFollowup(String id);
 
     void deleteFollowup(String id);
+
+    EditInteractionMessageAction editOriginalResponse();
+
+    EditInteractionMessageAction editFollowup(String id);
 
     void defer(boolean ephemeral);
 

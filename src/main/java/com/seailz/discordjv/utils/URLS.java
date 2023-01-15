@@ -334,6 +334,13 @@ public final class URLS {
         public static class CHANNEL {
             public static String MODIFY_CHANNEL = "/channels/{channel.id}";
         }
+
+        public static class INTERACTIONS {
+            public static class MESSAGES {
+                public static String MODIFY_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
+                public static String MODIFY_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+            }
+        }
     }
 
 

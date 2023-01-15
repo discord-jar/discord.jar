@@ -118,6 +118,18 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
+    public void deferEdit() {
+        new DiscordRequest(
+                new JSONObject().put("type", 6),
+                new HashMap<>(),
+                URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
+                discordJv,
+                URLS.POST.INTERACTIONS.CALLBACK,
+                RequestMethod.POST
+        ).invoke();
+    }
+
+    @Override
     public String getToken() {
         return token;
     }

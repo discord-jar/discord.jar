@@ -21,6 +21,7 @@ public interface InteractionHandler {
 
     void deleteFollowup(String id);
 
+
     void defer(boolean ephemeral);
 
     default void defer() {

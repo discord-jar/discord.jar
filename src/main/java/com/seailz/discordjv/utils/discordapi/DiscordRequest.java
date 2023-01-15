@@ -91,7 +91,6 @@ public record DiscordRequest(
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-
             int responseCode = response.statusCode();
             System.out.println(request.uri() + " " + request.method());
 
@@ -261,7 +260,6 @@ public record DiscordRequest(
                 System.arraycopy(part, 0, body, offset, part.length);
                 offset += part.length;
             }
-
 
             if (requestMethod == RequestMethod.POST) {
                 con.POST(HttpRequest.BodyPublishers.ofByteArray(body));

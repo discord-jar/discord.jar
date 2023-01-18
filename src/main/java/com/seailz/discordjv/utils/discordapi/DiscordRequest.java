@@ -79,7 +79,7 @@ public record DiscordRequest(
                 con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofString(body.toString()));
             }
 
-            con.header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)");
+            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/discord.jar, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "application/json");
 
@@ -275,7 +275,7 @@ public record DiscordRequest(
                 con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofByteArray(body));
             }
 
-            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/, 1.0.0)");
+            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/discord.jar, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "multipart/form-data; boundary=" + boundary);
 

@@ -10,7 +10,7 @@ public enum Intent {
 
     GUILDS(0, false),
     GUILD_MEMBERS(1, true),
-    GUILD_BANS(2, false),
+    GUILD_MODERATION(2, false),
     GUILD_EMOJIS_AND_STICKERS(3, false),
     GUILD_INTEGRATIONS(4, false),
     GUILD_WEBHOOKS(5, false),

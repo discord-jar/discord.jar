@@ -135,6 +135,16 @@ public record DiscordRequest(
                 }
             }).start();
 
+            try {
+                if (response.body().startsWith("[")) {
+                    new JSONArray(response.body());
+                } else {
+                    new JSONObject(response.body());
+                }
+            } catch (JSONException e) {
+                System.out.println(response.body());
+            }
+
             if (responseCode == 200 || responseCode == 201) {
 
                 var body = new Object();

@@ -350,6 +350,10 @@ public final class URLS {
 
 
     public static class PUT {
+        public static class APPLICATIONS {
+            public static String MODIFY_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
+        }
+
         public static class GUILD {
             public static class MEMBERS {
                 public static class ROLES {
@@ -363,12 +367,6 @@ public final class URLS {
                     public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
                 }
             }
-        }
-    }
-
-    public static class PUT {
-        public static class APPLICATIONS {
-            public static String MODIFY_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
         }
     }
 

@@ -72,11 +72,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         }, "Gateway").start();
     }
 
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        System.out.println(status.getReason());
-    }
-
     /**
      * Queues a message to be sent to the gateway
      *

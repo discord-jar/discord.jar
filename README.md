@@ -81,12 +81,66 @@ If it fails to save after that, please contact `Seailz#0001` on Discord.
 
 ## Documentation
 
-There is currently no documentation (excluding the tiny bit above), but it will be
-available [here](https://discord-jv.gitbook.io/discord.jv-documentation/) when it's ready. Although there is no
-documentation, there are still examples which are
-avaliable [here](https://github.com/discord-jar/discord.jar/tree/main/examples)
+### Linked Roles
+As far as I know, discord.jar is the only Java library to support linked roles, so here's a quick guide on how to use them:
 
-Javadocs can be found [here](https://discord-jar.github.io/discord.jar).
+1. First, lets get everything set up in the developer portal. Start by going to the OAuth2 > General tab.
+2) You'll want to add a redirect URL, which should be the place where you are going to host your bot. For now, set it to `http://localhost:8080/verify`
+
+![image](https://user-images.githubusercontent.com/81972974/214909363-f00f64b3-5dc0-4afd-b500-73ceb1cacfee.png)
+
+3. Once you've done that, save your changes and go to the OAuth2 > URL Generator tab. On this page you'll see a big menu of scopes, and you need to select `identify` & `role_connections.write`.
+4. After those are selected, a "SELECT REDIRECFT URL" drop down will appear - select the url you set earlier.
+
+![image](https://user-images.githubusercontent.com/81972974/214909838-b07cb4a5-9f30-482c-bf29-d52ef96eab2d.png)
+
+5. You'll end up with a "GENERATED URL" field. Note this down.
+6. Head to the General Information tab, and scroll down until you find "LINKED ROLES VERIFICATION URL". Set this to the URL you noted in the last step.
+![image](https://user-images.githubusercontent.com/81972974/214910245-98906c89-21e0-44a3-a922-45dbb2fbe9b8.png)
+7. Now, invite the bot to your server as usual, and you should be able to make a Linked Role! (As of writing, linked roles are only 50% rolled out yet).
+8. We actually need to implement this into our code now. Head to your code, and you'll want to add this:
+```java
+        discordJv.getSelfInfo().setRoleConnections(
+                new ApplicationRoleConnectionMetadata(
+                        ApplicationRoleConnectionMetadata.Type.BOOLEAN_EQUAL,
+                        "isdeveloper",
+                        "Developer",
+                        "Is a Developer"
+                )
+        );
+```
+This code informs Discord of what role connection metadata you would like to have, so feel free to modify the metadata or add different ones.
+9. We can now start getting set up with our webserver. You'll need a MySQL database for this. Here's an example of how to do that:
+```java
+        Database db = new Database(
+                "DATABASE_IP", // set these to your database credentials
+                3306,
+                "DATABASE_USER",
+                "DATABASE_PASS",
+                "DATABASE_NAME"
+        );
+
+        LinkedRoles lr = new LinkedRoles(
+                "CLIENT_ID", // can be found in the oauth2 > general tab
+                "CLIENT_SECRET", // can be found in the oauth2 > general tab
+                "http://localhost:8080/verify",
+                "/verify",
+                "APPLICATION_ID", // can be found in the GENERAL_INFORMATION tab
+                true, // should discord.jar redirect back to https://discord.com/oauth2/authorized when code is completed?
+                discordJv, // your discord.jar instance
+                db
+        );
+```
+10. Great! Now when you start your bot, it should be listenings to connections to the web server and will store data accordingly.
+11. Finally, to set metadata for a user, you can use this method:
+```java
+        HashMap<String, Object> values = new HashMap<>();
+        values.put("isdeveloper", 1); // discord requires boolean fields to use 1, or 0. (I don't know why)
+        lr.updateRoles("USER_ID", "discord.jar", "Seailz", values); // you can adjust these values accordingly
+```
+
+Examples can be found [here](https://github.com/discord-jar/discord.jar/tree/main/examples)
+<br>Javadocs can be found [here](https://discord-jar.github.io/discord.jar).
 
 ## Contributing
 

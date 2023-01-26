@@ -106,6 +106,7 @@
             <groupId>com.github.seailz</groupId>
             <artifactId>databaseapi</artifactId>
             <version>2.3</version>
+        </dependency>
         <!-- Used for creating transcripts of channels -->
         <dependency>
             <groupId>org.jsoup</groupId>

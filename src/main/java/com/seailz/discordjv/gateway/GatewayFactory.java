@@ -37,35 +37,39 @@ import java.util.logging.Logger;
 
 public class GatewayFactory extends TextWebSocketHandler {
 
-    private final DiscordJv discordJv;
-    private final String url;
+    private DiscordJv discordJv;
+    private String url;
     private WebSocketSession clientSession;
     private static int lastSequence;
-    private HeartbeatCycle heartbeatCycle;
-    private final Logger logger;
+    public HeartbeatCycle heartbeatCycle;
+    private Logger logger;
     private String resumeUrl;
     private String sessionId;
-    private final List<JSONObject> queue;
+    private final List<JSONObject> queue = new ArrayList<>();
     private boolean ready;
     // String is the nonce of the request and the list is all members that have been received so far.
     public HashMap<String, MemberChunkStorageWrapper> memberRequestChunks;
 
 
     public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
-        this.discordJv = discordJv;
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                "/gateway",
-                discordJv,
-                "/gateway", RequestMethod.GET
-        ).invoke();
-        this.url = response.body().getString("url");
-        this.queue = new ArrayList<>();
-        this.memberRequestChunks = new HashMap<>();
-        logger = Logger.getLogger("DISCORD.JV");
-        initiateConnection();
-        logger.info("[DISCORD.JV] Connected to gateway");
+        new Thread(() -> {
+            this.discordJv = discordJv;
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJv,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+            this.url = response.body().getString("url");
+            logger = Logger.getLogger("DISCORD.JV");
+            try {
+                initiateConnection();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("[DISCORD.JV] Connected to gateway");
+        }, "Gateway").start();
     }
 
     /**
@@ -80,6 +84,27 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
 
         queue.add(obj);
+    }
+
+    public void startAgain() throws ExecutionException, InterruptedException {
+        new Thread(() -> {
+            this.heartbeatCycle = null;
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJv,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+            this.url = response.body().getString("url");
+            logger = Logger.getLogger("DISCORD.JV");
+            try {
+                initiateConnection();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("[DISCORD.JV] Connected to gateway");
+        }, "Gateway").start();
     }
 
     private void initiateConnection() throws ExecutionException, InterruptedException {
@@ -111,8 +136,6 @@ public class GatewayFactory extends TextWebSocketHandler {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-
-            logger.info("[DISCORD.JV] Client was disconnected from gateway, reconnecting...");
             try {
                 initiateConnection(resumeUrl == null ? url : resumeUrl);
             } catch (ExecutionException | InterruptedException e) {
@@ -128,7 +151,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             }
 
 
-            logger.info("[DISCORD.JV] Gateway session has been resumed");
+            logger.info("[DISCORD.JV] Attempting Gateway Resume");
         }).start();
     }
 
@@ -191,7 +214,6 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case INVALID_SESSION:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
-                clientSession.close();
                 initiateConnection();
                 ready = false;
                 break;
@@ -211,6 +233,14 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void handleHello(JSONObject payload) throws InterruptedException {
         // Start heartbeat cycle
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
+        try {
+            heartbeatCycle.sendHeartbeat();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {

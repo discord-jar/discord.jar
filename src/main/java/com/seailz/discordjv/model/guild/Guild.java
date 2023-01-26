@@ -339,7 +339,7 @@ public record Guild(
 
         try {
             systemChannel = discordJv.getChannelById(obj.getString("system_channel_id"));
-        } catch (JSONException e) {
+        } catch (IllegalArgumentException | JSONException e) {
             systemChannel = null;
         }
 
@@ -392,8 +392,9 @@ public record Guild(
         }
 
         try {
-            publicUpdatesChannel = discordJv.getChannelById(obj.getString("public_updates_channel_id"));
-        } catch (JSONException e) {
+            publicUpdatesChannel =
+                    discordJv.getChannelById(obj.getString("public_updates_channel_id"));
+        } catch (Exception e) {
             publicUpdatesChannel = null;
         }
 

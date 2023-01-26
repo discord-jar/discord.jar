@@ -97,7 +97,7 @@ public class Cache<T> {
      * @param id The id of the item to get
      * @return The item
      */
-    public T getById(String id) {
+    public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
         cache.forEach(t -> {
             String itemId;
@@ -117,7 +117,8 @@ public class Cache<T> {
 
         if (returnObject.get() == null) {
             // request from discord
-            DiscordResponse response = new DiscordRequest(
+            DiscordResponse response;
+            response = new DiscordRequest(
                     discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJv, discordRequest.url(), RequestMethod.GET
             ).invoke();
             Method decompile;
@@ -134,6 +135,7 @@ public class Cache<T> {
 
             try {
                 System.out.println(decompile.getParameterCount());
+                if (response == null) return null;
                 returnObject.set(decompile.invoke(null, response.body(), discordJv));
             } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
                 Logger.getLogger("DiscordJv").warning("Was unable to return object from cache, attempting to remove discord.jv instance...");

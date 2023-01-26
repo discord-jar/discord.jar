@@ -134,6 +134,7 @@ public class DiscordJv {
      */
     public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+        new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
         new URLS(version);
@@ -171,7 +172,6 @@ public class DiscordJv {
         ));
 
         this.eventDispatcher = new EventDispatcher(this);
-        new RequestQueueHandler(this);
 
         if (httpOnly) {
             if (httpOnlyInfo == null)
@@ -285,9 +285,16 @@ public class DiscordJv {
      * @return A {@link Channel} object
      */
     @Nullable
-    public Channel getChannelById(String id) {
+    public Channel getChannelById(String id) throws IllegalArgumentException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return getChannelCache().getById(id);
+        Cache<Channel> cc = getChannelCache();
+        Channel res;
+        try {
+            res = cc.getById(id);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Couldn't retrieve channel.");
+        }
+        return res;
     }
 
     /**

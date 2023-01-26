@@ -242,6 +242,11 @@ public final class URLS {
              * @param id the id of the bot
              */
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
+            /**
+             * Returns a list of {@link com.seailz.discordjv.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
+             * @param id the id of the app
+             */
+            public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
         }
 
         public static class STICKER {
@@ -345,6 +350,10 @@ public final class URLS {
 
 
     public static class PUT {
+        public static class APPLICATIONS {
+            public static String MODIFY_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
+        }
+
         public static class GUILD {
             public static class MEMBERS {
                 public static class ROLES {
@@ -358,6 +367,27 @@ public final class URLS {
                     public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
                 }
             }
+        }
+    }
+
+    public static class OAUTH2 {
+        /**
+         * Token URL
+         */
+        public static String TOKEN_URL = "/oauth2/token";
+
+        public static class PUT {
+            public static class USERS {
+                public static class APPLICATIONS {
+                    public static class ROLE_CONNECTIONS {
+                        public static String UPDATE_USER_APPLICATION_ROLE_CONNECTION = "/users/@me/applications/{application.id}/role-connection";
+                    }
+                }
+            }
+        }
+
+        public static class GET {
+            public static String GET_CURRENT_AUTH_INFO = "/oauth2/@me";
         }
     }
 

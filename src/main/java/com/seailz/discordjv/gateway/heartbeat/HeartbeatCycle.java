@@ -2,6 +2,7 @@ package com.seailz.discordjv.gateway.heartbeat;
 
 import com.seailz.discordjv.gateway.GatewayFactory;
 import org.json.JSONObject;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class HeartbeatCycle {
     public HeartbeatCycle(int interval, GatewayFactory factory) throws InterruptedException {
         this.interval = interval;
         this.factory = factory;
+        sendFirst();
         start();
         // sessionCheck();
         shouldBeSendingHeartbeats = true;
@@ -35,9 +37,17 @@ public class HeartbeatCycle {
         payload.put("op", 1);
         payload.put("d", GatewayFactory.getLastSequence());
 
-        if (!factory.getClientSession().isOpen())
-            factory.reconnect();
-        factory.getClientSession().sendMessage(new TextMessage(payload.toString()));
+        if (!factory.getClientSession().isOpen()) {
+            System.out.println("GATEWAY IS CLOSED");
+            factory.getClientSession().close(CloseStatus.GOING_AWAY);
+            factory.startAgain();
+
+            factory.heartbeatCycle = null;
+            shouldBeSendingHeartbeats = false;
+            return;
+        }
+
+        if (shouldBeSendingHeartbeats) factory.getClientSession().sendMessage(new TextMessage(payload.toString()));
     }
 
     public void sendFirst() throws InterruptedException {
@@ -47,6 +57,7 @@ public class HeartbeatCycle {
         new Thread(() -> {
             try {
                 Thread.sleep((long) interval);
+                System.out.println("sending first");
                 sendHeartbeat();
             } catch (InterruptedException | IOException | ExecutionException e) {
                 e.printStackTrace();

@@ -285,9 +285,16 @@ public class DiscordJv {
      * @return A {@link Channel} object
      */
     @Nullable
-    public Channel getChannelById(String id) {
+    public Channel getChannelById(String id) throws IllegalArgumentException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return getChannelCache().getById(id);
+        Cache<Channel> cc = getChannelCache();
+        Channel res;
+        try {
+            res = cc.getById(id);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Couldn't retrieve channel.");
+        }
+        return res;
     }
 
     /**

@@ -10,14 +10,12 @@ import com.seailz.discordjv.linked.response.error.CodeNotPresentResponse;
 import com.seailz.discordjv.linked.response.error.InvalidEndpointResponse;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.URLS;
-import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -89,7 +87,6 @@ public class LinkedRolesRestController {
                     .headers("Content-Type", "application/x-www-form-urlencoded")
                     .build();
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-            System.out.println(res.body());
 
             // store refresh with user id in database
             String userId = getUser(
@@ -101,6 +98,9 @@ public class LinkedRolesRestController {
             data.put("refresh_token", refreshToken);
             data.put("user_id", userId);
             data.put("acc_token", new JSONObject(res.body()).getString("access_token"));
+
+            if (database.getConnection() == null)
+                database.connect();
 
             if (database.tableExists("discordjar_linked_roles")) {
                 database.insert("discordjar_linked_roles", data);
@@ -115,7 +115,7 @@ public class LinkedRolesRestController {
 
 
             String accessToken = new JSONObject(res.body()).getString("access_token");
-            onCodeReceived.accept(response, userId, accessToken);
+            if (onCodeReceived != null) onCodeReceived.accept(response, userId, accessToken);
 
 
             if (redirectBackToDiscord) {
@@ -146,18 +146,19 @@ public class LinkedRolesRestController {
         return HttpRequest.BodyPublishers.ofString(urlEncoded);
     }
 
-    private User getUser(String accessToken) {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + accessToken);
+    private User getUser(String accessToken) throws URISyntaxException, IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(new URI(URLS.BASE_URL + "/users/@me"))
+                .GET()
+                .header("Authorization", "Bearer " + accessToken)
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "discord.jv (https://github.com/discord-jv/, 1.0.0)")
+                .build();
+
+        HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
         return User.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        headers,
-                        URLS.OAUTH2.GET.GET_CURRENT_AUTH_INFO,
-                        discordJv,
-                        URLS.OAUTH2.GET.GET_CURRENT_AUTH_INFO,
-                        RequestMethod.GET
-                ).invoke().body().getJSONObject("user"), discordJv
+                new JSONObject(res.body()), discordJv
         );
     }
 }

@@ -183,6 +183,10 @@ public class DiscordRequest {
 
             if (responseCode == 201) return null;
 
+            if (!auth && responseCode == 401) {
+                return new DiscordResponse(401, null, null, null);
+            }
+
             System.out.println(body == null ? aBody : body);
 
             System.out.println(response.body());

@@ -4,15 +4,27 @@ import com.seailz.databaseapi.Database;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import org.json.JSONObject;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Class for managing linked roles.
@@ -34,6 +46,7 @@ public class LinkedRoles {
     private String clientSecret;
     private String redirectEndpoint;
     private DiscordJv discordJv;
+    private Database database;
 
     private static boolean isInstance = false;
     private String appId;
@@ -55,7 +68,7 @@ public class LinkedRoles {
      */
     public LinkedRoles(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, String applicationId, boolean redirectBackToDiscord, DiscordJv discordJv, Database db) {
         if (isInstance)
-            throw new IllegalStateException("LinkedRoles is already instantiated.");
+            throw new IllegalStateException("LinkedRoles is already instantiated. Please use your existing instance of the class.");
         LinkedRolesRestController.set(clientId, clientSecret, redirectUrl, redirectEndpoint, redirectBackToDiscord, discordJv, db);
 
         SpringApplication app = new SpringApplication(LinkedRoles.class);
@@ -70,21 +83,31 @@ public class LinkedRoles {
         isInstance = true;
         this.discordJv = discordJv;
         this.appId = applicationId;
+        this.database = db;
     }
 
     protected LinkedRoles() {}
 
     /**
      * Updates user application role connections
-     * @param userId The user ID
-     * @param platformName The platform name
+     *
+     * @param userId           The user ID
+     * @param platformName     The platform name
      * @param platformUsername The platform username
-     * @param values object mapping application role connection metadata keys to their string-ified value (max 100 characters) for the user on the platform a bot has connected
-     * @param authToken The authorization token
+     * @param values           object mapping application role connection metadata keys to their string-ified value (max 100 characters) for the user on the platform a bot has connected
+     * @param authToken        The authorization token
      */
-    private void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values, String authToken) {
+    private void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values, String authToken, boolean attemptedRefreshToken) throws IOException, InterruptedException, URISyntaxException {
         HashMap<String, String> headers = new HashMap<>();
-        if (authToken == null) headers.put("Authorization", "Bearer " + "" /* get auth token from db */);
+        if (authToken == null) {
+            String accToken;
+            try {
+                accToken = (String) database.get("discordjar_linked_roles", "user_id", userId, "acc_token");
+            } catch (SQLException | ClassCastException e) {
+                throw new IllegalStateException("Could not find access token for user.");
+            }
+            headers.put("Authorization", "Bearer " + accToken);
+        }
         if (authToken != null) headers.put("Authorization", "Bearer " + authToken);
 
         JSONObject metadata = new JSONObject();
@@ -92,7 +115,6 @@ public class LinkedRoles {
             metadata.put(key, values.get(key));
         }
 
-        System.out.println(headers.get("Authorization"));
         DiscordRequest req = new DiscordRequest(
                 new JSONObject()
                         .put("platform_name", platformName)
@@ -105,15 +127,54 @@ public class LinkedRoles {
                 URLS.OAUTH2.PUT.USERS.APPLICATIONS.ROLE_CONNECTIONS.UPDATE_USER_APPLICATION_ROLE_CONNECTION,
                 RequestMethod.PUT
         );
-        req.invokeNoAuth(new JSONObject());
+        DiscordResponse res = req.invokeNoAuth(new JSONObject());
+        if (res.code() == 401) {
+            if (attemptedRefreshToken) {
+                throw new IllegalStateException("Could not updated roles for user - it's likely the user has de-authed the app.");
+            }
+            System.out.println("Attempting refresh token...");
+            String refresh;
+            try {
+                refresh = (String) database.get("discordjar_linked_roles", "user_id", userId, "refresh_token");
+            } catch (SQLException | ClassCastException e) {
+                throw new IllegalStateException("Could not find refresh token for user.");
+            }
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("client_id", clientId);
+            params.put("client_secret", clientSecret);
+            params.put("grant_type", "refresh_token");
+            params.put("refresh_token", refresh);
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest refreshReq = HttpRequest.newBuilder()
+                    .uri(new URI("https://discord.com/api/v10/oauth2/token"))
+                    .POST(getParamsUrlEncoded(params))
+                    .headers("Content-Type", "application/x-www-form-urlencoded")
+                    .build();
+            HttpResponse<String> refreshRes = client.send(refreshReq, HttpResponse.BodyHandlers.ofString());
+            if (refreshRes.statusCode() == 401) {
+                throw new IllegalStateException("Could not updated roles for user - it's likely the user has de-authed the app.");
+            }
+            JSONObject refreshResponseJson = new JSONObject(refreshRes);
+            updateRoles(null, platformName, platformUsername, values, refreshResponseJson.getString("access_token"), true);
+        }
     }
 
-    public void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values) {
-        updateRoles(userId, platformName, platformUsername, values, null);
+    public void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values) throws IllegalStateException, IOException, URISyntaxException, InterruptedException {
+        updateRoles(userId, platformName, platformUsername, values, null, false);
     }
 
-    public void updateRoles(String platformName, String platformUsername, HashMap<String, Object> values, String authToken) {
-        updateRoles(null, platformName, platformUsername, values, authToken);
+    public void updateRoles(String platformName, String platformUsername, HashMap<String, Object> values, String authToken) throws IllegalStateException, IOException, URISyntaxException, InterruptedException {
+        updateRoles(null, platformName, platformUsername, values, authToken, false);
+    }
+
+    private HttpRequest.BodyPublisher getParamsUrlEncoded(Map<String, String> parameters) {
+        String urlEncoded = parameters.entrySet()
+                .stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+        return HttpRequest.BodyPublishers.ofString(urlEncoded);
     }
 
 }

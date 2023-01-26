@@ -100,15 +100,17 @@ public class LinkedRolesRestController {
             HashMap<String, String> data = new HashMap<>();
             data.put("refresh_token", refreshToken);
             data.put("user_id", userId);
+            data.put("acc_token", new JSONObject(res.body()).getString("access_token"));
 
-            if (database.tableExists("discordjv_linked_roles")) {
-                database.insert("discordjv_linked_roles", data);
+            if (database.tableExists("discordjar_linked_roles")) {
+                database.insert("discordjar_linked_roles", data);
             } else {
                 ArrayList<Column> columns = new ArrayList<>();
                 columns.add(new Column(ColumnType.VARCHAR, "refresh_token"));
                 columns.add(new Column(ColumnType.VARCHAR, "user_id"));
-                database.createTable(new TableBuilder("discordjv_linked_roles", columns));
-                database.insert("discordjv_linked_roles", data);
+                columns.add(new Column(ColumnType.VARCHAR, "acc_token"));
+                database.createTable(new TableBuilder("discordjar_linked_roles", columns));
+                database.insert("discordjar_linked_roles", data);
             }
 
 

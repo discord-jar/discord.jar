@@ -3,6 +3,7 @@ package com.seailz.discordjv.model.guild;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.action.automod.AutomodRuleCreateAction;
 import com.seailz.discordjv.action.guild.channel.CreateGuildChannelAction;
+import com.seailz.discordjv.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjv.action.sticker.ModifyStickerAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.automod.AutomodRule;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a guild.
@@ -813,6 +815,34 @@ public record Guild(
             roleCache.update(new JSONObject().put("data", res));
         }
         return roles;
+    }
+
+    /**
+     * Used to request a list of all members in a guild.
+     * This method can take a <b>LONG</b> time to complete, so it is not recommended to use this often.
+     * <p>
+     * If you don't have the <b>GUILD_PRESENCES</b> intent enabled, or the guild is over 75k members,
+     * <br>this will only send members who are in voice, plus the member for you (the bot user).
+     * <p>
+     * If a guild has over a certain threshold of members, this will only send members wo are online,
+     * <br>have a role, have a nickname, or are in a voice channel, and if it has under the threshold,
+     * <br>it will send all members.
+     *
+     * Limitations put in place by Discord for this method:
+     * <ul>
+     *     <li><b>GUILD_PRESENCES</b> intent is required to set presences to true, otherwise it will always be false.</li>
+     *     <li><b>GUILD_MEMBERS</b> intent is required to request the entire member list.</li>
+     *     <li>You will be limited to requesting 1 <b>guild</b> per request.</li>
+     *     <li>Requesting a prefix (query parameter) will return a maximum of 100 members.</li>
+     *     <li>Requesting user ids will continue to be limited to returning 100 members.</li>
+     *  </ul>
+     *
+     * This method is done over the Gateway.
+     * @return A {@link CompletableFuture<List>} of {@link Member Members}, but first a {@link com.seailz.discordjv.action.guild.members.RequestGuildMembersAction RequestGuildMembersAction} is returned,
+     * for you to set the parameters of the request.
+     */
+    public RequestGuildMembersAction requestAllMembers() {
+        return new RequestGuildMembersAction(id, discordJv);
     }
 
     /**

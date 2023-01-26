@@ -20,10 +20,13 @@ import com.seailz.discordjv.events.model.message.MessageCreateEvent;
 import com.seailz.discordjv.gateway.GatewayFactory;
 import com.seailz.discordjv.command.CommandType;
 import com.seailz.discordjv.model.component.ComponentType;
+import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
+import com.seailz.discordjv.utils.TriFunction;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -47,17 +50,17 @@ import java.util.logging.Logger;
 public enum DispatchedEvents {
 
     /* Sent when bot is ready to receive events */
-    READY((p, d) -> ReadyEvent.class),
+    READY((p, g, d) -> ReadyEvent.class),
     /* Sent when a guild is created */
-    GUILD_CREATE((p, d) -> GuildCreateEvent.class),
+    GUILD_CREATE((p, d, g) -> GuildCreateEvent.class),
     /* Sent when a gateway connection is resumed */
-    RESUMED((p, d) -> GatewayResumedEvent.class),
+    RESUMED((p, d, g) -> GatewayResumedEvent.class),
     /* Sent when a message is created */
-    MESSAGE_CREATE((p, d) -> MessageCreateEvent.class),
+    MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
     /* Sent when a command permission is updated */
-    APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, d) -> CommandPermissionUpdateEvent.class),
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, g, d) -> CommandPermissionUpdateEvent.class),
     /* Sent when an interaction is created */
-    INTERACTION_CREATE((p, d) -> {
+    INTERACTION_CREATE((p, g, d) -> {
         switch (InteractionType.getType(p.getJSONObject("d").getInt("type"))) {
             case PING -> {
                 Logger.getLogger("EventDispatcher")
@@ -126,17 +129,49 @@ public enum DispatchedEvents {
         }
         return null;
     }),
+
+    GUILD_MEMBERS_CHUNK((p, g, d) -> {
+        JSONObject payload = p.getJSONObject("d");
+        String nonce = payload.getString("nonce");
+
+        if (nonce == null) {
+            Logger.getLogger("DispatchedEvents").warning(
+                    "[DISCORD.JV] Received a GUILD_MEMBER_CHUNK event with no nonce. This is extremely unusual - please report this " +
+                            "on our GitHub page.");
+            return null;
+        }
+
+        GatewayFactory.MemberChunkStorageWrapper wrapper = g.memberRequestChunks.get(nonce);
+        if (wrapper == null) {
+            Logger.getLogger("DispatchedEvents").warning("[DISCORD.JV] Received member chunk with unknown nonce: " + nonce);
+            return null;
+        }
+
+        JSONArray members = payload.getJSONArray("members");
+        members.forEach(member -> {
+            wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+        });
+
+        int chunkCount = payload.getInt("chunk_count") - 1;
+        int chunkIndex = payload.getInt("chunk_index");
+
+        if (chunkCount == chunkIndex) {
+            g.memberRequestChunks.get(nonce).complete();
+            g.memberRequestChunks.remove(nonce);
+        }
+        return null;
+    }),
     /* Unknown */
-    UNKNOWN((p, d) -> null),
+    UNKNOWN((p, g, d) -> null),
     ;
 
-    private final BiFunction<JSONObject, DiscordJv, Class<? extends Event>> event;
+    private final TriFunction<JSONObject, GatewayFactory, DiscordJv, Class<? extends Event>> event;
 
-    DispatchedEvents(BiFunction<JSONObject, DiscordJv, Class<? extends Event>> event) {
+    DispatchedEvents(TriFunction<JSONObject, GatewayFactory, DiscordJv, Class<? extends Event>> event) {
         this.event = event;
     }
 
-    public BiFunction<JSONObject, DiscordJv, Class<? extends Event>> getEvent() {
+    public TriFunction<JSONObject, GatewayFactory, DiscordJv, Class<? extends Event>> getEvent() {
         return event;
     }
 

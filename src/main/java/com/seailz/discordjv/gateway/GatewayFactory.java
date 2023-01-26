@@ -1,6 +1,7 @@
 package com.seailz.discordjv.gateway;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjv.events.model.Event;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
@@ -8,6 +9,7 @@ import com.seailz.discordjv.gateway.events.GatewayEvents;
 import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
@@ -28,6 +30,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
@@ -44,6 +47,8 @@ public class GatewayFactory extends TextWebSocketHandler {
     private String sessionId;
     private final List<JSONObject> queue = new ArrayList<>();
     private boolean ready;
+    // String is the nonce of the request and the list is all members that have been received so far.
+    public HashMap<String, MemberChunkStorageWrapper> memberRequestChunks;
 
 
     public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
@@ -155,6 +160,37 @@ public class GatewayFactory extends TextWebSocketHandler {
         }).start();
     }
 
+    public void requestGuildMembers(RequestGuildMembersAction action, CompletableFuture<List<Member>> future) {
+        if (action.getQuery() == null & action.getUserIds() == null) {
+            throw new IllegalArgumentException("You must provide either a query or a list of user ids");
+        }
+
+        JSONObject payload = new JSONObject();
+        JSONObject dPayload = new JSONObject();
+        dPayload.put("guild_id", action.getGuildId());
+        if (action.getQuery() != null) {
+            dPayload.put("query", action.getQuery());
+        }
+
+        if (action.getUserIds() != null && !action.getUserIds().isEmpty()) {
+            dPayload.put("user_ids", action.getUserIds());
+        }
+
+        dPayload.put("limit", action.getLimit());
+        if (action.isPresences()) dPayload.put("presences", true);
+        dPayload.put("nonce", action.getNonce());
+        payload.put("op", 8);
+        payload.put("d", dPayload);
+
+        try {
+            queueMessage(payload);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        memberRequestChunks.put(action.getNonce(), new MemberChunkStorageWrapper(new ArrayList<>(), future));
+    }
+
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
@@ -212,10 +248,10 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     }
 
-    private void handleDispatched(JSONObject payload) throws ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // Handle dispatched events
         // actually dispatch the event
-        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, discordJv);
+        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJv);
         if (eventClass == null) {
             logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t"));
             logger.info("This is usually ok, if a new feature has recently been added to Discord as discord.jv may not support it yet.");
@@ -254,8 +290,14 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     private void sendIdentify() throws IOException {
         AtomicInteger intents = new AtomicInteger();
-        if (discordJv.getIntents().contains(Intent.ALL))
+        if (discordJv.getIntents().contains(Intent.ALL)) {
             intents.set(3243773);
+            discordJv.getIntents().forEach(intent -> {
+                if (intent.isPrivileged()) {
+                    intents.getAndAdd(intent.getLeftShiftId());
+                }
+            });
+        }
         else {
             discordJv.getIntents().forEach(intent -> {
                 intents.getAndAdd(intent.getLeftShiftId());
@@ -292,5 +334,31 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public WebSocketSession getClientSession() {
         return clientSession;
+    }
+
+    public class MemberChunkStorageWrapper {
+        private final List<Member> members;
+        private final CompletableFuture<List<Member>> future;
+
+        public MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
+            this.members = members;
+            this.future = future;
+        }
+
+        public List<Member> getMembers() {
+            return members;
+        }
+
+        public CompletableFuture<List<Member>> getFuture() {
+            return future;
+        }
+
+        public void addMember(Member member) {
+            members.add(member);
+        }
+
+        public void complete() {
+            future.complete(members);
+        }
     }
 }

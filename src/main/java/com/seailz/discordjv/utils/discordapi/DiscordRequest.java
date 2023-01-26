@@ -99,7 +99,6 @@ public class DiscordRequest {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-
             int responseCode = response.statusCode();
             System.out.println(request.uri() + " " + request.method());
 
@@ -148,6 +147,16 @@ public class DiscordRequest {
                     }
                 }
             }).start();
+
+            try {
+                if (response.body().startsWith("[")) {
+                    new JSONArray(response.body());
+                } else {
+                    new JSONObject(response.body());
+                }
+            } catch (JSONException e) {
+                System.out.println(response.body());
+            }
 
             if (responseCode == 200 || responseCode == 201) {
 
@@ -291,7 +300,6 @@ public class DiscordRequest {
                 offset += part.length;
             }
 
-
             if (requestMethod == RequestMethod.POST) {
                 con.POST(HttpRequest.BodyPublishers.ofByteArray(body));
             } else if (requestMethod == RequestMethod.PATCH) {
@@ -306,7 +314,7 @@ public class DiscordRequest {
                 con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofByteArray(body));
             }
 
-            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/, 1.0.0)");
+            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/discord.jar, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "multipart/form-data; boundary=" + boundary);
 

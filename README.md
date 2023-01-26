@@ -7,7 +7,7 @@
 discord.jar [![loc - discord.jar](https://sloc.xyz/github/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar) is
 a **work in progress** Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
 Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if you're
-interested in helping out it would be greatly appreciated!
+interested in helping out it would be greatly appreciated! Developed & maintained by @seailz
 
 ## Getting Started
 

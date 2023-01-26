@@ -32,6 +32,11 @@ public interface InteractionHandler {
         defer(false);
     }
 
+    /**
+     * Only valid for component-based interactions.
+     */
+    void deferEdit();
+
 
     String getToken();
 

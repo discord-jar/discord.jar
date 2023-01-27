@@ -6,6 +6,7 @@ import com.seailz.discordjv.command.CommandChoice;
 import com.seailz.discordjv.command.CommandDispatcher;
 import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.command.annotation.ContextCommandInfo;
+import com.seailz.discordjv.command.annotation.Locale;
 import com.seailz.discordjv.command.annotation.SlashCommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
 import com.seailz.discordjv.command.listeners.MessageContextCommandListener;
@@ -37,6 +38,7 @@ import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import com.seailz.discordjv.utils.discordapi.RateLimit;
 import com.seailz.discordjv.utils.discordapi.RequestQueueHandler;
+import com.seailz.discordjv.utils.permission.Permission;
 import com.seailz.discordjv.utils.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -514,13 +516,24 @@ public class DiscordJv {
 
             Annotation ann = listener.getClass().isAnnotationPresent(SlashCommandInfo.class) ? listener.getClass().getAnnotation(SlashCommandInfo.class) : listener.getClass().getAnnotation(ContextCommandInfo.class);
             String name = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).name() : ((ContextCommandInfo) ann).value();
-            String description =  (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).description() : "";
+            String description = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).description() : "";
+
+            Locale[] nameLocales = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nameLocalizations() : ((ContextCommandInfo) ann).nameLocalizations();
+            Locale[] descriptionLocales = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).descriptionLocalizations() : ((ContextCommandInfo) ann).descriptionLocalizations();
+            Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
+            boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
+            boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
             registerCommand(
                     new Command(
                             name,
                             listener.getType(),
                             description,
-                            (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>()
+                            (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                            nameLocales,
+                            descriptionLocales,
+                            defaultMemberPermissions,
+                            canUseInDms,
+                            nsfw
                     )
             );
             commandDispatcher.registerCommand(name, listener);

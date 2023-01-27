@@ -2,6 +2,7 @@ package com.seailz.discordjv.model.guild;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.action.automod.AutomodRuleCreateAction;
+import com.seailz.discordjv.action.automod.AutomodRuleModifyAction;
 import com.seailz.discordjv.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjv.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjv.action.sticker.ModifyStickerAction;
@@ -647,6 +648,10 @@ public record Guild(
                 URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE,
                 RequestMethod.DELETE
         ).invoke();
+    }
+
+    public AutomodRuleModifyAction modifyAutomodRule(String id) {
+        return new AutomodRuleModifyAction(id, this, discordJv);
     }
 
     public Member getMemberById(String id) {

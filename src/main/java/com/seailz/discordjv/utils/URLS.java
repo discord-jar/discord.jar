@@ -167,117 +167,121 @@ public final class URLS {
                  * @param id The id of the guild
                  */
                 public static String GET_GUILD_SCHEDULED_EVENTS = "/guilds/{guild.id}/scheduled-events";
-            /**
-             * Read {@link DiscordJv#getGuilds()} for more information
-             */
-            public static String GET_CURRENT_USER_GUILDS = "/users/@me/guilds";
-
-            public static class CHANNELS {
                 /**
-                 * Returns a list of {@link com.seailz.discordjv.model.channel.Channel} objects
-                 *
-                 * @param id The id of the guild
+                 * Read {@link DiscordJv#getGuilds()} for more information
                  */
-                public static String GET_GUILD_CHANNELS = "/guilds/{guild.id}/channels";
+                public static String GET_CURRENT_USER_GUILDS = "/users/@me/guilds";
+
+                public static class CHANNELS {
+                    /**
+                     * Returns a list of {@link com.seailz.discordjv.model.channel.Channel} objects
+                     *
+                     * @param id The id of the guild
+                     */
+                    public static String GET_GUILD_CHANNELS = "/guilds/{guild.id}/channels";
+                }
+
+                public static class EMOJIS {
+                    /**
+                     * Gets guild emojis
+                     *
+                     * @param id The id of the guild
+                     */
+                    public static String GUILD_EMOJIS = "/guilds/{guild.id}/emojis";
+                    /**
+                     * Gets a guild emoji by id
+                     *
+                     * @param id The id of the guild
+                     * @param emoji.id The id of the emoji
+                     */
+                    public static String GET_GUILD_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
+                }
+
+                public static class STICKERS {
+                    /**
+                     * Returns a list of guild stickers
+                     *
+                     * @param id The id of the guild
+                     */
+                    public static String GET_GUILD_STICKERS = "/guilds/{guild.id}/stickers";
+                    /**
+                     * Returns a guild sticker
+                     *
+                     * @param id The id of the guild
+                     * @param sticker.id The id of the sticker
+                     */
+                    public static String GET_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
+                }
+
+                public static class AUTOMOD {
+                    /**
+                     * Returns a list of guild automod settings
+                     *
+                     * @param id The id of the guild
+                     */
+                    public static String LIST_AUTOMOD_RULES = "/guilds/{guild.id}/auto-moderation/rules";
+                    /**
+                     * Returns an automod rule
+                     *
+                     * @param guild.id The id of the guild
+                     * @param rule.id The id of the rule
+                     */
+                    public static String GET_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
+                }
+
+                public static class MEMBERS {
+                    /**
+                     * Returns a list of guild members
+                     *
+                     * @param id The id of the guild
+                     */
+                    public static String LIST_GUILD_MEMBERS = "/guilds/{guild.id}/members";
+                    /**
+                     * Returns a guild member
+                     *
+                     * @param guild.id The id of the guild
+                     * @param user.id The id of the user
+                     */
+                    public static String GET_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
+                }
+
+                public static class ROLES {
+                    public static String GET_GUILD_ROLES = "/guilds/{guild.id}/roles";
+                }
             }
 
-            public static class EMOJIS {
-                /**
-                 * Gets guild emojis
-                 * @param id The id of the guild
-                 */
-                public static String GUILD_EMOJIS = "/guilds/{guild.id}/emojis";
-                /**
-                 * Gets a guild emoji by id
-                 * @param id The id of the guild
-                 * @param emoji.id The id of the emoji
-                 */
-                public static String GET_GUILD_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
+            public static class INTERACTIONS {
+                public static String GET_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+                public static String GET_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
             }
 
-            public static class STICKERS {
+            public static class APPLICATIONS {
                 /**
-                 * Returns a list of guild stickers
+                 * Returns an {@link com.seailz.discordjv.model.application.Application object containing information about the application of the bot selected}
                  *
-                 * @param id The id of the guild
+                 * @param id the id of the bot
                  */
-                public static String GET_GUILD_STICKERS = "/guilds/{guild.id}/stickers";
+                public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
                 /**
-                 * Returns a guild sticker
+                 * Returns a list of {@link com.seailz.discordjv.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
                  *
-                 * @param id The id of the guild
-                 * @param sticker.id The id of the sticker
+                 * @param id the id of the app
                  */
-                public static String GET_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
+                public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
             }
 
-            public static class AUTOMOD {
+            public static class STICKER {
                 /**
-                 * Returns a list of guild automod settings
+                 * Returns a {@link com.seailz.discordjv.model.emoji.sticker.Sticker} object containing information about the sticker
                  *
-                 * @param id The id of the guild
+                 * @param id The id of the sticker
                  */
-                public static String LIST_AUTOMOD_RULES = "/guilds/{guild.id}/auto-moderation/rules";
+                public static String GET_STICKER = "/stickers/{sticker.id}";
                 /**
-                 * Returns an automod rule
-                 *
-                 * @param guild.id The id of the guild
-                 * @param rule.id The id of the rule
+                 * Returns a list of {@link com.seailz.discordjv.model.emoji.sticker.StickerPack} objects containing information about the sticker packs Nitro users can use
                  */
-                public static String GET_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
+                public static String GET_NITRO_STICKER_PACKS = "/sticker-packs";
             }
-
-            public static class MEMBERS {
-                /**
-                 * Returns a list of guild members
-                 *
-                 * @param id The id of the guild
-                 */
-                public static String LIST_GUILD_MEMBERS = "/guilds/{guild.id}/members";
-                /**
-                 * Returns a guild member
-                 *
-                 * @param guild.id The id of the guild
-                 * @param user.id The id of the user
-                 */
-                public static String GET_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
-            }
-
-            public static class ROLES {
-                public static String GET_GUILD_ROLES = "/guilds/{guild.id}/roles";
-            }
-        }
-
-        public static class INTERACTIONS {
-            public static String GET_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
-            public static String GET_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
-        }
-
-        public static class APPLICATIONS {
-            /**
-             * Returns an {@link com.seailz.discordjv.model.application.Application object containing information about the application of the bot selected}
-             *
-             * @param id the id of the bot
-             */
-            public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
-            /**
-             * Returns a list of {@link com.seailz.discordjv.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
-             * @param id the id of the app
-             */
-            public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
-        }
-
-        public static class STICKER {
-            /**
-             * Returns a {@link com.seailz.discordjv.model.emoji.sticker.Sticker} object containing information about the sticker
-             *
-             * @param id The id of the sticker
-             */
-            public static String GET_STICKER = "/stickers/{sticker.id}";
-            /**
-             * Returns a list of {@link com.seailz.discordjv.model.emoji.sticker.StickerPack} objects containing information about the sticker packs Nitro users can use
-             */
-            public static String GET_NITRO_STICKER_PACKS = "/sticker-packs";
         }
     }
 
@@ -334,6 +338,7 @@ public final class URLS {
                  */
                 public static String MODIFY_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
             }
+
             public static class AUTOMOD {
                 /**
                  * Updates an automod rule
@@ -343,6 +348,7 @@ public final class URLS {
                  */
                 public static String UPDATE_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
             }
+
             public static class STICKER {
                 /**
                  * Modifies a guild sticker
@@ -412,5 +418,4 @@ public final class URLS {
     public static class GATEWAY {
         public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
     }
-
 }

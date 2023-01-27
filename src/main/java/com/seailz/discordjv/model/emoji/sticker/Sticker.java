@@ -3,6 +3,7 @@ package com.seailz.discordjv.model.emoji.sticker;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,7 +22,7 @@ import java.util.List;
  * @param tags        The tags for the sticker
  * @param type        The {@link StickerType} of the sticker
  * @param format      The {@link StickerFormat} of the sticker
- * @param available   Whether or not the sticker is available
+ * @param available   Whether the sticker is available
  * @param guildId     The id of the guild that owns this sticker
  * @param user        The user that uploaded the guild sticker
  * @param sortValue   The standard sticker's sort order within its pack
@@ -38,7 +39,7 @@ public record Sticker(
         String guildId,
         User user,
         int sortValue
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
 
     /**

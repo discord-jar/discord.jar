@@ -2,6 +2,7 @@ package com.seailz.discordjv.action.interaction;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.component.DisplayComponent;
+import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjv.model.interaction.reply.InteractionMessageResponse;
 import com.seailz.discordjv.model.message.Attachment;
@@ -131,5 +132,20 @@ public class MessageInteractionCallbackAction extends InteractionCallbackAction 
         return this;
     }
 
-    // embeds
+    //embeds
+    public MessageInteractionCallbackAction setEmbeds(Embeder... embeds) {
+        ((InteractionMessageResponse) this.getReply()).setEmbeds(List.of(embeds));
+        return this;
+    }
+
+    public MessageInteractionCallbackAction setEmbeds(List<Embeder> embeds) {
+        ((InteractionMessageResponse) this.getReply()).setEmbeds(embeds);
+        return this;
+    }
+
+    public MessageInteractionCallbackAction addEmbed(Embeder embed) {
+        ((InteractionMessageResponse) this.getReply()).addEmbed(embed);
+        return this;
+    }
+
 }

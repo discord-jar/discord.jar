@@ -2,6 +2,8 @@ package com.seailz.discordjv.model.interaction.data.command;
 
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.command.CommandOptionType;
+import com.seailz.discordjv.model.interaction.data.ResolvedData;
+import com.seailz.discordjv.model.role.Role;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,13 +20,14 @@ import java.util.List;
  */
 public class ResolvedCommandOption implements Compilerable {
     private final String name;
-    private final JSONObject data;
+    private final Object data;
     private final CommandOptionType type;
     // Present if this option is a group or subcommand
     private final List<ResolvedCommandOption> options;
     private final boolean focused;
+    private ResolvedData resolved;
 
-    public ResolvedCommandOption(String name, JSONObject data, CommandOptionType type, List<ResolvedCommandOption> options, boolean focused) {
+    public ResolvedCommandOption(String name, Object data, CommandOptionType type, List<ResolvedCommandOption> options, boolean focused) {
         this.name = name;
         this.data = data;
         this.type = type;
@@ -40,30 +43,32 @@ public class ResolvedCommandOption implements Compilerable {
 
         return new JSONObject()
                 .put("name", name)
-                .put("value", data.get("value"))
+                .put("value", data)
                 .put("type", type.getCode())
                 .put("options", options)
                 .put("focused", focused);
     }
 
     @NotNull
-    public static ResolvedCommandOption decompile(JSONObject obj) {
+    public static ResolvedCommandOption decompile(JSONObject obj, ResolvedData resolvedData) {
         List<ResolvedCommandOption> options = new ArrayList<>();
         if (obj.has("options")) {
             JSONArray optionsArray = obj.getJSONArray("options");
             for (int i = 0; i < optionsArray.length(); i++) {
-                options.add(decompile(optionsArray.getJSONObject(i)));
+                options.add(decompile(optionsArray.getJSONObject(i), resolvedData));
             }
         }
 
-        JSONObject value = obj.has("value") ? obj.getJSONObject("value") : null;
-        return new ResolvedCommandOption(
+        Object value = obj.has("value") ? obj.get("value") : null;
+        ResolvedCommandOption res = new ResolvedCommandOption(
                 obj.getString("name"),
                 value,
                 CommandOptionType.fromCode(obj.getInt("type")),
                 options,
                 obj.has("focused") && obj.getBoolean("focused")
         );
+        res.resolved = resolvedData;
+        return res;
     }
 
     public String name() {
@@ -71,15 +76,19 @@ public class ResolvedCommandOption implements Compilerable {
     }
 
     public String getAsString() {
-        return data.getString("value");
+        return (String) data;
     }
 
     public int getAsInt() {
-        return data.getInt("value");
+        return (int) data;
     }
 
     public boolean getAsBoolean() {
-        return data.getBoolean("value");
+        return (boolean) data;
+    }
+
+    public Role getAsRole() {
+        return this.resolved.roles().get(getAsString());
     }
 
     public CommandOptionType type() {

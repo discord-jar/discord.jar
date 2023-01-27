@@ -122,4 +122,9 @@ public record Role(
         obj.put("tags", tags.compile());
         return obj;
     }
+
+    @Override
+    public String getMentionablePrefix() {
+        return "@&";
+    }
 }

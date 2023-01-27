@@ -4,6 +4,7 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.Snowflake;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
@@ -30,7 +31,7 @@ public record Emoji(
         boolean managed,
         boolean animated,
         boolean available
-) implements Compilerable {
+) implements Compilerable, Snowflake {
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
@@ -108,5 +109,40 @@ public record Emoji(
             available = false;
         }
         return new Emoji(id, name, roles, user, requireColons, managed, animated, available);
+    }
+
+    /**
+     * Gets an emoji is a mention that can be added in a {@link com.seailz.discordjv.model.message.Message}
+     * @return The emoji mention as a String
+     */
+    public String getAsMention() {
+        StringBuilder mentionBuilder = new StringBuilder();
+        mentionBuilder.append("<");
+        if (animated) mentionBuilder.append("a");
+        mentionBuilder.append(":").append(name).append(":").append(id).append(">");
+
+        return mentionBuilder.toString();
+    }
+
+    public static Emoji from(String id, String name, boolean animated) {
+        return new Emoji(id, name, null, null, false, false, animated, false);
+    }
+
+    public static Emoji from(String emoji) {
+        String[] emojiString;
+        emoji = emoji.replaceFirst("<:", "");
+        emojiString = emoji.split(":");
+
+        String name = emojiString[0];
+        String id = emojiString[1].replaceFirst(">", "");
+        boolean animated = false;
+
+        if (emojiString.length == 3) {
+            animated = true;
+            name = emojiString[1];
+            id = emojiString[2].replaceFirst(">", "");
+        }
+
+        return Emoji.from(id, name, animated);
     }
 }

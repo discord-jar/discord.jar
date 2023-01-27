@@ -1,11 +1,15 @@
 package com.seailz.discordjv.events.model.interaction.select.entity;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.model.interaction.InteractionEvent;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.component.select.entity.ChannelSelectMenu;
+import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjv.model.interaction.data.message.MessageComponentInteractionData;
+import com.seailz.discordjv.model.interaction.modal.Modal;
+import com.seailz.discordjv.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjv.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -47,7 +51,7 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
     /**
      * Returns the selected channels of the {@link com.seailz.discordjv.model.component.select.entity.ChannelSelectMenu ChannelSelectMenu}.
      *
-     * @return A list of {@link com.seailz.discordjv.model.channel.Channel} objects containing the selected channels.
+     * @return A list of {@link Channel} objects containing the selected channels.
      * @throws IllegalStateException if the event was not fied in a {@link com.seailz.discordjv.model.guild.Guild Guild}.
      */
     public List<Channel> getSelectedChannels() {
@@ -83,5 +87,15 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
         if (getInteraction().user() == null)
             return getInteraction().member().user();
         return getInteraction().user();
+    }
+
+    public ModalInteractionCallbackAction replyModal(Modal modal) {
+        return new ModalInteractionCallbackAction(
+                InteractionCallbackType.MODAL,
+                new InteractionModalResponse(modal.title(), modal.customId(), modal.components()),
+                getInteraction().token(),
+                getInteraction().id(),
+                getBot()
+        );
     }
 }

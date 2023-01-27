@@ -3,6 +3,7 @@ package com.seailz.discordjv.utils.cache;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -51,7 +52,26 @@ public class Cache<T> {
      *
      * @param t The object to add
      */
-    public void cache(T t) {
+    public void cache(@NotNull T t)  {
+        String id;
+        try {
+             id = (String) t.getClass().getMethod("id").invoke(t);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (T cacheMember : cache) {
+            String cacheId;
+            try {
+                cacheId = (String) cacheMember.getClass().getMethod("id").invoke(cacheMember);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+            if (cacheId.equals(id)) {
+                cache.remove(cacheMember);
+                break;
+            }
+        }
         cache.add(t);
     }
 
@@ -77,7 +97,7 @@ public class Cache<T> {
      * @param id The id of the item to get
      * @return The item
      */
-    public T getById(String id) {
+    public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
         cache.forEach(t -> {
             String itemId;
@@ -97,7 +117,8 @@ public class Cache<T> {
 
         if (returnObject.get() == null) {
             // request from discord
-            DiscordResponse response = new DiscordRequest(
+            DiscordResponse response;
+            response = new DiscordRequest(
                     discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJv, discordRequest.url(), RequestMethod.GET
             ).invoke();
             Method decompile;
@@ -113,14 +134,29 @@ public class Cache<T> {
             }
 
             try {
+                System.out.println(decompile.getParameterCount());
+                if (response == null) return null;
                 returnObject.set(decompile.invoke(null, response.body(), discordJv));
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                Logger.getLogger("DiscordJv").severe("Was unable to return object from cache, please report this to discord.jv's github!");
-                throw new RuntimeException(e);
+            } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+                Logger.getLogger("DiscordJv").warning("Was unable to return object from cache, attempting to remove discord.jv instance...");
+                try {
+                    returnObject.set(decompile.invoke(null, response.body()));
+                    Logger.getLogger("discord.jv").info("Successfully retrieved object from cache!");
+                } catch (IllegalAccessException | InvocationTargetException ex) {
+                    Logger.getLogger("DiscordJv").severe("Was unable to return user from cache, please report this to discord.jv's github!");
+                    throw new RuntimeException(ex);
+                }
             }
         }
 
         if (returnObject.get() != null) cache.add((T) returnObject.get());
         return returnObject.get() == null ? null : (T) returnObject.get();
+    }
+
+    public JSONObject getFresh(String id) {
+        DiscordResponse response = new DiscordRequest(
+                discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJv, discordRequest.url(), RequestMethod.GET
+        ).invoke();
+        return response.body();
     }
 }

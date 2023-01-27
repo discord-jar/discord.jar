@@ -8,6 +8,10 @@ import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.flag.BitwiseUtil;
+import com.seailz.discordjv.utils.permission.Permission;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,14 +45,20 @@ public record Member(
         boolean deaf,
         boolean mute,
         boolean pending,
-        String permissions,
+        List<Permission> permissions,
         String communicationDisabledUntil,
         String guildId,
+        List<MemberFlags> flags,
+        int flagsRaw,
         DiscordJv discordJv
 ) implements Compilerable, Resolvable {
 
     @Override
     public JSONObject compile() {
+        int permissions = 0;
+        for (Permission permission : this.permissions) {
+            permissions += permission.getLeftShiftId();
+        }
         JSONObject obj = new JSONObject();
         obj.put("user", user.compile());
         obj.put("nick", nick);
@@ -61,93 +71,67 @@ public record Member(
         obj.put("pending", pending);
         obj.put("permissions", permissions);
         obj.put("communication_disabled_until", communicationDisabledUntil);
+        obj.put("flags", flagsRaw);
         return obj;
     }
 
     @NonNull
-    public static Member decompile(JSONObject obj, DiscordJv discordJv, String guildId) {
-        User user;
-        String nick;
-        String avatar;
-        Role[] roles;
-        String joinedAt;
-        String premiumSince;
-        boolean deaf;
-        boolean mute;
-        boolean pending;
-        String permissions;
-        String communicationDisabledUntil;
+    @Contract("_, _, _, _ -> new")
+    public static Member decompile(@NotNull JSONObject obj, @NotNull DiscordJv discordJv, String guildId, Guild guild) {
+        User user = null;
+        String nick = null;
+        String avatar = null;
+        Role[] roles = new Role[0];
+        String joinedAt = null;
+        String premiumSince = null;
+        boolean deaf = false;
+        boolean mute = false;
+        boolean pending = false;
+        List<MemberFlags> flags = null;
+        int flagsRaw = 0;
+        List<Permission> permissions = null;
+        String communicationDisabledUntil = null;
 
-        try {
-            user = User.decompile(obj.getJSONObject("user"), discordJv);
-        } catch (Exception e) {
-            user = null;
-        }
-
-        try {
-            nick = obj.getString("nick");
-        } catch (Exception e) {
-            nick = null;
-        }
-
-        try {
-            avatar = obj.getString("avatar");
-        } catch (Exception e) {
-            avatar = null;
-        }
-
-        try {
-            List<Role> rolesList = new ArrayList<>();
-            for (Object o : obj.getJSONArray("roles")) {
-                rolesList.add(Role.decompile((JSONObject) o));
+        if (obj.has("user")) user = User.decompile(obj.getJSONObject("user"), discordJv);
+        if (obj.has("nick")) nick = obj.getString("nick");
+        if (obj.has("avatar")) avatar = obj.getString("avatar");
+        if (obj.has("roles")) {
+            if (guild != null) {
+                List<Role> rolesList = new ArrayList<>();
+                List<Role> guildRoles = guild.roles();
+                for (Object o : obj.getJSONArray("roles")) {
+                    guildRoles.stream()
+                            .filter(role -> role.id().equals(o.toString()))
+                            .findFirst()
+                            .ifPresent(rolesList::add);
+                }
+                roles = rolesList.toArray(new Role[0]);
             }
-            roles = rolesList.toArray(new Role[0]);
-        } catch (Exception e) {
-            roles = null;
         }
+        if (obj.has("joined_at")) joinedAt = obj.getString("joined_at");
+        if (obj.has("premium_since")) premiumSince = obj.getString("premium_since");
+        if (obj.has("deaf")) deaf = obj.getBoolean("deaf");
+        if (obj.has("mute")) mute = obj.getBoolean("mute");
+        if (obj.has("pending")) pending = obj.getBoolean("pending");
 
-        try {
-            joinedAt = obj.getString("joined_at");
-        } catch (Exception e) {
-            joinedAt = null;
-        }
-
-        try {
-            premiumSince = obj.getString("premium_since");
-        } catch (Exception e) {
-            premiumSince = null;
-        }
-
-        try {
-            deaf = obj.getBoolean("deaf");
-        } catch (Exception e) {
-            deaf = false;
-        }
-
-        try {
-            mute = obj.getBoolean("mute");
-        } catch (Exception e) {
-            mute = false;
-        }
-
-        try {
-            pending = obj.getBoolean("pending");
-        } catch (Exception e) {
-            pending = false;
-        }
-
-        try {
-            permissions = obj.getString("permissions");
-        } catch (Exception e) {
+        /*try {
+            BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
+            List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
+                    Integer.parseInt(obj.getString("permissions")), Permission.class));
+            permissions = permissionsList;
+        } catch (JSONException e) {
             permissions = null;
+        }*/
+
+        if (obj.has("flags")) {
+            flagsRaw = obj.getInt("flags");
+            BitwiseUtil<MemberFlags> bitwiseUtil = new BitwiseUtil<>();
+            flags = new ArrayList<>(bitwiseUtil.get(flagsRaw, MemberFlags.class));
         }
 
-        try {
+        if (obj.has("communication_disabled_until"))
             communicationDisabledUntil = obj.getString("communication_disabled_until");
-        } catch (Exception e) {
-            communicationDisabledUntil = null;
-        }
-        return new Member(user, nick, avatar, roles, joinedAt, premiumSince, deaf, mute, pending, permissions, communicationDisabledUntil, guildId, discordJv);
+        return new Member(user, nick, avatar, roles, joinedAt, premiumSince, deaf, mute, pending, permissions, communicationDisabledUntil, guildId, flags, flagsRaw, discordJv);
     }
 
     /**
@@ -173,7 +157,7 @@ public record Member(
                 URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
                 RequestMethod.PATCH
         ).invoke();
-        System.out.println(timeout);
+
     }
 
     public void removeTimeout() {
@@ -185,5 +169,25 @@ public record Member(
                 URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
                 RequestMethod.PATCH
         ).invoke();
+    }
+
+    /**
+     * Adds a role to a member.
+     * Requires `MANAGE_ROLES` permission.
+     * @param role the role to add
+     */
+    public void addRole(Role role) {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                discordJv,
+                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    public boolean hasPermission(Permission perm) {
+        return permissions.contains(perm);
     }
 }

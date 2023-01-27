@@ -1,6 +1,6 @@
 package com.seailz.discordjv.model.interaction.data;
 
-import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.channel.Channel;
 import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.model.message.Attachment;
@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents resolved data from an interaction
@@ -35,9 +34,10 @@ public record ResolvedData(
         HashMap<String, Channel> channels,
         HashMap<String, Message> messages,
         HashMap<String, Attachment> attachments
-) implements Compilerable {
+)// implements Compilerable
+{
 
-    @Override
+    /* @Override
     public JSONObject compile() {
         HashMap<String, Compilerable> users;
         HashMap<String, Compilerable> members;
@@ -83,81 +83,76 @@ public record ResolvedData(
                 .put("channels", channels == null ? JSONObject.NULL : mapToJson(channels))
                 .put("messages", messages == null ? JSONObject.NULL : mapToJson(messages))
                 .put("attachments", attachments == null ? JSONObject.NULL : mapToJson(attachments));
-    }
+    } */
 
     @NotNull
-    public static ResolvedData decompile(JSONObject obj) {
-        HashMap<String, User> users = new HashMap<>();
+    public static ResolvedData decompile(JSONObject obj, DiscordJv discordJv) {
+        HashMap<String, User> users;
         HashMap<String, Member> members;
-        HashMap<String, Role> roles;
+        HashMap<String, Role> roles = null;
         HashMap<String, Channel> channels;
         HashMap<String, Message> messages;
         HashMap<String, Attachment> attachments;
 
         try {
-            HashMap<String, Resolvable> usersMap = jsonToMap(obj.getJSONArray("users"));
-            for (Map.Entry<String, Resolvable> entry : usersMap.entrySet())
-                users.put(entry.getKey(), (User) entry.getValue());
+            JSONObject resolved = obj.getJSONObject("users");
+            users = new HashMap<>();
+            HashMap<String, User> finalUsers = users;
+            resolved.toMap().forEach((key, value) -> finalUsers.put(key, User.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             users = null;
         }
 
         try {
-            HashMap<String, Resolvable> membersMap = jsonToMap(obj.getJSONArray("members"));
+            JSONObject resolved = obj.getJSONObject("members");
             members = new HashMap<>();
-            for (Map.Entry<String, Resolvable> entry : membersMap.entrySet())
-                members.put(entry.getKey(), (Member) entry.getValue());
+            HashMap<String, Member> finalMembers = members;
+            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJv, null, null)));
         } catch (Exception e) {
             members = null;
         }
 
         try {
-            HashMap<String, Resolvable> rolesMap = jsonToMap(obj.getJSONArray("roles"));
+            JSONObject rolesObj = obj.getJSONObject("roles");
             roles = new HashMap<>();
-            for (Map.Entry<String, Resolvable> entry : rolesMap.entrySet())
-                roles.put(entry.getKey(), (Role) entry.getValue());
+
+            HashMap<String, Role> finalRoles = roles;
+            rolesObj.toMap().forEach((key, value) -> {
+                String json = new com.google.gson.Gson().toJson(value);
+                finalRoles.put(key, Role.decompile(new JSONObject(json)));
+            });
         } catch (Exception e) {
-            roles = null;
+            e.printStackTrace();
         }
 
         try {
-            HashMap<String, Resolvable> channelsMap = jsonToMap(obj.getJSONArray("channels"));
+            JSONObject channelsObj = obj.getJSONObject("channels");
             channels = new HashMap<>();
-            for (Map.Entry<String, Resolvable> entry : channelsMap.entrySet())
-                channels.put(entry.getKey(), (Channel) entry.getValue());
+            HashMap<String, Channel> finalChannels = channels;
+            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             channels = null;
         }
 
         try {
-            HashMap<String, Resolvable> messagesMap = jsonToMap(obj.getJSONArray("messages"));
+            JSONObject messagesObj = obj.getJSONObject("messages");
             messages = new HashMap<>();
-            for (Map.Entry<String, Resolvable> entry : messagesMap.entrySet())
-                messages.put(entry.getKey(), (Message) entry.getValue());
+            HashMap<String, Message> finalMessages = messages;
+            messagesObj.toMap().forEach((key, value) -> finalMessages.put(key, Message.decompile((JSONObject) value, discordJv)));
         } catch (Exception e) {
             messages = null;
         }
 
         try {
-            HashMap<String, Resolvable> attachmentsMap = jsonToMap(obj.getJSONArray("attachments"));
+            JSONObject attachmentsObj = obj.getJSONObject("attachments");
             attachments = new HashMap<>();
-            for (Map.Entry<String, Resolvable> entry : attachmentsMap.entrySet())
-                attachments.put(entry.getKey(), (Attachment) entry.getValue());
+            HashMap<String, Attachment> finalAttachments = attachments;
+            attachmentsObj.toMap().forEach((key, value) -> finalAttachments.put(key, Attachment.decompile((JSONObject) value)));
         } catch (Exception e) {
             attachments = null;
         }
 
         return new ResolvedData(users, members, roles, channels, messages, attachments);
-    }
-
-    public JSONArray mapToJson(HashMap<String, Compilerable> map) {
-        JSONArray arr = new JSONArray();
-        for (String key : map.keySet()) {
-            JSONObject obj = new JSONObject();
-            obj.put(key, map.get(key).compile());
-            arr.put(obj);
-        }
-        return arr;
     }
 
     public static HashMap<String, Resolvable> jsonToMap(JSONArray arr) {

@@ -1,12 +1,15 @@
 package com.seailz.discordjv.gateway;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjv.events.model.Event;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
 import com.seailz.discordjv.gateway.events.GatewayEvents;
 import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
+import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
@@ -27,38 +30,46 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class GatewayFactory extends TextWebSocketHandler {
 
-    private final DiscordJv discordJv;
-    private final String url;
+    private DiscordJv discordJv;
+    private String url;
     private WebSocketSession clientSession;
     private static int lastSequence;
-    private HeartbeatCycle heartbeatCycle;
-    private final Logger logger;
+    public HeartbeatCycle heartbeatCycle;
+    private Logger logger;
     private String resumeUrl;
     private String sessionId;
-    private final List<JSONObject> queue;
+    private final List<JSONObject> queue = new ArrayList<>();
     private boolean ready;
+    // String is the nonce of the request and the list is all members that have been received so far.
+    public HashMap<String, MemberChunkStorageWrapper> memberRequestChunks;
 
 
     public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
-        this.discordJv = discordJv;
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                "/gateway",
-                discordJv,
-                "/gateway", RequestMethod.GET
-        ).invoke();
-        this.url = response.body().getString("url");
-        this.queue = new ArrayList<>();
-        logger = Logger.getLogger("DISCORD.JV");
-        initiateConnection();
-        logger.info("[DISCORD.JV] Connected to gateway");
+        new Thread(() -> {
+            this.discordJv = discordJv;
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJv,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+            this.url = response.body().getString("url");
+            logger = Logger.getLogger("DISCORD.JV");
+            try {
+                initiateConnection();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("[DISCORD.JV] Connected to gateway");
+        }, "Gateway").start();
     }
 
     /**
@@ -75,16 +86,41 @@ public class GatewayFactory extends TextWebSocketHandler {
         queue.add(obj);
     }
 
+    public void startAgain() throws ExecutionException, InterruptedException {
+        new Thread(() -> {
+            this.heartbeatCycle = null;
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJv,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+            this.url = response.body().getString("url");
+            logger = Logger.getLogger("DISCORD.JV");
+            try {
+                initiateConnection();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("[DISCORD.JV] Connected to gateway");
+        }, "Gateway").start();
+    }
+
     private void initiateConnection() throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
+        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
+        clientSession.setTextMessageSizeLimit(1000000);
+        clientSession.setBinaryMessageSizeLimit(1000000);
     }
 
     private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
         // connect to websocket
         WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.doHandshake(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
+        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
+        clientSession.setTextMessageSizeLimit(1000000);
+        clientSession.setBinaryMessageSizeLimit(1000000);
     }
 
     public void reconnect() throws ExecutionException, InterruptedException, IOException {
@@ -100,10 +136,8 @@ public class GatewayFactory extends TextWebSocketHandler {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-
-            logger.info("[DISCORD.JV] Client was disconnected from gateway, reconnecting...");
             try {
-                initiateConnection(resumeUrl);
+                initiateConnection(resumeUrl == null ? url : resumeUrl);
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -117,8 +151,39 @@ public class GatewayFactory extends TextWebSocketHandler {
             }
 
 
-            logger.info("[DISCORD.JV] Gateway session has been resumed");
+            logger.info("[DISCORD.JV] Attempting Gateway Resume");
         }).start();
+    }
+
+    public void requestGuildMembers(RequestGuildMembersAction action, CompletableFuture<List<Member>> future) {
+        if (action.getQuery() == null & action.getUserIds() == null) {
+            throw new IllegalArgumentException("You must provide either a query or a list of user ids");
+        }
+
+        JSONObject payload = new JSONObject();
+        JSONObject dPayload = new JSONObject();
+        dPayload.put("guild_id", action.getGuildId());
+        if (action.getQuery() != null) {
+            dPayload.put("query", action.getQuery());
+        }
+
+        if (action.getUserIds() != null && !action.getUserIds().isEmpty()) {
+            dPayload.put("user_ids", action.getUserIds());
+        }
+
+        dPayload.put("limit", action.getLimit());
+        if (action.isPresences()) dPayload.put("presences", true);
+        dPayload.put("nonce", action.getNonce());
+        payload.put("op", 8);
+        payload.put("d", dPayload);
+
+        try {
+            queueMessage(payload);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        memberRequestChunks.put(action.getNonce(), new MemberChunkStorageWrapper(new ArrayList<>(), future));
     }
 
     @Override
@@ -149,7 +214,6 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case INVALID_SESSION:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
-                clientSession.close();
                 initiateConnection();
                 ready = false;
                 break;
@@ -159,15 +223,30 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        Logger logger = Logger.getLogger("DISCORD.JV");
+        logger.info("[DISCORD.JV] Gateway connection closed, reconnecting...");
+        logger.info("Was disconnected with status [" + status.getCode() + "]" + " " + status.getReason());
+    }
+
     private void handleHello(JSONObject payload) throws InterruptedException {
         // Start heartbeat cycle
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
+        try {
+            heartbeatCycle.sendHeartbeat();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
-    private void handleDispatched(JSONObject payload) throws ExecutionException, InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // Handle dispatched events
         // actually dispatch the event
-        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, discordJv);
+        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJv);
         if (eventClass == null) {
             logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t"));
             logger.info("This is usually ok, if a new feature has recently been added to Discord as discord.jv may not support it yet.");
@@ -205,11 +284,20 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private void sendIdentify() throws IOException {
-
         AtomicInteger intents = new AtomicInteger();
-        discordJv.getIntents().forEach(intent -> {
-            intents.getAndAdd(intent.getLeftShiftId());
-        });
+        if (discordJv.getIntents().contains(Intent.ALL)) {
+            intents.set(3243773);
+            discordJv.getIntents().forEach(intent -> {
+                if (intent.isPrivileged()) {
+                    intents.getAndAdd(intent.getLeftShiftId());
+                }
+            });
+        }
+        else {
+            discordJv.getIntents().forEach(intent -> {
+                intents.getAndAdd(intent.getLeftShiftId());
+            });
+        }
 
         JSONObject payload = new JSONObject();
         payload.put("op", 2);
@@ -241,5 +329,31 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public WebSocketSession getClientSession() {
         return clientSession;
+    }
+
+    public class MemberChunkStorageWrapper {
+        private final List<Member> members;
+        private final CompletableFuture<List<Member>> future;
+
+        public MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
+            this.members = members;
+            this.future = future;
+        }
+
+        public List<Member> getMembers() {
+            return members;
+        }
+
+        public CompletableFuture<List<Member>> getFuture() {
+            return future;
+        }
+
+        public void addMember(Member member) {
+            members.add(member);
+        }
+
+        public void complete() {
+            future.complete(members);
+        }
     }
 }

@@ -1,6 +1,10 @@
 package com.seailz.discordjv;
 
+import com.seailz.discordjv.action.guild.GetCurrentUserGuildsAction;
+import com.seailz.discordjv.command.Command;
+import com.seailz.discordjv.command.CommandChoice;
 import com.seailz.discordjv.command.CommandDispatcher;
+import com.seailz.discordjv.command.CommandOption;
 import com.seailz.discordjv.command.annotation.ContextCommandInfo;
 import com.seailz.discordjv.command.annotation.SlashCommandInfo;
 import com.seailz.discordjv.command.listeners.CommandListener;
@@ -12,23 +16,23 @@ import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.EventDispatcher;
 import com.seailz.discordjv.gateway.GatewayFactory;
+import com.seailz.discordjv.http.HttpOnlyApplication;
 import com.seailz.discordjv.model.application.Application;
 import com.seailz.discordjv.model.application.Intent;
+import com.seailz.discordjv.model.channel.Category;
 import com.seailz.discordjv.model.channel.Channel;
-import com.seailz.discordjv.command.Command;
-import com.seailz.discordjv.command.CommandChoice;
-import com.seailz.discordjv.command.CommandOption;
+import com.seailz.discordjv.model.channel.MessagingChannel;
+import com.seailz.discordjv.model.channel.audio.VoiceRegion;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.emoji.sticker.StickerPack;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.status.Status;
-import com.seailz.discordjv.model.status.StatusType;
-import com.seailz.discordjv.model.status.activity.Activity;
-import com.seailz.discordjv.model.status.activity.ActivityType;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
+import com.seailz.discordjv.utils.HTTPOnlyInfo;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.cache.Cache;
+import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import com.seailz.discordjv.utils.discordapi.RateLimit;
@@ -40,9 +44,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -64,7 +65,7 @@ public class DiscordJv {
     /**
      * Used to manage the gateway connection
      */
-    private final GatewayFactory gatewayFactory;
+    private GatewayFactory gatewayFactory;
     /**
      * Stores the logger
      */
@@ -103,19 +104,37 @@ public class DiscordJv {
      * The command dispatcher
      */
     protected final CommandDispatcher commandDispatcher;
+    /**
+     * A cache storing self user information
+     */
+    private JsonCache selfUserCache;
+
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
+        this(token, intents, version, false, null);
+    }
 
     /**
      * Creates a new instance of the DiscordJv class
      * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
      *
-     * @param token   The token of the bot
-     * @param intents The intents the bot will use
-     * @param version The version of the Discord API the bot will use
+     * @param token        The token of the bot
+     * @param intents      The intents the bot will use
+     * @param version      The version of the Discord API the bot will use
+     * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
+     *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
+     *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
+     *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
+     *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
+     *                     Interaction-based events will still be delivered as usual.
+     *                     For a full tutorial, see the README.md file.
+     * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
+     *                     See the above parameter for more information.
      * @throws ExecutionException   If an error occurs while connecting to the gateway
      * @throws InterruptedException If an error occurs while connecting to the gateway
      */
-    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        token = token.replaceAll("\\r\\n", "");
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+        new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
         new URLS(version);
@@ -123,7 +142,7 @@ public class DiscordJv {
         this.commandDispatcher = new CommandDispatcher();
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
-        this.gatewayFactory = new GatewayFactory(this);
+        if (!httpOnly) this.gatewayFactory = new GatewayFactory(this);
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
                         new JSONObject(),
@@ -153,7 +172,12 @@ public class DiscordJv {
         ));
 
         this.eventDispatcher = new EventDispatcher(this);
-        new RequestQueueHandler(this);
+
+        if (httpOnly) {
+            if (httpOnlyInfo == null)
+                throw new IllegalArgumentException("httpOnlyInfo cannot be null if httpOnly is true!");
+            HttpOnlyApplication.init(this, httpOnlyInfo.endpoint(), httpOnlyInfo.applicationPublicKey());
+        }
 
         initiateNoShutdown();
         initiateShutdownHooks();
@@ -165,28 +189,6 @@ public class DiscordJv {
 
     public DiscordJv(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
         this(token, intents, APIVersion.getLatest());
-    }
-
-    // This method is used for testing purposes only
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
-        String token = "";
-        File file = new File("token.txt");
-        // get first line of that file
-        try (FileReader reader = new FileReader(file)) {
-            token = new BufferedReader(reader).readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        DiscordJv discordJv = new DiscordJv(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
-
-        ArrayList<Activity> activities = new ArrayList<>();
-        activities.add(
-                new Activity("Hello World2", ActivityType.WATCHING)
-        );
-        Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
-        discordJv.setStatus(status);
-
-        discordJv.clearCommands();
     }
 
     /**
@@ -205,6 +207,10 @@ public class DiscordJv {
         }).start();
     }
 
+    public GatewayFactory getGateway() {
+        return gatewayFactory;
+    }
+
     protected void initiateShutdownHooks() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -212,7 +218,7 @@ public class DiscordJv {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            gatewayFactory.close();
+            if (gatewayFactory != null) gatewayFactory.close();
         }));
     }
 
@@ -223,6 +229,8 @@ public class DiscordJv {
      * @throws IOException If an error occurs while setting the status
      */
     public void setStatus(@NotNull Status status) throws IOException {
+        if (gatewayFactory == null)
+            throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
@@ -277,9 +285,40 @@ public class DiscordJv {
      * @return A {@link Channel} object
      */
     @Nullable
-    public Channel getChannelById(String id) {
+    public Channel getChannelById(String id) throws IllegalArgumentException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return getChannelCache().getById(id);
+        Cache<Channel> cc = getChannelCache();
+        Channel res;
+        try {
+            res = cc.getById(id);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Couldn't retrieve channel.");
+        }
+        return res;
+    }
+
+    /**
+     * Returns info about a {@link Channel}
+     *
+     * @param id The id of the channel
+     * @return A {@link Channel} object
+     */
+    @Nullable
+    public MessagingChannel getTextChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
+    }
+
+    /**
+     * Returns info about a {@link Category}
+     *
+     * @param id The id of the category
+     * @return A {@link Category} object
+     */
+    @Nullable
+    public Category getCategoryById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return Category.decompile(getChannelCache().getFresh(id), this);
     }
 
     /**
@@ -374,11 +413,20 @@ public class DiscordJv {
      */
     @Nullable
     public Application getSelfInfo() {
-        DiscordResponse response = new DiscordRequest(
+        if (this.selfUserCache != null && !selfUserCache.isEmpty())
+            return Application.decompile(selfUserCache.get(), this);
+
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
-        ).invoke();
+        );
+        DiscordResponse response = request.invoke();
+
+        if (this.selfUserCache == null)
+            this.selfUserCache = JsonCache.newc(response.body(), request);
+        this.selfUserCache.update(response.body());
+
         return Application.decompile(response.body(), this);
     }
 
@@ -481,14 +529,6 @@ public class DiscordJv {
             if (slashCommandListener.getSubCommands().isEmpty()) return;
 
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
-                registerCommand(
-                        new Command(
-                                subCommand.getName(),
-                                listener.getType(),
-                                subCommand.getDescription(),
-                                subCommand.getOptions()
-                        )
-                );
                 SubCommandListener subListener =
                         slashCommandListener.getSubCommands().values().stream().toList().get(
                                 slashCommandListener.getSubCommands().keySet().stream().toList()
@@ -541,4 +581,45 @@ public class DiscordJv {
         );
         cmdDelReq.invoke(new JSONArray());
     }
+
+    /**
+     * Retrieves up to 200 guilds the bot is in.
+     * <br>If you want to retrieve more guilds than that, you need to specify the last guild id in the <b>after</b> parameter.
+     *<p>
+     * Please be aware of the fact that this method is rate limited quite heavily.
+     * <br>It is recommended that only smaller bots use this method.
+     *<p>
+     * If you need to retrieve a (possibly inaccurate) list of guilds as a larger bot, use {@link #getGuildCache()} instead.
+     * <br>All guilds retrieved from this method will be cached.
+     */
+    public GetCurrentUserGuildsAction getGuilds() {
+        return new GetCurrentUserGuildsAction(this);
+    }
+
+    /**
+     * Retrieves all voice regions.
+     * <br>They can be used to specify the rtc_region of a voice or stage channel.
+     *
+     * <p>You can find the RTC region of an {@link com.seailz.discordjv.model.channel.AudioChannel AudioChannel} by using {@link com.seailz.discordjv.model.channel.AudioChannel#region() AudioChannel#region()}.
+     * <br>Avoid switching to deprecated regions.
+     *
+     * @return A list of all voice regions.
+     */
+    public List<VoiceRegion> getVoiceRegions() {
+        DiscordRequest request = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.VOICE.REGIONS.GET_VOICE_REGIONS,
+                this,
+                URLS.GET.VOICE.REGIONS.GET_VOICE_REGIONS,
+                RequestMethod.GET
+        );
+        JSONArray response = request.invoke().arr();
+        List<VoiceRegion> regions = new ArrayList<>();
+        for (int i = 0; i < response.length(); i++) {
+            regions.add(VoiceRegion.decompile(response.getJSONObject(i)));
+        }
+        return regions;
+    }
+
 }

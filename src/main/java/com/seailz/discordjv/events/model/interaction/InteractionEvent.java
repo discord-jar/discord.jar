@@ -4,11 +4,13 @@ import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.action.interaction.MessageInteractionCallbackAction;
 import com.seailz.discordjv.events.model.Event;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
+import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.interaction.Interaction;
 import com.seailz.discordjv.model.interaction.InteractionData;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
+import com.seailz.discordjv.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjv.model.interaction.reply.InteractionMessageResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,5 +86,27 @@ public class InteractionEvent extends Event {
     @NotNull
     public MessageInteractionCallbackAction reply(String message) {
         return new MessageInteractionCallbackAction(InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE, new InteractionMessageResponse(message), getInteraction().token(), getInteraction().id(), getBot());
+    }
+
+    @NotNull
+    public MessageInteractionCallbackAction replyWithEmbeds(Embeder... embeds) {
+        return new MessageInteractionCallbackAction(InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE, new InteractionMessageResponse(embeds), getInteraction().token(), getInteraction().id(), getBot());
+    }
+
+    @NotNull
+    public InteractionHandler getHandler() {
+        return InteractionHandler.from(getInteraction().token(), getInteraction().id(), getBot());
+    }
+
+    @NotNull
+    public InteractionHandler defer() {
+        getHandler().defer();
+        return getHandler();
+    }
+
+    @NotNull
+    public InteractionHandler defer(boolean ephemeral) {
+        getHandler().defer(ephemeral);
+        return getHandler();
     }
 }

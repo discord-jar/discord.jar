@@ -66,7 +66,7 @@ public record Embed(
         }
 
         try {
-            type = EmbedType.valueOf(obj.getString("type"));
+            type = EmbedType.valueOf(obj.getString("type").toUpperCase());
         } catch (JSONException e) {
             type = null;
         }

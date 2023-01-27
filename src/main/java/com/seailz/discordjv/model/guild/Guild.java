@@ -2,10 +2,15 @@ package com.seailz.discordjv.model.guild;
 
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.action.automod.AutomodRuleCreateAction;
+import com.seailz.discordjv.action.automod.AutomodRuleModifyAction;
+import com.seailz.discordjv.action.guild.channel.CreateGuildChannelAction;
+import com.seailz.discordjv.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjv.action.sticker.ModifyStickerAction;
 import com.seailz.discordjv.core.Compilerable;
 import com.seailz.discordjv.model.automod.AutomodRule;
 import com.seailz.discordjv.model.channel.Channel;
+import com.seailz.discordjv.model.channel.GuildChannel;
+import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.emoji.Emoji;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.guild.filter.ExplicitContentFilterLevel;
@@ -17,7 +22,8 @@ import com.seailz.discordjv.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.scheduledevents.ScheduledEvent;
 import com.seailz.discordjv.model.user.User;
-import com.seailz.discordjv.utils.URLS;
+import com.seailz.discordjv.utils.*;
+import com.seailz.discordjv.utils.cache.JsonCache;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +37,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a guild.
@@ -111,8 +118,9 @@ public record Guild(
         WelcomeScreen welcomeScreen,
         List<Sticker> stickers,
         boolean premiumProgressBarEnabled,
-        DiscordJv discordJv
-) implements Compilerable {
+        DiscordJv discordJv,
+        JsonCache roleCache
+) implements Compilerable, Snowflake, CDNAble {
 
 
     @Override
@@ -333,7 +341,7 @@ public record Guild(
 
         try {
             systemChannel = discordJv.getChannelById(obj.getString("system_channel_id"));
-        } catch (JSONException e) {
+        } catch (IllegalArgumentException | JSONException e) {
             systemChannel = null;
         }
 
@@ -386,8 +394,9 @@ public record Guild(
         }
 
         try {
-            publicUpdatesChannel = discordJv.getChannelById(obj.getString("public_updates_channel_id"));
-        } catch (JSONException e) {
+            publicUpdatesChannel =
+                    discordJv.getChannelById(obj.getString("public_updates_channel_id"));
+        } catch (Exception e) {
             publicUpdatesChannel = null;
         }
 
@@ -431,7 +440,7 @@ public record Guild(
             premiumProgressBarEnabled = false;
         }
 
-        return new Guild(
+        Guild g = new Guild(
                 id,
                 name,
                 icon,
@@ -469,8 +478,18 @@ public record Guild(
                 welcomeScreen,
                 stickers,
                 premiumProgressBarEnabled,
-                discordJv
+                discordJv,
+                JsonCache.newc(new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
+                        discordJv,
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
+                        RequestMethod.GET
+                ))
         );
+        g.roleCache.reset(60000);
+        return g;
     }
 
     /**
@@ -633,6 +652,10 @@ public record Guild(
         ).invoke();
     }
 
+    public AutomodRuleModifyAction modifyAutomodRule(String id) {
+        return new AutomodRuleModifyAction(id, this, discordJv);
+    }
+
     public Member getMemberById(String id) {
         return Member.decompile(
                 new DiscordRequest(
@@ -650,9 +673,35 @@ public record Guild(
                         RequestMethod.GET
                 ).invoke().body(),
                 discordJv,
-                this.id
+                this.id,
+                this
         );
     }
+
+    public List<Member> getMembers(int limit, String after) {
+        Checker.check(limit <= 0, "Limit must be greater than 0");
+        Checker.check(limit > 1000, "Limit must be less than or equal to 1000");
+        JSONArray arr = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
+                        "{guild.id}",
+                        id
+                ) + "?limit=" + limit + (after == null ? "" : "&after=" + after),
+                discordJv,
+                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
+                RequestMethod.GET
+        ).invoke().arr();
+
+        List<Member> members = new ArrayList<>();
+        for (Object obj : arr) {
+            members.add(Member.decompile((JSONObject) obj, discordJv, id, this));
+        }
+        System.out.println(arr);
+
+        return members;
+    }
+
 
     public List<Member> getMembers() {
         JSONArray arr = new DiscordRequest(
@@ -668,7 +717,11 @@ public record Guild(
         ).invoke().arr();
 
         List<Member> members = new ArrayList<>();
-        arr.forEach(o -> members.add(Member.decompile((JSONObject) o, discordJv, id)));
+        for (Object obj : arr) {
+            members.add(Member.decompile((JSONObject) obj, discordJv, id, this));
+        }
+        System.out.println(arr);
+
         return members;
     }
 
@@ -695,5 +748,155 @@ public record Guild(
         return events;
     }
 
+    /**
+     * Lists the guild's custom emojis.
+     * @return A list of the guild emojis.
+     */
+    public List<Emoji> getEmojis() {
+        List<Emoji> emojis = new ArrayList<>();
 
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS.replace("{guild.id}", id),
+                discordJv,
+                URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
+                RequestMethod.GET
+        ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJv)));
+
+        return emojis;
+    }
+
+    /**
+     * Gets a guild emoji by its id.
+     * @param emojiId The id of the emoji to get.
+     * @return The emoji if it exists. Returns {@code null} if it does not exist.
+     */
+    public Emoji getEmojiById(@NotNull String emojiId) {
+        return Emoji.decompile(
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.EMOJIS.GET_GUILD_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
+                        discordJv,
+                        URLS.GET.GUILDS.GET_GUILD,
+                        RequestMethod.GET
+                ).invoke().body(),
+                discordJv
+        );
+    }
+
+    /**
+     * Gets a guild emoji by its id.
+     * @param emojiId The id of the emoji to get.
+     * @return The emoji if it exists. Returns {@code null} if it does not exist.
+     */
+    public @NotNull Emoji getEmojiById(long emojiId) {
+        return getEmojiById(String.valueOf(emojiId));
+    }
+
+    /**
+     * Returns a list of {@link com.seailz.discordjv.model.channel.GuildChannel GuildChannels} that the guild has.
+     * Does not include threads.
+     */
+    @NotNull
+    public List<GuildChannel> getChannels() {
+        List<GuildChannel> channels = new ArrayList<>();
+        JSONArray res = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
+                discordJv,
+                URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS,
+                RequestMethod.GET
+        ).invoke().arr();
+        res.forEach(o -> channels.add(GuildChannel.decompile((JSONObject) o, discordJv)));
+        return channels;
+    }
+
+    /**
+     * Retrieves all the roles of a guild.
+     * This method uses caching, the cache will reset every 1 minute.
+     *
+     * @return
+     */
+    public List<Role> roles() {
+        if (roleCache != null && !roleCache.isEmpty()) {
+            List<Role> roles = new ArrayList<>();
+            roleCache.get().getJSONArray("data").forEach(
+                    o -> roles.add(Role.decompile((JSONObject) o))
+            );
+            return roles;
+        }
+
+        List<Role> roles = new ArrayList<>();
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
+                discordJv,
+                URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
+                RequestMethod.GET
+        );
+        JSONArray res = req.invoke().arr();
+        res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
+
+        if (roleCache != null) {
+            roleCache.update(new JSONObject().put("data", res));
+        }
+        return roles;
+    }
+
+    /**
+     * Used to request a list of all members in a guild.
+     * This method can take a <b>LONG</b> time to complete, so it is not recommended to use this often.
+     * <p>
+     * If you don't have the <b>GUILD_PRESENCES</b> intent enabled, or the guild is over 75k members,
+     * <br>this will only send members who are in voice, plus the member for you (the bot user).
+     * <p>
+     * If a guild has over a certain threshold of members, this will only send members wo are online,
+     * <br>have a role, have a nickname, or are in a voice channel, and if it has under the threshold,
+     * <br>it will send all members.
+     *
+     * Limitations put in place by Discord for this method:
+     * <ul>
+     *     <li><b>GUILD_PRESENCES</b> intent is required to set presences to true, otherwise it will always be false.</li>
+     *     <li><b>GUILD_MEMBERS</b> intent is required to request the entire member list.</li>
+     *     <li>You will be limited to requesting 1 <b>guild</b> per request.</li>
+     *     <li>Requesting a prefix (query parameter) will return a maximum of 100 members.</li>
+     *     <li>Requesting user ids will continue to be limited to returning 100 members.</li>
+     *  </ul>
+     *
+     * This method is done over the Gateway.
+     * @return A {@link CompletableFuture<List>} of {@link Member Members}, but first a {@link com.seailz.discordjv.action.guild.members.RequestGuildMembersAction RequestGuildMembersAction} is returned,
+     * for you to set the parameters of the request.
+     */
+    public RequestGuildMembersAction requestAllMembers() {
+        return new RequestGuildMembersAction(id, discordJv);
+    }
+
+    /**
+     * Returns the <b>@everyone</b> {@link Role role} of the guild, or if
+     * <br>nothing can be found, returns null.
+     * <p>
+     * Discord assigns the {@link Guild guild} id to the <b>@everyone</b> {@link Role role} id,
+     * <br>so this method loops through all the roles of the guild and checks if the id matches
+     * <br>using Java Streams.
+     *
+     * @return {@link Role role} or <b>null</b>
+     */
+    @Nullable
+    public Role getEveryoneRole() {
+        return roles().stream().filter(r -> r.id().equals(id())).findFirst().orElse(null);
+    }
+
+    public CreateGuildChannelAction createChannel(String name, ChannelType type) {
+        return new CreateGuildChannelAction(name, type, this, discordJv);
+    }
+
+
+    @Override
+    public StringFormatter formatter() {
+        return new StringFormatter("icons/", id, iconHash());
+    }
 }

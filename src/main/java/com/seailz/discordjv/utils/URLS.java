@@ -1,5 +1,6 @@
 package com.seailz.discordjv.utils;
 
+import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.utils.version.APIVersion;
 
 /**
@@ -22,6 +23,8 @@ public final class URLS {
     public static class POST {
         public static class INTERACTIONS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
+            public static final String FOLLOWUP = "/webhooks/application.id/interaction.token";
+
         }
 
         public static class GULDS {
@@ -60,9 +63,17 @@ public final class URLS {
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule
+                 *
                  * @param {guild.id} The guild to create the rule in
                  */
                 public static final String CREATE_AUTO_MOD_RULE = "/guilds/{guild.id}/auto-moderation/rules";
+             }
+
+            public static class CHANNELS {
+                /**
+                 * Creates a channel
+                 */
+                public static final String CREATE = "/guilds/{guild.id}/channels";
             }
         }
 
@@ -82,6 +93,15 @@ public final class URLS {
     }
 
     public static class GET {
+
+        public static class VOICE {
+            public static class REGIONS {
+                /**
+                 * Retrieves a list of {@link com.seailz.discordjv.model.channel.audio.VoiceRegion VoiceRegion} objects for the given guild.
+                 */
+                public static final String GET_VOICE_REGIONS = "/voice/regions";
+            }
+        }
 
         public static class GATEWAY {
             /**
@@ -121,6 +141,15 @@ public final class URLS {
              * @param message.id The id of the message
              */
             public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+
+            public static class MESSAGES {
+                /**
+                 * Returns a list of messages
+                 *
+                 * @param id The id of the channel
+                 */
+                public static String GET_MESSAGES = "/channels/{channel.id}/messages";
+            }
         }
 
         public static class GUILDS {
@@ -138,6 +167,32 @@ public final class URLS {
                  * @param id The id of the guild
                  */
                 public static String GET_GUILD_SCHEDULED_EVENTS = "/guilds/{guild.id}/scheduled-events";
+            /**
+             * Read {@link DiscordJv#getGuilds()} for more information
+             */
+            public static String GET_CURRENT_USER_GUILDS = "/users/@me/guilds";
+
+            public static class CHANNELS {
+                /**
+                 * Returns a list of {@link com.seailz.discordjv.model.channel.Channel} objects
+                 *
+                 * @param id The id of the guild
+                 */
+                public static String GET_GUILD_CHANNELS = "/guilds/{guild.id}/channels";
+            }
+
+            public static class EMOJIS {
+                /**
+                 * Gets guild emojis
+                 * @param id The id of the guild
+                 */
+                public static String GUILD_EMOJIS = "/guilds/{guild.id}/emojis";
+                /**
+                 * Gets a guild emoji by id
+                 * @param id The id of the guild
+                 * @param emoji.id The id of the emoji
+                 */
+                public static String GET_GUILD_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
             }
 
             public static class STICKERS {
@@ -187,6 +242,15 @@ public final class URLS {
                  */
                 public static String GET_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
             }
+
+            public static class ROLES {
+                public static String GET_GUILD_ROLES = "/guilds/{guild.id}/roles";
+            }
+        }
+
+        public static class INTERACTIONS {
+            public static String GET_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+            public static String GET_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
         }
 
         public static class APPLICATIONS {
@@ -196,6 +260,11 @@ public final class URLS {
              * @param id the id of the bot
              */
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
+            /**
+             * Returns a list of {@link com.seailz.discordjv.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
+             * @param id the id of the app
+             */
+            public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
         }
 
         public static class STICKER {
@@ -241,6 +310,17 @@ public final class URLS {
                 public static String DELETE_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
             }
         }
+
+        public static class INTERACTION {
+            public static String DELETE_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
+            public static String DELETE_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+        }
+
+        public static class CHANNEL {
+            public static class MESSAGE {
+                public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+            }
+        }
     }
 
     public static class PATCH {
@@ -272,6 +352,60 @@ public final class URLS {
                  */
                 public static String MODIFY_GUILD_STICKER = "/guilds/{guild.id}/stickers/{sticker.id}";
             }
+        }
+
+        public static class CHANNEL {
+            public static String MODIFY_CHANNEL = "/channels/{channel.id}";
+        }
+
+        public static class INTERACTIONS {
+            public static class MESSAGES {
+                public static String MODIFY_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
+                public static String MODIFY_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+            }
+        }
+    }
+
+
+    public static class PUT {
+        public static class APPLICATIONS {
+            public static String MODIFY_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
+        }
+
+        public static class GUILD {
+            public static class MEMBERS {
+                public static class ROLES {
+                    /**
+                     * Adds a role to a guild member
+                     *
+                     * @param guild.id The id of the guild
+                     * @param user.id The id of the user
+                     * @param role.id The id of the role
+                     */
+                    public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
+                }
+            }
+        }
+    }
+
+    public static class OAUTH2 {
+        /**
+         * Token URL
+         */
+        public static String TOKEN_URL = "/oauth2/token";
+
+        public static class PUT {
+            public static class USERS {
+                public static class APPLICATIONS {
+                    public static class ROLE_CONNECTIONS {
+                        public static String UPDATE_USER_APPLICATION_ROLE_CONNECTION = "/users/@me/applications/{application.id}/role-connection";
+                    }
+                }
+            }
+        }
+
+        public static class GET {
+            public static String GET_CURRENT_AUTH_INFO = "/oauth2/@me";
         }
     }
 

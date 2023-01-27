@@ -16,8 +16,8 @@ public record EmbedImage(
         JSONObject obj = new JSONObject();
         obj.put("url", url);
         obj.put("proxy_url", proxyUrl);
-        obj.put("height", height);
-        obj.put("width", width);
+        if (height != 0) obj.put("height", height);
+        if (width != 0) obj.put("width", width);
         return obj;
     }
 

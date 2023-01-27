@@ -1,204 +1,67 @@
 package com.seailz.discordjv.model.channel;
 
 import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.action.MessageCreateAction;
+import com.seailz.discordjv.action.channel.ModifyBaseChannelAction;
 import com.seailz.discordjv.core.Compilerable;
+import com.seailz.discordjv.model.channel.internal.ChannelImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
-import com.seailz.discordjv.model.permission.PermissionOverwrite;
 import com.seailz.discordjv.model.resolve.Resolvable;
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.seailz.discordjv.utils.Mentionable;
+import com.seailz.discordjv.utils.Snowflake;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
+/**
+ * Represents a Discord channel
+ *
+ * @author Seailz
+ * @since 1.0
+ */
+public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflake {
 
-public class Channel implements Compilerable, Resolvable {
+    /**
+     * The id of the channel
+     */
+    @NotNull
+    String id();
 
-    private final String id;
-    private final ChannelType type;
-    private final String guildId;
-    private final int position;
-    private final PermissionOverwrite[] permissionOverwrites;
-    private final String name;
-    private final boolean nsfw;
-    private final String parentId;
-    private final String permissions;
-    private final DiscordJv discordJv;
+    /**
+     * The {@link ChannelType type} of this channel
+     */
+    @NotNull
+    ChannelType type();
 
-    public Channel(String id, ChannelType type, String guildId, int position, PermissionOverwrite[] permissionOverwrites, String name, boolean nsfw, String parentId, String permissions, DiscordJv discordJv) {
-        this.id = id;
-        this.type = type;
-        this.guildId = guildId;
-        this.position = position;
-        this.permissionOverwrites = permissionOverwrites;
-        this.name = name;
-        this.nsfw = nsfw;
-        this.parentId = parentId;
-        this.permissions = permissions;
-        this.discordJv = discordJv;
-    }
+    /**
+     * The name of the channel (1-100 characters)
+     */
+    @NotNull
+    String name();
 
-    @NonNull
-    public static Channel decompile(JSONObject json, DiscordJv discordJv) {
-        String id;
-        ChannelType type;
-        String guildId;
-        int position;
-        PermissionOverwrite[] permissionOverwrites;
-        String name;
-        boolean nsfw;
-        String parentId;
-        String permissions;
-
-        try {
-            id = json.getString("id");
-        } catch (JSONException e) {
-            id = null;
-        }
-
-        try {
-            type = ChannelType.fromCode(json.getInt("type"));
-        } catch (JSONException e) {
-            type = null;
-        }
-
-        try {
-            guildId = json.getString("guild_id");
-        } catch (JSONException e) {
-            guildId = null;
-        }
-
-        try {
-            position = json.getInt("position");
-        } catch (JSONException e) {
-            position = 0;
-        }
-
-        try {
-            JSONArray overwrites = json.getJSONArray("permission_overwrites");
-            ArrayList<PermissionOverwrite> overwritesList = new ArrayList<>();
-            for (int i = 0; i < overwrites.length(); i++) {
-                overwritesList.add(PermissionOverwrite.decompile(overwrites.getJSONObject(i)));
-            }
-            permissionOverwrites = overwritesList.toArray(new PermissionOverwrite[0]);
-        } catch (JSONException e) {
-            permissionOverwrites = null;
-        }
-
-        try {
-            name = json.getString("name");
-        } catch (JSONException e) {
-            name = null;
-        }
-
-        try {
-            nsfw = json.getBoolean("nsfw");
-        } catch (JSONException e) {
-            nsfw = false;
-        }
-
-        try {
-            parentId = json.getString("parent_id");
-        } catch (JSONException e) {
-            parentId = null;
-        }
-
-        try {
-            permissions = json.getString("permissions");
-        } catch (JSONException e) {
-            permissions = null;
-        }
-
-        return new Channel(id, type, guildId, position, permissionOverwrites, name, nsfw, parentId, permissions, discordJv);
-
-    }
-
-    public String id() {
-        return id;
-    }
-
-    public ChannelType type() {
-        return type;
-    }
-
-    public String guildId() {
-        return guildId;
-    }
-
-    public int position() {
-        return position;
-    }
-
-    public PermissionOverwrite[] permissionOverwrites() {
-        return permissionOverwrites;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public boolean nsfw() {
-        return nsfw;
-    }
-
-    public String parentId() {
-        return parentId;
-    }
-
-    public String permissions() {
-        return permissions;
-    }
+    @NotNull
+    DiscordJv djv();
 
     @Override
-    public JSONObject compile() {
-        JSONObject json = new JSONObject();
-
-        if (id != null) {
-            json.put("id", id);
-        }
-
-        if (type != null) {
-            json.put("type", type.getCode());
-        }
-
-        if (guildId != null) {
-            json.put("guild_id", guildId);
-        }
-
-        if (position != 0) {
-            json.put("position", position);
-        }
-
-        if (permissionOverwrites != null) {
-            JSONArray overwrites = new JSONArray();
-            for (PermissionOverwrite overwrite : permissionOverwrites) {
-                overwrites.put(overwrite.compile());
-            }
-            json.put("permission_overwrites", overwrites);
-        }
-
-        if (name != null) {
-            json.put("name", name);
-        }
-
-        if (nsfw) {
-            json.put("nsfw", nsfw);
-        }
-
-        if (parentId != null) {
-            json.put("parent_id", parentId);
-        }
-
-        if (permissions != null) {
-            json.put("permissions", permissions);
-        }
-
-        return json;
+    default String getMentionablePrefix() {
+        return "#";
     }
 
-    // TODO: text channel
-    public MessageCreateAction sendMessage(String content) {
-        return new MessageCreateAction(content, this.id, discordJv);
+
+    @NotNull
+    @Contract("_, _ -> new")
+    static Channel decompile(@NotNull JSONObject obj, DiscordJv discordJv) {
+        return new ChannelImpl(
+                obj.getString("id"),
+                ChannelType.fromCode(obj.getInt("type")),
+                obj.has("name") ? obj.getString("name") : "DM",
+                obj, discordJv
+        );
+    }
+
+    @NotNull
+    JSONObject raw();
+
+    default ModifyBaseChannelAction modify() {
+        return new ModifyBaseChannelAction(djv(), id());
     }
 }

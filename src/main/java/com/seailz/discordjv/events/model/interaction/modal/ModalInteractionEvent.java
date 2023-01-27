@@ -7,6 +7,7 @@ import com.seailz.discordjv.model.component.modal.ResolvedModalComponent;
 import com.seailz.discordjv.model.interaction.data.modal.ModalSubmitInteractionData;
 import com.seailz.discordjv.model.interaction.modal.Modal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -62,6 +63,18 @@ public class ModalInteractionEvent extends InteractionEvent {
     @NotNull
     public List<ResolvedModalComponent> getValues() {
         return getInteractionData().components();
+    }
+
+    /**
+     * Given a custom ID, returns one of the inputted components of the {@link com.seailz.discordjv.model.interaction.modal.Modal} that matches the custom ID.
+     * This will return null if no component matches the custom ID.
+     *
+     * @param customId The custom ID of the component.
+     * @return {@link ResolvedModalComponent} object containing the component data.
+     */
+    @Nullable
+    public ResolvedModalComponent getValue(String customId) {
+        return getValues().stream().filter(resolvedModalComponent -> resolvedModalComponent.customId().equals(customId)).findFirst().orElse(null);
     }
 
 }

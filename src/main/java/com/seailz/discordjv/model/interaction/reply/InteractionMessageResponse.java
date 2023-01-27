@@ -1,11 +1,13 @@
 package com.seailz.discordjv.model.interaction.reply;
 
 import com.seailz.discordjv.model.component.DisplayComponent;
+import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.message.Attachment;
 import com.seailz.discordjv.model.message.MessageFlag;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ public class InteractionMessageResponse implements InteractionReply {
 
     private boolean tts;
     private String content;
-    //todo: embeds
+    private List<Embeder> embeds;
     //todo: allows mentions
     private boolean ephemeral;
     private boolean suppressEmbeds;
@@ -31,6 +33,13 @@ public class InteractionMessageResponse implements InteractionReply {
 
     public InteractionMessageResponse(String content) {
         this.content = content;
+    }
+
+    public InteractionMessageResponse(Embeder... embeds) {
+        this.embeds = Arrays.asList(embeds);
+    }
+
+    public InteractionMessageResponse() {
     }
 
     public InteractionMessageResponse(
@@ -80,6 +89,16 @@ public class InteractionMessageResponse implements InteractionReply {
         this.suppressEmbeds = suppressEmbeds;
     }
 
+    public void setEmbeds(List<Embeder> embeds) {
+        this.embeds = embeds;
+    }
+
+    public void addEmbed(Embeder embed) {
+        if (this.embeds == null)
+            this.embeds = new ArrayList<>();
+        this.embeds.add(embed);
+    }
+
     public void removeComponent(DisplayComponent component) {
         if (this.components == null)
             return;
@@ -108,6 +127,14 @@ public class InteractionMessageResponse implements InteractionReply {
 
         if (this.suppressEmbeds)
             flags.add(MessageFlag.SUPPRESS_EMBEDS);
+
+        if (this.embeds != null) {
+            List<JSONObject> embeds = new ArrayList<>();
+            for (Embeder embed : this.embeds) {
+                embeds.add(embed.compile());
+            }
+            obj.put("embeds", embeds);
+        }
 
         if (flags.size() == 1)
             obj.put("flags", flags.get(0).getLeftShiftId());

@@ -1,11 +1,15 @@
 package com.seailz.discordjv.events.model.interaction.select;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjv.events.DiscordListener;
 import com.seailz.discordjv.events.model.interaction.InteractionEvent;
 import com.seailz.discordjv.model.component.select.SelectOption;
 import com.seailz.discordjv.model.component.select.string.StringSelectMenu;
+import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjv.model.interaction.data.message.MessageComponentInteractionData;
+import com.seailz.discordjv.model.interaction.modal.Modal;
+import com.seailz.discordjv.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjv.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -47,10 +51,10 @@ public class StringSelectMenuInteractionEvent extends InteractionEvent {
      * <p>
      * This SHOULD not ever return null.
      *
-     * @return A list of {@link SelectOption} objects containing the selected options.
+     * @return A list of {@link SelectOption.ResolvedSelectOption} objects containing the selected options.
      */
     @NotNull
-    public List<SelectOption> getSelectedOptions() {
+    public List<SelectOption.ResolvedSelectOption> getSelectedOptions() {
         return List.of(getInteractionData().selectOptions());
     }
 
@@ -76,5 +80,15 @@ public class StringSelectMenuInteractionEvent extends InteractionEvent {
         if (getInteraction().user() == null)
             return getInteraction().member().user();
         return getInteraction().user();
+    }
+
+    public ModalInteractionCallbackAction replyModal(Modal modal) {
+        return new ModalInteractionCallbackAction(
+                InteractionCallbackType.MODAL,
+                new InteractionModalResponse(modal.title(), modal.customId(), modal.components()),
+                getInteraction().token(),
+                getInteraction().id(),
+                getBot()
+        );
     }
 }

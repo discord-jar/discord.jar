@@ -7,6 +7,7 @@ import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.role.Role;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
+import com.seailz.discordjv.utils.Snowflake;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +45,7 @@ public record AutomodRule(
         boolean enabled,
         List<Role> exemptRoles,
         List<Channel> exemptChannels
-) implements Compilerable {
+) implements Compilerable, Snowflake {
 
     @NotNull
     @Override

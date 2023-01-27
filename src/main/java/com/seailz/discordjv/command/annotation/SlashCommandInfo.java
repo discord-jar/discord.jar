@@ -1,6 +1,7 @@
 package com.seailz.discordjv.command.annotation;
 
 import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
+import com.seailz.discordjv.utils.permission.Permission;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,5 +30,16 @@ public @interface SlashCommandInfo {
      * The description of the slash command
      */
     String description();
+
+    Locale[] nameLocalizations() default {};
+
+    Locale[] descriptionLocalizations() default {};
+
+    Permission[] defaultMemberPermissions() default {};
+
+    boolean canUseInDms() default true;
+
+    boolean nsfw() default false;
+
 
 }

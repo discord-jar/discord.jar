@@ -52,7 +52,7 @@ public interface DMChannel extends Channel {
     @NotNull
     @Contract("_, _ -> new")
     static DMChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJv djv) {
-        String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
+        String lastMessageId = obj.has("last_message_id") && !obj.get("last_message_id").equals(JSONObject.NULL) ? obj.getString("last_message_id") : null;
 
         List<User> recipients = new ArrayList<>();
         JSONArray recipientsArray = obj.getJSONArray("recipients");
@@ -70,7 +70,7 @@ public interface DMChannel extends Channel {
         JSONObject obj = new JSONObject();
         obj.put("id", id());
         obj.put("type", type().getCode());
-        obj.put("last_message_id", lastMessageId());
+        if (lastMessageId() != null) obj.put("last_message_id", lastMessageId());
 
         JSONArray array = new JSONArray();
         for (User user : recipients())

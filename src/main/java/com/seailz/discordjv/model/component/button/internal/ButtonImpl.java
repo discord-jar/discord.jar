@@ -1,11 +1,15 @@
 package com.seailz.discordjv.model.component.button.internal;
 
 import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjv.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjv.model.component.ComponentType;
 import com.seailz.discordjv.model.component.button.Button;
 import com.seailz.discordjv.model.component.button.ButtonStyle;
 import com.seailz.discordjv.model.emoji.Emoji;
+import com.seailz.discordjv.utils.registry.ButtonRegistry;
 import org.json.JSONObject;
+
+import java.util.function.Consumer;
 
 public class ButtonImpl implements Button {
 
@@ -66,7 +70,15 @@ public class ButtonImpl implements Button {
 
     @Override
     public Button setUrl(String url) {
+        if (style != ButtonStyle.LINK)
+            throw new IllegalStateException("Cannot set a url on a button that is not a link button.");
         this.url = url;
+        return this;
+    }
+
+    @Override
+    public Button setAction(Consumer<ButtonInteractionEvent> action) {
+        ButtonRegistry.getInstance().register(new ButtonAction(this, action));
         return this;
     }
 

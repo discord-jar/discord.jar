@@ -13,6 +13,7 @@ import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -86,7 +87,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         queue.add(obj);
     }
 
-    public void startAgain() throws ExecutionException, InterruptedException {
+    public void startAgain() {
         new Thread(() -> {
             this.heartbeatCycle = null;
             DiscordResponse response = new DiscordRequest(
@@ -187,7 +188,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
 
@@ -196,35 +197,35 @@ public class GatewayFactory extends TextWebSocketHandler {
         } catch (JSONException ignored) {
         }
 
-        switch (GatewayEvents.getEvent(payload.getInt("op"))) {
-            case HELLO:
+        GatewayEvents event = GatewayEvents.getEvent(payload.getInt("op"));
+        if (event == null) {
+            logger.warning("[DISCORD.JV] Unknown event received: " + payload.getInt("op"));
+            return;
+        }
+
+        switch (event) {
+            case HELLO -> {
                 handleHello(payload);
                 sendIdentify();
-                break;
-            case HEARTBEAT_REQUEST:
-                heartbeatCycle.sendHeartbeat();
-                break;
-            case DISPATCHED:
-                handleDispatched(payload);
-                break;
-            case RECONNECT:
+            }
+            case HEARTBEAT_REQUEST -> heartbeatCycle.sendHeartbeat();
+            case DISPATCHED -> handleDispatched(payload);
+            case RECONNECT -> {
                 logger.info("[DISCORD.JV] Gateway requested a reconnect, reconnecting...");
                 reconnect();
                 ready = false;
-                break;
-            case INVALID_SESSION:
+            }
+            case INVALID_SESSION -> {
                 logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
                 initiateConnection();
                 ready = false;
-                break;
-            case HEARTBEAT_ACK:
-                logger.info("[DISCORD.JV] Heartbeat acknowledged");
-                break;
+            }
+            case HEARTBEAT_ACK -> logger.info("[DISCORD.JV] Heartbeat acknowledged");
         }
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(@NotNull WebSocketSession session, CloseStatus status) {
         Logger logger = Logger.getLogger("DISCORD.JV");
         logger.info("[DISCORD.JV] Gateway connection closed, reconnecting...");
         logger.info("Was disconnected with status [" + status.getCode() + "]" + " " + status.getReason());
@@ -235,9 +236,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
         try {
             heartbeatCycle.sendHeartbeat();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
+        } catch (IOException | ExecutionException e) {
             throw new RuntimeException(e);
         }
 
@@ -248,9 +247,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJv);
         if (eventClass == null) {
-            logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t"));
-            logger.info("This is usually ok, if a new feature has recently been added to Discord as discord.jv may not support it yet.");
-            logger.info("If that is not the case, please report this to the discord.jv developers.");
+            logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
             return;
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
@@ -259,12 +256,10 @@ public class GatewayFactory extends TextWebSocketHandler {
         discordJv.getEventDispatcher().dispatchEvent(event, eventClass, discordJv);
 
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
-            case READY:
+            case READY -> {
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
                 this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
-
                 ready = true;
-
                 queue.forEach(obj -> {
                     try {
                         clientSession.sendMessage(new TextMessage(obj.toString()));
@@ -273,16 +268,14 @@ public class GatewayFactory extends TextWebSocketHandler {
                     }
                 });
                 queue.clear();
-                break;
-            case GUILD_CREATE:
-                discordJv.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJv));
-                break;
-            case RESUMED:
-                logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
-                break;
+            }
+            case GUILD_CREATE ->
+                    discordJv.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJv));
+            case RESUMED -> logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
         }
     }
 
+    @SuppressWarnings("SynchronizeOnNonFinalField")
     private void sendIdentify() throws IOException {
         AtomicInteger intents = new AtomicInteger();
         if (discordJv.getIntents().contains(Intent.ALL)) {
@@ -292,11 +285,8 @@ public class GatewayFactory extends TextWebSocketHandler {
                     intents.getAndAdd(intent.getLeftShiftId());
                 }
             });
-        }
-        else {
-            discordJv.getIntents().forEach(intent -> {
-                intents.getAndAdd(intent.getLeftShiftId());
-            });
+        } else {
+            discordJv.getIntents().forEach(intent -> intents.getAndAdd(intent.getLeftShiftId()));
         }
 
         JSONObject payload = new JSONObject();
@@ -331,23 +321,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         return clientSession;
     }
 
-    public class MemberChunkStorageWrapper {
-        private final List<Member> members;
-        private final CompletableFuture<List<Member>> future;
-
-        public MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
-            this.members = members;
-            this.future = future;
-        }
-
-        public List<Member> getMembers() {
-            return members;
-        }
-
-        public CompletableFuture<List<Member>> getFuture() {
-            return future;
-        }
-
+    public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
         public void addMember(Member member) {
             members.add(member);
         }

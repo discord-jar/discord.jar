@@ -5,6 +5,8 @@ import com.seailz.discordjv.model.channel.internal.CategoryImpl;
 import com.seailz.discordjv.model.channel.utils.ChannelType;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.permission.PermissionOverwrite;
+import com.seailz.discordjv.utils.discordapi.DiscordRequest;
+import com.seailz.discordjv.utils.discordapi.DiscordResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -42,14 +44,7 @@ public interface Category extends GuildChannel {
     }
 
     static Category fromId(String id, DiscordJv discordJv) {
-        return discordJv.getGuilds().run().stream()
-                .map(Guild::getChannels)
-                .flatMap(List::stream)
-                .filter(channel -> channel instanceof Category)
-                .map(channel -> (Category) channel)
-                .filter(category -> category.id().equals(id))
-                .findFirst()
-                .orElse(null);
+        return discordJv.getCategoryById(id);
     }
 
 }

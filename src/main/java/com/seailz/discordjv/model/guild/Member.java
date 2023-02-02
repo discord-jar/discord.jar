@@ -12,6 +12,7 @@ import com.seailz.discordjv.utils.flag.BitwiseUtil;
 import com.seailz.discordjv.utils.permission.Permission;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -92,9 +93,9 @@ public record Member(
         List<Permission> permissions = null;
         String communicationDisabledUntil = null;
 
-        if (obj.has("user")) user = User.decompile(obj.getJSONObject("user"), discordJv);
-        if (obj.has("nick")) nick = obj.getString("nick");
-        if (obj.has("avatar")) avatar = obj.getString("avatar");
+        if (obj.has("user") && obj.get("user") != JSONObject.NULL) user = User.decompile(obj.getJSONObject("user"), discordJv);
+        if (obj.has("nick") && obj.get("nick") != JSONObject.NULL) nick = obj.getString("nick");
+        if (obj.has("avatar") && obj.get("avatar") != JSONObject.NULL) avatar = obj.getString("avatar");
         if (obj.has("roles")) {
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
@@ -108,20 +109,20 @@ public record Member(
                 roles = rolesList.toArray(new Role[0]);
             }
         }
-        if (obj.has("joined_at")) joinedAt = obj.getString("joined_at");
-        if (obj.has("premium_since")) premiumSince = obj.getString("premium_since");
-        if (obj.has("deaf")) deaf = obj.getBoolean("deaf");
-        if (obj.has("mute")) mute = obj.getBoolean("mute");
-        if (obj.has("pending")) pending = obj.getBoolean("pending");
+        if (obj.has("joined_at") && obj.get("joined_at") != JSONObject.NULL) joinedAt = obj.getString("joined_at");
+        if (obj.has("premium_since") && obj.get("premium_since") != JSONObject.NULL) premiumSince = obj.getString("premium_since");
+        if (obj.has("deaf") && obj.get("deaf") != JSONObject.NULL) deaf = obj.getBoolean("deaf");
+        if (obj.has("mute") && obj.get("mute") != JSONObject.NULL) mute = obj.getBoolean("mute");
+        if (obj.has("pending") && obj.get("pending") != JSONObject.NULL) pending = obj.getBoolean("pending");
 
-        /*try {
+        try {
             BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
             List<Permission> permissionsList = new ArrayList<>(bitwiseUtil.get(
-                    Integer.parseInt(obj.getString("permissions")), Permission.class));
+                    Long.parseLong(obj.getString("permissions")), Permission.class));
             permissions = permissionsList;
         } catch (JSONException e) {
             permissions = null;
-        }*/
+        }
 
         if (obj.has("flags")) {
             flagsRaw = obj.getInt("flags");
@@ -129,7 +130,7 @@ public record Member(
             flags = new ArrayList<>(bitwiseUtil.get(flagsRaw, MemberFlags.class));
         }
 
-        if (obj.has("communication_disabled_until"))
+        if (obj.has("communication_disabled_until") && obj.get("communication_disabled_until") != JSONObject.NULL)
             communicationDisabledUntil = obj.getString("communication_disabled_until");
         return new Member(user, nick, avatar, roles, joinedAt, premiumSince, deaf, mute, pending, permissions, communicationDisabledUntil, guildId, flags, flagsRaw, discordJv);
     }

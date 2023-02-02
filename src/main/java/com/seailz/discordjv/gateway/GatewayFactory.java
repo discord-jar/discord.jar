@@ -204,23 +204,29 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
 
         switch (event) {
-            case HELLO -> {
+            case HELLO:
                 handleHello(payload);
                 sendIdentify();
-            }
-            case HEARTBEAT_REQUEST -> heartbeatCycle.sendHeartbeat();
-            case DISPATCHED -> handleDispatched(payload);
-            case RECONNECT -> {
+                break;
+            case HEARTBEAT_REQUEST:
+                heartbeatCycle.sendHeartbeat();
+                break;
+            case DISPATCHED:
+                handleDispatched(payload);
+                break;
+            case RECONNECT:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect, reconnecting...");
                 reconnect();
                 ready = false;
-            }
-            case INVALID_SESSION -> {
+                break;
+            case INVALID_SESSION:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
                 initiateConnection();
                 ready = false;
-            }
-            case HEARTBEAT_ACK -> logger.info("[DISCORD.JV] Heartbeat acknowledged");
+                break;
+            case HEARTBEAT_ACK:
+                logger.info("[DISCORD.JV] Heartbeat acknowledged");
+                break;
         }
     }
 
@@ -252,11 +258,14 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
-        Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class).newInstance(discordJv, lastSequence, payload);
+        System.out.println(eventClass);
+        Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class)
+                .newInstance(discordJv, lastSequence, payload);
+
         discordJv.getEventDispatcher().dispatchEvent(event, eventClass, discordJv);
 
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
-            case READY -> {
+            case READY:
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
                 this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
                 ready = true;
@@ -268,10 +277,13 @@ public class GatewayFactory extends TextWebSocketHandler {
                     }
                 });
                 queue.clear();
-            }
-            case GUILD_CREATE ->
+                break;
+            case GUILD_CREATE:
                     discordJv.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJv));
-            case RESUMED -> logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
+                    break;
+            case RESUMED:
+                logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
+                break;
         }
     }
 

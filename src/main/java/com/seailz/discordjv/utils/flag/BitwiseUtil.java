@@ -12,7 +12,7 @@ import java.util.EnumSet;
  */
 public class BitwiseUtil<T extends Enum<T> & Bitwiseable> {
 
-    public EnumSet<T> get(int flags, Class<T> clazz) {
+    public EnumSet<T> get(long flags, Class<T> clazz) {
         EnumSet<T> set = EnumSet.noneOf(clazz);
         if (flags == 0)
             return set;
@@ -21,6 +21,10 @@ public class BitwiseUtil<T extends Enum<T> & Bitwiseable> {
                 set.add(flag);
         }
         return set;
+    }
+
+    public EnumSet<T> get(int flags, Class<T> clazz) {
+        return get((long) flags, clazz);
     }
 
 }

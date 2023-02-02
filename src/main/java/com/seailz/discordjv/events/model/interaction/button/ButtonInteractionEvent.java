@@ -8,12 +8,17 @@ import com.seailz.discordjv.model.interaction.data.message.MessageComponentInter
 import com.seailz.discordjv.model.interaction.modal.Modal;
 import com.seailz.discordjv.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjv.model.user.User;
+import com.seailz.discordjv.utils.registry.ButtonRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 public class ButtonInteractionEvent extends InteractionEvent {
     public ButtonInteractionEvent(@NotNull DiscordJv bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
+        // First checks the button registry for any actions that match the custom id.
+        ButtonRegistry.getInstance().getRegistry().stream()
+                .filter(buttonAction -> buttonAction.button().customId().equals(getCustomId()))
+                .forEach(buttonAction -> buttonAction.action().accept(this));
     }
 
     /**

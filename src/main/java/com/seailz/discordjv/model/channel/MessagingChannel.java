@@ -106,7 +106,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         String topic = !obj.has("topic") || obj.get("topic") == null || obj.get("topic").equals(JSONObject.NULL) ? null : obj.getString("topic");
         String lastMessageId = !obj.has("last_message_id") || obj.get("last_message_id") == null || obj.get("last_message_id").equals(JSONObject.NULL) ? null : obj.getString("last_message_id");
         int defaultAutoArchiveDuration = obj.has("default_auto_archive_duration") ? obj.getInt("default_auto_archive_duration") : 0;
-        return new MessagingChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, Category.fromId("parent_id", discordJv) ,slowMode, topic, lastMessageId, defaultAutoArchiveDuration, discordJv, obj);
+        return new MessagingChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, obj.has("parent_id") ? Category.fromId(obj.getString("parent_id"), discordJv) : null ,slowMode, topic, lastMessageId, defaultAutoArchiveDuration, discordJv, obj);
     }
 
     @Override

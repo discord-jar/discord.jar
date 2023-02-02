@@ -6,12 +6,14 @@ import com.seailz.discordjv.events.model.Event;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.model.embed.Embeder;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.model.interaction.Interaction;
 import com.seailz.discordjv.model.interaction.InteractionData;
 import com.seailz.discordjv.model.interaction.InteractionType;
 import com.seailz.discordjv.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjv.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjv.model.interaction.reply.InteractionMessageResponse;
+import com.seailz.discordjv.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -108,5 +110,23 @@ public class InteractionEvent extends Event {
     public InteractionHandler defer(boolean ephemeral) {
         getHandler().defer(ephemeral);
         return getHandler();
+    }
+
+    /**
+     * Returns the user that caused the interaction event.
+     * <br><b>Shouldn't</b> ever return null.
+     */
+    @NotNull
+    public User getUser() {
+        return getInteraction().user() == null ? getInteraction().member().user() : getInteraction().user();
+    }
+
+    /**
+     * Returns the member that caused the interaction event.
+     * <br>Will return null if the interaction was in DMs, and not associated with a guild.
+     */
+    @Nullable
+    public Member getMember() {
+        return getInteraction().member();
     }
 }

@@ -272,6 +272,13 @@ public final class URLS {
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
 
+            public static class MEMBER {
+                /**
+                 * Removes a role from a member.
+                 */
+                public static String REMOVE_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
+            }
+
             public static class AUTOMOD {
                 /**
                  * Deletes an automod rule

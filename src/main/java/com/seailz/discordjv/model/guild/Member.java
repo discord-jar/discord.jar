@@ -188,6 +188,22 @@ public record Member(
         ).invoke();
     }
 
+    /**
+     * Removes a role from a member.
+     * Requires `MANAGE_ROLES` permission.
+     * @param role the role to remove
+     */
+    public void removeRole(Role role) {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                discordJv,
+                URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
     public boolean hasPermission(Permission perm) {
         return permissions.contains(perm);
     }

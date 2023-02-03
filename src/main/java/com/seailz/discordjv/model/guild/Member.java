@@ -200,7 +200,7 @@ public record Member(
                 URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
                 discordJv,
                 URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE,
-                RequestMethod.PUT
+                RequestMethod.DELETE
         ).invoke();
     }
 

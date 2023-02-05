@@ -164,11 +164,6 @@ or
 To contribute to the `/examples` module, please see [here](https://github.com/discord-jar/discord.jar/tree/main/examples).
 `/.github` is off limits for contirubtions, please make an issue if there is an error in that folder.
 
-## Dependencies
-Springframework - web sockets - may be removed soon, <p>
-org.json - json managing - may be removed soon, <p>
-jetbrains annotations (should stay?)
-
 ## License
 License info can be found [here](https://github.com/discord-jar/discord.jar/blob/main/LICENSE). This project is licensed under GNU General Public License V3
 

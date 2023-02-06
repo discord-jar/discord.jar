@@ -31,7 +31,6 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
-import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,10 +84,10 @@ public enum DispatchedEvents {
 
                 switch (CommandType.fromCode(p.getJSONObject("d").getJSONObject("data").getInt("type"))) {
                     case SLASH_COMMAND ->
-                            event = new SlashCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
-                    case USER -> event = new UserContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                            event = new SlashCommandInteractionEvent(d, GatewayFactory.sequence, p);
+                    case USER -> event = new UserContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
                     case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(d, GatewayFactory.getLastSequence(), p);
+                            event = new MessageContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
                 }
 
                 d.getCommandDispatcher().dispatch(p.getJSONObject("d").getJSONObject("data").getString("name"),

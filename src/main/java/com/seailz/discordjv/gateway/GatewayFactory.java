@@ -88,7 +88,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException, ExecutionException, InterruptedException {
         // connection closed
         logger.info("[DISCORD.JAR] Gateway connection closed. Identifying issue...");
-        heartbeatManager.deactivate();
+        if (this.heartbeatManager != null) heartbeatManager.deactivate();
         heartbeatManager = null;
         logger.info("[DISCORD.JAR] Heartbeat manager deactivated.");
 
@@ -144,8 +144,10 @@ public class GatewayFactory extends TextWebSocketHandler {
                 logger.warning("[DISCORD.JAR] Gateway connection closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
                 break;
             case 1000:
-                logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1000. Will attempt reconnect.");
-                reconnect();
+                if (!session.isOpen()) {
+                    logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1000. Will attempt reconnect.");
+                    reconnect();
+                }
                 break;
             default:
                 logger.warning(

@@ -13,6 +13,7 @@ public class HeartbeatManager {
 
     public HeartbeatManager(int interval, GatewayFactory factory) {
         this.interval = interval;
+        System.out.println(interval);
         this.factory = factory;
         begin();
     }
@@ -24,12 +25,14 @@ public class HeartbeatManager {
 
     private void startCycle() {
         new Thread(() -> {
-            try {
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            while (true) {
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                if (active) send();
             }
-            if (active) send();
         }).start();
     }
 
@@ -48,7 +51,7 @@ public class HeartbeatManager {
    }
 
    public void forceHeartbeat() {
-         send();
+        send();
    }
 
     private void send() {

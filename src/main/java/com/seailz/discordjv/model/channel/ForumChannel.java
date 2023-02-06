@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Represents a forum channel, or their official name, <b>Thread Only Channel</b>.
@@ -26,9 +25,6 @@ import java.util.stream.Collectors;
  * <p>
  * Forum channels have a feature called <b>default_sort_order</b>, which allows you to sort posts by {@link com.seailz.discordjv.model.channel.forum.DefaultSortOrder DefaultSortOrder}.
  * <br>At the moment there are only two sort orders, LATEST_ACTIVITY and CREATION_DATE.
- * <p>
- * There is also currently a <a href="https://github.com/discord/discord-api-docs/pull/5693">PR</a> on the Discord API docs to add the `default_form_layout` field.
- * <br>The field will let you either show posts as a list or as a grid.
  *
  * @author Seailz
  * @since  1.0
@@ -58,6 +54,8 @@ public interface ForumChannel extends GuildChannel {
      * The ID of the last thread that was created in the channel.
      */
     String lastThreadId();
+
+    DefaultForumLayout defaultForumLayout();
 
     @Override
     default JSONObject compile() {
@@ -92,6 +90,36 @@ public interface ForumChannel extends GuildChannel {
         DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
         List<ForumTag> tags = obj.has("available_tags") ? obj.getJSONArray("available_tags").toList().stream().map(o -> ForumTag.decompile((JSONObject) o)).toList() : null;
         Guild guild = discordJv.getGuildById(obj.getString("guild_id"));
-        return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJv);
+        DefaultForumLayout dfl = obj.has("default_forum_layout") ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
+        return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJv, dfl);
+    }
+
+    /**
+     * The layout in which to display posts in a forum channel.
+     * Defaults to <b>NOT_SET</b> if a layout view has not been specified
+     * <br>by a channel admin.
+     *
+     * @author Seailz
+     * @see ForumChannel
+     * @since 1.0
+     */
+    enum DefaultForumLayout {
+
+        NOT_SET(0), // No default has been set.
+        LIST_VIEW(1), // Displays posts as a list.
+        GALLERY_VIEW(2), // Displays posts as a collection of tiles.
+
+        UNKNOWN(-1);
+        private final int code;
+        DefaultForumLayout(int code) {
+            this.code = code;
+        }
+        public int getCode() { return code; }
+        public static DefaultForumLayout fromCode(int code) {
+            for (DefaultForumLayout value : values()) {
+                if (value.getCode() == code) return value;
+            }
+            return UNKNOWN;
+        }
     }
 }

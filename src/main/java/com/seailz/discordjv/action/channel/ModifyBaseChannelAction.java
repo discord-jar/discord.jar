@@ -3,6 +3,7 @@ package com.seailz.discordjv.action.channel;
 import com.seailz.discordjv.DiscordJv;
 import com.seailz.discordjv.model.channel.Category;
 import com.seailz.discordjv.model.channel.Channel;
+import com.seailz.discordjv.model.channel.ForumChannel;
 import com.seailz.discordjv.model.channel.audio.VideoQualityMode;
 import com.seailz.discordjv.model.channel.forum.DefaultReaction;
 import com.seailz.discordjv.model.channel.forum.DefaultSortOrder;
@@ -41,9 +42,10 @@ public class ModifyBaseChannelAction {
     private DefaultReaction defaultReactionEmoji;
     private int defaultThreadRateLimitPerUser;
     private DefaultSortOrder defaultSortOrder;
+    private ForumChannel.DefaultForumLayout defaultForumLayout;
     private DiscordJv djv;
 
-    public ModifyBaseChannelAction(DiscordJv djv, String channelId, String name, ChannelType type, String topic, int position, boolean nsfw, int bitrate, int rateLimitPerUser, int userLimit, List<PermissionOverwrite> permissionOverwrites, Category parent, String rtcRegion, VideoQualityMode videoQualityMode, String defaultAutoArchiveDuration, int flags, List<ForumTag> availableTags, DefaultReaction defaultReactionEmoji, int defaultThreadRateLimitPerUser, DefaultSortOrder defaultSortOrder) {
+    public ModifyBaseChannelAction(DiscordJv djv, String channelId, String name, ChannelType type, String topic, int position, boolean nsfw, int bitrate, int rateLimitPerUser, int userLimit, List<PermissionOverwrite> permissionOverwrites, Category parent, String rtcRegion, VideoQualityMode videoQualityMode, String defaultAutoArchiveDuration, int flags, List<ForumTag> availableTags, DefaultReaction defaultReactionEmoji, int defaultThreadRateLimitPerUser, DefaultSortOrder defaultSortOrder, ForumChannel.DefaultForumLayout defaultForumLayout) {
         this.name = name;
         this.type = type;
         this.topic = topic;
@@ -64,6 +66,7 @@ public class ModifyBaseChannelAction {
         this.defaultSortOrder = defaultSortOrder;
         this.channelId = channelId;
         this.djv = djv;
+        this.defaultForumLayout = defaultForumLayout;
     }
 
     public ModifyBaseChannelAction(DiscordJv djv, String channelId) {
@@ -141,6 +144,10 @@ public class ModifyBaseChannelAction {
 
     public DefaultSortOrder defaultSortOrder() {
         return defaultSortOrder;
+    }
+
+    public ForumChannel.DefaultForumLayout defaultForumLayout() {
+        return defaultForumLayout;
     }
 
     public ModifyBaseChannelAction setName(String name) {
@@ -233,6 +240,10 @@ public class ModifyBaseChannelAction {
         return this;
     }
 
+    public void setDefaultForumLayout(ForumChannel.DefaultForumLayout defaultForumLayout) {
+        this.defaultForumLayout = defaultForumLayout;
+    }
+
     public CompletableFuture<Channel> run() {
         CompletableFuture<Channel> future = new CompletableFuture<>();
         future.completeAsync(() -> {
@@ -267,6 +278,7 @@ public class ModifyBaseChannelAction {
             if (defaultReactionEmoji != null) body.put("default_auto_archive_duration", defaultReactionEmoji.compile());
             if (defaultThreadRateLimitPerUser != -1) body.put("default_thread_rate_limit_per_user", defaultThreadRateLimitPerUser);
             if (defaultSortOrder != null) body.put("default_sort_order", defaultSortOrder.getCode());
+            if (defaultForumLayout != null) body.put("default_forum_layout", defaultForumLayout.getCode());
 
             DiscordResponse response = new DiscordRequest(
                     body,

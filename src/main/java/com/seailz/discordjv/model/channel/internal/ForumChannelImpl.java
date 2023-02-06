@@ -17,13 +17,15 @@ public class ForumChannelImpl extends GuildChannelImpl implements ForumChannel {
     private final List<ForumTag> tags;
     private final DefaultSortOrder defaultSortOrder;
     private final String lastThreadId;
+    private final DefaultForumLayout defaultForumLayout;
 
-    public ForumChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String postGuidelines, List<ForumTag> tags, DefaultSortOrder defaultSortOrder, String lastThreadId, JSONObject raw, DiscordJv discordJv) {
+    public ForumChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String postGuidelines, List<ForumTag> tags, DefaultSortOrder defaultSortOrder, String lastThreadId, JSONObject raw, DiscordJv discordJv, DefaultForumLayout defaultForumLayout) {
         super(id, type, name, guild, position, permissionOverwrites, nsfw, raw, discordJv);
         this.postGuidelines = postGuidelines;
         this.tags = tags;
         this.defaultSortOrder = defaultSortOrder;
         this.lastThreadId = lastThreadId;
+        this.defaultForumLayout = defaultForumLayout;
     }
 
     @Override
@@ -44,5 +46,10 @@ public class ForumChannelImpl extends GuildChannelImpl implements ForumChannel {
     @Override
     public String lastThreadId() {
         return lastThreadId;
+    }
+
+    @Override
+    public DefaultForumLayout defaultForumLayout() {
+        return defaultForumLayout;
     }
 }

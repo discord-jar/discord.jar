@@ -220,7 +220,13 @@ public class DiscordJv {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            if (gatewayFactory != null) gatewayFactory.close();
+            if (gatewayFactory != null) {
+                try {
+                    gatewayFactory.killConnectionNicely();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }));
     }
 

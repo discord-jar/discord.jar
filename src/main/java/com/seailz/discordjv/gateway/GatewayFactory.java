@@ -6,14 +6,13 @@ import com.seailz.discordjv.events.model.Event;
 import com.seailz.discordjv.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjv.gateway.events.DispatchedEvents;
 import com.seailz.discordjv.gateway.events.GatewayEvents;
-import com.seailz.discordjv.gateway.heartbeat.HeartbeatCycle;
+import com.seailz.discordjv.gateway.heartbeat.HeartbeatManager;
 import com.seailz.discordjv.model.application.Intent;
 import com.seailz.discordjv.model.guild.Guild;
 import com.seailz.discordjv.model.guild.Member;
 import com.seailz.discordjv.utils.URLS;
 import com.seailz.discordjv.utils.discordapi.DiscordRequest;
 import com.seailz.discordjv.utils.discordapi.DiscordResponse;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,124 +35,289 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+/**
+ * An implementation of a client for the Discord gateway.
+ * The gateway is how bots receive events, and allows bots to communicate their status to Discord.
+ *
+ * @author Seailz
+ * @since 1.0
+ */
 public class GatewayFactory extends TextWebSocketHandler {
 
-    private DiscordJv discordJv;
-    private String url;
-    private WebSocketSession clientSession;
-    private static int lastSequence;
-    public HeartbeatCycle heartbeatCycle;
-    private Logger logger;
-    private String resumeUrl;
+    private final DiscordJv discordJar;
+    private final Logger logger = Logger.getLogger(GatewayFactory.class.getName().toUpperCase());
+
+    private WebSocketSession session;
+    private WebSocketClient client;
+    public static int sequence;
+
+    private final String gatewayUrl;
     private String sessionId;
-    private final List<JSONObject> queue = new ArrayList<>();
-    private boolean ready;
-    // String is the nonce of the request and the list is all members that have been received so far.
-    public HashMap<String, MemberChunkStorageWrapper> memberRequestChunks;
+    private String resumeUrl;
+    private HeartbeatManager heartbeatManager;
+    private boolean shouldResume = false;
+    private boolean readyForMessages = false;
+    public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks;
 
-
-    public GatewayFactory(DiscordJv discordJv) throws ExecutionException, InterruptedException {
-        new Thread(() -> {
-            this.discordJv = discordJv;
-            DiscordResponse response = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    "/gateway",
-                    discordJv,
-                    "/gateway", RequestMethod.GET
-            ).invoke();
-            this.url = response.body().getString("url");
-            logger = Logger.getLogger("DISCORD.JV");
-            try {
-                initiateConnection();
-            } catch (ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            logger.info("[DISCORD.JV] Connected to gateway");
-        }, "Gateway").start();
+    public GatewayFactory(DiscordJv discordJar) throws ExecutionException, InterruptedException {
+        this.discordJar = discordJar;
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                "/gateway",
+                discordJar,
+                "/gateway", RequestMethod.GET
+        ).invoke();
+        this.gatewayUrl = response.body().getString("url");
+        connect();
     }
 
-    /**
-     * Queues a message to be sent to the gateway
-     *
-     * @param obj The message to be sent
-     */
-    public void queueMessage(JSONObject obj) throws IOException {
-        if (ready) {
-            clientSession.sendMessage(new TextMessage(obj.toString()));
+    public void connect(String customUrl) throws ExecutionException, InterruptedException {
+        WebSocketClient client = new StandardWebSocketClient();
+        this.client = client;
+        this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();
+        session.setTextMessageSizeLimit(1000000);
+        session.setBinaryMessageSizeLimit(1000000);
+    }
+
+    public void connect() throws ExecutionException, InterruptedException {
+        connect(gatewayUrl);
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException, ExecutionException, InterruptedException {
+        // connection closed
+        logger.info("[DISCORD.JAR] Gateway connection closed. Identifying issue...");
+        heartbeatManager.deactivate();
+        heartbeatManager = null;
+        logger.info("[DISCORD.JAR] Heartbeat manager deactivated.");
+
+        switch (status.getCode()) {
+            case 4000:
+                logger.info("[DISCORD.JAR] Gateway connection closed due to an unknown error. Will attempt reconnect.");
+                reconnect();
+                break;
+            case 4001:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to an unknown opcode. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                reconnect();
+                break;
+            case 4002:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to a decode error. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                reconnect();
+                break;
+            case 4003:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to not being authenticated. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                reconnect();
+                break;
+            case 4004:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
+                break;
+            case 4005:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to an already authenticated connection. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                reconnect();
+                break;
+            case 4007:
+                logger.info("[DISCORD.JAR] Gateway connection closed due to an invalid sequence. Will attempt reconnect.");
+                reconnect();
+                break;
+            case 4008:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
+                reconnect();
+                break;
+            case 4009:
+                logger.info("[DISCORD.JAR] Gateway connection closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
+                reconnect();
+                break;
+            case 4010:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to an invalid shard. Will not attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                break;
+            case 4011:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
+                break;
+            case 4012:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to an invalid API version. Will not attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                break;
+            case 4013:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to an invalid intent. Will not attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
+                break;
+            case 4014:
+                logger.warning("[DISCORD.JAR] Gateway connection closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
+                break;
+            case 1000:
+                logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1000. Will attempt reconnect.");
+                reconnect();
+                break;
+            default:
+                logger.warning(
+                        "[DISCORD.JAR] Gateway connection was closed with an unknown status code. This is usually a bug, please report it on discord.jar's GitHub with this log message. Status code: "
+                                + status.getCode() + ". Reason: " + status.getReason() + ". Will not attempt reconnect."
+                );
+                break;
+        }
+    }
+
+    public void queueMessage(JSONObject payload) {
+        while (readyForMessages) {
+            sendPayload(payload);
+            break;
+        }
+    }
+
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        super.handleTextMessage(session, message);
+        JSONObject payload = new JSONObject(message.getPayload());
+
+        try {
+            sequence = payload.getInt("s");
+        } catch (JSONException ignored) {
+        }
+
+        GatewayEvents event = GatewayEvents.getEvent(payload.getInt("op"));
+        if (event == null) {
+            logger.warning("[DISCORD.JV] Unknown event received: " + payload.getInt("op") + ". This is rare, please create an issue on GitHub with this log message. Payload: " + payload.toString());
             return;
         }
 
-        queue.add(obj);
-    }
+        switch (event) {
+            case HELLO:
+                handleHello(payload);
+                if (!shouldResume) sendIdentify();
+                readyForMessages = true;
+                break;
+            case HEARTBEAT_REQUEST:
+                heartbeatManager.forceHeartbeat();
+                break;
+            case DISPATCHED:
+                handleDispatched(payload);
+                break;
+            case RECONNECT:
+                logger.info("[DISCORD.JV] Gateway requested a reconnect, reconnecting...");
+                reconnect();
+                break;
+            case INVALID_SESSION:
+                logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
+                if (payload.getBoolean("d")) {
+                    reconnect();
+                } else {
+                    sendIdentify();
+                }
 
-    public void startAgain() {
-        new Thread(() -> {
-            this.heartbeatCycle = null;
-            DiscordResponse response = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    "/gateway",
-                    discordJv,
-                    "/gateway", RequestMethod.GET
-            ).invoke();
-            this.url = response.body().getString("url");
-            logger = Logger.getLogger("DISCORD.JV");
-            try {
-                initiateConnection();
-            } catch (ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            logger.info("[DISCORD.JV] Connected to gateway");
-        }, "Gateway").start();
-    }
-
-    private void initiateConnection() throws ExecutionException, InterruptedException {
-        // connect to websocket
-        WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(url + "?v=" + URLS.version.getCode())).get();
-        clientSession.setTextMessageSizeLimit(1000000);
-        clientSession.setBinaryMessageSizeLimit(1000000);
-    }
-
-    private void initiateConnection(String customURL) throws ExecutionException, InterruptedException {
-        // connect to websocket
-        WebSocketClient client = new StandardWebSocketClient();
-        this.clientSession = client.execute(this, new WebSocketHttpHeaders(), URI.create(customURL + "?v=" + URLS.version.getCode())).get();
-        clientSession.setTextMessageSizeLimit(1000000);
-        clientSession.setBinaryMessageSizeLimit(1000000);
-    }
-
-    public void reconnect() throws ExecutionException, InterruptedException, IOException {
-        logger.info("[DISCORD.JV] Reconnecting to gateway");
-        try {
-            clientSession.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                session.close(CloseStatus.GOING_AWAY);
+                heartbeatManager.deactivate();
+                readyForMessages = false;
+                heartbeatManager = null;
+                connect();
+                break;
+            case HEARTBEAT_ACK:
+                logger.info("[DISCORD.JV] Heartbeat acknowledged");
+                break;
         }
-        new Thread(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                initiateConnection(resumeUrl == null ? url : resumeUrl);
-            } catch (ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            JSONObject payload = new JSONObject();
-            payload.put("op", 6);
-            payload.put("d", new JSONObject().put("token", discordJv.getToken()).put("session_id", sessionId).put("seq", lastSequence));
-            try {
-                clientSession.sendMessage(new TextMessage(payload.toString()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    }
 
+    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        // Handle dispatched events
+        // actually dispatch the event
+        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
+        if (eventClass == null) {
+            logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
+            return;
+        }
+        if (eventClass.equals(CommandInteractionEvent.class)) return;
 
-            logger.info("[DISCORD.JV] Attempting Gateway Resume");
-        }).start();
+        System.out.println(eventClass);
+        Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class)
+                .newInstance(discordJar, sequence, payload);
+
+        discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
+
+        switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
+            case READY:
+                this.sessionId = payload.getJSONObject("d").getString("session_id");
+                this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
+                readyForMessages = true;
+                break;
+            case GUILD_CREATE:
+                discordJar.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJar));
+                break;
+            case RESUMED:
+                logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
+                break;
+        }
+    }
+
+    public void killConnectionNicely() throws IOException {
+        // disable heartbeat
+        heartbeatManager.deactivate();
+        heartbeatManager = null;
+        readyForMessages = false;
+        // close connection
+        session.close(CloseStatus.GOING_AWAY);
+    }
+
+    public void killConnection() throws IOException {
+        // disable heartbeat
+        heartbeatManager.deactivate();
+        heartbeatManager = null;
+        readyForMessages = false;
+        // close connection
+        session.close(CloseStatus.SERVER_ERROR);
+    }
+
+    public void reconnect() throws IOException, ExecutionException, InterruptedException {
+        if (session.isOpen())
+            session.close(CloseStatus.GOING_AWAY);
+
+        if (this.heartbeatManager != null) this.heartbeatManager.deactivate();
+        this.heartbeatManager = null;
+        readyForMessages = false;
+
+        JSONObject resumePayload = new JSONObject();
+        resumePayload.put("op", 6);
+        JSONObject resumeData = new JSONObject();
+        resumeData.put("token", discordJar.getToken());
+        resumeData.put("session_id", sessionId);
+        resumeData.put("seq", sequence);
+        resumePayload.put("d", resumeData);
+        shouldResume = true;
+        connect(resumeUrl);
+
+    }
+
+    private void handleHello(JSONObject payload) {
+        heartbeatManager = new HeartbeatManager(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
+    }
+
+    private void sendIdentify() {
+        AtomicInteger intents = new AtomicInteger();
+        if (discordJar.getIntents().contains(Intent.ALL)) {
+            intents.set(3243773);
+            discordJar.getIntents().forEach(intent -> {
+                if (intent.isPrivileged()) {
+                    intents.getAndAdd(intent.getLeftShiftId());
+                }
+            });
+        } else {
+            discordJar.getIntents().forEach(intent -> intents.getAndAdd(intent.getLeftShiftId()));
+        }
+
+        JSONObject payload = new JSONObject();
+        payload.put("op", 2);
+        JSONObject data = new JSONObject();
+        data.put("token", discordJar.getToken());
+        String os = System.getProperty("os.name").toLowerCase();
+        data.put("properties", new JSONObject().put("os", os).put("browser", "discord.jar").put("device", "discord.jar"));
+        data.put("intents", intents.get());
+        payload.put("d", data);
+        sendPayload(payload);
+    }
+
+    public void sendPayload(JSONObject payload) {
+        try {
+            session.sendMessage(new TextMessage(payload.toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void requestGuildMembers(RequestGuildMembersAction action, CompletableFuture<List<Member>> future) {
@@ -178,159 +342,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         payload.put("op", 8);
         payload.put("d", dPayload);
 
-        try {
-            queueMessage(payload);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        queueMessage(payload);
 
-        memberRequestChunks.put(action.getNonce(), new MemberChunkStorageWrapper(new ArrayList<>(), future));
-    }
-
-    @Override
-    protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
-        super.handleTextMessage(session, message);
-        JSONObject payload = new JSONObject(message.getPayload());
-
-        try {
-            lastSequence = payload.getInt("s");
-        } catch (JSONException ignored) {
-        }
-
-        GatewayEvents event = GatewayEvents.getEvent(payload.getInt("op"));
-        if (event == null) {
-            logger.warning("[DISCORD.JV] Unknown event received: " + payload.getInt("op"));
-            return;
-        }
-
-        switch (event) {
-            case HELLO:
-                handleHello(payload);
-                sendIdentify();
-                break;
-            case HEARTBEAT_REQUEST:
-                heartbeatCycle.sendHeartbeat();
-                break;
-            case DISPATCHED:
-                handleDispatched(payload);
-                break;
-            case RECONNECT:
-                logger.info("[DISCORD.JV] Gateway requested a reconnect, reconnecting...");
-                reconnect();
-                ready = false;
-                break;
-            case INVALID_SESSION:
-                logger.info("[DISCORD.JV] Gateway requested a reconnect (invalid session), reconnecting...");
-                initiateConnection();
-                ready = false;
-                break;
-            case HEARTBEAT_ACK:
-                logger.info("[DISCORD.JV] Heartbeat acknowledged");
-                break;
-        }
-    }
-
-    @Override
-    public void afterConnectionClosed(@NotNull WebSocketSession session, CloseStatus status) {
-        Logger logger = Logger.getLogger("DISCORD.JV");
-        logger.info("[DISCORD.JV] Gateway connection closed, reconnecting...");
-        logger.info("Was disconnected with status [" + status.getCode() + "]" + " " + status.getReason());
-    }
-
-    private void handleHello(JSONObject payload) throws InterruptedException {
-        // Start heartbeat cycle
-        this.heartbeatCycle = new HeartbeatCycle(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
-        try {
-            heartbeatCycle.sendHeartbeat();
-        } catch (IOException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        // Handle dispatched events
-        // actually dispatch the event
-        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJv);
-        if (eventClass == null) {
-            logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
-            return;
-        }
-        if (eventClass.equals(CommandInteractionEvent.class)) return;
-
-        System.out.println(eventClass);
-        Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class)
-                .newInstance(discordJv, lastSequence, payload);
-
-        discordJv.getEventDispatcher().dispatchEvent(event, eventClass, discordJv);
-
-        switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
-            case READY:
-                this.sessionId = payload.getJSONObject("d").getString("session_id");
-                this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
-                ready = true;
-                queue.forEach(obj -> {
-                    try {
-                        clientSession.sendMessage(new TextMessage(obj.toString()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                queue.clear();
-                break;
-            case GUILD_CREATE:
-                    discordJv.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJv));
-                    break;
-            case RESUMED:
-                logger.info("[DISCORD.JV] Gateway session has been resumed, confirmed by Discord.");
-                break;
-        }
-    }
-
-    @SuppressWarnings("SynchronizeOnNonFinalField")
-    private void sendIdentify() throws IOException {
-        AtomicInteger intents = new AtomicInteger();
-        if (discordJv.getIntents().contains(Intent.ALL)) {
-            intents.set(3243773);
-            discordJv.getIntents().forEach(intent -> {
-                if (intent.isPrivileged()) {
-                    intents.getAndAdd(intent.getLeftShiftId());
-                }
-            });
-        } else {
-            discordJv.getIntents().forEach(intent -> intents.getAndAdd(intent.getLeftShiftId()));
-        }
-
-        JSONObject payload = new JSONObject();
-        payload.put("op", 2);
-        JSONObject data = new JSONObject();
-        data.put("token", discordJv.getToken());
-        data.put("properties", new JSONObject().put("os", "linux").put("browser", "discord.jv").put("device", "discord.jv"));
-        data.put("intents", intents.get());
-        payload.put("d", data);
-        synchronized (clientSession) {
-            clientSession.sendMessage(new TextMessage(payload.toString()));
-        }
-    }
-
-    /**
-     * Closes the connection to the gateway
-     */
-    public void close() {
-        try {
-            clientSession.close(CloseStatus.GOING_AWAY);
-            logger.info("[DISCORD.JV] Disconnected from gateway. Ready for shutdown.");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static int getLastSequence() {
-        return lastSequence;
-    }
-
-    public WebSocketSession getClientSession() {
-        return clientSession;
+        memberRequestChunks.put(action.getNonce(), new GatewayFactory.MemberChunkStorageWrapper(new ArrayList<>(), future));
     }
 
     public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
@@ -342,4 +356,5 @@ public class GatewayFactory extends TextWebSocketHandler {
             future.complete(members);
         }
     }
+
 }

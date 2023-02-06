@@ -13,7 +13,6 @@ public class HeartbeatManager {
 
     public HeartbeatManager(int interval, GatewayFactory factory) {
         this.interval = interval;
-        System.out.println(interval);
         this.factory = factory;
         begin();
     }

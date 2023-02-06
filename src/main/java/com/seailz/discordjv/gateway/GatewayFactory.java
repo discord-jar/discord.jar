@@ -212,7 +212,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 connect();
                 break;
             case HEARTBEAT_ACK:
-                logger.info("[DISCORD.JV] Heartbeat acknowledged");
+                // Heartbeat was acknowledged, can ignore.
                 break;
         }
     }
@@ -227,7 +227,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
-        System.out.println(eventClass);
         Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class)
                 .newInstance(discordJar, sequence, payload);
 

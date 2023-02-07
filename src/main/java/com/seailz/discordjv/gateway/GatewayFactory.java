@@ -149,6 +149,10 @@ public class GatewayFactory extends TextWebSocketHandler {
                     reconnect();
                 }
                 break;
+            case 1006:
+                logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
+                reconnect();
+                break;
             default:
                 logger.warning(
                         "[DISCORD.JAR] Gateway connection was closed with an unknown status code. This is usually a bug, please report it on discord.jar's GitHub with this log message. Status code: "

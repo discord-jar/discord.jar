@@ -77,7 +77,7 @@
         <dependency>
             <groupId>software.pando.crypto</groupId>
             <artifactId>salty-coffee</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </dependency>
         <!-- Used for data parsing -->
         <dependency>

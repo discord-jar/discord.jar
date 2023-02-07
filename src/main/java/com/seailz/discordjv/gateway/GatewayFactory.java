@@ -94,7 +94,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         switch (status.getCode()) {
             case 4000:
-                logger.info("[DISCORD.JAR] Gateway connection closed due to an unknown error. Will attempt reconnect.");
+                logger.info("[DISCORD.JAR] Gateway connection closed due to an unknown error. It's possible this could be a discord.jar bug, but is unlikely. Will attempt reconnect.");
                 reconnect();
                 break;
             case 4001:
@@ -145,7 +145,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case 1000:
                 if (!session.isOpen()) {
-                    logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1000. Will attempt reconnect.");
+                    logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
                     reconnect();
                 }
                 break;
@@ -267,7 +267,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public void reconnect() throws IOException, ExecutionException, InterruptedException {
         if (session.isOpen())
-            session.close(CloseStatus.GOING_AWAY);
+            session.close(CloseStatus.SERVICE_RESTARTED);
 
         if (this.heartbeatManager != null) this.heartbeatManager.deactivate();
         this.heartbeatManager = null;

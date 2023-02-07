@@ -110,41 +110,58 @@ public class DiscordJv {
      * A cache storing self user information
      */
     private JsonCache selfUserCache;
+    /**
+     * Should the bot be in debug mode?
+     */
+    private boolean debug;
 
     public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null);
     }
 
-    /**
-     * Creates a new instance of the DiscordJv class
-     * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
-     *
-     * @param token        The token of the bot
-     * @param intents      The intents the bot will use
-     * @param version      The version of the Discord API the bot will use
-     * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
-     *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
-     *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
-     *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
-     *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
-     *                     Interaction-based events will still be delivered as usual.
-     *                     For a full tutorial, see the README.md file.
-     * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
-     *                     See the above parameter for more information.
-     * @throws ExecutionException   If an error occurs while connecting to the gateway
-     * @throws InterruptedException If an error occurs while connecting to the gateway
-     */
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
+        this(token, intents, version, false, null);
+    }
+
+    public DiscordJv(String token, APIVersion version) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.of(Intent.ALL), version, false, null);
+    }
+
     public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
+        this(token, intents, version, httpOnly, httpOnlyInfo, false);
+    }
+
+        /**
+         * Creates a new instance of the DiscordJv class
+         * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
+         *
+         * @param token        The token of the bot
+         * @param intents      The intents the bot will use
+         * @param version      The version of the Discord API the bot will use
+         * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
+         *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
+         *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
+         *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
+         *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
+         *                     Interaction-based events will still be delivered as usual.
+         *                     For a full tutorial, see the README.md file.
+         * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
+         *                     See the above parameter for more information.
+         * @param debug        Should the bot be in debug mode?
+         * @throws ExecutionException   If an error occurs while connecting to the gateway
+         * @throws InterruptedException If an error occurs while connecting to the gateway
+         */
+    public DiscordJv(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
         new URLS(version);
-        logger = Logger.getLogger("DiscordJv");
+        logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
         this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
-        if (!httpOnly) this.gatewayFactory = new GatewayFactory(this);
+        if (!httpOnly) this.gatewayFactory = new GatewayFactory(this, debug);
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
                         new JSONObject(),
@@ -186,7 +203,7 @@ public class DiscordJv {
     }
 
     public DiscordJv(String token) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES, Intent.GUILD_MESSAGE_REACTIONS), APIVersion.getLatest());
+        this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest());
     }
 
     public DiscordJv(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {

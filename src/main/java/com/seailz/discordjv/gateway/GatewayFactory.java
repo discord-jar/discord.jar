@@ -58,9 +58,11 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean shouldResume = false;
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks;
+    private final boolean debug;
 
-    public GatewayFactory(DiscordJv discordJar) throws ExecutionException, InterruptedException {
+    public GatewayFactory(DiscordJv discordJar, boolean debug) throws ExecutionException, InterruptedException {
         this.discordJar = discordJar;
+        this.debug = debug;
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -78,6 +80,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();
         session.setTextMessageSizeLimit(1000000);
         session.setBinaryMessageSizeLimit(1000000);
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
+        }
     }
 
     public void connect() throws ExecutionException, InterruptedException {
@@ -92,6 +97,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         heartbeatManager = null;
         logger.info("[DISCORD.JAR] Heartbeat manager deactivated.");
 
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Gateway connection closed. Status: " + status.getReason() + " (" + status.getCode() + ")");
+        }
         switch (status.getCode()) {
             case 4000:
                 logger.info("[DISCORD.JAR] Gateway connection closed due to an unknown error. It's possible this could be a discord.jar bug, but is unlikely. Will attempt reconnect.");
@@ -163,8 +171,14 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void queueMessage(JSONObject payload) {
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Queued message: " + payload.toString());
+        }
         while (readyForMessages) {
             sendPayload(payload);
+            if (debug) {
+                logger.info("[DISCORD.JAR - DEBUG] Sent message: " + payload.toString());
+            }
             break;
         }
     }
@@ -174,6 +188,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
 
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Received message: " + payload.toString());
+        }
         try {
             sequence = payload.getInt("s");
         } catch (JSONException ignored) {
@@ -190,12 +207,23 @@ public class GatewayFactory extends TextWebSocketHandler {
                 handleHello(payload);
                 if (!shouldResume) sendIdentify();
                 readyForMessages = true;
+
+                if (debug) {
+                    logger.info("[DISCORD.JAR - DEBUG] Received HELLO event. Heartbeat cycle has been started. If this isn't a resume, IDENTIFY has been sent.");
+                }
+
                 break;
             case HEARTBEAT_REQUEST:
                 heartbeatManager.forceHeartbeat();
+                if (debug) {
+                    logger.info("[DISCORD.JAR - DEBUG] Received HEARTBEAT_REQUEST event. Heartbeat has been forced.");
+                }
                 break;
             case DISPATCHED:
                 handleDispatched(payload);
+                if (debug) {
+                    logger.info("[DISCORD.JAR - DEBUG] Received DISPATCHED event. Event has been handled.");
+                }
                 break;
             case RECONNECT:
                 logger.info("[DISCORD.JV] Gateway requested a reconnect, reconnecting...");
@@ -229,12 +257,19 @@ public class GatewayFactory extends TextWebSocketHandler {
             logger.info("[DISCORD.JV] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
             return;
         }
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Event class: " + eventClass.getName());
+        }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
         Event event = eventClass.getConstructor(DiscordJv.class, long.class, JSONObject.class)
                 .newInstance(discordJar, sequence, payload);
 
         discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
+
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
+        }
 
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
             case READY:
@@ -258,6 +293,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         readyForMessages = false;
         // close connection
         session.close(CloseStatus.GOING_AWAY);
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Connection closed nicely.");
+        }
     }
 
     public void killConnection() throws IOException {
@@ -267,9 +305,16 @@ public class GatewayFactory extends TextWebSocketHandler {
         readyForMessages = false;
         // close connection
         session.close(CloseStatus.SERVER_ERROR);
+
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Connection closed.");
+        }
     }
 
     public void reconnect() throws IOException, ExecutionException, InterruptedException {
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Attempting resume...");
+        }
         if (session.isOpen())
             session.close(CloseStatus.SERVICE_RESTARTED);
 
@@ -286,7 +331,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         resumePayload.put("d", resumeData);
         shouldResume = true;
         connect(resumeUrl);
-
     }
 
     private void handleHello(JSONObject payload) {
@@ -330,6 +374,10 @@ public class GatewayFactory extends TextWebSocketHandler {
             throw new IllegalArgumentException("You must provide either a query or a list of user ids");
         }
 
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Requesting guild members...");
+        }
+
         JSONObject payload = new JSONObject();
         JSONObject dPayload = new JSONObject();
         dPayload.put("guild_id", action.getGuildId());
@@ -362,4 +410,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
+
+    public WebSocketSession getSession() {
+        return session;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
 }

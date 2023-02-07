@@ -13,9 +13,9 @@ interested in helping out it would be greatly appreciated! Developed & maintaine
 
 ### Prerequisites
 
-You'll need to add discord.jar to your project's dependencies. We are currently using
-jitpack to host our builds. See tutorials for your dependency management
-system [here](https://jitpack.io/#discord-jar/discord.jar/-SNAPSHOT).
+<b>You'll need to add discord.jar to your project's dependencies. We are currently using
+Jitpack to host our builds. See tutorials for your dependency management
+system [here](https://jitpack.io/#discord-jar/discord.jar/-SNAPSHOT).</b>
 
 A Discord bot token is required to use the API. You can get one by creating a bot
 account [here](https://discord.com/developers/applications).

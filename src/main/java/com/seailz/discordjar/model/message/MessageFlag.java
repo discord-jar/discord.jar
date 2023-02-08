@@ -28,6 +28,8 @@ public enum MessageFlag {
     LOADING(7, false),
     // this message failed to mention some roles and add their members to the thread
     FAILED_THREAD_MEMBER_ADD(8, false),
+    // this message is "silent"
+    SUPPRESS_NOTICICATIONS(12, true)
     ;
 
     private final int id;

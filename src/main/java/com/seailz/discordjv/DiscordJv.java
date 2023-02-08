@@ -55,7 +55,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
- * The main class of the Discord.jv wrapper
+ * The main class of the discord.jar wrapper for the Discord API.
  *
  * @author Seailz
  * @since 1.0

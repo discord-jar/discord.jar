@@ -38,6 +38,14 @@ public record Status(
                 .put("afk", afk);
     }
 
+    public static Status of(Activity activity, StatusType status) {
+        return new Status(activity, status);
+    }
+
+    public Status(Activity activity, StatusType status) {
+        this(0, new Activity[]{activity}, status, false);
+    }
+
     public static Status decompile(JSONObject obj, DiscordJv discordjv) {
         int since;
         Activity[] activities;

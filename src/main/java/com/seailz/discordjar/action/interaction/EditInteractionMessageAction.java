@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.discordapi.DiscordRequest;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -128,9 +129,32 @@ public class EditInteractionMessageAction {
         future.completeAsync(() -> {
             JSONObject obj = new JSONObject();
             if (content != null) obj.put("content", content);
-            if (embeds != null) obj.put("embeds", embeds);
-            if (components != null) obj.put("components", components);
-            if (attachments != null) obj.put("attachments", attachments);
+            if (embeds != null) {
+                JSONArray embeds = new JSONArray();
+                for (Embeder embed : this.embeds) {
+                    embeds.put(embed.compile());
+                }
+
+                obj.put("embeds", embeds);
+            }
+
+            if (components != null) {
+                JSONArray components = new JSONArray();
+                for (DisplayComponent component : this.components) {
+                    components.put(component.compile());
+                }
+
+                obj.put("components", components);
+            }
+
+            if (attachments != null) {
+                JSONArray attachments = new JSONArray();
+                for (Attachment attachment : this.attachments) {
+                    attachments.put(attachment.compile());
+                }
+
+                obj.put("attachments", attachments);
+            }
 
             DiscordRequest request = new DiscordRequest(
                     obj,

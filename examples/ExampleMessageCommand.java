@@ -1,6 +1,6 @@
-import com.seailz.discordjv.command.annotation.SlashCommandInfo;
-import com.seailz.discordjv.command.listeners.MessageContextCommandListener;
-import com.seailz.discordjv.events.model.interaction.command.MessageContextCommandInteractionEvent;
+import com.seailz.discordjar.command.annotation.SlashCommandInfo;
+import com.seailz.discordjar.command.listeners.MessageContextCommandListener;
+import com.seailz.discordjar.events.model.interaction.command.MessageContextCommandInteractionEvent;
 
 /**
  * This is an example of a message context command implementation.

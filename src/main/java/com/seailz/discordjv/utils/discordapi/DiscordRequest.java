@@ -154,7 +154,7 @@ public class DiscordRequest {
                 } else {
                     new JSONObject(response.body());
                 }
-            } catch (JSONException e) {
+            } catch (JSONException err) {
                 System.out.println(response.body());
             }
 
@@ -196,11 +196,14 @@ public class DiscordRequest {
                 return new DiscordResponse(401, null, null, null);
             }
 
-            System.out.println(body == null ? aBody : body);
-
-            System.out.println(response.body());
             JSONObject error = new JSONObject(response.body());
             JSONArray errorArray;
+
+            if (responseCode == 404) {
+                Logger.getLogger("DISCORDJAR")
+                        .warning("Received 404 error from the Discord API. It's likely that you're trying to access a resource that doesn't exist.");
+                return new DiscordResponse(404, null, null, null);
+            }
 
             throw new UnhandledDiscordAPIErrorException(
                     responseCode,

@@ -107,6 +107,10 @@ public final class URLS {
             public static String APPLICATION_INFORMATION = "/oauth2/applications/@me";
         }
 
+        public static class INVITES {
+            public static String GET_INVITE = "/invites/{invite.code}";
+        }
+
         public static class USER {
             /**
              * Returns info about a user
@@ -309,6 +313,10 @@ public final class URLS {
             public static class MESSAGE {
                 public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
+        }
+
+        public static class INVITE {
+            public static String DELETE_INVITE = "/invites/{invite.code}";
         }
     }
 

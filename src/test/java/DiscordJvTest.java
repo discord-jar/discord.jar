@@ -1,9 +1,9 @@
-import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.model.application.Intent;
-import com.seailz.discordjv.model.status.Status;
-import com.seailz.discordjv.model.status.StatusType;
-import com.seailz.discordjv.model.status.activity.Activity;
-import com.seailz.discordjv.model.status.activity.ActivityType;
+import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.model.application.Intent;
+import com.seailz.discordjar.model.status.Status;
+import com.seailz.discordjar.model.status.StatusType;
+import com.seailz.discordjar.model.status.activity.Activity;
+import com.seailz.discordjar.model.status.activity.ActivityType;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,16 +25,16 @@ public class DiscordJvTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        DiscordJv discordJv = new DiscordJv(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
+        DiscordJar discordJar = new DiscordJar(token, EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
 
         ArrayList<Activity> activities = new ArrayList<>();
         activities.add(
                 new Activity("Hello World2", ActivityType.WATCHING)
         );
         Status status = new Status(0, activities.toArray(new Activity[0]), StatusType.DO_NOT_DISTURB, false);
-        discordJv.setStatus(status);
+        discordJar.setStatus(status);
 
-        discordJv.clearCommands();
+        discordJar.clearCommands();
     }
 
 }

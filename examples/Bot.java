@@ -1,4 +1,4 @@
-import com.seailz.discordjv.DiscordJv;
+import com.seailz.discordjar.DiscordJv;
 
 import java.util.concurrent.ExecutionException;
 

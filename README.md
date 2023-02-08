@@ -1,12 +1,12 @@
-![discord.jv banner](https://cdn.discordapp.com/attachments/1048910867128922172/1063823409382953042/Birthday__1_-removebg-preview_1.png)
+![discord.jar banner](https://cdn.discordapp.com/attachments/1048910867128922172/1063823409382953042/Birthday__1_-removebg-preview_1.png)
 
-[![seailz - discord.jv](https://img.shields.io/static/v1?label=seailz&message=discord.jv&color=blue&logo=github)](https://github.com/seailz/discord.jv "Go to GitHub repo") [![stars - discord.jv](https://img.shields.io/github/stars/seailz/discord.jv?style=social)](https://github.com/seailz/discord.jv) [![forks - discord.jv](https://img.shields.io/github/forks/seailz/discord.jv?style=social)](https://github.com/seailz/discord.jv) [![License](https://img.shields.io/badge/License-GNU_General_Public_License_v3.0-blue)](#license) [![issues - discord.jv](https://img.shields.io/github/issues/seailz/discord.jv)](https://github.com/seailz/discord.jv/issues)
+[![seailz - discord.jar](https://img.shields.io/static/v1?label=seailz&message=discord.jar&color=blue&logo=github)](https://github.com/discord-jar/discord.jar "Go to GitHub repo") [![stars - discord.jar](https://img.shields.io/github/stars/discord-jar/discord.jar?style=social)](https://github.com/discord-jar/discord.jar) [![forks - discord.jar](https://img.shields.io/github/forks/discord-jar/discord.jar?style=social)](https://github.com/discord-jar/discord.jar) [![License](https://img.shields.io/badge/License-GNU_General_Public_License_v3.0-blue)](#license) [![issues - discord.jar](https://img.shields.io/github/issues/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar/issues)
 
 # discord.jar - a clean Java wrapper for Discord
 
 discord.jar [![loc - discord.jar](https://sloc.xyz/github/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar) is
 a **work in progress** Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
-Everything that needs doing can be found in the [Issues](https://github.com/seailz/discord.jv/issues) tab, so if you're
+Everything that needs doing can be found in the [Issues](https://github.com/discord-jar/discord.jar/issues) tab, so if you're
 interested in helping out it would be greatly appreciated! Developed & maintained by @seailz
 
 ## Getting Started
@@ -25,13 +25,13 @@ account [here](https://discord.com/developers/applications).
 To initialize a bot that uses the gateway (is able to receive events), you can use the following code:
 
 ```java
-new DiscordJv("token");
+new DiscordJar("token");
 ```
 
 You can specify intents to use with the gateway by using the following code:
 
 ```java
-new DiscordJv("token", EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
+new DiscordJar("token", EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
 ```
 
 Note: You can use the `Intent.ALL` constant to specify all intents. This does not include privileged intents.
@@ -42,7 +42,7 @@ To make your bot an <a href="https://discord.com/developers/docs/topics/gateway#
 you'll need to specify a couple more parameters.
 
 ```java
-new DiscordJv("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES), APIVersion.getLatest(), true,
+new DiscordJar("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES), APIVersion.getLatest(), true,
         new HTTPOnlyInfo(
         "interactions",
         "EXAMPLE_APPLICATION_PUBLIC_KEY" // this cxan be found in your application's page in the dev panel
@@ -100,7 +100,7 @@ As far as I know, discord.jar is the only Java library to support linked roles, 
 7. Now, invite the bot to your server as usual, and you should be able to make a Linked Role! (As of writing, linked roles are only 50% rolled out yet).
 8. We actually need to implement this into our code now. Head to your code, and you'll want to add this:
 ```java
-        discordJv.getSelfInfo().setRoleConnections(
+        discordJar.getSelfInfo().setRoleConnections(
                 new ApplicationRoleConnectionMetadata(
                         ApplicationRoleConnectionMetadata.Type.BOOLEAN_EQUAL,
                         "isdeveloper",
@@ -127,7 +127,7 @@ This code informs Discord of what role connection metadata you would like to hav
                 "/verify",
                 "APPLICATION_ID", // can be found in the GENERAL_INFORMATION tab
                 true, // should discord.jar redirect back to https://discord.com/oauth2/authorized when code is completed?
-                discordJv, // your discord.jar instance
+                discordJar, // your discord.jar instance
                 db
         );
 ```

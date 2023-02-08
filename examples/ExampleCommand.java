@@ -1,12 +1,12 @@
-import com.seailz.discordjv.DiscordJv;
-import com.seailz.discordjv.command.CommandOption;
-import com.seailz.discordjv.command.CommandOptionType;
-import com.seailz.discordjv.command.listeners.CommandListener;
-import com.seailz.discordjv.command.listeners.slash.SlashCommandListener;
-import com.seailz.discordjv.command.listeners.slash.SlashSubCommand;
-import com.seailz.discordjv.command.listeners.slash.SubCommandGroup;
-import com.seailz.discordjv.command.listeners.slash.SubCommandListener;
-import com.seailz.discordjv.events.model.interaction.command.SlashCommandInteractionEvent;
+import com.seailz.discordjar.DiscordJv;
+import com.seailz.discordjar.command.CommandOption;
+import com.seailz.discordjar.command.CommandOptionType;
+import com.seailz.discordjar.command.listeners.CommandListener;
+import com.seailz.discordjar.command.listeners.slash.SlashCommandListener;
+import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
+import com.seailz.discordjar.command.listeners.slash.SubCommandGroup;
+import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
+import com.seailz.discordjar.events.model.interaction.command.SlashCommandInteractionEvent;
 
 /**
  * This is an example of a slash command.
@@ -14,16 +14,16 @@ import com.seailz.discordjv.events.model.interaction.command.SlashCommandInterac
  * <p>
  * To register commands, you must use the {@link DiscordJv#registerCommands(CommandListener...)} method.
  * You can also implement other types of commands,
- * like {@link com.seailz.discordjv.command.listeners.MessageContextCommandListener MessageContextCommandListener} and {@link com.seailz.discordjv.command.listeners.UserContextCommandListener UserContextCommandListener}.
+ * like {@link com.seailz.discordjar.command.listeners.MessageContextCommandListener MessageContextCommandListener} and {@link com.seailz.discordjar.command.listeners.UserContextCommandListener UserContextCommandListener}.
  * <p>
- * When setting up your command, you must use the {@link com.seailz.discordjv.command.annotation.SlashCommandInfo SlashCommandInfo} annotation to provide info about the command to discord.jv
+ * When setting up your command, you must use the {@link com.seailz.discordjar.command.annotation.SlashCommandInfo SlashCommandInfo} annotation to provide info about the command to discord.jar
  *
  * @author Seailz
  * @since 1.0
  * @Date: <b>2022-11-28</b> - Added sub commands
  * @see DiscordJv#registerCommands(CommandListener...)
- * @see com.seailz.discordjv.command.listeners.MessageContextCommandListener
- * @see com.seailz.discordjv.command.listeners.UserContextCommandListener
+ * @see com.seailz.discordjar.command.listeners.MessageContextCommandListener
+ * @see com.seailz.discordjar.command.listeners.UserContextCommandListener
  */
 public class ExampleCommand extends SlashCommandListener {
 

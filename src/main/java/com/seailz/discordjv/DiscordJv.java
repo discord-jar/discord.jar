@@ -27,6 +27,8 @@ import com.seailz.discordjv.model.channel.audio.VoiceRegion;
 import com.seailz.discordjv.model.emoji.sticker.Sticker;
 import com.seailz.discordjv.model.emoji.sticker.StickerPack;
 import com.seailz.discordjv.model.guild.Guild;
+import com.seailz.discordjv.model.invite.Invite;
+import com.seailz.discordjv.model.invite.internal.InviteImpl;
 import com.seailz.discordjv.model.status.Status;
 import com.seailz.discordjv.model.user.User;
 import com.seailz.discordjv.utils.Checker;
@@ -53,7 +55,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
- * The main class of the Discord.jv wrapper
+ * The main class of the discord.jar wrapper for the Discord API.
  *
  * @author Seailz
  * @since 1.0
@@ -658,4 +660,36 @@ public class DiscordJv {
         return regions;
     }
 
+    /**
+     * Retrieves an {@link com.seailz.discordjv.model.invite.Invite Invite} by its code.
+     */
+    @Nullable
+    public Invite getInvite(String code) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.INVITES.GET_INVITE.replace("{invite.code}", code),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.GET
+        );
+        DiscordResponse res = req.invoke();
+        if (res.code() == 404) return null;
+        return InviteImpl.decompile(res.body(), this);
+    }
+
+    /**
+     * Deletes an {@link com.seailz.discordjv.model.invite.Invite Invite} by its code.
+     */
+    public void deleteInvite(String code) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.INVITE.DELETE_INVITE.replace("{invite.code}", code),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.DELETE
+        );
+        req.invoke();
+    }
 }

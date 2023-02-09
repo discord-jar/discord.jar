@@ -26,6 +26,13 @@ public enum MessageType {
     GUILD_INVITE_REMINDER(22, true),
     CONTEXT_MENU_COMMAND(23, true),
     AUTO_MOD_ACTION(24, true),
+    INTERACTION_PREMIUM_UPSELL(26, true),
+    STAGE_START(27, true),
+    STAGE_END(28, true),
+    STAGE_SPEAKER_ADD(29, true),
+    STAGE_RAISE_HAND(30, true),
+    STAGE_TOPIC_CHANGE(31, true),
+    GUILD_APPLICATION_PREMIUM_SUBSCRIPTION(32, false),
 
     ;
 

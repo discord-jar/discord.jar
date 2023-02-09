@@ -2,6 +2,10 @@ package com.seailz.discordjar.gateway.events;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
+import com.seailz.discordjar.events.model.automod.AutoModExecutionEvent;
+import com.seailz.discordjar.events.model.automod.rule.AutoModRuleCreateEvent;
+import com.seailz.discordjar.events.model.automod.rule.AutoModRuleDeleteEvent;
+import com.seailz.discordjar.events.model.automod.rule.AutoModRuleUpdateEvent;
 import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.gateway.GatewayResumedEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
@@ -58,6 +62,13 @@ public enum DispatchedEvents {
     MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
     /* Sent when a command permission is updated */
     APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, g, d) -> CommandPermissionUpdateEvent.class),
+
+    /* AUTOMOD */
+    AUTO_MODERATION_RULE_CREATE((p, g, d) -> AutoModRuleCreateEvent.class),
+    AUTO_MODERATION_RULE_UPDATE((p, g, d) -> AutoModRuleUpdateEvent.class),
+    AUTO_MODERATION_RULE_DELETE((p, g, d) -> AutoModRuleDeleteEvent.class),
+    AUTO_MODERATION_ACTION_EXECUTION((p, g, d) -> AutoModExecutionEvent.class),
+
     /* Sent when an interaction is created */
     INTERACTION_CREATE((p, g, d) -> {
         switch (InteractionType.getType(p.getJSONObject("d").getInt("type"))) {

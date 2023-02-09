@@ -105,6 +105,14 @@ public final class URLS {
              * Returns the bot's application object
              */
             public static String APPLICATION_INFORMATION = "/oauth2/applications/@me";
+
+            public static class COMMANDS {
+                public static String GET_GLOBAL_APPLICATION_COMMANDS = "/applications/{application.id}/commands";
+                public static String GET_GLOBAL_APPLICATION_COMMAND = "/applications/{application.id}/commands/{command.id}";
+
+                public static String GET_GUILD_APPLICATION_COMMANDS = "/applications/{application.id}/guilds/{guild.id}/commands";
+                public static String GET_GUILD_APPLICATION_COMMAND = "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}";
+            }
         }
 
         public static class INVITES {
@@ -318,6 +326,13 @@ public final class URLS {
         public static class INVITE {
             public static String DELETE_INVITE = "/invites/{invite.code}";
         }
+
+        public static class APPLICATION {
+            public static class COMMANDS {
+                public static String DELETE_GLOBAL_COMMAND = "/applications/{application.id}/commands/{command.id}";
+                public static String DELETE_GUILD_COMMAND = "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}";
+            }
+        }
     }
 
     public static class PATCH {
@@ -359,6 +374,13 @@ public final class URLS {
             public static class MESSAGES {
                 public static String MODIFY_FOLLOWUP_MESSAGE = "/webhooks/{application.id}/{interaction.token}/messages/{message.id}";
                 public static String MODIFY_ORIGINAL_INTERACTION_RESPONSE = "/webhooks/{application.id}/{interaction.token}/messages/@original";
+            }
+        }
+
+        public static class APPLICATIONS {
+            public static class COMMANDS {
+                public static String EDIT_GLOBAL_COMMAND = "/applications/{application.id}/commands/{command.id}";
+                public static String EDIT_GUILD_COMMAND = "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}";
             }
         }
     }

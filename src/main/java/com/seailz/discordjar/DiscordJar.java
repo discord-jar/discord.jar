@@ -621,6 +621,211 @@ public class DiscordJar {
     }
 
     /**
+     * Returns all the global commands for this app.
+     * @param withLocalizations Whether to include localizations for the commands.
+     * @return List of {@link Command} objects.
+     */
+    @Nullable
+    public List<Command> getGlobalCommands(boolean withLocalizations) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMANDS.replace("{application.id}", getSelfInfo().id()) + (withLocalizations ? "?with_localizations=true" : ""),
+                this,
+                URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMANDS,
+                RequestMethod.GET
+        );
+        JSONArray res = req.invoke().arr();
+        List<Command> commands = new ArrayList<>();
+        res.forEach(o -> commands.add(Command.decompile((JSONObject) o)));
+        return commands;
+    }
+
+    @Nullable
+    public List<Command> getGlobalCommands() {
+        return getGlobalCommands(true);
+    }
+
+    /**
+     * Returns a global command for this app.
+     * @param commandId The id of the command.
+     * @return The {@link Command} object.
+     */
+    @Nullable
+    public Command getGlobalCommand(String commandId) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{command.id}", commandId),
+                this,
+                URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMAND,
+                RequestMethod.GET
+        );
+        JSONObject res = req.invoke().body();
+        return Command.decompile(res);
+    }
+
+    /**
+     * Edits a global command for this app.
+     * @param newCommand The new command.
+     * @param commandId The id of the command.
+     * @return The {@link Command} object.
+     */
+    @Nullable
+    public Command editGlobalCommand(@NotNull Command newCommand, String commandId) {
+        DiscordRequest req = new DiscordRequest(
+                newCommand.compile(),
+                new HashMap<>(),
+                URLS.PATCH.APPLICATIONS.COMMANDS.EDIT_GLOBAL_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{command.id}", commandId),
+                this,
+                URLS.PATCH.APPLICATIONS.COMMANDS.EDIT_GLOBAL_COMMAND,
+                RequestMethod.PATCH
+        );
+        JSONObject res = req.invoke().body();
+        return Command.decompile(res);
+    }
+
+    /**
+     * Deletes a global command for this app.
+     * @param commandId The id of the command.
+     */
+    public void deleteGlobalCommand(String commandId) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.APPLICATION.COMMANDS.DELETE_GLOBAL_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{command.id}", commandId),
+                this,
+                URLS.DELETE.APPLICATION.COMMANDS.DELETE_GLOBAL_COMMAND,
+                RequestMethod.DELETE
+        );
+        req.invoke();
+    }
+
+    /**
+     * Bulk overwrites all the global commands for this app.
+     * @param commands The new commands to overwrite with.
+     */
+    public void bulkOverwriteCommands(@NotNull List<Command> commands) {
+        JSONArray arr = new JSONArray();
+        commands.forEach(c -> arr.put(c.compile()));
+        DiscordRequest req = new DiscordRequest(
+                arr,
+                new HashMap<>(),
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.PUT
+        );
+        req.invoke();
+    }
+
+    /**
+     * Returns all the guild commands for this app.
+     * @param guildId The id of the guild.
+     * @param withLocalizations Whether to include localizations for the commands.
+     * @return List of {@link Command} objects.
+     */
+    @Nullable
+    public List<Command> getGuildCommands(String guildId, boolean withLocalizations) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMANDS.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId) + (withLocalizations ? "?with_localizations=true" : ""),
+                this,
+                URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMANDS,
+                RequestMethod.GET
+        );
+        JSONArray res = req.invoke().arr();
+        List<Command> commands = new ArrayList<>();
+        res.forEach(o -> commands.add(Command.decompile((JSONObject) o)));
+        return commands;
+    }
+
+    @Nullable
+    public List<Command> getGuildCommands(String guildId) {
+        return getGuildCommands(guildId, true);
+    }
+
+    /**
+     * Returns a guild command for this app.
+     * @param guildId The id of the guild.
+     * @param commandId The id of the command.
+     * @return The {@link Command} object.
+     */
+    @Nullable
+    public Command getGuildCommand(String guildId, String commandId) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId).replace("{command.id}", commandId),
+                this,
+                URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMAND,
+                RequestMethod.GET
+        );
+        JSONObject res = req.invoke().body();
+        return Command.decompile(res);
+    }
+
+    /**
+     * Edits a guild command for this app.
+     * @param newCommand The new command.
+     * @param guildId The id of the guild.
+     * @param commandId The id of the command.
+     * @return The edited {@link Command} object.
+     */
+    @Nullable
+    public Command editGuildCommand(@NotNull Command newCommand, String guildId, String commandId) {
+        DiscordRequest req = new DiscordRequest(
+                newCommand.compile(),
+                new HashMap<>(),
+                URLS.PATCH.APPLICATIONS.COMMANDS.EDIT_GUILD_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId).replace("{command.id}", commandId),
+                this,
+                URLS.PATCH.APPLICATIONS.COMMANDS.EDIT_GUILD_COMMAND,
+                RequestMethod.PATCH
+        );
+        JSONObject res = req.invoke().body();
+        return Command.decompile(res);
+    }
+
+    /**
+     * Deletes a guild command for this app.
+     * @param guildId The id of the guild.
+     * @param commandId The id of the command.
+     */
+    public void deleteGuildCommand(String guildId, String commandId) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.APPLICATION.COMMANDS.DELETE_GUILD_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId).replace("{command.id}", commandId),
+                this,
+                URLS.DELETE.APPLICATION.COMMANDS.DELETE_GUILD_COMMAND,
+                RequestMethod.DELETE
+        );
+        req.invoke();
+    }
+
+    /**
+     * Bulk overwrites all the guild commands for this app.
+     * @param commands The new commands to overwrite with.
+     * @param guildId The id of the guild.
+     */
+    public void bulkOverwriteGuildCommands(@NotNull List<Command> commands, String guildId) {
+        JSONArray arr = new JSONArray();
+        commands.forEach(c -> arr.put(c.compile()));
+        DiscordRequest req = new DiscordRequest(
+                arr,
+                new HashMap<>(),
+                URLS.POST.COMMANDS.GUILD_COMMANDS.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId),
+                this,
+                URLS.BASE_URL,
+                RequestMethod.PUT
+        );
+        req.invoke();
+    }
+
+
+
+    /**
      * Retrieves up to 200 guilds the bot is in.
      * <br>If you want to retrieve more guilds than that, you need to specify the last guild id in the <b>after</b> parameter.
      *<p>

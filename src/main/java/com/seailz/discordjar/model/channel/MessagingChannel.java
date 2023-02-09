@@ -18,7 +18,7 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.discordapi.DiscordRequest;
+import com.seailz.discordjar.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;

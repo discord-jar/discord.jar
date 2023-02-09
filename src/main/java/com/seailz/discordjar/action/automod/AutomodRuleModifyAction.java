@@ -7,7 +7,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.discordapi.DiscordRequest;
+import com.seailz.discordjar.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;

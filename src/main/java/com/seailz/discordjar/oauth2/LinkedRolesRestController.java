@@ -1,13 +1,13 @@
-package com.seailz.discordjar.linked;
+package com.seailz.discordjar.oauth2;
 
 import com.seailz.databaseapi.Column;
 import com.seailz.databaseapi.ColumnType;
 import com.seailz.databaseapi.Database;
 import com.seailz.databaseapi.annotation.builder.TableBuilder;
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.linked.response.Response;
-import com.seailz.discordjar.linked.response.error.CodeNotPresentResponse;
-import com.seailz.discordjar.linked.response.error.InvalidEndpointResponse;
+import com.seailz.discordjar.oauth2.response.Response;
+import com.seailz.discordjar.oauth2.response.error.CodeNotPresentResponse;
+import com.seailz.discordjar.oauth2.response.error.InvalidEndpointResponse;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.URLS;
 import jakarta.servlet.http.HttpServletRequest;

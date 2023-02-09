@@ -1,7 +1,7 @@
-package com.seailz.discordjar.utils.cache.impl;
+package com.seailz.discordjar.cache.impl;
 
-import com.seailz.discordjar.utils.cache.JsonCache;
-import com.seailz.discordjar.utils.discordapi.DiscordRequest;
+import com.seailz.discordjar.cache.JsonCache;
+import com.seailz.discordjar.rest.DiscordRequest;
 import org.json.JSONObject;
 
 /**

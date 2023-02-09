@@ -1,4 +1,4 @@
-package com.seailz.discordjar.linked.response;
+package com.seailz.discordjar.oauth2.response;
 
 public interface Response {
 

@@ -5,7 +5,7 @@ import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionReply;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.discordapi.DiscordRequest;
+import com.seailz.discordjar.rest.DiscordRequest;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 

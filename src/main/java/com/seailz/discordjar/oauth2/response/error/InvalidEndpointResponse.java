@@ -1,6 +1,6 @@
-package com.seailz.discordjar.linked.response.error;
+package com.seailz.discordjar.oauth2.response.error;
 
-import com.seailz.discordjar.linked.response.Response;
+import com.seailz.discordjar.oauth2.response.Response;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(reason = "Invalid Endpoint", value = org.springframework.http.HttpStatus.NOT_FOUND)

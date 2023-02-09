@@ -1,8 +1,8 @@
-package com.seailz.discordjar.utils.cache;
+package com.seailz.discordjar.cache;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.utils.discordapi.DiscordRequest;
-import com.seailz.discordjar.utils.discordapi.DiscordResponse;
+import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;

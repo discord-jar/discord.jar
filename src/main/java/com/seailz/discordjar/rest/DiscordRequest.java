@@ -1,4 +1,4 @@
-package com.seailz.discordjar.utils.discordapi;
+package com.seailz.discordjar.rest;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;

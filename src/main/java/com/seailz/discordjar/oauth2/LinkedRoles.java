@@ -1,10 +1,10 @@
-package com.seailz.discordjar.linked;
+package com.seailz.discordjar.oauth2;
 
 import com.seailz.databaseapi.Database;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.discordapi.DiscordRequest;
-import com.seailz.discordjar.utils.discordapi.DiscordResponse;
+import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.rest.DiscordResponse;
 import org.json.JSONObject;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.SpringApplication;

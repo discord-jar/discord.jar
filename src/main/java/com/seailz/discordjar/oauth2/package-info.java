@@ -9,4 +9,4 @@
  * @see    com.seailz.discordjar.DiscordJar
  * @since   1.0
  */
-package com.seailz.discordjar.linked;
+package com.seailz.discordjar.oauth2;

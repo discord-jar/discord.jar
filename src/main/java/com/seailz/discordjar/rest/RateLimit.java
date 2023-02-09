@@ -1,4 +1,4 @@
-package com.seailz.discordjar.utils.discordapi;
+package com.seailz.discordjar.rest;
 
 public record RateLimit(
         double limit,

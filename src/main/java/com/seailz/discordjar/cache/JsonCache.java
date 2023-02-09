@@ -2,7 +2,7 @@ package com.seailz.discordjar.cache;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.cache.impl.JsonCacheImpl;
-import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 

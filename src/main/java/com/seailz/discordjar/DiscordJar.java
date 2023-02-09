@@ -36,10 +36,9 @@ import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.cache.Cache;
 import com.seailz.discordjar.cache.JsonCache;
-import com.seailz.discordjar.rest.DiscordRequest;
-import com.seailz.discordjar.rest.DiscordResponse;
-import com.seailz.discordjar.rest.RateLimit;
-import com.seailz.discordjar.rest.RequestQueueHandler;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.RequestQueueHandler;
 import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
@@ -99,12 +98,6 @@ public class DiscordJar {
      */
     private final List<DiscordRequest> queuedRequests;
     /**
-     * The rate-limits the bot is facing
-     * Key: The endpoint
-     * Value: The amount of requests left
-     */
-    private final HashMap<String, RateLimit> rateLimits;
-    /**
      * The command dispatcher
      */
     protected final CommandDispatcher commandDispatcher;
@@ -161,7 +154,6 @@ public class DiscordJar {
         new URLS(version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
-        this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
         if (!httpOnly) this.gatewayFactory = new GatewayFactory(this, debug);
         this.guildCache = new Cache<>(this, Guild.class,
@@ -479,14 +471,6 @@ public class DiscordJar {
     @NotNull
     public CommandDispatcher getCommandDispatcher() {
         return commandDispatcher;
-    }
-
-    /**
-     * Returns the rate-limit info
-     */
-    @NotNull
-    public HashMap<String, RateLimit> getRateLimits() {
-        return rateLimits;
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.seailz.discordjar.rest;
+package com.seailz.discordjar.utils.rest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

@@ -23,7 +23,7 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.cache.JsonCache;
-import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

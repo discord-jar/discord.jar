@@ -1,4 +1,4 @@
-package com.seailz.discordjar.rest;
+package com.seailz.discordjar.utils.rest;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;
@@ -62,12 +62,6 @@ public class DiscordRequest {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
 
-            if (djv.getRateLimits().containsKey(baseUrl) && djv.getRateLimits().get(baseUrl).remaining() == 0) {
-                Logger.getLogger("DiscordJar").warning("[RATE LIMIT] Rate limit reached for " + baseUrl + ". Queuing request.");
-                djv.getQueuedRequests().add(this);
-                return new DiscordResponse(429, new JSONObject(), new HashMap<>(), null);
-            }
-
             HttpRequest.Builder con = HttpRequest.newBuilder();
 
             con.uri(obj.toURI());
@@ -105,49 +99,6 @@ public class DiscordRequest {
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
-            if (headers.containsKey("X-RateLimit-Limit") &&
-                    headers.containsKey("X-RateLimit-Remaining") &&
-                    headers.containsKey("X-RateLimit-Reset-After")) {
-
-                djv.getRateLimits().remove(baseUrl);
-                djv.getRateLimits().put(baseUrl, new RateLimit(
-                        Integer.parseInt(headers.get("X-RateLimit-Limit")),
-                        Integer.parseInt(headers.get("X-RateLimit-Remaining")),
-                        Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
-                ));
-            }
-            // remove after rate limit is over
-            new Thread(() -> {
-                boolean running = true;
-                while (running) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if (djv.getRateLimits().containsKey(baseUrl)) {
-                        RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
-                        if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
-                            djv.getRateLimits().remove(baseUrl);
-                            djv.getRateLimits().put(baseUrl, new RateLimit(
-                                    rateLimit.limit(),
-                                    rateLimit.remaining() - 1,
-                                    rateLimit.resetAfter()
-                            ));
-                            running = false;
-                            continue;
-                        }
-
-                        djv.getRateLimits().remove(baseUrl);
-                        djv.getRateLimits().put(baseUrl, new RateLimit(
-                                rateLimit.limit(),
-                                rateLimit.remaining() - 1,
-                                rateLimit.resetAfter()
-                        ));
-                    }
-                }
-            }).start();
-
             try {
                 if (response.body().startsWith("[")) {
                     new JSONArray(response.body());
@@ -171,24 +122,6 @@ public class DiscordRequest {
                 return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
             }
             if (responseCode == 204) return null;
-            if (responseCode == 429) {
-                Logger logger = Logger.getLogger("DiscordJar");
-                logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + response.headers().map().get("Retry-After").get(0) + " seconds");
-                djv.getRateLimits().put(baseUrl, new RateLimit(
-                        Double.parseDouble(response.headers().map().get("X-RateLimit-Limit").get(0)),
-                        Double.parseDouble(response.headers().map().get("X-RateLimit-Remaining").get(0)),
-                        Double.parseDouble(response.headers().map().get("X-RateLimit-Reset-After").get(0))
-                ));
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(Integer.parseInt(response.headers().map().get("Retry-After").get(0)));
-                        this.invoke();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, "RateLimitQueue").start();
-                return null;
-            }
 
             if (responseCode == 201) return null;
 
@@ -241,12 +174,6 @@ public class DiscordRequest {
         try {
             String url = URLS.BASE_URL + this.url;
             URL obj = new URL(url);
-
-            if (djv.getRateLimits().containsKey(baseUrl) && djv.getRateLimits().get(baseUrl).remaining() == 0) {
-                Logger.getLogger("DiscordJar").warning("[RATE LIMIT] Rate limit reached for " + baseUrl + ". Queuing request.");
-                djv.getQueuedRequests().add(this);
-                return new DiscordResponse(429, new JSONObject(), new HashMap<>(), null);
-            }
 
             HttpRequest.Builder con = HttpRequest.newBuilder();
 
@@ -314,44 +241,6 @@ public class DiscordRequest {
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
-            if (headers.containsKey("X-RateLimit-Limit") &&
-                    headers.containsKey("X-RateLimit-Remaining") &&
-                    headers.containsKey("X-RateLimit-Reset-After")) {
-
-                djv.getRateLimits().remove(baseUrl);
-                djv.getRateLimits().put(baseUrl, new RateLimit(
-                        Integer.parseInt(headers.get("X-RateLimit-Limit")),
-                        Integer.parseInt(headers.get("X-RateLimit-Remaining")),
-                        Integer.parseInt(headers.get("X-RateLimit-Reset-After"))
-                ));
-            }
-            // remove after rate limit is over
-            new Thread(() -> {
-                boolean running = true;
-                while (running) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if (djv.getRateLimits().containsKey(baseUrl)) {
-                        RateLimit rateLimit = djv.getRateLimits().get(baseUrl);
-                        if (rateLimit.remaining() == rateLimit.limit() || rateLimit.resetAfter() == 0) {
-                            djv.getRateLimits().remove(baseUrl);
-                            running = false;
-                            continue;
-                        }
-
-                        djv.getRateLimits().remove(baseUrl);
-                        djv.getRateLimits().put(baseUrl, new RateLimit(
-                                rateLimit.limit(),
-                                rateLimit.remaining() - 1,
-                                rateLimit.resetAfter()
-                        ));
-                    }
-                }
-            }).start();
-
             if (responseCode == 200 || responseCode == 201) {
 
                 var bodyResponse = new Object();
@@ -365,24 +254,6 @@ public class DiscordRequest {
                 return new DiscordResponse(responseCode, (bodyResponse instanceof JSONObject) ? (JSONObject) bodyResponse : null, headers, (bodyResponse instanceof JSONArray) ? (JSONArray) bodyResponse : null);
             }
             if (responseCode == 204) return null;
-            if (responseCode == 429) {
-                Logger logger = Logger.getLogger("DiscordJar");
-                logger.warning("[RATE LIMIT] Rate limit exceeded, waiting for " + response.headers().map().get("Retry-After").get(0) + " seconds");
-                djv.getRateLimits().put(baseUrl, new RateLimit(
-                        Integer.parseInt(response.headers().map().get("X-RateLimit-Limit").get(0)),
-                        Integer.parseInt(response.headers().map().get("X-RateLimit-Remaining").get(0)),
-                        Integer.parseInt(response.headers().map().get("X-RateLimit-Reset-After").get(0))
-                ));
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(Integer.parseInt(response.headers().map().get("Retry-After").get(0)));
-                        this.invoke();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, "RateLimitQueue").start();
-                return null;
-            }
 
 
             JSONObject error = new JSONObject(response.body());
@@ -420,12 +291,6 @@ public class DiscordRequest {
         return null;
     }
 
-    /**
-     * Returns the ratelimit info for the current endpoint
-     */
-    public Optional<RateLimit> getRateLimit() {
-        return Optional.ofNullable(djv.getRateLimits().get(baseUrl));
-    }
 
     public static class DiscordAPIErrorException extends RuntimeException {
         public DiscordAPIErrorException(int code, String errorCode, String error, String body) {

@@ -48,6 +48,7 @@ public class MessageCreateAction {
     private boolean supressEmbeds;
     private final String channelId;
     private final DiscordJar discordJar;
+    private boolean silent = false;
 
     public MessageCreateAction(@Nullable String text, @NotNull String channelId, @NotNull DiscordJar discordJar) {
         this.text = text;
@@ -227,6 +228,13 @@ public class MessageCreateAction {
         return this;
     }
 
+    public void setSilent(boolean silent) {
+        this.silent = silent;
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
 
     public CompletableFuture<Message> run() {
         CompletableFuture<Message> future = new CompletableFuture<>();
@@ -278,7 +286,16 @@ public class MessageCreateAction {
                 payload.put("attachments", files);
             }
 
-            if (this.supressEmbeds) payload.put("flags", MessageFlag.SUPPRESS_EMBEDS.getLeftShiftId());
+            List<MessageFlag> flags = new ArrayList<>();
+            if (this.supressEmbeds) flags.add(MessageFlag.SUPPRESS_EMBEDS);
+            if (this.silent) flags.add(MessageFlag.SUPPRESS_NOTICICATIONS);
+
+            int flagsInt = 0;
+            for (MessageFlag flag : flags) {
+                flagsInt |= flag.getLeftShiftId();
+            }
+            if (flagsInt != 0)
+                payload.put("flags", flagsInt);
 
             DiscordRequest request = new DiscordRequest(
                     payload,

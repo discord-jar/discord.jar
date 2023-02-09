@@ -28,6 +28,7 @@ public class InteractionMessageResponse implements InteractionReply {
     //todo: allows mentions
     private boolean ephemeral;
     private boolean suppressEmbeds;
+    private boolean silent;
     private List<DisplayComponent> components;
     private List<Attachment> attachments;
 
@@ -109,6 +110,14 @@ public class InteractionMessageResponse implements InteractionReply {
         this.tts = tts;
     }
 
+    public void setSilent(boolean silent) {
+        this.silent = silent;
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
+
     /**
      * Compiles this class up to be sent to Discord
      */
@@ -128,6 +137,9 @@ public class InteractionMessageResponse implements InteractionReply {
         if (this.suppressEmbeds)
             flags.add(MessageFlag.SUPPRESS_EMBEDS);
 
+        if (this.silent)
+            flags.add(MessageFlag.SUPPRESS_NOTICICATIONS);
+
         if (this.embeds != null) {
             List<JSONObject> embeds = new ArrayList<>();
             for (Embeder embed : this.embeds) {
@@ -136,11 +148,13 @@ public class InteractionMessageResponse implements InteractionReply {
             obj.put("embeds", embeds);
         }
 
-        if (flags.size() == 1)
-            obj.put("flags", flags.get(0).getLeftShiftId());
+        int flagsInt = 0;
+        for (MessageFlag flag : flags) {
+            flagsInt |= flag.getLeftShiftId();
+        }
+        if (flagsInt != 0)
+            obj.put("flags", flagsInt);
 
-        if (flags.size() == 2)
-            obj.put("flags", flags.get(0).getLeftShiftId() | flags.get(1).getLeftShiftId());
 
         if (this.components != null) {
             List<JSONObject> components = new ArrayList<>();

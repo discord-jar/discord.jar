@@ -40,6 +40,7 @@ import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.RequestQueueHandler;
 import com.seailz.discordjar.utils.permission.Permission;
+import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
 import com.seailz.discordjar.utils.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,13 +110,17 @@ public class DiscordJar {
      * Should the bot be in debug mode?
      */
     private boolean debug;
+    /**
+     * List of rate-limit buckets
+     */
+    private List<Bucket> buckets;
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null);
     }
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null);
+        this(token, intents, version, false, null, debug);
     }
 
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
@@ -155,6 +160,7 @@ public class DiscordJar {
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();
+        this.buckets = new ArrayList<>();
         if (!httpOnly) this.gatewayFactory = new GatewayFactory(this, debug);
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
@@ -239,6 +245,34 @@ public class DiscordJar {
                 }
             }
         }));
+    }
+
+    public List<Bucket> getBuckets() {
+        return buckets;
+    }
+
+    public Bucket getBucket(String id) {
+        for (Bucket bucket : buckets) {
+            if (bucket.getId().equals(id)) return bucket;
+        }
+        return null;
+    }
+
+    public void updateBucket(String id, Bucket bucket) {
+        for (int i = 0; i < buckets.size(); i++) {
+            if (buckets.get(i).getId().equals(id)) {
+                buckets.set(i, bucket);
+                return;
+            }
+        }
+        buckets.add(bucket);
+    }
+
+    public Bucket getBucketForUrl(String url) {
+        for (Bucket bucket : buckets) {
+            if (bucket.getAffectedRoutes().contains(url)) return bucket;
+        }
+        return null;
     }
 
     /**

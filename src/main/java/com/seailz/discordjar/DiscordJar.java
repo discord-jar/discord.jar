@@ -106,6 +106,7 @@ public class DiscordJar {
      * A cache storing self user information
      */
     private JsonCache selfUserCache;
+    private JsonCache getSelfUserCache;
     /**
      * Should the bot be in debug mode?
      */
@@ -162,6 +163,7 @@ public class DiscordJar {
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
         if (!httpOnly) this.gatewayFactory = new GatewayFactory(this, debug);
+        this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
                         new JSONObject(),
@@ -204,6 +206,10 @@ public class DiscordJar {
 
     public DiscordJar(String token) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest());
+    }
+
+    public DiscordJar(String token, boolean debug) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest(), debug);
     }
 
     public DiscordJar(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
@@ -268,6 +274,10 @@ public class DiscordJar {
         buckets.add(bucket);
     }
 
+    public void removeBucket(Bucket bucket) {
+        buckets.remove(bucket);
+    }
+
     public Bucket getBucketForUrl(String url) {
         for (Bucket bucket : buckets) {
             if (bucket.getAffectedRoutes().contains(url)) return bucket;
@@ -311,11 +321,21 @@ public class DiscordJar {
      */
     @Nullable
     public User getSelfUser() {
-        DiscordResponse response = new DiscordRequest(
+        if (this.getSelfUserCache != null && getSelfUserCache.get() != null)
+            return User.decompile(getSelfUserCache.get(), this);
+
+        DiscordRequest req = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.USER.GET_USER.replace("{user.id}", "@me"),
                 this, URLS.GET.USER.GET_USER, RequestMethod.GET
-        ).invoke();
+        );
+        DiscordResponse response = req.invoke();
+
+        if (getSelfUserCache == null) {
+            getSelfUserCache = JsonCache.newc(response.body(), req);
+            getSelfUserCache.reset(60000);
+        }
+        this.getSelfUserCache.update(response.body());
         return User.decompile(response.body(), this);
     }
 
@@ -914,5 +934,9 @@ public class DiscordJar {
                 RequestMethod.DELETE
         );
         req.invoke();
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }

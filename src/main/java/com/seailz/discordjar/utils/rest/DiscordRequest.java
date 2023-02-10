@@ -60,14 +60,14 @@ public class DiscordRequest {
                     throw new RuntimeException(e);
                 }
                 // get current epoch time
-
                 double currentEpoch = Instant.now().toEpochMilli() * 10;
-                if (currentEpoch < resetAfter) {
+                if (currentEpoch > resetAfter) {
+                    djv.removeBucket(bucket);
                     invoke();
                     break;
                 }
             }
-        });
+        }).start();
     }
 
     /**
@@ -89,13 +89,15 @@ public class DiscordRequest {
             boolean useBaseUrlForRateLimit = !url.contains("channels") && !url.contains("guilds");
             Bucket bucket = djv.getBucketForUrl(url);
             if (bucket != null) {
-                if (bucket.getRemaining() == 0) {
-                    Logger.getLogger("RATELIMIT").info(
-                            "[RATE LIMIT] Request has been rate-limited. It has been queued."
-                    );
+                if (bucket.getRemaining() == 0 ) {
+                    if (djv.isDebug()) {
+                        Logger.getLogger("RATELIMIT").info(
+                                "[RATE LIMIT] Request has been rate-limited. It has been queued."
+                        );
+                    }
+                    queueRequest(bucket.getResetAfter(), bucket);
+                    return new DiscordResponse(429, null, null, null);
                 }
-                queueRequest(bucket.getResetAfter(), bucket);
-                return new DiscordResponse(429, null, null, null);
             }
 
             String s = body != null ? body.toString() : aBody.toString();
@@ -126,17 +128,18 @@ public class DiscordRequest {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             int responseCode = response.statusCode();
-            System.out.println(request.uri() + " " + request.method());
-
+            if (djv.isDebug()) {
+                System.out.println(request.method() + " " +  request.uri() + " with " + body + " returned " + responseCode + " with " + response.body());
+            }
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
             // check headers for rate-limit
-            if (headers.containsKey("X-RateLimit-Bucket")) {
+            if (response.headers().map().containsKey("X-RateLimit-Bucket")) {
                 String bucketId = response.headers().map().get("X-RateLimit-Bucket").get(0);
                 Bucket buck = djv.getBucket(bucketId);
 
-                List<String> affectedRoutes = new ArrayList<>(buck.getAffectedRoutes());
+                List<String> affectedRoutes = buck == null ? new ArrayList<>() : new ArrayList<>(buck.getAffectedRoutes());
                 if (useBaseUrlForRateLimit) affectedRoutes.add(baseUrl);
                 else affectedRoutes.add(url);
 
@@ -159,9 +162,13 @@ public class DiscordRequest {
             }
 
             if (responseCode == 429) {
-                Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure" +
-                        " you are not sending too many requests.");
+                if (djv.isDebug()) {
+                    Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure" +
+                            " you are not sending too many requests.");
+                }
                 JSONObject body = new JSONObject(response.body());
+                Bucket exceededBucket = djv.getBucket(response.headers().map().get("X-RateLimit-Bucket").get(0));
+               queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
 
                 if (body.getBoolean("global")) {
                     Logger.getLogger("RateLimit").severe(
@@ -300,7 +307,6 @@ public class DiscordRequest {
 
 
             int responseCode = response.statusCode();
-            System.out.println(request.uri() + " " + request.method());
 
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));

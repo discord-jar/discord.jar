@@ -696,7 +696,6 @@ public record Guild(
         for (Object obj : arr) {
             members.add(Member.decompile((JSONObject) obj, discordJar, id, this));
         }
-        System.out.println(arr);
 
         return members;
     }
@@ -719,7 +718,6 @@ public record Guild(
         for (Object obj : arr) {
             members.add(Member.decompile((JSONObject) obj, discordJar, id, this));
         }
-        System.out.println(arr);
 
         return members;
     }

@@ -330,7 +330,6 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
                 if (member != null)
                     TranscriptFormatter.toHex(Objects.requireNonNull(new Color(member.roles()[0].color())));
 
-                //        System.out.println("REFERENCE MSG " + referenceMessage.getContentDisplay());
                 reference.html("<img class=\"chatlog__reference-avatar\" src=\""
                         + author.imageUrl() + "\" alt=\"Avatar\" loading=\"lazy\">" +
                         "<span class=\"chatlog__reference-name\" title=\"" + author.username()
@@ -425,7 +424,6 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
 
                     String attachmentType = attach.fileName().substring(attach.fileName().lastIndexOf(".") + 1);
                     if (imageFormats.contains(attachmentType)) {
-                        //          System.out.println("UNGA IMAGEN WEBON XD");
                         Element attachmentLink = document.createElement("a");
 
                         Element attachmentImage = document.createElement("img");

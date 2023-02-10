@@ -5,11 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Ryzeon
- * Project: discord-html-transcripts
- * Date: 2/12/21 @ 00:32
- * Twitter: @Ryzeon_ 😎
- * Github: github.ryzeon.me
+ * Created by Ryzeon. Modified for use in discord.jar by Seailz.
+ * @Authors: [Ryzeon, Seailz]
  */
 public class TranscriptFormatter {
 

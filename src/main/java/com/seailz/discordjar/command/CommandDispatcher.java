@@ -75,7 +75,6 @@ public class CommandDispatcher {
                                             .get(subListeners.values().stream().toList().indexOf(detailsList));
 
                                     if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                        System.out.println("found top command " + name);
                                         details.listener().onCommand(event);
                                     }
                                 }

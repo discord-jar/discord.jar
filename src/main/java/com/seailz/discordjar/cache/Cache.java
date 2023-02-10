@@ -134,7 +134,6 @@ public class Cache<T> {
             }
 
             try {
-                System.out.println(decompile.getParameterCount());
                 if (response == null) return null;
                 returnObject.set(decompile.invoke(null, response.body(), discordJar));
             } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {

@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;

@@ -36,11 +36,11 @@ import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.cache.Cache;
 import com.seailz.discordjar.cache.JsonCache;
-import com.seailz.discordjar.rest.DiscordRequest;
-import com.seailz.discordjar.rest.DiscordResponse;
-import com.seailz.discordjar.rest.RateLimit;
-import com.seailz.discordjar.rest.RequestQueueHandler;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.RequestQueueHandler;
 import com.seailz.discordjar.utils.permission.Permission;
+import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
 import com.seailz.discordjar.utils.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,12 +99,6 @@ public class DiscordJar {
      */
     private final List<DiscordRequest> queuedRequests;
     /**
-     * The rate-limits the bot is facing
-     * Key: The endpoint
-     * Value: The amount of requests left
-     */
-    private final HashMap<String, RateLimit> rateLimits;
-    /**
      * The command dispatcher
      */
     protected final CommandDispatcher commandDispatcher;
@@ -112,17 +106,22 @@ public class DiscordJar {
      * A cache storing self user information
      */
     private JsonCache selfUserCache;
+    private JsonCache getSelfUserCache;
     /**
      * Should the bot be in debug mode?
      */
     private boolean debug;
+    /**
+     * List of rate-limit buckets
+     */
+    private List<Bucket> buckets;
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null);
     }
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null);
+        this(token, intents, version, false, null, debug);
     }
 
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
@@ -161,9 +160,10 @@ public class DiscordJar {
         new URLS(version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
-        this.rateLimits = new HashMap<>();
         this.queuedRequests = new ArrayList<>();
+        this.buckets = new ArrayList<>();
         if (!httpOnly) this.gatewayFactory = new GatewayFactory(this, debug);
+        this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
                         new JSONObject(),
@@ -208,6 +208,10 @@ public class DiscordJar {
         this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest());
     }
 
+    public DiscordJar(String token, boolean debug) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest(), debug);
+    }
+
     public DiscordJar(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
         this(token, intents, APIVersion.getLatest());
     }
@@ -249,6 +253,38 @@ public class DiscordJar {
         }));
     }
 
+    public List<Bucket> getBuckets() {
+        return buckets;
+    }
+
+    public Bucket getBucket(String id) {
+        for (Bucket bucket : buckets) {
+            if (bucket.getId().equals(id)) return bucket;
+        }
+        return null;
+    }
+
+    public void updateBucket(String id, Bucket bucket) {
+        for (int i = 0; i < buckets.size(); i++) {
+            if (buckets.get(i).getId().equals(id)) {
+                buckets.set(i, bucket);
+                return;
+            }
+        }
+        buckets.add(bucket);
+    }
+
+    public void removeBucket(Bucket bucket) {
+        buckets.remove(bucket);
+    }
+
+    public Bucket getBucketForUrl(String url) {
+        for (Bucket bucket : buckets) {
+            if (bucket.getAffectedRoutes().contains(url)) return bucket;
+        }
+        return null;
+    }
+
     /**
      * Sets the bot's status
      *
@@ -285,11 +321,21 @@ public class DiscordJar {
      */
     @Nullable
     public User getSelfUser() {
-        DiscordResponse response = new DiscordRequest(
+        if (this.getSelfUserCache != null && getSelfUserCache.get() != null)
+            return User.decompile(getSelfUserCache.get(), this);
+
+        DiscordRequest req = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.USER.GET_USER.replace("{user.id}", "@me"),
                 this, URLS.GET.USER.GET_USER, RequestMethod.GET
-        ).invoke();
+        );
+        DiscordResponse response = req.invoke();
+
+        if (getSelfUserCache == null) {
+            getSelfUserCache = JsonCache.newc(response.body(), req);
+            getSelfUserCache.reset(60000);
+        }
+        this.getSelfUserCache.update(response.body());
         return User.decompile(response.body(), this);
     }
 
@@ -479,14 +525,6 @@ public class DiscordJar {
     @NotNull
     public CommandDispatcher getCommandDispatcher() {
         return commandDispatcher;
-    }
-
-    /**
-     * Returns the rate-limit info
-     */
-    @NotNull
-    public HashMap<String, RateLimit> getRateLimits() {
-        return rateLimits;
     }
 
     /**
@@ -896,5 +934,9 @@ public class DiscordJar {
                 RequestMethod.DELETE
         );
         req.invoke();
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }

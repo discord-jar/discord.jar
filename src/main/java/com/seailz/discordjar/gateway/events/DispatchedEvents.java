@@ -29,7 +29,7 @@ import com.seailz.discordjar.model.interaction.InteractionType;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.utils.TriFunction;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;

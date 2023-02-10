@@ -1,8 +1,8 @@
 package com.seailz.discordjar.cache;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.rest.DiscordRequest;
-import com.seailz.discordjar.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -134,7 +134,6 @@ public class Cache<T> {
             }
 
             try {
-                System.out.println(decompile.getParameterCount());
                 if (response == null) return null;
                 returnObject.set(decompile.invoke(null, response.body(), discordJar));
             } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {

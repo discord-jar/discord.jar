@@ -23,7 +23,7 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.cache.JsonCache;
-import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -696,7 +696,6 @@ public record Guild(
         for (Object obj : arr) {
             members.add(Member.decompile((JSONObject) obj, discordJar, id, this));
         }
-        System.out.println(arr);
 
         return members;
     }
@@ -719,7 +718,6 @@ public record Guild(
         for (Object obj : arr) {
             members.add(Member.decompile((JSONObject) obj, discordJar, id, this));
         }
-        System.out.println(arr);
 
         return members;
     }

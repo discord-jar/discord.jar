@@ -4,8 +4,8 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.rest.DiscordRequest;
-import com.seailz.discordjar.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 

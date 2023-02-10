@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;

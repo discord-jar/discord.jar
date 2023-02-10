@@ -237,7 +237,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                     sendIdentify();
                 }
 
-                session.close(CloseStatus.GOING_AWAY);
+                session.close(CloseStatus.SERVER_ERROR);
                 heartbeatManager.deactivate();
                 readyForMessages = false;
                 heartbeatManager = null;

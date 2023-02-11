@@ -9,6 +9,9 @@ a **work in progress** Java wrapper for the [Discord API](https://discord.com/de
 Everything that needs doing can be found in the [Issues](https://github.com/discord-jar/discord.jar/issues) tab, so if you're
 interested in helping out it would be greatly appreciated! Developed & maintained by @seailz
 
+Our official Discord server:
+https://discord.gg/tmvS8A57J4
+
 ## Getting Started
 
 ### Prerequisites

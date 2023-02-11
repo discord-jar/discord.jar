@@ -169,7 +169,8 @@ License info can be found [here](https://github.com/discord-jar/discord.jar/blob
 
 
 ## Contact
-[![](https://dcbadge.vercel.app/api/server/3cF5xeT3eV)]([https://discord.gg/INVITEID](https://discord.gg/3cF5xeT3eV))
+Our official Discord server:
+https://discord.gg/tmvS8A57J4
 
 ## Donations
 <a href="https://github.com/sponsors/seailz">

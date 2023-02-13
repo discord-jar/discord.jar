@@ -9,6 +9,7 @@ import com.seailz.discordjar.model.component.Component;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embed;
 import com.seailz.discordjar.model.emoji.Reaction;
+import com.seailz.discordjar.model.emoji.sticker.StickerFormat;
 import com.seailz.discordjar.model.interaction.Interaction;
 import com.seailz.discordjar.model.message.activity.MessageActivity;
 import com.seailz.discordjar.model.resolve.Resolvable;
@@ -83,6 +84,10 @@ public record Message(
         Thread thread,
         // sent if the message contains components like buttons, action rows, or other interactive components
         List<DisplayComponent> components,
+        List<StickerItem> stickerItems,
+        int position,
+        // data of the role subscription purchase or renewal that prompted this ROLE_SUBSCRIPTION_PURCHASE message
+        RoleSubscriptionData roleSubscriptionData,
         DiscordJar discordJar
 ) implements Compilerable, Resolvable, Snowflake {
 
@@ -115,6 +120,9 @@ public record Message(
         Interaction interaction;
         Thread thread;
         List<DisplayComponent> components = new ArrayList<>();
+        List<StickerItem> stickerItems = new ArrayList<>();
+        int position = 0;
+        RoleSubscriptionData roleSubscriptionData = null;
 
         try {
             id = obj.getString("id");
@@ -312,7 +320,17 @@ public record Message(
             thread = null;
         }
 
-        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, discordJar);
+        if (obj.has("sticker_items") && !obj.isNull("sticker_items")) {
+            JSONArray stickerItemsArray = obj.getJSONArray("sticker_items");
+            stickerItemsArray.forEach(stickerItem -> {
+                stickerItems.add(StickerItem.decompile((JSONObject) stickerItem));
+            });
+        }
+
+        if (obj.has("position")) position = obj.getInt("position");
+        if (obj.has("role_subscription_data")) roleSubscriptionData = RoleSubscriptionData.decompile(obj.getJSONObject("role_subscription_data"));
+
+        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, stickerItems, position, roleSubscriptionData, discordJar);
     }
 
     @Override
@@ -419,6 +437,55 @@ public record Message(
         for (Role role : mentionRoles)
             formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
         return formatted;
+    }
+
+    public record StickerItem(
+            String id,
+            String name,
+            StickerFormat format
+    ) implements Compilerable {
+
+        @Override
+        public JSONObject compile() {
+            return new JSONObject()
+                    .put("id", id)
+                    .put("name", name)
+                    .put("format_type", format.getCode());
+        }
+
+        public static StickerItem decompile(JSONObject obj) {
+            return new StickerItem(
+                    obj.getString("id"),
+                    obj.getString("name"),
+                    StickerFormat.getStickerFormatByCode(obj.getInt("format_type"))
+            );
+        }
+    }
+
+    public record RoleSubscriptionData(
+            String roleSubscriptionListingId,
+            String tierName,
+            int totalMonthsSubbed,
+            boolean isRenewal
+    ) implements Compilerable {
+
+            @Override
+            public JSONObject compile() {
+                return new JSONObject()
+                        .put("role_subscription_listing_id", roleSubscriptionListingId)
+                        .put("tier_name", tierName)
+                        .put("total_months_subbed", totalMonthsSubbed)
+                        .put("is_renewal", isRenewal);
+            }
+
+            public static RoleSubscriptionData decompile(JSONObject obj) {
+                return new RoleSubscriptionData(
+                        obj.getString("role_subscription_listing_id"),
+                        obj.getString("tier_name"),
+                        obj.getInt("total_months_subbed"),
+                        obj.getBoolean("is_renewal")
+                );
+            }
     }
 }
 

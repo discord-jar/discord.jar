@@ -482,7 +482,7 @@ public record Message(
                 return new RoleSubscriptionData(
                         obj.getString("role_subscription_listing_id"),
                         obj.getString("tier_name"),
-                        obj.getInt("total_months_subbed"),
+                        obj.getInt("total_months_subscribed"),
                         obj.getBoolean("is_renewal")
                 );
             }

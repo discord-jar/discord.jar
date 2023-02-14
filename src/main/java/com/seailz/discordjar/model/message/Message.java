@@ -465,7 +465,7 @@ public record Message(
     public record RoleSubscriptionData(
             String roleSubscriptionListingId,
             String tierName,
-            int totalMonthsSubbed,
+            int totalMonthsSubscribed,
             boolean isRenewal
     ) implements Compilerable {
 

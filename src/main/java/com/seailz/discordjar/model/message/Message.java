@@ -474,7 +474,7 @@ public record Message(
                 return new JSONObject()
                         .put("role_subscription_listing_id", roleSubscriptionListingId)
                         .put("tier_name", tierName)
-                        .put("total_months_subbed", totalMonthsSubbed)
+                        .put("total_months_subscribed", totalMonthsSubscribed)
                         .put("is_renewal", isRenewal);
             }
 

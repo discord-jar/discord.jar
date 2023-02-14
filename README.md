@@ -20,6 +20,12 @@ https://discord.gg/tmvS8A57J4
 JitPack to host our builds. See tutorials for your dependency management
 system [here](https://jitpack.io/#discord-jar/discord.jar/-SNAPSHOT).</b>
 
+<details>
+<summary>Above will change soon</summary>
+<br>
+When discord.jar officially releases, we'll be using our own repository. (Thanks @joeecodes). I'm also looking into getting djar on maven central.
+</details>
+
 A Discord bot token is required to use the API. You can get one by creating a bot
 account [here](https://discord.com/developers/applications).
 

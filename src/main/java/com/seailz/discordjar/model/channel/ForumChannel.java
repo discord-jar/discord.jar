@@ -11,6 +11,7 @@ import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,12 +89,22 @@ public interface ForumChannel extends GuildChannel {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");
-        List<PermissionOverwrite> permissionOverwrites = obj.getJSONArray("permission_overwrites").toList().stream().map(o -> PermissionOverwrite.decompile((JSONObject) o)).toList();
+
+        List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
+        for (Object overwrite : obj.getJSONArray("permission_overwrites").toList()) {
+            permissionOverwrites.add(PermissionOverwrite.decompile((JSONObject) overwrite));
+        }
+
         boolean nsfw = obj.getBoolean("nsfw");
         String postGuidelines = obj.has("topic") ? obj.getString("topic") : null;
         String lastThreadId = obj.has("last_message_id") ? obj.getString("last_thread_id") : null;
         DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
-        List<ForumTag> tags = obj.has("available_tags") ? obj.getJSONArray("available_tags").toList().stream().map(o -> ForumTag.decompile((JSONObject) o)).toList() : null;
+
+        List<ForumTag> tags = new ArrayList<>();
+        for (Object tag : obj.getJSONArray("available_tags").toList()) {
+            tags.add(ForumTag.decompile((JSONObject) tag));
+        }
+
         Guild guild = discordJar.getGuildById(obj.getString("guild_id"));
         DefaultForumLayout dfl = obj.has("default_forum_layout") ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
         return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJar, dfl);

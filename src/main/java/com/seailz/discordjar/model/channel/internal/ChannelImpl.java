@@ -3,8 +3,13 @@ package com.seailz.discordjar.model.channel.internal;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
+import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.HashMap;
 
 /**
  * Impl of {@link Channel}
@@ -55,6 +60,19 @@ public class ChannelImpl implements Channel {
     @Override
     public JSONObject raw() {
         return raw;
+    }
+
+    @Override
+    public void delete() {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE.replace("{channel.id}", id()),
+                djv(),
+                URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE,
+                RequestMethod.DELETE
+        );
+        req.invoke();
     }
 
     @NotNull

@@ -276,6 +276,15 @@ public final class URLS {
     }
 
     public static class DELETE {
+
+        public static class CHANNEL {
+            /**
+             * Deletes a channel
+             *
+             * @param id The id of the channel
+             */
+            public static String DELETE_CHANNEL = "/channels/{channel.id}";
+        }
         public static class GUILD {
             /**
              * Leaves a guild

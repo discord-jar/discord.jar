@@ -104,6 +104,9 @@ public class GatewayFactory extends TextWebSocketHandler {
             case 1012:
                 //reconnect();
                 break;
+            case 1011:
+                reconnect();
+                break;
             case 4000:
                 logger.info("[DISCORD.JAR] Gateway connection closed due to an unknown error. It's possible this could be a discord.jar bug, but is unlikely. Will attempt reconnect.");
                 reconnect();

@@ -277,14 +277,6 @@ public final class URLS {
 
     public static class DELETE {
 
-        public static class CHANNEL {
-            /**
-             * Deletes a channel
-             *
-             * @param id The id of the channel
-             */
-            public static String DELETE_CHANNEL = "/channels/{channel.id}";
-        }
         public static class GUILD {
             /**
              * Leaves a guild
@@ -330,6 +322,12 @@ public final class URLS {
             public static class MESSAGE {
                 public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
+            /**
+             * Deletes a channel
+             *
+             * @param id The id of the channel
+             */
+            public static String DELETE_CHANNEL = "/channels/{channel.id}";
         }
 
         public static class INVITE {

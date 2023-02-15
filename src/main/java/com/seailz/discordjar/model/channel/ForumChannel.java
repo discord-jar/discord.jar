@@ -90,8 +90,9 @@ public interface ForumChannel extends GuildChannel {
         String name = obj.getString("name");
         int position = obj.getInt("position");
 
+        System.out.println(obj.getJSONArray("permission_overwrites"));
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
-        for (Object overwrite : obj.getJSONArray("permission_overwrites").toList()) {
+        for (Object overwrite : obj.getJSONArray("permission_overwrites")) {
             permissionOverwrites.add(PermissionOverwrite.decompile((JSONObject) overwrite));
         }
 
@@ -101,7 +102,7 @@ public interface ForumChannel extends GuildChannel {
         DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
 
         List<ForumTag> tags = new ArrayList<>();
-        for (Object tag : obj.getJSONArray("available_tags").toList()) {
+        for (Object tag : obj.getJSONArray("available_tags")) {
             tags.add(ForumTag.decompile((JSONObject) tag));
         }
 

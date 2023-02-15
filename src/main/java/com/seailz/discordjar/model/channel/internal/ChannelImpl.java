@@ -67,9 +67,9 @@ public class ChannelImpl implements Channel {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE.replace("{channel.id}", id()),
+                URLS.DELETE.CHANNEL.DELETE_CHANNEL.replace("{channel.id}", id()),
                 djv(),
-                URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE,
+                URLS.DELETE.CHANNEL.DELETE_CHANNEL,
                 RequestMethod.DELETE
         );
         req.invoke();

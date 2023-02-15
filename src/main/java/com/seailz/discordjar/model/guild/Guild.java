@@ -24,6 +24,7 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +38,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 /**
  * Represents a guild.
@@ -776,14 +778,19 @@ public record Guild(
     @NotNull
     public List<GuildChannel> getChannels() {
         List<GuildChannel> channels = new ArrayList<>();
-        JSONArray res = new DiscordRequest(
+        DiscordResponse req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
                 discordJar,
                 URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS,
                 RequestMethod.GET
-        ).invoke().arr();
+        ).invoke();
+        JSONArray res = req.arr();
+        if (res == null) {
+            Logger.getLogger("DiscordJar").warning("Failed to get channels for guild " + req.code());
+            return new ArrayList<>();
+        }
         res.forEach(o -> channels.add(GuildChannel.decompile((JSONObject) o, discordJar)));
         return channels;
     }

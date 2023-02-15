@@ -267,7 +267,6 @@ public class MessageCreateAction {
             if (this.embeds != null)
                 payload.put("embeds", embeds);
 
-
             JSONArray stickerIds = new JSONArray();
             if (this.stickerIds != null) {
                 for (String stickerId : this.stickerIds) {

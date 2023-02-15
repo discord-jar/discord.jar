@@ -1,4 +1,4 @@
-package com.seailz.discordjar.action;
+package com.seailz.discordjar.action.message;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.DisplayComponent;

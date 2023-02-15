@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.action.MessageCreateAction;
+import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.internal.MessagingChannelImpl;
 import com.seailz.discordjar.model.channel.transcript.TranscriptFormatter;
 import com.seailz.discordjar.model.channel.utils.ChannelType;

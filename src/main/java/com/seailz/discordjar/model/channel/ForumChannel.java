@@ -98,7 +98,7 @@ public interface ForumChannel extends GuildChannel {
         boolean nsfw = obj.getBoolean("nsfw");
         String postGuidelines = obj.has("topic") && !obj.isNull("topic") ? obj.getString("topic") : null;
         String lastThreadId = obj.has("last_thread_id") && !obj.isNull("last_thread_id")  ? obj.getString("last_thread_id") : null;
-        DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
+        DefaultSortOrder defaultSortOrder = obj.has("default_sort_order") && !obj.isNull("default_sort_order")  ? DefaultSortOrder.fromCode(obj.getInt("default_sort_order")) : DefaultSortOrder.UNKNOWN;
 
         List<ForumTag> tags = new ArrayList<>();
         if (obj.has("available_tags") && !obj.isNull("available_tags")) {

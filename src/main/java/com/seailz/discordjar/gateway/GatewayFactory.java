@@ -160,6 +160,15 @@ public class GatewayFactory extends TextWebSocketHandler {
                     reconnect();
                 }
                 break;
+            case 1001:
+                logger.info("[discord.jar] Gateway requested a reconnect (close code 1001), reconnecting...");
+                session.close(CloseStatus.SERVER_ERROR);
+                heartbeatManager.deactivate();
+                readyForMessages = false;
+                heartbeatManager = null;
+                connect();
+                this.shouldResume = false;
+                break;
             case 1006:
                 logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
                 reconnect();
@@ -209,6 +218,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             case HELLO:
                 handleHello(payload);
                 if (!shouldResume) sendIdentify();
+                this.shouldResume = false;
                 readyForMessages = true;
 
                 if (debug) {
@@ -234,17 +244,12 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case INVALID_SESSION:
                 logger.info("[discord.jar] Gateway requested a reconnect (invalid session), reconnecting...");
-                if (payload.getBoolean("d")) {
-                    reconnect();
-                } else {
-                    sendIdentify();
-                }
-
                 session.close(CloseStatus.SERVER_ERROR);
                 heartbeatManager.deactivate();
                 readyForMessages = false;
                 heartbeatManager = null;
                 connect();
+                this.shouldResume = payload.getBoolean("d");
                 break;
             case HEARTBEAT_ACK:
                 // Heartbeat was acknowledged, can ignore.

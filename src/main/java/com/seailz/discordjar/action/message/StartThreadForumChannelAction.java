@@ -14,10 +14,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class StartThreadForumChannelAction {
@@ -72,6 +69,44 @@ public class StartThreadForumChannelAction {
     public String getName() {
         return name;
     }
+
+    public StartThreadForumChannelAction addTagId(String tagId) {
+        tagIds.add(tagId);
+        return this;
+    }
+
+    public StartThreadForumChannelAction addTagIds(List<String> tagIds) {
+        this.tagIds.addAll(tagIds);
+        return this;
+    }
+
+    public StartThreadForumChannelAction removeTagId(String tagId) {
+        tagIds.remove(tagId);
+        return this;
+    }
+
+    public StartThreadForumChannelAction removeTagIds(List<String> tagIds) {
+        this.tagIds.removeAll(tagIds);
+        return this;
+    }
+
+    public StartThreadForumChannelAction clearTagIds() {
+        tagIds.clear();
+        return this;
+    }
+
+    public StartThreadForumChannelAction setTagIds(List<String> tagIds) {
+        this.tagIds.clear();
+        this.tagIds.addAll(tagIds);
+        return this;
+    }
+
+    public StartThreadForumChannelAction setTagIds(String... tagIds) {
+        this.tagIds.clear();
+        this.tagIds.addAll(Arrays.asList(tagIds));
+        return this;
+    }
+
 
     public CompletableFuture<Thread> run() {
         CompletableFuture<Thread> future = new CompletableFuture<>();

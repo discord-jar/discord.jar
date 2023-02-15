@@ -1,6 +1,7 @@
 package com.seailz.discordjar.model.channel.internal;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.TextChannel;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.thread.ThreadMember;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class ThreadImpl extends GuildChannelImpl implements Thread {
 
-    private final TextChannel owner;
+    private final MessagingChannel owner;
     private final int rateLimitPerUser;
     private final String creatorId;
     private final String lastPinTimestamp;
@@ -25,7 +26,7 @@ public class ThreadImpl extends GuildChannelImpl implements Thread {
     private final int defaultThreadRateLimitPerUser;
     private final String lastMessageId;
 
-    public ThreadImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, TextChannel owner, int rateLimitPerUser, String creatorId, String lastPinTimestamp, int messageCount, ThreadMetadata threadMetadata, ThreadMember threadMember, int totalMessageSent, int defaultThreadRateLimitPerUser, String lastMessageId, JSONObject raw, DiscordJar discordJar) {
+    public ThreadImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, MessagingChannel owner, int rateLimitPerUser, String creatorId, String lastPinTimestamp, int messageCount, ThreadMetadata threadMetadata, ThreadMember threadMember, int totalMessageSent, int defaultThreadRateLimitPerUser, String lastMessageId, JSONObject raw, DiscordJar discordJar) {
         super(id, type, name, guild, position, permissionOverwrites, nsfw, raw, discordJar);
         this.owner = owner;
         this.rateLimitPerUser = rateLimitPerUser;
@@ -40,7 +41,7 @@ public class ThreadImpl extends GuildChannelImpl implements Thread {
     }
 
     @Override
-    public TextChannel owner() {
+    public MessagingChannel owner() {
         return owner;
     }
 

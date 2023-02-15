@@ -2,6 +2,7 @@ package com.seailz.discordjar.model.channel.thread;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.GuildChannel;
+import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.TextChannel;
 import com.seailz.discordjar.model.channel.internal.ThreadImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
@@ -44,7 +45,7 @@ public interface Thread extends GuildChannel {
     /**
      * The id of the parent channel
      */
-    TextChannel owner();
+    MessagingChannel owner();
 
     /**
      * Message sending rate limit in seconds.
@@ -138,7 +139,7 @@ public interface Thread extends GuildChannel {
         Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
         int position = obj.has("position") && !obj.isNull("position") ? obj.getInt("position") : 0;
         boolean nsfw = obj.has("nsfw") && !obj.isNull("nsfw") && obj.getBoolean("nsfw");
-        TextChannel owner = obj.has("parent_id") && !obj.isNull("parent_id") ? (TextChannel) discordJar.getChannelById(obj.getString("parent_id")) : null;
+        MessagingChannel owner = obj.has("parent_id") && !obj.isNull("parent_id") ? discordJar.getTextChannelById(obj.getString("parent_id")) : null;
         int rateLimitPerUser = obj.has("rate_limit_per_user") && !obj.isNull("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
         String creatorId = obj.has("creator_id")  && !obj.isNull("creator_id") ? obj.getString("creator_id") : null;
         String lastPinTimestamp = obj.has("last_pin_timestamp") && !obj.isNull("last_pin_timestamp") ? obj.getString("last_pin_timestamp") : null;

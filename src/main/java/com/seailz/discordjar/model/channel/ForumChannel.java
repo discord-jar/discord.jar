@@ -1,6 +1,7 @@
 package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.message.StartThreadForumChannelAction;
 import com.seailz.discordjar.model.channel.forum.DefaultSortOrder;
 import com.seailz.discordjar.model.channel.forum.ForumTag;
 import com.seailz.discordjar.model.channel.internal.ForumChannelImpl;
@@ -56,6 +57,10 @@ public interface ForumChannel extends GuildChannel {
     String lastThreadId();
 
     DefaultForumLayout defaultForumLayout();
+
+    default StartThreadForumChannelAction startThread(String name, StartThreadForumChannelAction.ForumThreadMessageParams message) {
+        return new StartThreadForumChannelAction(id(), name, message, djv());
+    }
 
     @Override
     default JSONObject compile() {

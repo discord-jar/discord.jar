@@ -90,24 +90,25 @@ public interface ForumChannel extends GuildChannel {
         String name = obj.getString("name");
         int position = obj.getInt("position");
 
-        System.out.println(obj.getJSONArray("permission_overwrites"));
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         for (Object overwrite : obj.getJSONArray("permission_overwrites")) {
             permissionOverwrites.add(PermissionOverwrite.decompile((JSONObject) overwrite));
         }
 
         boolean nsfw = obj.getBoolean("nsfw");
-        String postGuidelines = obj.has("topic") ? obj.getString("topic") : null;
-        String lastThreadId = obj.has("last_message_id") ? obj.getString("last_thread_id") : null;
+        String postGuidelines = obj.has("topic") && !obj.isNull("topic") ? obj.getString("topic") : null;
+        String lastThreadId = obj.has("last_message_id") && !obj.isNull("last_message_id")  ? obj.getString("last_thread_id") : null;
         DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
 
         List<ForumTag> tags = new ArrayList<>();
-        for (Object tag : obj.getJSONArray("available_tags")) {
-            tags.add(ForumTag.decompile((JSONObject) tag));
+        if (obj.has("available_tags") && !obj.isNull("available_tags")) {
+            for (Object tag : obj.getJSONArray("available_tags")) {
+                tags.add(ForumTag.decompile((JSONObject) tag));
+            }
         }
 
         Guild guild = discordJar.getGuildById(obj.getString("guild_id"));
-        DefaultForumLayout dfl = obj.has("default_forum_layout") ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
+        DefaultForumLayout dfl = obj.has("default_forum_layout") && !obj.isNull("default_forum_layout")  ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
         return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJar, dfl);
     }
 

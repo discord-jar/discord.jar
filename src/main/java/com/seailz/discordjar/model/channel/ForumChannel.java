@@ -97,7 +97,7 @@ public interface ForumChannel extends GuildChannel {
 
         boolean nsfw = obj.getBoolean("nsfw");
         String postGuidelines = obj.has("topic") && !obj.isNull("topic") ? obj.getString("topic") : null;
-        String lastThreadId = obj.has("last_message_id") && !obj.isNull("last_message_id")  ? obj.getString("last_thread_id") : null;
+        String lastThreadId = obj.has("last_thread_id") && !obj.isNull("last_thread_id")  ? obj.getString("last_thread_id") : null;
         DefaultSortOrder defaultSortOrder = DefaultSortOrder.fromCode(obj.getInt("default_sort_order"));
 
         List<ForumTag> tags = new ArrayList<>();

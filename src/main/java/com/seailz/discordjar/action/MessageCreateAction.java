@@ -310,7 +310,7 @@ public class MessageCreateAction {
             if (fileUploads != null && !fileUploads.isEmpty())
                 response = request.invokeWithFiles(new ArrayList<>(fileUploads).toArray(new File[0]));
             else
-                request.invoke();
+                response = request.invoke();
             return Message.decompile(response.body(), discordJar);
         });
         return future;

@@ -136,18 +136,18 @@ public interface Thread extends GuildChannel {
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
         Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
-        int position = obj.getInt("position");
-        boolean nsfw = obj.getBoolean("nsfw");
-        TextChannel owner = obj.has("parent_id") ? (TextChannel) discordJar.getChannelById(obj.getString("parent_id")) : null;
-        int rateLimitPerUser = obj.has("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
-        String creatorId = obj.has("creator_id") ? obj.getString("creator_id") : null;
-        String lastPinTimestamp = obj.has("last_pin_timestamp") ? obj.getString("last_pin_timestamp") : null;
-        int messageCount = obj.has("message_count") ? obj.getInt("message_count") : 0;
-        ThreadMetadata metadata = obj.has("thread_metadata") ? ThreadMetadata.decompile(obj.getJSONObject("thread_metadata")) : null;
-        ThreadMember member = obj.has("member") ? ThreadMember.decompile(obj.getJSONObject("member")) : null;
-        int totalMessageSent = obj.has("total_message_sent") ? obj.getInt("total_message_sent") : 0;
-        int defaultThreadRateLimitPerUser = obj.has("default_thread_rate_limit_per_user") ? obj.getInt("default_thread_rate_limit_per_user") : 0;
-        String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
+        int position = obj.has("position") && !obj.isNull("position") ? obj.getInt("position") : 0;
+        boolean nsfw = obj.has("nsfw") && !obj.isNull("nsfw") && obj.getBoolean("nsfw");
+        TextChannel owner = obj.has("parent_id") && !obj.isNull("parent_id") ? (TextChannel) discordJar.getChannelById(obj.getString("parent_id")) : null;
+        int rateLimitPerUser = obj.has("rate_limit_per_user") && !obj.isNull("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
+        String creatorId = obj.has("creator_id")  && !obj.isNull("creator_id") ? obj.getString("creator_id") : null;
+        String lastPinTimestamp = obj.has("last_pin_timestamp") && !obj.isNull("last_pin_timestamp") ? obj.getString("last_pin_timestamp") : null;
+        int messageCount = obj.has("message_count")  && !obj.isNull("message_count") ? obj.getInt("message_count") : 0;
+        ThreadMetadata metadata = obj.has("thread_metadata") && !obj.isNull("thread_metadata") ? ThreadMetadata.decompile(obj.getJSONObject("thread_metadata")) : null;
+        ThreadMember member = obj.has("member") && !obj.isNull("member") ? ThreadMember.decompile(obj.getJSONObject("member")) : null;
+        int totalMessageSent = obj.has("total_message_sent") && !obj.isNull("total_message_sent") ? obj.getInt("total_message_sent") : 0;
+        int defaultThreadRateLimitPerUser = obj.has("default_thread_rate_limit_per_user") && !obj.isNull("default_thread_rate_limit_per_user") ? obj.getInt("default_thread_rate_limit_per_user") : 0;
+        String lastMessageId = obj.has("last_message_id") && !obj.isNull("last_message_id") ? obj.getString("last_message_id") : null;
 
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (obj.has("permission_overwrites")) {

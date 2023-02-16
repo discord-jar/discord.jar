@@ -44,6 +44,7 @@ public class ModifyBaseChannelAction {
     private DefaultSortOrder defaultSortOrder;
     private ForumChannel.DefaultForumLayout defaultForumLayout;
     private DiscordJar djv;
+    private boolean locked;
 
     public ModifyBaseChannelAction(DiscordJar djv, String channelId, String name, ChannelType type, String topic, int position, boolean nsfw, int bitrate, int rateLimitPerUser, int userLimit, List<PermissionOverwrite> permissionOverwrites, Category parent, String rtcRegion, VideoQualityMode videoQualityMode, String defaultAutoArchiveDuration, int flags, List<ForumTag> availableTags, DefaultReaction defaultReactionEmoji, int defaultThreadRateLimitPerUser, DefaultSortOrder defaultSortOrder, ForumChannel.DefaultForumLayout defaultForumLayout) {
         this.name = name;
@@ -108,6 +109,15 @@ public class ModifyBaseChannelAction {
 
     public List<PermissionOverwrite> permissionOverwrites() {
         return permissionOverwrites;
+    }
+
+    public ModifyBaseChannelAction setLocked(boolean locked) {
+        this.locked = locked;
+        return this;
+    }
+
+    public boolean locked() {
+        return locked;
     }
 
     public Category parent() {
@@ -279,6 +289,7 @@ public class ModifyBaseChannelAction {
             if (defaultThreadRateLimitPerUser != -1) body.put("default_thread_rate_limit_per_user", defaultThreadRateLimitPerUser);
             if (defaultSortOrder != null) body.put("default_sort_order", defaultSortOrder.getCode());
             if (defaultForumLayout != null) body.put("default_forum_layout", defaultForumLayout.getCode());
+            body.put("locked", locked);
 
             DiscordResponse response = new DiscordRequest(
                     body,

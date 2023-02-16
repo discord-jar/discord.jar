@@ -420,5 +420,6 @@ public record Message(
             formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
         return formatted;
     }
+
 }
 

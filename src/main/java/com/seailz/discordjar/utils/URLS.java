@@ -151,6 +151,10 @@ public final class URLS {
                  * @param id The id of the channel
                  */
                 public static String GET_MESSAGES = "/channels/{channel.id}/messages";
+                /**
+                 * Returns a message
+                 */
+                public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
         }
 

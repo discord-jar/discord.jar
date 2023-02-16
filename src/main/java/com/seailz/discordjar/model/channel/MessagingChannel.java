@@ -19,6 +19,7 @@ import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -274,6 +275,18 @@ public interface MessagingChannel extends GuildChannel, CategoryMember {
         }
 
         return messages;
+    }
+
+    default Message getMessageById(String id) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGE.replace("{channel.id}", id()).replace("{message.id}", id),
+                djv(),
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGE,
+                RequestMethod.GET
+        ).invoke();
+        return Message.decompile(response.body(), djv());
     }
 
     /**

@@ -882,6 +882,22 @@ public record Guild(
     }
 
     /**
+     * Deletes the guild. The application must own the guild in order to perform this action.
+     * <p/>
+     * <b>This action is irreversible!</b>
+     */
+    public void delete() {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.GUILD.DELETE_GUILD.replace("{guild.id}", id),
+                discordJar,
+                URLS.DELETE.GUILD.DELETE_GUILD,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+    /**
      * Deletes a role from the guild.
      * This requires your application to have the {@code MANAGE_ROLES} permission.
      * @param role The role to delete.

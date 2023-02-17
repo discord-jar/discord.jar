@@ -285,6 +285,11 @@ public final class URLS {
 
         public static class GUILD {
             /**
+             * Deletes a guild.
+             * @param id The id of the guild
+             */
+            public static final String DELETE_GUILD = "/guilds/{guild.id}";
+            /**
              * Deletes a role from a guild.
              * @param guild.id The id of the guild
              * @param role.id The id of the role

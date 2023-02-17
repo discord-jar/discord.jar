@@ -886,7 +886,7 @@ public record Guild(
      * <p/>
      * <b>This action is irreversible!</b>
      */
-    public void delete() {
+    public void delete() throws IllegalAccessException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -895,6 +895,7 @@ public record Guild(
                 URLS.DELETE.GUILD.DELETE_GUILD,
                 RequestMethod.DELETE
         ).invoke();
+        if (response.code() == 401) throw new IllegalAccessException("(Received 401) Application is not authorized to delete the guild. Make sure the application owns the guild before doing this.");
     }
 
     /**

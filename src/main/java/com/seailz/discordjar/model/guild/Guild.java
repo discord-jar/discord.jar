@@ -880,4 +880,20 @@ public record Guild(
     public StringFormatter formatter() {
         return new StringFormatter("icons/", id, iconHash());
     }
+
+    /**
+     * Deletes a role from the guild.
+     * This requires your application to have the {@code MANAGE_ROLES} permission.
+     * @param role The role to delete.
+     */
+    public void deleteRole(Role role) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.GUILD.ROLES.replace("{guild.id}", id).replace("{role.id}", role.id()),
+                discordJar,
+                URLS.DELETE.GUILD.ROLES,
+                RequestMethod.DELETE
+        ).invoke();
+    }
 }

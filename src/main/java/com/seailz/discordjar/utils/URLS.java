@@ -1,5 +1,6 @@
 package com.seailz.discordjar.utils;
 
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.version.APIVersion;
 
@@ -283,6 +284,12 @@ public final class URLS {
     public static class DELETE {
 
         public static class GUILD {
+            /**
+             * Deletes a role from a guild.
+             * @param guild.id The id of the guild
+             * @param role.id The id of the role
+             */
+            public static final String ROLES = "/guilds/{guild.id}/roles/{role.id}";
             /**
              * Leaves a guild
              *

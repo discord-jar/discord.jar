@@ -72,7 +72,7 @@ public record Command(
 
         if (descriptionLocales.length() > 0) obj.put("description_localizations", descriptionLocales);
         if (permissions != -1) obj.put("default_member_permissions", permissions);
-        if (canUseInDms) obj.put("default_permission", true);
+        obj.put("dm_permission", canUseInDms);
         if (nsfw) obj.put("nsfw", true);
 
         return obj;

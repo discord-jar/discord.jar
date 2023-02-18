@@ -913,4 +913,122 @@ public record Guild(
                 RequestMethod.DELETE
         ).invoke();
     }
+
+    // Guild bans
+
+    /**
+     * Gets a list of all currently banned users on the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @return Current guild bans
+     */
+    public List<GuildBan> getBans() {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.BANS.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.BANS,
+                RequestMethod.GET
+        ).invoke();
+
+        List<GuildBan> bans = new ArrayList<>();
+        response.arr().forEach((object) -> {
+            bans.add(GuildBan.decompile((JSONObject) object, discordJar));
+        });
+
+        return bans;
+    }
+
+    /**
+     * Gets a ban on a user in the guild. Returns {@code null} if no ban could be found. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the banned user
+     * @return The ban on the user, if applicable
+     */
+    public GuildBan getBan(String userId) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", userId),
+                discordJar,
+                URLS.GET.GUILDS.USER_BAN,
+                RequestMethod.GET
+        ).invoke();
+        return GuildBan.decompile(response.body(), discordJar);
+    }
+
+    /**
+     * Gets a ban on a user in the guild. Returns {@code null} if no ban could be found. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the banned user
+     * @return The ban on the user, if applicable
+     */
+    public GuildBan getBan(long userId) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
+                discordJar,
+                URLS.GET.GUILDS.USER_BAN,
+                RequestMethod.GET
+        ).invoke();
+        return GuildBan.decompile(response.body(), discordJar);
+    }
+
+    /**
+     * Bans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to ban
+     */
+    public void banUser(String userId) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
+                discordJar,
+                URLS.PUT.GUILD.BAN_USER,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    /**
+     * Bans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to ban
+     */
+    public void banUser(long userId) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
+                discordJar,
+                URLS.PUT.GUILD.BAN_USER,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    /**
+     * Unbans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to unban
+     */
+    public void unbanUser(String userId) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
+                discordJar,
+                URLS.PUT.GUILD.BAN_USER,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    /**
+     * Unban a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to unban
+     */
+    public void unbanUser(long userId) {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
+                discordJar,
+                URLS.PUT.GUILD.BAN_USER,
+                RequestMethod.DELETE
+        ).invoke();
+    }
 }

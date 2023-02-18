@@ -161,6 +161,17 @@ public final class URLS {
 
         public static class GUILDS {
             /**
+             * Returns bans in a guild
+             * @param id The id of the guild
+             */
+            public static final String BANS = "/guilds/{guild.id}/bans";
+            /**
+             * Returns a ban on a user in a guild
+             * @param guild.id The id of the guild
+             * @param user.id The id of the banned user
+             */
+            public static final String USER_BAN = "/guilds/{guild.id}/bans/{user.id}";
+            /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *
              * @param id The id of the guild
@@ -416,6 +427,13 @@ public final class URLS {
         }
 
         public static class GUILD {
+            /**
+             * Bans a user from a guild.
+             * @param guild.id The id of the guild
+             * @param user.id The id of the user to ban
+             */
+            public static final String BAN_USER = "/guilds/{guild.id}/bans/{user.id}";
+
             public static class MEMBERS {
                 public static class ROLES {
                     /**

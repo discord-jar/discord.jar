@@ -39,6 +39,22 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
     }
 
     /**
+     * This is an internal method for the library. It is not recommended to use this method.
+     * As such, you will not be given support if you use this method.
+     * @return List of {@link ResolvedCommandOption} objects that were passed to the top level command, including sub commands.
+     */
+    public List<ResolvedCommandOption> getOptionsInternal() {
+        if (!getJson().getJSONObject("d").getJSONObject("data").has("options")) return null;
+        JSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
+
+        List<ResolvedCommandOption> decompiled = new ArrayList<>();
+        for (Object option : options) {
+            decompiled.add(ResolvedCommandOption.decompile((JSONObject) option, getCommandData().resolved()));
+        }
+        return decompiled;
+    }
+
+    /**
      * Returns the option with the given name.
      * @param name The name of the option.
      * @return The {@link ResolvedCommandOption} object with the given name.

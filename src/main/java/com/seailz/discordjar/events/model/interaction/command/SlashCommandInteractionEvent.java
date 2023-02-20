@@ -23,6 +23,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
      */
     @Nullable
     public List<ResolvedCommandOption> getOptions() {
+        System.out.println(getJson());
         if (!getJson().getJSONObject("d").getJSONObject("data").has("options")) return null;
         JSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
         List<ResolvedCommandOption> decompiled = new ArrayList<>();
@@ -33,6 +34,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
     }
 
     public ResolvedCommandOption getOption(String name) {
+        System.out.println(getJson());
         if (getOptions() == null) return null;
         for (ResolvedCommandOption option : getOptions()) {
             if (option.name().equals(name)) return option;

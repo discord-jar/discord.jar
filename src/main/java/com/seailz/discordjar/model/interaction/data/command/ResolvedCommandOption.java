@@ -4,6 +4,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.command.CommandOptionType;
 import com.seailz.discordjar.model.interaction.data.ResolvedData;
 import com.seailz.discordjar.model.role.Role;
+import com.seailz.discordjar.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -97,6 +98,9 @@ public class ResolvedCommandOption implements Compilerable {
 
     public Role getAsRole() {
         return this.resolved.roles().get(getAsString());
+    }
+    public User getAsUser() {
+        return this.resolved.users().get(getAsString());
     }
 
     public CommandOptionType type() {

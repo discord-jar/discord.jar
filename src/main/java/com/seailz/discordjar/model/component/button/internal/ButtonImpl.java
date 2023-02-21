@@ -26,7 +26,7 @@ public class ButtonImpl implements Button {
         json.put("type", ComponentType.BUTTON.getCode());
         json.put("label", label);
         json.put("style", style.code());
-        json.put("custom_id", customId);
+        if (customId != null) json.put("custom_id", customId);
         if (url != null) json.put("url", url);
         if (isDisabled) json.put("disabled", true);
         if (emoji != null) json.put("emoji", emoji.compile());

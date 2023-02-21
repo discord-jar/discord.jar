@@ -153,10 +153,9 @@ public interface Button extends MessageComponent {
      * Returns a link button
      *
      * @param label    The label of the button
-     * @param customId The custom id of the button
      * @return {@link ButtonImpl}
      */
-    static Button link(String label, String customId, String url) {
+    static Button link(String label, String url) {
         return new ButtonImpl().setStyle(ButtonStyle.LINK).setLabel(label).setUrl(url);
     }
 

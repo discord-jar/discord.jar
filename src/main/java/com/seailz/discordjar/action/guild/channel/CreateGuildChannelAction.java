@@ -84,10 +84,10 @@ public class CreateGuildChannelAction {
                         new JSONObject()
                                 .put("name", name)
                                 .put("type", type.getCode())
-                                .put("topic", topic)
+                                .put("topic", topic != null ? topic : JSONObject.NULL)
                                 .put("position", position)
                                 .put("permission_overwrites", permissionOverwrites)
-                                .put("parent_id", category.id()),
+                                .put("parent_id", category != null ? category.id() : JSONObject.NULL),
                         new HashMap<>(),
                         URLS.POST.GUILDS.CHANNELS.CREATE.replace("{guild.id}", guild.id()),
                         discordJar,

@@ -96,4 +96,13 @@ public interface GuildChannel extends Channel {
         }
         return null;
     }
+
+    /**
+     * Adds a {@link PermissionOverwrite} to this channel
+     * @param overwrite The {@link PermissionOverwrite} to add
+     */
+    default void addPermissionOverwrite(@NotNull PermissionOverwrite overwrite) {
+        permissionOverwrites().add(overwrite);
+        modify().setPermissionOverwrites(permissionOverwrites()).run();
+    }
 }

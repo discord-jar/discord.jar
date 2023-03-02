@@ -42,8 +42,8 @@ public class CommandDispatcher {
     }
 
     public void dispatch(String name, CommandInteractionEvent event) {
-        if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptions() != null && !((SlashCommandInteractionEvent) event).getOptions().isEmpty()) {
-            for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptions()) {
+        if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptionsInternal() != null && !((SlashCommandInteractionEvent) event).getOptionsInternal().isEmpty()) {
+            for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptionsInternal()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {
                     for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
                         for (SlashSubCommandDetails details : detailsList) {

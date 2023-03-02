@@ -614,8 +614,8 @@ public class DiscordJar {
             );
             commandDispatcher.registerCommand(name, listener);
 
-            if (!(listener instanceof SlashCommandListener slashCommandListener)) return;
-            if (slashCommandListener.getSubCommands().isEmpty()) return;
+            if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;
+            if (slashCommandListener.getSubCommands().isEmpty()) continue;
 
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
                 SubCommandListener subListener =

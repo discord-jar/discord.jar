@@ -381,6 +381,10 @@ public final class URLS {
 
         public static class CHANNEL {
             public static String MODIFY_CHANNEL = "/channels/{channel.id}";
+
+            public static class MESSAGE {
+                public static String EDIT = "/channels/{channel.id}/messages/{message.id}";
+            }
         }
 
         public static class INTERACTIONS {

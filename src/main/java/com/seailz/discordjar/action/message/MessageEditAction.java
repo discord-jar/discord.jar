@@ -182,7 +182,7 @@ public class MessageEditAction {
     public CompletableFuture<Message> run() {
         CompletableFuture<Message> future = new CompletableFuture<>();
         future.completeAsync(() -> {
-            String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
+            String url = URLS.PATCH.CHANNEL.MESSAGE.EDIT.replace("{channel.id}", channelId);
 
             JSONObject payload = new JSONObject();
             if (this.text != null) payload.put("content", this.text);
@@ -230,7 +230,7 @@ public class MessageEditAction {
                     new HashMap<>(),
                     url,
                     discordJar,
-                    URLS.POST.MESSAGES.EDIT,
+                    URLS.PATCH.CHANNEL.MESSAGE.EDIT,
                     RequestMethod.PATCH
             );
 

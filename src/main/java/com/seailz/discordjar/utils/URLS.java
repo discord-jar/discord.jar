@@ -46,6 +46,7 @@ public final class URLS {
 
         public static class MESSAGES {
             public static final String SEND = "/channels/{channel.id}/messages";
+            public static final String EDIT = "/channels/{channel.id}/messages/{message.id}";
             public static final String START_THREAD_FORUM = "/channels/{channel.id}/threads";
         }
 

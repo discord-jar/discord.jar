@@ -1,6 +1,7 @@
 package com.seailz.discordjar.model.message;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.message.MessageEditAction;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.channel.thread.Thread;
@@ -405,6 +406,14 @@ public record Message(
         new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
                 .replace("{channel.id}", channelId).replace("{message.id}", id),
                 discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
+    }
+
+    /**
+     * Allows you to edit the message.
+     * @return The MessageEditAction object.
+     */
+    public MessageEditAction edit() {
+        return new MessageEditAction(channelId, discordJar, id);
     }
 
     /**

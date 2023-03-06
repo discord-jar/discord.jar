@@ -1,12 +1,16 @@
 package com.seailz.discordjar.model.channel.thread;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.TextChannel;
 import com.seailz.discordjar.model.channel.internal.ThreadImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
+import com.seailz.discordjar.model.component.DisplayComponent;
+import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -161,6 +166,22 @@ public interface Thread extends GuildChannel {
 
         return new ThreadImpl(id, type, name, guild, position, permissionOverwrites, nsfw, owner, rateLimitPerUser, creatorId, lastPinTimestamp, messageCount, metadata,
                 member, totalMessageSent, defaultThreadRateLimitPerUser, lastMessageId, obj, discordJar);
+    }
+
+    default MessageCreateAction sendMessage(String text) {
+        return new MessageCreateAction(text, id(), discordJv());
+    }
+
+    default MessageCreateAction sendComponents(DisplayComponent... components) {
+        return new MessageCreateAction(new ArrayList<>(List.of(components)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendEmbeds(Embeder... embeds) {
+        return new MessageCreateAction(new ArrayList<>(List.of(embeds)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendAttachments(Attachment... attachments) {
+        return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
     }
 
 }

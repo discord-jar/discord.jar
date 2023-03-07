@@ -27,6 +27,8 @@ public class StringSelectMenu implements SelectMenu {
     private SelectOption[] options;
     private boolean disabled;
 
+    private JSONObject raw;
+
     /**
      * Creates a new string select menu
      *
@@ -47,13 +49,14 @@ public class StringSelectMenu implements SelectMenu {
      * @param maxValues   The maximum amount of values that can be selected
      * @param options     The options of the select menu
      */
-    public StringSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<SelectOption> options, boolean disabled) {
+    public StringSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<SelectOption> options, boolean disabled, JSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
         this.options = options.toArray(new SelectOption[0]);
         this.disabled = disabled;
+        this.raw = raw;
     }
 
     /**
@@ -127,7 +130,7 @@ public class StringSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new StringSelectMenu(
-                customId, placeholder, minValues, maxValues, List.of(options), disabled
+                customId, placeholder, minValues, maxValues, List.of(options), disabled, raw
         );
     }
 
@@ -183,7 +186,16 @@ public class StringSelectMenu implements SelectMenu {
                 options.add(SelectOption.decompile(optionsJson.getJSONObject(i), discordJar));
         }
 
-        return new StringSelectMenu(customId, placeholder, minValues, maxValues, options, json.has("disabled") && json.getBoolean("disabled"));
+        return new StringSelectMenu(customId, placeholder, minValues, maxValues, options, json.has("disabled") && json.getBoolean("disabled"), json);
     }
 
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+        this.raw = raw;
+    }
 }

@@ -20,6 +20,8 @@ public class ButtonImpl implements Button {
     private String url;
     private boolean isDisabled;
 
+    private JSONObject raw;
+
     @Override
     public JSONObject compile() {
         JSONObject json = new JSONObject();
@@ -125,6 +127,17 @@ public class ButtonImpl implements Button {
         if (obj.has("url")) button.setUrl(obj.getString("url"));
         if (obj.has("disabled")) button.setDisabled(obj.getBoolean("disabled"));
         if (obj.has("emoji")) button.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJar));
+        button.setRaw(obj);
         return button;
+    }
+
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+        this.raw = raw;
     }
 }

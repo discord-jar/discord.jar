@@ -3,6 +3,7 @@ package com.seailz.discordjar.action.message;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embeder;
+import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.message.MessageFlag;
@@ -37,7 +38,6 @@ public class MessageCreateAction {
     private String nonce;
     private boolean tts;
     private List<Embeder> embeds;
-    // TODO: allowed mentions
     private MessageReference messageReference;
     private List<DisplayComponent> components;
     private List<String> stickerIds;
@@ -49,6 +49,7 @@ public class MessageCreateAction {
     private final String channelId;
     private final DiscordJar discordJar;
     private boolean silent = false;
+    private AllowedMentions allowedMentions;
 
     public MessageCreateAction(@Nullable String text, @NotNull String channelId, @NotNull DiscordJar discordJar) {
         this.text = text;
@@ -125,6 +126,15 @@ public class MessageCreateAction {
     public MessageCreateAction setText(@Nullable String text) {
         this.text = text;
         return this;
+    }
+
+    public MessageCreateAction setAllowedMentions(AllowedMentions allowedMentions) {
+        this.allowedMentions = allowedMentions;
+        return this;
+    }
+
+    public AllowedMentions getAllowedMentions() {
+        return allowedMentions;
     }
 
     public MessageCreateAction setNonce(@Nullable String nonce) {

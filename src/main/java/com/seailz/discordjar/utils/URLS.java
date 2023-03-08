@@ -68,6 +68,10 @@ public final class URLS {
             }
         }
 
+        public static class CHANNELS {
+            public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
+        }
+
         public static class USERS {
             /**
              * Opens a DM channel with a user

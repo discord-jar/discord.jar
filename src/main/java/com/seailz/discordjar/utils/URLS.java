@@ -51,6 +51,11 @@ public final class URLS {
         }
 
         public static class GUILDS {
+            /**
+             * Returns the number of members that would be pruned from the guild under specific circumstances.
+             * @param id The id of the guild
+             */
+            public static final String PRUNE = "/guilds/{guild.id}/prune";
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule
@@ -171,6 +176,11 @@ public final class URLS {
              * @param user.id The id of the banned user
              */
             public static final String USER_BAN = "/guilds/{guild.id}/bans/{user.id}";
+            /**
+             * Returns the number of members that would be pruned from the guild under specific circumstances.
+             * @param id The id of the guild
+             */
+            public static final String PRUNE = "/guilds/{guild.id}/prune";
             /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *

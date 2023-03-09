@@ -10,6 +10,8 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.automod.AutomodRule;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.GuildChannel;
+import com.seailz.discordjar.model.channel.MessagingChannel;
+import com.seailz.discordjar.model.channel.VoiceChannel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
@@ -914,6 +916,38 @@ public record Guild(
         ).invoke();
     }
 
+    /**
+     * Gets a role in the guild by its id if it exists.
+     * @param id The id of the role to find.
+     * @return The role if it exists, {@code null} if it does not.
+     */
+    public Role getRoleById(long id) {
+        return getRoleById(String.valueOf(id));
+    }
+
+    /**
+     * Gets a role in the guild by its id if it exists.
+     * @param id The id of the role to find.
+     * @return The role if it exists, {@code null} if it does not.
+     */
+    public Role getRoleById(String id) {
+        for (Role r : roles()) {
+            if (r.id().equals(id)) return r;
+        }
+        return null;
+    }
+
+    /**
+     * Gets a list of roles from the guild with the given name.
+     * @param name A name to find.
+     * @return A list of roles with the given name, which may be empty.
+     */
+    public List<Role> getRolesByName(String name) {
+        List<Role> roles = new ArrayList<>();
+        roles().forEach(r -> {if (r.name().equals(name)) roles.add(r);});
+        return roles;
+    }
+
     // Guild bans
 
     /**
@@ -1030,5 +1064,101 @@ public record Guild(
                 URLS.PUT.GUILD.BAN_USER,
                 RequestMethod.DELETE
         ).invoke();
+    }
+
+    private GuildChannel getChannelById(String channelId) {
+        for (GuildChannel c:getChannels()) {
+            if (c.id().equals(channelId)) return c;
+        }
+        return null;
+    }
+
+    public MessagingChannel getTextChannelById(long channelId) {
+        return getTextChannelById(String.valueOf(channelId));
+    }
+
+    public MessagingChannel getTextChannelById(String channelId) {
+        return getChannelById(channelId).asMessagingChannel();
+    }
+
+    public VoiceChannel getVoiceChannelById(long channelId) {
+        return getVoiceChannelById(String.valueOf(channelId));
+    }
+
+    public VoiceChannel getVoiceChannelById(String channelId) {
+        return VoiceChannel.decompile(getChannelById(channelId).compile(), discordJar);
+    }
+
+    /**
+     * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     * </p>
+     * By default, this tests for 7 days.
+     * @return The number of members that would be pruned in the prune operation.
+     */
+    public int getPruneCount() {
+        return getPruneCount(7);
+    }
+
+    /**
+     * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     * @return The number of members that would be pruned in the prune operation.
+     */
+    public int getPruneCount(int days) {
+        if (Checker.inRange(1, 30, days, () -> {
+            Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!");
+        })) return 0;
+
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject()
+                        .put("days", days),
+                new HashMap<>(),
+                URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.PRUNE,
+                RequestMethod.GET
+        ).invoke();
+        return response.body().getInt("pruned");
+    }
+
+    /**
+     * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     * @param includedRoles A list of roles to include in the count.
+     * @return The number of members that would be pruned in the prune operation.
+     */
+    public int getPruneCount(int days, List<Role> includedRoles) {
+        if (Checker.inRange(1, 30, days, () -> {
+            Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!");
+        })) return 0;
+
+        StringBuilder commaDelimitedSnowflakesString = new StringBuilder();
+        if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
+        else {
+            for (Role r : includedRoles) {
+                commaDelimitedSnowflakesString.append(r.id());
+                commaDelimitedSnowflakesString.append(",");
+            }
+        }
+
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject()
+                        .put("days", days)
+                        .put("include_roles", commaDelimitedSnowflakesString),
+                new HashMap<>(),
+                URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.PRUNE,
+                RequestMethod.GET
+        ).invoke();
+        return response.body().getInt("pruned");
+    }
+
+    /**
+     * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     */
+    public void prune(int days) {
+        // FIXME: 3/9/23
     }
 }

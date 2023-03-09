@@ -2,6 +2,7 @@ package com.seailz.discordjar.events.model.guild.member;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
+import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.guild.Member;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -14,7 +15,7 @@ import org.json.JSONObject;
  * @since  1.0
  * @see    Member
  */
-public class GuildMemberAddEvent extends Event {
+public class GuildMemberAddEvent extends GuildEvent {
     public GuildMemberAddEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }

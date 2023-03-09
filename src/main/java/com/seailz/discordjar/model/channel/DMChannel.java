@@ -2,6 +2,7 @@ package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.MessageCreateAction;
+import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.DMChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.DisplayComponent;
@@ -30,7 +31,7 @@ import java.util.List;
  * @see    ChannelType#DM
  * @see    ChannelType#GROUP_DM
  */
-public interface DMChannel extends Channel {
+public interface DMChannel extends Channel, Typeable {
 
     String lastMessageId();
     List<User> recipients();

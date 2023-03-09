@@ -4,8 +4,10 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
 import jakarta.el.MethodReference;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,8 +36,26 @@ public record InstallParams(EnumSet<Scope> scopes, EnumSet<Permission> permissio
         EnumSet<Scope> scopes = EnumSet.noneOf(Scope.class);
         EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
 
-        if (obj.has("scopes") && !obj.isNull("scopes")) scopes = obj.getJSONArray("scopes").toList().stream().map(Object::toString).toList().
-                stream().map(Scope::valueOf).collect(Collectors.toCollection(() -> EnumSet.noneOf(Scope.class)));
+        if (obj.has("scopes") && !obj.isNull("scopes")) {
+            JSONArray scopesArray = obj.getJSONArray("scopes");
+            List<String> scopesList = new ArrayList<>();
+            for (int i = 0; i < scopesArray.length(); i++) {
+                scopesList.add(scopesArray.get(i).toString());
+            }
+            List<Scope> scopeEnums = new ArrayList<>();
+            for (String scope : scopesList) {
+                Scope scopeEnum;
+
+                try {
+                    scopeEnum = Scope.valueOf(scope.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                scopeEnums.add(scopeEnum);
+            }
+            scopes.addAll(scopeEnums);
+        }
 
         if (obj.has("permissions") && !obj.isNull("permissions")) {
             BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();

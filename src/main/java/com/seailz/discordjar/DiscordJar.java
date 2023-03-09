@@ -20,10 +20,7 @@ import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.http.HttpOnlyApplication;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.application.Intent;
-import com.seailz.discordjar.model.channel.Category;
-import com.seailz.discordjar.model.channel.Channel;
-import com.seailz.discordjar.model.channel.ForumChannel;
-import com.seailz.discordjar.model.channel.MessagingChannel;
+import com.seailz.discordjar.model.channel.*;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.model.emoji.sticker.StickerPack;
@@ -381,6 +378,18 @@ public class DiscordJar {
     public MessagingChannel getTextChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
+    }
+
+    /**
+     * Returns info about a {@link DMChannel}
+     *
+     * @param id The id of the channel
+     * @return A {@link DMChannel} object
+     */
+    @Nullable
+    public DMChannel getDmChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return DMChannel.decompile(getChannelCache().getFresh(id), this);
     }
 
     /**

@@ -47,6 +47,7 @@ public final class URLS {
 
         public static class MESSAGES {
             public static final String SEND = "/channels/{channel.id}/messages";
+            public static final String EDIT = "/channels/{channel.id}/messages/{message.id}";
             public static final String START_THREAD_FORUM = "/channels/{channel.id}/threads";
         }
 
@@ -66,6 +67,10 @@ public final class URLS {
                  */
                 public static final String CREATE = "/guilds/{guild.id}/channels";
             }
+        }
+
+        public static class CHANNELS {
+            public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
         }
 
         public static class USERS {
@@ -403,6 +408,10 @@ public final class URLS {
 
         public static class CHANNEL {
             public static String MODIFY_CHANNEL = "/channels/{channel.id}";
+
+            public static class MESSAGE {
+                public static String EDIT = "/channels/{channel.id}/messages/{message.id}";
+            }
         }
 
         public static class INTERACTIONS {

@@ -57,7 +57,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private HeartbeatManager heartbeatManager;
     private boolean shouldResume = false;
     private boolean readyForMessages = false;
-    public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks;
+    public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
 
     public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException {

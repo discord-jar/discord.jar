@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.StartThreadForumChannelAction;
 import com.seailz.discordjar.model.channel.forum.DefaultSortOrder;
 import com.seailz.discordjar.model.channel.forum.ForumTag;
+import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ForumChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
@@ -32,7 +33,7 @@ import java.util.List;
  * @since  1.0
  * @see    GuildChannel
  */
-public interface ForumChannel extends GuildChannel {
+public interface ForumChannel extends GuildChannel, Typeable {
 
     /**
      * The topic of the channel.

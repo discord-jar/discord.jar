@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public record Embed(
@@ -143,5 +144,25 @@ public record Embed(
         }
 
         return new Embed(title, type, description, url, timestamp, color, footer, image, thumbnail, video, provider, author, fields);
+    }
+
+    public Embeder asEmbeder() {
+        Embeder embeder = Embeder.e();
+        if (title != null) embeder.title(title);
+        if (description != null) embeder.description(description);
+        if (url != null) embeder.url(url);
+        if (timestamp != null) embeder.timestamp(timestamp);
+        if (color != 0) embeder.color(Color.decode(color + ""));
+        if (footer != null) embeder.footer(footer);
+        if (image != null) embeder.image(image);
+        if (thumbnail != null) embeder.thumbnail(thumbnail);
+        if (author != null) embeder.author(author);
+        if (fields != null) {
+            for (EmbedField field : fields) {
+                embeder.field(field);
+            }
+        }
+        return embeder;
+
     }
 }

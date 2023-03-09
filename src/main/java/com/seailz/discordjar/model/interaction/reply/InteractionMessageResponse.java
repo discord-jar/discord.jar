@@ -2,6 +2,7 @@ package com.seailz.discordjar.model.interaction.reply;
 
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embeder;
+import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.MessageFlag;
 import org.json.JSONObject;
@@ -25,7 +26,7 @@ public class InteractionMessageResponse implements InteractionReply {
     private boolean tts;
     private String content;
     private List<Embeder> embeds;
-    //todo: allows mentions
+    private AllowedMentions allowedMentions;
     private boolean ephemeral;
     private boolean suppressEmbeds;
     private boolean silent;
@@ -92,6 +93,14 @@ public class InteractionMessageResponse implements InteractionReply {
 
     public void setEmbeds(List<Embeder> embeds) {
         this.embeds = embeds;
+    }
+
+    public void setAllowedMentions(AllowedMentions allowedMentions) {
+        this.allowedMentions = allowedMentions;
+    }
+
+    public AllowedMentions getAllowedMentions() {
+        return allowedMentions;
     }
 
     public void addEmbed(Embeder embed) {
@@ -171,6 +180,9 @@ public class InteractionMessageResponse implements InteractionReply {
             }
             obj.put("attachments", attachments);
         }
+
+        if (this.allowedMentions != null)
+            obj.put("allowed_mentions", this.allowedMentions.compile());
 
         return obj;
     }

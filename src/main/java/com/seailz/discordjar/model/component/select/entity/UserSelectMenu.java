@@ -20,6 +20,8 @@ public class UserSelectMenu implements SelectMenu {
     private int maxValues;
     private boolean isDisabled;
 
+    private JSONObject raw;
+
     /**
      * Creates a new user select menu
      *
@@ -37,12 +39,13 @@ public class UserSelectMenu implements SelectMenu {
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
      */
-    public UserSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean isDisabled) {
+    public UserSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean isDisabled, JSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
         this.isDisabled = isDisabled;
+        this.raw = raw;
     }
 
     @Override
@@ -88,7 +91,7 @@ public class UserSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new UserSelectMenu(
-                customId, placeholder, minValues, maxValues, disabled
+                customId, placeholder, minValues, maxValues, disabled, raw
         );
     }
 
@@ -124,7 +127,17 @@ public class UserSelectMenu implements SelectMenu {
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
         boolean isDisabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new UserSelectMenu(customId, placeholder, minValues, maxValues, isDisabled);
+        return new UserSelectMenu(customId, placeholder, minValues, maxValues, isDisabled, json);
+    }
+
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+          this.raw = raw;
     }
 }
 

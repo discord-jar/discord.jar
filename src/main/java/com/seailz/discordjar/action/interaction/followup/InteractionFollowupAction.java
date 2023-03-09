@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
+import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
@@ -123,6 +124,11 @@ public class InteractionFollowupAction {
 
     public InteractionFollowupAction setAttachments(List<Attachment> attachments) {
         this.getReply().setAttachments(attachments);
+        return this;
+    }
+
+    public InteractionFollowupAction setAllowedMentions(AllowedMentions allowedMentions) {
+        this.getReply().setAllowedMentions(allowedMentions);
         return this;
     }
 

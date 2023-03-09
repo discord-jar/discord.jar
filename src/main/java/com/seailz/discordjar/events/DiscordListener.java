@@ -3,6 +3,7 @@ package com.seailz.discordjar.events;
 import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
+import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
 import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
@@ -34,6 +35,10 @@ public abstract class DiscordListener {
 
     // Guild Events
     public void onGuildCreated(@NotNull GuildCreateEvent event) {
+    }
+
+    // Guild Member Events
+    public void onGuildMemberAdd(@NotNull GuildMemberAddEvent event) {
     }
 
     // Command Events

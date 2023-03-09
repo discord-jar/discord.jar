@@ -10,6 +10,7 @@ import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.gateway.GatewayResumedEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
+import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
 import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.MessageContextCommandInteractionEvent;
@@ -171,6 +172,8 @@ public enum DispatchedEvents {
         }
         return null;
     }),
+
+    GUILD_MEMBER_ADD((p, g, d) -> GuildMemberAddEvent.class),
     /* Unknown */
     UNKNOWN((p, g, d) -> null),
     ;

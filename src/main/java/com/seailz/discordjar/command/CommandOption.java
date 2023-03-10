@@ -111,6 +111,7 @@ public record CommandOption(
 
         if (this.minValue != -1 && this.minValue != 0) {
             obj.put("min_value", minValue);
+        }
 
         if (this.maxValue != 0 && this.maxValue != -1)
             obj.put("max_value", maxValue);

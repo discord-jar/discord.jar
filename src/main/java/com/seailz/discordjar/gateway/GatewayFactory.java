@@ -102,7 +102,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         switch (status.getCode()) {
             case 1012:
-                //reconnect();
+                session.close(CloseStatus.SERVER_ERROR);
+                if (this.heartbeatManager != null) heartbeatManager.deactivate();
+                readyForMessages = false;
+                heartbeatManager = null;
+                connect();
+                this.shouldResume = false;
                 break;
             case 1011:
                 break;

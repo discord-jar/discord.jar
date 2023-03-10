@@ -35,7 +35,7 @@ public record CommandOption(
 ) implements Compilerable {
 
     public CommandOption(String name, String description, CommandOptionType type, boolean required) {
-        this(name, description, type, required, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 0, 0, 0, 0, false);
+        this(name, description, type, required, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), -1, -1, -1, -1, false);
     }
 
     public CommandOption addChoice(CommandChoice choice) {
@@ -109,16 +109,16 @@ public record CommandOption(
             obj.put("channel_types", channelTypesJson);
         }
 
-        if (this.minValue != 0)
+        if (this.minValue != -1 && this.minValue != 0) {
             obj.put("min_value", minValue);
 
-        if (this.maxValue != 0)
+        if (this.maxValue != 0 && this.maxValue != -1)
             obj.put("max_value", maxValue);
 
-        if (this.minLength != 0)
+        if (this.minLength != 0 && this.minLength != -1)
             obj.put("min_length", minLength);
 
-        if (this.maxLength != 0)
+        if (this.maxLength != 0 && this.maxLength != -1)
             obj.put("max_length", maxLength);
 
         obj.put("autocomplete", autocomplete);

@@ -24,7 +24,13 @@ public abstract class SlashCommandListener implements CommandListener {
                 true,
                 new ArrayList<>(),
                 group.getSubCommands().keySet().stream().toList(),
-                new ArrayList<>()
+                new ArrayList<>(),
+                new ArrayList<>(),
+                -1,
+                -1,
+                -1,
+                -1,
+                false
         ));
         subCommands.putAll(group.getSubCommands());
     }
@@ -37,7 +43,13 @@ public abstract class SlashCommandListener implements CommandListener {
                 true,
                 new ArrayList<>(),
                 new ArrayList<>(),
-                subCommand.getOptions()
+                subCommand.getOptions(),
+                new ArrayList<>(),
+                -1,
+                -1,
+                -1,
+                -1,
+                false
         ));
         subCommands.put(subCommand, listener);
     }

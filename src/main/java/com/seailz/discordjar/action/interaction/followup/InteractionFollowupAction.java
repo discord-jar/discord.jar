@@ -2,6 +2,7 @@ package com.seailz.discordjar.action.interaction.followup;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.DisplayComponent;
+import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
 import com.seailz.discordjar.model.mentions.AllowedMentions;
@@ -129,6 +130,11 @@ public class InteractionFollowupAction {
 
     public InteractionFollowupAction setAllowedMentions(AllowedMentions allowedMentions) {
         this.getReply().setAllowedMentions(allowedMentions);
+        return this;
+    }
+
+    public InteractionFollowupAction addEmbed(Embeder embed) {
+        this.getReply().addEmbed(embed);
         return this;
     }
 

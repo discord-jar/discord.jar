@@ -15,6 +15,7 @@ public interface Embeder {
     Embeder url(String url);
 
     Embeder timestamp(String timestamp);
+    Embeder timestamp();
 
     Embeder field(EmbedField field);
 

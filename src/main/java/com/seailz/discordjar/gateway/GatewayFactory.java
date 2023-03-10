@@ -92,7 +92,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException, ExecutionException, InterruptedException {
         // connection closed
-        logger.info("[DISCORD.JAR] Gateway connection closed. Identifying issue...");
+        logger.info("[DISCORD.JAR] Gateway connection closed. Close code " + status.getCode() + ". Identifying issue...");
         if (this.heartbeatManager != null) heartbeatManager.deactivate();
         heartbeatManager = null;
         logger.info("[DISCORD.JAR] Heartbeat manager deactivated.");
@@ -178,8 +178,14 @@ public class GatewayFactory extends TextWebSocketHandler {
             default:
                 logger.warning(
                         "[DISCORD.JAR] Gateway connection was closed with an unknown status code. This is usually a bug, please report it on discord.jar's GitHub with this log message. Status code: "
-                                + status.getCode() + ". Reason: " + status.getReason() + ". Will not attempt reconnect."
+                                + status.getCode() + ". Reason: " + status.getReason() + ". Will attempt reconnect."
                 );
+                session.close(CloseStatus.SERVER_ERROR);
+                if (this.heartbeatManager != null) heartbeatManager.deactivate();
+                readyForMessages = false;
+                heartbeatManager = null;
+                connect();
+                this.shouldResume = false;
                 break;
         }
     }

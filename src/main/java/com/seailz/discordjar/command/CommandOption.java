@@ -2,6 +2,7 @@ package com.seailz.discordjar.command;
 
 import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.channel.utils.ChannelType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,15 +25,46 @@ public record CommandOption(
         boolean required,
         List<CommandChoice> choices,
         List<SlashSubCommand> subCommands,
-        List<CommandOption> options
+        List<CommandOption> options,
+        List<ChannelType> channelTypes,
+        int minValue,
+        int maxValue,
+        int minLength,
+        int maxLength,
+        boolean autocomplete
 ) implements Compilerable {
 
     public CommandOption(String name, String description, CommandOptionType type, boolean required) {
-        this(name, description, type, required, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this(name, description, type, required, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 0, 0, 0, 0, false);
     }
 
     public CommandOption addChoice(CommandChoice choice) {
         choices.add(choice);
+        return this;
+    }
+
+    public CommandOption setAutocomplete(boolean autocomplete) {
+        return new CommandOption(name, description, type, required, choices, subCommands, options, channelTypes, minValue, maxValue, minLength, maxLength, autocomplete);
+    }
+
+    public CommandOption setMinValue(int minValue) {
+        return new CommandOption(name, description, type, required, choices, subCommands, options, channelTypes, minValue, maxValue, minLength, maxLength, autocomplete);
+    }
+
+    public CommandOption setMaxValue(int maxValue) {
+        return new CommandOption(name, description, type, required, choices, subCommands, options, channelTypes, minValue, maxValue, minLength, maxLength, autocomplete);
+    }
+
+    public CommandOption setMinLength(int minLength) {
+        return new CommandOption(name, description, type, required, choices, subCommands, options, channelTypes, minValue, maxValue, minLength, maxLength, autocomplete);
+    }
+
+    public CommandOption setMaxLength(int maxLength) {
+        return new CommandOption(name, description, type, required, choices, subCommands, options, channelTypes, minValue, maxValue, minLength, maxLength, autocomplete);
+    }
+
+    public CommandOption addChannelType(ChannelType channelType) {
+        channelTypes.add(channelType);
         return this;
     }
 
@@ -70,6 +102,26 @@ public record CommandOption(
             options.forEach((option) -> optionsJson.put(option.compile()));
             obj.put("options", optionsJson);
         }
+
+        if (this.channelTypes != null && !this.channelTypes.isEmpty()) {
+            JSONArray channelTypesJson = new JSONArray();
+            channelTypes.forEach((channelType) -> channelTypesJson.put(channelType.getCode()));
+            obj.put("channel_types", channelTypesJson);
+        }
+
+        if (this.minValue != 0)
+            obj.put("min_value", minValue);
+
+        if (this.maxValue != 0)
+            obj.put("max_value", maxValue);
+
+        if (this.minLength != 0)
+            obj.put("min_length", minLength);
+
+        if (this.maxLength != 0)
+            obj.put("max_length", maxLength);
+
+        obj.put("autocomplete", autocomplete);
         return obj;
     }
 
@@ -80,6 +132,12 @@ public record CommandOption(
         boolean required = obj.has("required") && obj.getBoolean("required");
         List<CommandChoice> choices = new ArrayList<>();
         List<CommandOption> options = new ArrayList<>();
+        List<ChannelType> channelTypes = new ArrayList<>();
+        int minValue = obj.has("min_value") ? obj.getInt("min_value") : 0;
+        int maxValue = obj.has("max_value") ? obj.getInt("max_value") : 0;
+        int minLength = obj.has("min_length") ? obj.getInt("min_length") : 0;
+        int maxLength = obj.has("max_length") ? obj.getInt("max_length") : 0;
+        boolean autocomplete = obj.has("autocomplete") && obj.getBoolean("autocomplete");
 
         if (obj.has("choices")) {
             for (Object v : obj.getJSONArray("choices")) {
@@ -100,6 +158,12 @@ public record CommandOption(
             }
         }
 
+        if (obj.has("channel_types")) {
+            for (Object v : obj.getJSONArray("channel_types")) {
+                channelTypes.add(ChannelType.fromCode((int) v));
+            }
+        }
+
 
 
         return new CommandOption(
@@ -109,7 +173,13 @@ public record CommandOption(
                 required,
                 choices,
                 subCommands,
-                options
+                options,
+                channelTypes,
+                minValue,
+                maxValue,
+                minLength,
+                maxLength,
+                autocomplete
         );
     }
 }

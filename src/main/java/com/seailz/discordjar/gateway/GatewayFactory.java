@@ -165,7 +165,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             case 1001:
                 logger.info("[discord.jar] Gateway requested a reconnect (close code 1001), reconnecting...");
                 session.close(CloseStatus.SERVER_ERROR);
-                heartbeatManager.deactivate();
+                if (this.heartbeatManager != null) heartbeatManager.deactivate();
                 readyForMessages = false;
                 heartbeatManager = null;
                 connect();

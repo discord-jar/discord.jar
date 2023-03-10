@@ -124,6 +124,12 @@ public class EmbederImpl implements Embeder {
     }
 
     @Override
+    public Embeder color(int color) {
+        this.color = color;
+        return this;
+    }
+
+    @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
         obj.put("title", title);

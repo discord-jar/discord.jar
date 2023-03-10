@@ -21,6 +21,7 @@ public interface Embeder {
     Embeder field(String name, String value, boolean inline);
 
     Embeder color(Color color);
+    Embeder color(int color);
 
     Embeder footer(EmbedFooter footer);
 

@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.channel;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.audio.VideoQualityMode;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.internal.VoiceChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;

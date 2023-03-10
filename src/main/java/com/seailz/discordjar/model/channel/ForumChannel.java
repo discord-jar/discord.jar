@@ -33,7 +33,7 @@ import java.util.List;
  * @since  1.0
  * @see    GuildChannel
  */
-public interface ForumChannel extends GuildChannel, Typeable {
+public interface ForumChannel extends GuildChannel {
 
     /**
      * The topic of the channel.

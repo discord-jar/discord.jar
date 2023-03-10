@@ -2,6 +2,8 @@ package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
+import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.AudioChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
@@ -18,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Represents an audio channel.
  */
-public interface AudioChannel extends GuildChannel, CategoryMember, Typeable {
+public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Messageable, MessageRetrievable {
     /**
      * Returns the ID of the last {@link Message} sent in the text section
      * <br>of the voice channel.

@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
 import com.seailz.discordjar.model.channel.interfaces.Messageable;
+import com.seailz.discordjar.model.channel.interfaces.Transcriptable;
 import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.MessagingChannelImpl;
 import com.seailz.discordjar.model.channel.transcript.TranscriptFormatter;
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
  * @since  1.0
  * @see    GuildChannel
  */
-public interface MessagingChannel extends GuildChannel, CategoryMember, Typeable, Messageable, MessageRetrievable {
+public interface MessagingChannel extends GuildChannel, CategoryMember, Typeable, Messageable, MessageRetrievable, Transcriptable {
 
     /**
      * Amount of seconds a user has to wait before sending another message

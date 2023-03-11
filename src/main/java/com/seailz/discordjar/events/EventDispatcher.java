@@ -43,29 +43,32 @@ public class EventDispatcher {
     /**
      * Dispatches an event to all registered listeners.
      * This method is called by the {@link DiscordJar} class & other internal classes and should not be called by the end user.
+     * This method is called in a new thread so the bot can handle multiple events at once.
      *
      * @param event The event to dispatch
      * @since 1.0
      */
     public void dispatchEvent(Event event, Class<? extends Event> type, DiscordJar djv) {
-        if (event instanceof MessageCreateEvent) {
-            if (((MessageCreateEvent) event).getMessage().author().id().equals(djv.getSelfUser().id()))
-                return;
-        }
+        new Thread(() -> {
+            if (event instanceof MessageCreateEvent) {
+                if (((MessageCreateEvent) event).getMessage().author().id().equals(djv.getSelfUser().id()))
+                    return;
+            }
 
-        int index = 0;
-        for (Method i : listeners.values()) {
-            if (i.isAnnotationPresent(EventMethod.class)) {
-                if (i.getParameterTypes()[0].equals(type)) {
-                    try {
-                        i.setAccessible(true);
-                        i.invoke(listeners.keySet().toArray()[index], event);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            int index = 0;
+            for (Method i : listeners.values()) {
+                if (i.isAnnotationPresent(EventMethod.class)) {
+                    if (i.getParameterTypes()[0].equals(type)) {
+                        try {
+                            i.setAccessible(true);
+                            i.invoke(listeners.keySet().toArray()[index], event);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
+                index++;
             }
-            index++;
-        }
+        }, "EventDispatcher").start();
     }
 }

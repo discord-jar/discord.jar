@@ -115,7 +115,7 @@ public class DiscordJar {
     private List<Bucket> buckets;
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null);
+        this(token, intents, version, false, null, false);
     }
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
@@ -123,11 +123,15 @@ public class DiscordJar {
     }
 
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false);
     }
 
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, intents, version, httpOnly, httpOnlyInfo, false);
+    public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
+    }
+
+    public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
     }
 
         /**

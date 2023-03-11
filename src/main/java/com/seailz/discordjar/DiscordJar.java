@@ -234,6 +234,36 @@ public class DiscordJar {
         return gatewayFactory;
     }
 
+    /**
+     * Kills the gateway connection and destroys the {@link GatewayFactory} instance.
+     * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
+     */
+    public void killGateway() {
+        try {
+            gatewayFactory.killConnection();
+        } catch (IOException e) {}
+        gatewayFactory = null;
+        // init garbage collection to avoid memory leaks
+        System.gc();
+    }
+
+    /**
+     * Restarts the gateway connection and creates a new {@link GatewayFactory} instance.
+     * This will invalidate and destroy the old {@link GatewayFactory} instance.
+     * This method will also initiate garbage collection to avoid memory leaks.
+     *
+     * @see GatewayFactory
+     * @see #killGateway()
+     */
+    public void restartGateway() {
+        killGateway();
+        try {
+            gatewayFactory = new GatewayFactory(this, debug);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected void initiateShutdownHooks() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

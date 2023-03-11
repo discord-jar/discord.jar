@@ -102,12 +102,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         switch (status.getCode()) {
             case 1012:
-                session.close(CloseStatus.SERVER_ERROR);
-                if (this.heartbeatManager != null) heartbeatManager.deactivate();
-                readyForMessages = false;
-                heartbeatManager = null;
-                connect();
-                this.shouldResume = false;
+                reconnect();
                 break;
             case 1011:
                 break;
@@ -169,12 +164,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case 1001:
                 logger.info("[discord.jar] Gateway requested a reconnect (close code 1001), reconnecting...");
-                session.close(CloseStatus.SERVER_ERROR);
-                if (this.heartbeatManager != null) heartbeatManager.deactivate();
-                readyForMessages = false;
-                heartbeatManager = null;
-                connect();
-                this.shouldResume = false;
+                reconnect();
                 break;
             case 1006:
                 logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
@@ -185,12 +175,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                         "[DISCORD.JAR] Gateway connection was closed with an unknown status code. This is usually a bug, please report it on discord.jar's GitHub with this log message. Status code: "
                                 + status.getCode() + ". Reason: " + status.getReason() + ". Will attempt reconnect."
                 );
-                session.close(CloseStatus.SERVER_ERROR);
-                if (this.heartbeatManager != null) heartbeatManager.deactivate();
-                readyForMessages = false;
-                heartbeatManager = null;
-                connect();
-                this.shouldResume = false;
+                reconnect();
                 break;
         }
     }
@@ -257,12 +242,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case INVALID_SESSION:
                 logger.info("[discord.jar] Gateway requested a reconnect (invalid session), reconnecting...");
-                session.close(CloseStatus.SERVER_ERROR);
-                heartbeatManager.deactivate();
-                readyForMessages = false;
-                heartbeatManager = null;
-                connect();
-                this.shouldResume = payload.getBoolean("d");
+                reconnect();
                 break;
             case HEARTBEAT_ACK:
                 // Heartbeat was acknowledged, can ignore.
@@ -332,18 +312,21 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    public void reconnect() throws IOException, ExecutionException, InterruptedException {
+    public void reconnect() throws IOException {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Attempting resume...");
         }
         if (session.isOpen())
-            session.close(CloseStatus.SERVICE_RESTARTED);
+            session.close(CloseStatus.SERVER_ERROR);
 
         if (this.heartbeatManager != null) this.heartbeatManager.deactivate();
         this.heartbeatManager = null;
         readyForMessages = false;
 
-        JSONObject resumePayload = new JSONObject();
+        // Invalidate this class
+        this.discordJar.restartGateway();
+
+        /*JSONObject resumePayload = new JSONObject();
         resumePayload.put("op", 6);
         JSONObject resumeData = new JSONObject();
         resumeData.put("token", discordJar.getToken());
@@ -351,7 +334,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         resumeData.put("seq", sequence);
         resumePayload.put("d", resumeData);
         shouldResume = true;
-        connect(resumeUrl);
+        connect(resumeUrl); */
     }
 
     private void handleHello(JSONObject payload) {

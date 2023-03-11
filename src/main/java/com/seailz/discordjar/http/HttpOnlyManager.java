@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,6 +45,7 @@ public class HttpOnlyManager {
     }
 
     @PostMapping("/*")
+    @GetMapping("/*")
     public ResponseEntity<String> get(HttpServletRequest request) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, DecoderException {
         String path = request.getRequestURI();
         if (!path.endsWith(endpoint)) {

@@ -301,7 +301,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public void killConnection() throws IOException {
         // disable heartbeat
-        heartbeatManager.deactivate();
+        if (this.heartbeatManager != null) heartbeatManager.deactivate();
         heartbeatManager = null;
         readyForMessages = false;
         // close connection

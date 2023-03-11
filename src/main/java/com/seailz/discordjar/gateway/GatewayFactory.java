@@ -10,6 +10,7 @@ import com.seailz.discordjar.gateway.heartbeat.HeartbeatManager;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -51,6 +52,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private WebSocketClient client;
     public static int sequence;
 
+    private Status status;
     private final String gatewayUrl;
     private String sessionId;
     private String resumeUrl;
@@ -178,6 +180,14 @@ public class GatewayFactory extends TextWebSocketHandler {
                 reconnect();
                 break;
         }
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public void queueMessage(JSONObject payload) {

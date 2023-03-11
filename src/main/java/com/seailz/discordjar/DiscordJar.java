@@ -242,13 +242,15 @@ public class DiscordJar {
      * Kills the gateway connection and destroys the {@link GatewayFactory} instance.
      * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
      */
-    public void killGateway() {
+    public Status killGateway() {
+        Status status = gatewayFactory.getStatus();
         try {
             gatewayFactory.killConnection();
         } catch (IOException e) {}
         gatewayFactory = null;
         // init garbage collection to avoid memory leaks
         System.gc();
+        return status;
     }
 
     /**
@@ -259,13 +261,14 @@ public class DiscordJar {
      * @see GatewayFactory
      * @see #killGateway()
      */
-    public void restartGateway() {
-        killGateway();
+    public void restartGateway() throws IOException {
+        Status stat = killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        if (stat != null) setStatus(stat);
     }
 
     protected void initiateShutdownHooks() {
@@ -321,15 +324,15 @@ public class DiscordJar {
      * Sets the bot's status
      *
      * @param status The status to set
-     * @throws IOException If an error occurs while setting the status
      */
-    public void setStatus(@NotNull Status status) throws IOException {
+    public void setStatus(@NotNull Status status) {
         if (gatewayFactory == null)
             throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
         gatewayFactory.queueMessage(json);
+        gatewayFactory.setStatus(status);
     }
 
     /**

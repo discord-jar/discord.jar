@@ -57,7 +57,7 @@ To make your bot an <a href="https://discord.com/developers/docs/topics/gateway#
 you'll need to specify a couple more parameters.
 
 ```java
-new DiscordJar("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES), APIVersion.getLatest(), true,
+new DiscordJar("token", true,
         new HTTPOnlyInfo(
         "interactions",
         "EXAMPLE_APPLICATION_PUBLIC_KEY" // this cxan be found in your application's page in the dev panel

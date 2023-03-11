@@ -261,7 +261,7 @@ public class DiscordJar {
      * @see GatewayFactory
      * @see #killGateway()
      */
-    public void restartGateway() throws IOException {
+    public void restartGateway() {
         Status stat = killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug);

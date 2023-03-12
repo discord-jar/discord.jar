@@ -82,7 +82,7 @@ public class CreateGuildChannelAction {
         CompletableFuture<GuildChannel> future = new CompletableFuture<>();
         future.completeAsync(() -> {
             try {
-                DiscordResponse res =
+                return GuildChannel.decompile(
                         new DiscordRequest(
                                 new JSONObject()
                                         .put("name", name)
@@ -96,10 +96,7 @@ public class CreateGuildChannelAction {
                                 discordJar,
                                 URLS.POST.GUILDS.CHANNELS.CREATE,
                                 RequestMethod.POST
-                        ).invoke();
-
-                return GuildChannel.decompile(
-                        res.body(),
+                        ).invoke().body(),
                         discordJar
                 );
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {

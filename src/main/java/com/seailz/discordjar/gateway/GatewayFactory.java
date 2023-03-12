@@ -299,7 +299,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public void killConnectionNicely() throws IOException {
         // disable heartbeat
-        heartbeatManager.deactivate();
+        if (heartbeatManager != null) heartbeatManager.deactivate();
         heartbeatManager = null;
         readyForMessages = false;
         // close connection

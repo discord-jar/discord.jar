@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,7 +39,7 @@ public interface Transcriptable extends MessageRetrievable {
      * Original author: https://github.com/Ryzeon
      * <br>Modified for use in discord.jar by Seailz
      */
-    default InputStream transcript() throws IOException {
+    default InputStream transcript() throws IOException, DiscordRequest.UnhandledDiscordAPIErrorException {
         List<String>
                 imageFormats = Arrays.asList("png", "jpg", "jpeg", "gif"),
                 videoFormats = Arrays.asList("mp4", "webm", "mkv", "avi", "mov", "flv", "wmv", "mpg", "mpeg"),

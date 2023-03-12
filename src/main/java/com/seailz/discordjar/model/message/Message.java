@@ -305,12 +305,16 @@ public record Message(
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
         }
 
         try {
             thread = Thread.decompile(obj.getJSONObject("thread"), discordJar);
         } catch (JSONException e) {
             thread = null;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
         }
 
         return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, discordJar);
@@ -402,7 +406,7 @@ public record Message(
                 .put("components", componentsArray);
     }
 
-    public void delete() {
+    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
                 .replace("{channel.id}", channelId).replace("{message.id}", id),
                 discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();

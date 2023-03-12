@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -63,7 +66,11 @@ public class DiscordRequest {
                 double currentEpoch = Instant.now().toEpochMilli() * 10;
                 if (currentEpoch > resetAfter) {
                     djv.removeBucket(bucket);
-                    invoke();
+                    try {
+                        invoke();
+                    } catch (UnhandledDiscordAPIErrorException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 }
             }
@@ -213,27 +220,24 @@ public class DiscordRequest {
                     responseCode,
                     "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
             );
-        } catch (UnhandledDiscordAPIErrorException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException | IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
-    public DiscordResponse invoke(JSONObject body) {
+    public DiscordResponse invoke(JSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
 
-    public DiscordResponse invokeNoAuth(JSONObject body) {
+    public DiscordResponse invokeNoAuth(JSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, false);
     }
 
-    public DiscordResponse invokeNoAuthCustomContent(String contentType) {
+    public DiscordResponse invokeNoAuthCustomContent(String contentType) throws UnhandledDiscordAPIErrorException {
         return invoke(contentType, false);
     }
 
-    public DiscordResponse invoke(JSONArray arr) {
+    public DiscordResponse invoke(JSONArray arr) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
 
@@ -348,12 +352,16 @@ public class DiscordRequest {
 
             errorArray.forEach(o -> {
                 JSONObject errorObject = (JSONObject) o;
-                throw new DiscordAPIErrorException(
-                        responseCode,
-                        errorObject.getString("code"),
-                        errorObject.getString("message"),
-                        error.toString()
-                );
+                try {
+                    throw new DiscordAPIErrorException(
+                            responseCode,
+                            errorObject.getString("code"),
+                            errorObject.getString("message"),
+                            error.toString()
+                    );
+                } catch (DiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -362,13 +370,13 @@ public class DiscordRequest {
     }
 
 
-    public static class DiscordAPIErrorException extends RuntimeException {
+    public static class DiscordAPIErrorException extends Exception {
         public DiscordAPIErrorException(int code, String errorCode, String error, String body) {
             super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + errorCode + " " + error + " " + body);
         }
     }
 
-    public static class UnhandledDiscordAPIErrorException extends RuntimeException {
+    public static class UnhandledDiscordAPIErrorException extends Exception {
         public UnhandledDiscordAPIErrorException(int code, String error) {
             super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
         }

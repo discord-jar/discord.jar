@@ -13,6 +13,7 @@ import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -138,7 +139,7 @@ public interface Thread extends GuildChannel, Typeable {
      */
     @NotNull
     @Contract("_, _ -> new")
-    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");

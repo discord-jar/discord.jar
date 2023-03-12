@@ -3,6 +3,7 @@ package com.seailz.discordjar.events.model.guild.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -25,7 +26,7 @@ public class GuildMemberUpdateEvent extends GuildEvent {
      * field you need isn't included, try using {@link #getMemberFresh()} instead. That will take more time, but will get the most up-to-date information.
      * @return Partial {@link Member} object
      */
-    public Member getUpdatedMember() {
+    public Member getUpdatedMember() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Member.decompile(getJson().getJSONObject("d"), getBot(), getJson().getJSONObject("d").getString("guild_id"),
                 getGuild());
     }
@@ -34,7 +35,7 @@ public class GuildMemberUpdateEvent extends GuildEvent {
      * Returns the updated member fresh from the API.
      * @return Updated {@link Member} object
      */
-    public Member getMemberFresh() {
+    public Member getMemberFresh() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getGuild().getMemberById(getJson().getJSONObject("d").getJSONObject("user").getString("id"));
     }
 }

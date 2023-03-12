@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.annotation.EventMethod;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -51,8 +52,12 @@ public class EventDispatcher {
     public void dispatchEvent(Event event, Class<? extends Event> type, DiscordJar djv) {
         new Thread(() -> {
             if (event instanceof MessageCreateEvent) {
-                if (((MessageCreateEvent) event).getMessage().author().id().equals(djv.getSelfUser().id()))
-                    return;
+                try {
+                    if (((MessageCreateEvent) event).getMessage().author().id().equals(djv.getSelfUser().id()))
+                        return;
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             int index = 0;

@@ -9,6 +9,7 @@ import com.seailz.discordjar.model.channel.internal.ForumChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -86,7 +87,7 @@ public interface ForumChannel extends GuildChannel {
         return obj;
     }
 
-    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

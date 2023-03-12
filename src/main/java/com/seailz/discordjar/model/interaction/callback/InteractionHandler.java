@@ -5,6 +5,7 @@ import com.seailz.discordjar.action.interaction.EditInteractionMessageAction;
 import com.seailz.discordjar.action.interaction.followup.InteractionFollowupAction;
 import com.seailz.discordjar.model.interaction.callback.internal.InteractionHandlerImpl;
 import com.seailz.discordjar.model.message.Message;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 
 /**
  * Class for handling interactions.
@@ -13,29 +14,29 @@ public interface InteractionHandler {
 
     InteractionFollowupAction followup(String content);
 
-    Message getOriginalResponse();
+    Message getOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException;
     // TODO: editing
 
-    void deleteOriginalResponse();
+    void deleteOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
-    Message getFollowup(String id);
+    Message getFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
-    void deleteFollowup(String id);
+    void deleteFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
-    EditInteractionMessageAction editOriginalResponse();
+    EditInteractionMessageAction editOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
-    EditInteractionMessageAction editFollowup(String id);
+    EditInteractionMessageAction editFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
-    void defer(boolean ephemeral);
+    void defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
-    default void defer() {
+    default void defer() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         defer(false);
     }
 
     /**
      * Only valid for component-based interactions.
      */
-    void deferEdit();
+    void deferEdit() throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
 
     String getToken();

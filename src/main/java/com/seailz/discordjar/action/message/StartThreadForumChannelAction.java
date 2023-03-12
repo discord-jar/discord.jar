@@ -137,9 +137,14 @@ public class StartThreadForumChannelAction {
                     URLS.POST.MESSAGES.START_THREAD_FORUM,
                     RequestMethod.POST
             );
-            return Thread.decompile(
-                    request.invoke().body(), djar
-            );
+            try {
+                return Thread.decompile(
+                        request.invoke().body(), djar
+                );
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                future.completeExceptionally(e);
+                return null;
+            }
         });
         return future;
     }

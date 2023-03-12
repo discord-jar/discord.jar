@@ -161,7 +161,11 @@ public enum DispatchedEvents {
 
         JSONArray members = payload.getJSONArray("members");
         members.forEach(member -> {
-            wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+            try {
+                wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         int chunkCount = payload.getInt("chunk_count") - 1;

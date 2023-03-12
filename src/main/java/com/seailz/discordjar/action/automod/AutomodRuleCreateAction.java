@@ -183,7 +183,11 @@ public class AutomodRuleCreateAction {
                     RequestMethod.POST
             );
 
-            return AutomodRule.decompile(request.invoke().body(), discordJar);
+            try {
+                return AutomodRule.decompile(request.invoke().body(), discordJar);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
         });
         Checker.notNull(name, "name");
         Checker.notNull(eventType, "eventType");

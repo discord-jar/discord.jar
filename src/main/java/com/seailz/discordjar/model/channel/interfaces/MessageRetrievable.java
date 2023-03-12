@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface MessageRetrievable extends Channel {
 
-    default List<Message> messagesBefore(String before) {
+    default List<Message> messagesBefore(String before) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -29,7 +29,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messagesBefore(String before, int limit) {
+    default List<Message> messagesBefore(String before, int limit) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
@@ -44,7 +44,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messagesAfter(String after, int limit) {
+    default List<Message> messagesAfter(String after, int limit) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
@@ -59,7 +59,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messagesAfter(String after) {
+    default List<Message> messagesAfter(String after) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -73,7 +73,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messagesAround(String around) {
+    default List<Message> messagesAround(String around) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -87,7 +87,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messagesAround(String around, int limit) {
+    default List<Message> messagesAround(String around, int limit) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
@@ -102,7 +102,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messages(int limit) {
+    default List<Message> messages(int limit) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
@@ -117,7 +117,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default List<Message> messages() {
+    default List<Message> messages() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -136,7 +136,7 @@ public interface MessageRetrievable extends Channel {
      *
      * @return
      */
-    default List<Message> get500Messages() {
+    default List<Message> get500Messages() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<Message> messages = new ArrayList<>();
         String lastMessageId = null;
         for (Message m : messages(100)) {
@@ -154,7 +154,7 @@ public interface MessageRetrievable extends Channel {
         return messages;
     }
 
-    default Message getMessageById(String id) {
+    default Message getMessageById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

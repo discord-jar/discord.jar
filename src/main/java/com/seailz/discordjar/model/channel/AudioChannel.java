@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,7 +36,7 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
      */
     int bitrate();
 
-    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

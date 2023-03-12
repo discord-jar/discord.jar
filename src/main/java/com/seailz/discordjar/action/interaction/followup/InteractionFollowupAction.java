@@ -142,7 +142,7 @@ public class InteractionFollowupAction {
         return reply;
     }
 
-    public InteractionHandler run() {
+    public InteractionHandler run() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 getReply().compile(),
                 new HashMap<>(),

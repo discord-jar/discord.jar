@@ -16,7 +16,7 @@ public interface Typeable extends Channel {
     /**
      * Triggers a typing indicator for the channel.
      */
-    default void typing() {
+    default void typing() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

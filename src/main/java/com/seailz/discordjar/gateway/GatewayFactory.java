@@ -62,7 +62,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
         this.discordJar = discordJar;
         this.debug = debug;
         DiscordResponse response = new DiscordRequest(
@@ -260,7 +260,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);

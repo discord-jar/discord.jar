@@ -78,7 +78,7 @@ public class GetCurrentUserGuildsAction {
      *
      * @return {@link List A list of}  <b>partial</b> {@link Guild guilds}
      */
-    public List<Guild> run() {
+    public List<Guild> run() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String url = URLS.GET.GUILDS.GET_CURRENT_USER_GUILDS;
         if (before != null || after != null || limit != 0) {
             url += "?";

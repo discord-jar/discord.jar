@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.interaction.data.message.MessageComponentInte
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -52,7 +53,7 @@ public class UserSelectMenuInteractionEvent extends InteractionEvent {
      * @return A list of {@link User} objects containing the selected users.
      * @throws IllegalStateException if the event was not fied in a {@link com.seailz.discordjar.model.guild.Guild Guild}.
      */
-    public List<User> getSelectedUsers() {
+    public List<User> getSelectedUsers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<User> returnList = new ArrayList<>();
         for (String s : getInteractionData().snowflakes()) {
             returnList.add(getBot().getUserById(s));

@@ -210,6 +210,20 @@ public class DiscordJar {
 
         initiateNoShutdown();
         initiateShutdownHooks();
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if (gatewayFactory == null || !gatewayFactory.getSession().isOpen()) {
+                    restartGateway();
+                }
+            }
+        });
     }
 
     public DiscordJar(String token) throws ExecutionException, InterruptedException {

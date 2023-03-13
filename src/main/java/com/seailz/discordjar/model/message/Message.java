@@ -434,5 +434,34 @@ public record Message(
         return formatted;
     }
 
+    /**
+     * Pins the message within the channel.
+     * Note that the maximum pinned messages per channel is 50.
+     */
+    public void pin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                discordJar,
+                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    /**
+     * Unpins the message within the channel.
+     */
+    public void unpin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                discordJar,
+                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
 }
 

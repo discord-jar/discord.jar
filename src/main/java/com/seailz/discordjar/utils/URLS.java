@@ -329,6 +329,9 @@ public final class URLS {
         }
 
         public static class CHANNEL {
+            public static class PINS {
+                public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
+            }
             public static class MESSAGE {
                 public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
@@ -424,6 +427,13 @@ public final class URLS {
                      */
                     public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
                 }
+            }
+        }
+
+
+        public static class CHANNELS {
+            public static class PINS {
+                public static String PIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }
         }
     }

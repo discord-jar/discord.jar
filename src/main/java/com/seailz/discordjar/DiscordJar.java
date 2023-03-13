@@ -223,7 +223,7 @@ public class DiscordJar {
                     restartGateway();
                 }
             }
-        });
+        }).start();
     }
 
     public DiscordJar(String token) throws ExecutionException, InterruptedException {

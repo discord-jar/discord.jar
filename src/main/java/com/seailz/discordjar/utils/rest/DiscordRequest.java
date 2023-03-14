@@ -315,6 +315,8 @@ public class DiscordRequest {
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
+            System.out.println(response.body());
+
             if (responseCode == 200 || responseCode == 201) {
 
                 var bodyResponse = new Object();

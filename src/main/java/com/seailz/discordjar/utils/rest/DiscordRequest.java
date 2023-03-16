@@ -221,7 +221,16 @@ public class DiscordRequest {
                     "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
             );
         } catch (InterruptedException | IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+            // attempt gateway reconnect
+            throw new DiscordUnexpectedError(e);
+        }
+    }
+
+    public class DiscordUnexpectedError extends RuntimeException {
+        public DiscordUnexpectedError(Throwable throwable) {
+            super(throwable);
+            // attempt gateway reconnect
+            djv.restartGateway();
         }
     }
 

@@ -263,10 +263,10 @@ public class DiscordJar {
      * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
      */
     public Status killGateway() {
-        Status status = gatewayFactory.getStatus();
+        Status status = gatewayFactory == null ? null : gatewayFactory.getStatus();
         try {
-            gatewayFactory.killConnection();
-        } catch (IOException e) {}
+            if (gatewayFactory != null) gatewayFactory.killConnection();
+        } catch (IOException ignored) {}
         gatewayFactory = null;
         // init garbage collection to avoid memory leaks
         System.gc();

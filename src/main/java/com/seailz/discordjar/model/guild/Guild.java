@@ -658,21 +658,24 @@ public record Guild(
     }
 
     public Member getMemberById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
+                        "{guild.id}",
+                        this.id
+                ).replace(
+                        "{user.id}",
+                        id
+                ),
+                discordJar,
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                RequestMethod.GET
+        ).invoke();
+
+        if (req.body() == null) return null;
         return Member.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                                "{guild.id}",
-                                this.id
-                        ).replace(
-                                "{user.id}",
-                                id
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                        RequestMethod.GET
-                ).invoke().body(),
+                req.body(),
                 discordJar,
                 this.id,
                 this

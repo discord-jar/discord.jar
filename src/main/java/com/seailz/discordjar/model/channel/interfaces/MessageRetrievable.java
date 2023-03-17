@@ -6,6 +6,7 @@ import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -113,7 +114,10 @@ public interface MessageRetrievable extends Channel {
                 RequestMethod.GET
         );
         List<Message> messages = new ArrayList<>();
-        request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
+        JSONArray arr = request.invoke().arr();
+        if (arr == null) return messages;
+
+        arr.forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         return messages;
     }
 

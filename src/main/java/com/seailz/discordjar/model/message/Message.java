@@ -426,11 +426,15 @@ public record Message(
     public String getFormattedText() {
         String formatted = content;
 
-        for (User user : mentions)
-            formatted = formatted.replaceAll("<@" + user.id() + ">", "@" + user.username());
+        if (mentions != null) {
+            for (User user : mentions)
+                formatted = formatted.replaceAll("<@" + user.id() + ">", "@" + user.username());
+        }
 
-        for (Role role : mentionRoles)
-            formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
+        if (mentionRoles != null) {
+            for (Role role : mentionRoles)
+                formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
+        }
         return formatted;
     }
 

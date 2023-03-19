@@ -341,6 +341,10 @@ public final class URLS {
              * @param id The id of the channel
              */
             public static String DELETE_CHANNEL = "/channels/{channel.id}";
+
+            public static class THREAD_MEMBERS {
+                public static String REMOVE_THREAD_MEMBER = "/channels/{channel.id}/thread-members/{user.id}";
+            }
         }
 
         public static class INVITE {

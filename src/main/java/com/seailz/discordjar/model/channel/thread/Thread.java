@@ -11,15 +11,20 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -184,6 +189,27 @@ public interface Thread extends GuildChannel, Typeable {
 
     default MessageCreateAction sendAttachments(Attachment... attachments) {
         return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
+    }
+
+    default void removeMember(String userId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER
+                        .replace("{channel.id}", id())
+                        .replace("{user.id}", userId),
+                discordJv(),
+                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+    default void removeMember(User user) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        removeMember(user.id());
+    }
+
+    default void removeMember(Member member) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        removeMember(member.user().id());
     }
 
 }

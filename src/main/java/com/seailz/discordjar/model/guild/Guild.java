@@ -926,14 +926,19 @@ public record Guild(
      * <b>This action is irreversible!</b>
      */
     public void delete() throws IllegalAccessException {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.DELETE_GUILD.replace("{guild.id}", id),
-                discordJar,
-                URLS.DELETE.GUILD.DELETE_GUILD,
-                RequestMethod.DELETE
-        ).invoke();
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.DELETE_GUILD.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.DELETE.GUILD.DELETE_GUILD,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
         if (response.code() == 401) throw new IllegalAccessException("(Received 401) Application is not authorized to delete the guild. Make sure the application owns the guild before doing this.");
     }
 
@@ -943,14 +948,18 @@ public record Guild(
      * @param role The role to delete.
      */
     public void deleteRole(Role role) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.ROLES.replace("{guild.id}", id).replace("{role.id}", role.id()),
-                discordJar,
-                URLS.DELETE.GUILD.ROLES,
-                RequestMethod.DELETE
-        ).invoke();
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.ROLES.replace("{guild.id}", id).replace("{role.id}", role.id()),
+                    discordJar,
+                    URLS.DELETE.GUILD.ROLES,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -992,14 +1001,19 @@ public record Guild(
      * @return Current guild bans
      */
     public List<GuildBan> getBans() {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.BANS.replace("{guild.id}", id),
-                discordJar,
-                URLS.GET.GUILDS.BANS,
-                RequestMethod.GET
-        ).invoke();
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.BANS.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.BANS,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
 
         List<GuildBan> bans = new ArrayList<>();
         response.arr().forEach((object) -> {
@@ -1015,14 +1029,19 @@ public record Guild(
      * @return The ban on the user, if applicable
      */
     public GuildBan getBan(String userId) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", userId),
-                discordJar,
-                URLS.GET.GUILDS.USER_BAN,
-                RequestMethod.GET
-        ).invoke();
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", userId),
+                    discordJar,
+                    URLS.GET.GUILDS.USER_BAN,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
         return GuildBan.decompile(response.body(), discordJar);
     }
 
@@ -1032,14 +1051,19 @@ public record Guild(
      * @return The ban on the user, if applicable
      */
     public GuildBan getBan(long userId) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
-                discordJar,
-                URLS.GET.GUILDS.USER_BAN,
-                RequestMethod.GET
-        ).invoke();
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
+                    discordJar,
+                    URLS.GET.GUILDS.USER_BAN,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
         return GuildBan.decompile(response.body(), discordJar);
     }
 
@@ -1048,14 +1072,18 @@ public record Guild(
      * @param userId The id of the user to ban
      */
     public void banUser(String userId) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
-                discordJar,
-                URLS.PUT.GUILD.BAN_USER,
-                RequestMethod.PUT
-        ).invoke();
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
+                    discordJar,
+                    URLS.PUT.GUILD.BAN_USER,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1063,14 +1091,18 @@ public record Guild(
      * @param userId The id of the user to ban
      */
     public void banUser(long userId) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
-                discordJar,
-                URLS.PUT.GUILD.BAN_USER,
-                RequestMethod.PUT
-        ).invoke();
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
+                    discordJar,
+                    URLS.PUT.GUILD.BAN_USER,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1078,14 +1110,18 @@ public record Guild(
      * @param userId The id of the user to unban
      */
     public void unbanUser(String userId) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
-                discordJar,
-                URLS.PUT.GUILD.BAN_USER,
-                RequestMethod.PUT
-        ).invoke();
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
+                    discordJar,
+                    URLS.PUT.GUILD.BAN_USER,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1093,19 +1129,27 @@ public record Guild(
      * @param userId The id of the user to unban
      */
     public void unbanUser(long userId) {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
-                discordJar,
-                URLS.PUT.GUILD.BAN_USER,
-                RequestMethod.DELETE
-        ).invoke();
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
+                    discordJar,
+                    URLS.PUT.GUILD.BAN_USER,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private GuildChannel getChannelById(String channelId) {
-        for (GuildChannel c:getChannels()) {
-            if (c.id().equals(channelId)) return c;
+        try {
+            for (GuildChannel c:getChannels()) {
+                if (c.id().equals(channelId)) return c;
+            }
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
@@ -1123,7 +1167,11 @@ public record Guild(
     }
 
     public VoiceChannel getVoiceChannelById(String channelId) {
-        return VoiceChannel.decompile(getChannelById(channelId).compile(), discordJar);
+        try {
+            return VoiceChannel.decompile(getChannelById(channelId).compile(), discordJar);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1142,11 +1190,9 @@ public record Guild(
      * @return The number of members that would be pruned in the prune operation.
      */
     public int getPruneCount(int days) {
-        if (Checker.inRange(1, 30, days, () -> {
-            Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!");
-        })) return 0;
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!"))) return 0;
 
-        DiscordResponse response = new DiscordRequest(
+        DiscordRequest req = new DiscordRequest(
                 new JSONObject()
                         .put("days", days),
                 new HashMap<>(),
@@ -1154,8 +1200,36 @@ public record Guild(
                 discordJar,
                 URLS.GET.GUILDS.PRUNE,
                 RequestMethod.GET
-        ).invoke();
-        return response.body().getInt("pruned");
+        );
+        try {
+            return req.invoke().body().getInt("pruned");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     * @return The amount of pruned users
+     */
+    public int prune(int days) {
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside 1-30!"))) return 0;
+
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject()
+                            .put("days", days),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.PRUNE.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.POST.GUILDS.PRUNE,
+                    RequestMethod.POST
+            ).invoke();
+            return response.body().getInt("pruned");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1165,9 +1239,49 @@ public record Guild(
      * @return The number of members that would be pruned in the prune operation.
      */
     public int getPruneCount(int days, List<Role> includedRoles) {
-        if (Checker.inRange(1, 30, days, () -> {
-            Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!");
-        })) return 0;
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!"))) return 0;
+
+        StringBuilder commaDelimitedSnowflakesString = new StringBuilder("[");
+        if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
+        else {
+            for (Role r : includedRoles) {
+                commaDelimitedSnowflakesString.append(r.id());
+                commaDelimitedSnowflakesString.append(",");
+            }
+        }
+        commaDelimitedSnowflakesString.append("]");
+
+        JSONArray snowflakes = new JSONArray();
+        roles.forEach(r -> snowflakes.put(r.id()));
+
+        System.out.println(new JSONObject()
+                .put("days", days)
+                .put("include_roles", commaDelimitedSnowflakesString).toString());
+        System.out.println(snowflakes);
+
+        try {
+            DiscordResponse req = new DiscordRequest(
+                    new JSONObject()
+                            .put("days", days)
+                            .put("include_roles", commaDelimitedSnowflakesString),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.PRUNE,
+                    RequestMethod.GET
+            ).invoke();
+            return req.body().getInt("pruned");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     */
+    public void prune(int days, List<Role> includedRoles) {
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside 1-30!"))) return;
 
         StringBuilder commaDelimitedSnowflakesString = new StringBuilder();
         if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
@@ -1178,24 +1292,19 @@ public record Guild(
             }
         }
 
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject()
-                        .put("days", days)
-                        .put("include_roles", commaDelimitedSnowflakesString),
-                new HashMap<>(),
-                URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
-                discordJar,
-                URLS.GET.GUILDS.PRUNE,
-                RequestMethod.GET
-        ).invoke();
-        return response.body().getInt("pruned");
-    }
-
-    /**
-     * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
-     * @param days The amount of days to check users against, from 1-30.
-     */
-    public void prune(int days) {
-        // FIXME: 3/9/23
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject()
+                            .put("days", days)
+                            .put("include_roles", commaDelimitedSnowflakesString),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.PRUNE.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.POST.GUILDS.PRUNE,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

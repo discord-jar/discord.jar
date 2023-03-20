@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.interaction.InteractionData;
 import com.seailz.discordjar.model.interaction.data.ResolvedData;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -43,7 +44,7 @@ public class ApplicationCommandInteractionData extends InteractionData implement
         this.targetId = targetId;
     }
 
-    public ApplicationCommandInteractionData(JSONObject obj, DiscordJar discordJar) {
+    public ApplicationCommandInteractionData(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         id = obj.has("id") ? obj.getString("id") : null;
         name = obj.has("name") ? obj.getString("name") : null;
         resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved"), discordJar) : null;

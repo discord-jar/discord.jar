@@ -10,6 +10,8 @@ import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.gateway.GatewayResumedEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
+import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
+import com.seailz.discordjar.events.model.guild.member.GuildMemberUpdateEvent;
 import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.MessageContextCommandInteractionEvent;
@@ -24,6 +26,7 @@ import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.model.component.ComponentType;
+import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.interaction.InteractionType;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
@@ -55,7 +58,34 @@ public enum DispatchedEvents {
     /* Sent when bot is ready to receive events */
     READY((p, g, d) -> ReadyEvent.class),
     /* Sent when a guild is created */
-    GUILD_CREATE((p, d, g) -> GuildCreateEvent.class),
+    GUILD_CREATE((p, d, g) -> {
+        // cache guild
+        if (p.getJSONObject("d").has("unavailable") && p.getJSONObject("d").getBoolean("unavailable"))
+            // Guild is unavailable, don't cache it
+            return GuildCreateEvent.class;
+        Guild guild = Guild.decompile(p.getJSONObject("d"), g);
+        g.getGuildCache().cache(guild);
+        return GuildCreateEvent.class;
+    }),
+
+    GUILD_UPDATE((p, g, d) -> {
+        // modify cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().cache(guild);
+
+        // TODO: Create a GuildUpdateEvent
+        return null;
+    }),
+
+    GUILD_DELETE((p, g, d) -> {
+        // remove cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().remove(guild);
+
+        // TODO: Create a GuildDeleteEvent
+        return null;
+    }),
+
     /* Sent when a gateway connection is resumed */
     RESUMED((p, d, g) -> GatewayResumedEvent.class),
     /* Sent when a message is created */
@@ -159,7 +189,11 @@ public enum DispatchedEvents {
 
         JSONArray members = payload.getJSONArray("members");
         members.forEach(member -> {
-            wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+            try {
+                wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         int chunkCount = payload.getInt("chunk_count") - 1;
@@ -171,6 +205,9 @@ public enum DispatchedEvents {
         }
         return null;
     }),
+
+    GUILD_MEMBER_ADD((p, g, d) -> GuildMemberAddEvent.class),
+    GUILD_MEMBER_UPDATE((p, g, d) -> GuildMemberUpdateEvent.class),
     /* Unknown */
     UNKNOWN((p, g, d) -> null),
     ;

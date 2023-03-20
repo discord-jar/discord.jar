@@ -24,7 +24,7 @@ public class UserContextCommandInteractionEvent extends CommandInteractionEvent 
      * @return {@link User} object containing the user data.
      */
     @Nullable
-    public User getTarget() {
+    public User getTarget() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response =
                 new DiscordRequest(
                         new JSONObject(),

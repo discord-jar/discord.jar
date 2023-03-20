@@ -43,7 +43,7 @@ public class InteractionCallbackAction {
         return reply;
     }
 
-    public InteractionHandler run() {
+    public InteractionHandler run() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         JSONObject json = new JSONObject();
         json.put("type", this.type.getCode());
         json.put("data", this.reply.compile());

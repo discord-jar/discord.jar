@@ -76,6 +76,7 @@ public final class URLS {
 
         public static class CHANNELS {
             public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
+            public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
         }
 
         public static class USERS {
@@ -170,6 +171,13 @@ public final class URLS {
         }
 
         public static class GUILDS {
+
+            /**
+             * Returns a list of invites for this guild.
+             * Requires the MANAGE_GUILD permission.
+             */
+            public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
+
             /**
              * Returns bans in a guild
              * @param id The id of the guild
@@ -362,6 +370,9 @@ public final class URLS {
         }
 
         public static class CHANNEL {
+            public static class PINS {
+                public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
+            }
             public static class MESSAGE {
                 public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
@@ -371,6 +382,10 @@ public final class URLS {
              * @param id The id of the channel
              */
             public static String DELETE_CHANNEL = "/channels/{channel.id}";
+
+            public static class THREAD_MEMBERS {
+                public static String REMOVE_THREAD_MEMBER = "/channels/{channel.id}/thread-members/{user.id}";
+            }
         }
 
         public static class INVITE {
@@ -464,6 +479,13 @@ public final class URLS {
                      */
                     public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
                 }
+            }
+        }
+
+
+        public static class CHANNELS {
+            public static class PINS {
+                public static String PIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }
         }
     }

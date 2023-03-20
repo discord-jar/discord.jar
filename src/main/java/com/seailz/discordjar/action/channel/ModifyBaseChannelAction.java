@@ -291,14 +291,20 @@ public class ModifyBaseChannelAction {
             if (defaultForumLayout != null) body.put("default_forum_layout", defaultForumLayout.getCode());
             body.put("locked", locked);
 
-            DiscordResponse response = new DiscordRequest(
-                    body,
-                    new HashMap<>(),
-                    URLS.PATCH.CHANNEL.MODIFY_CHANNEL.replace("{channel.id}", channelId),
-                    djv,
-                    URLS.PATCH.CHANNEL.MODIFY_CHANNEL,
-                    RequestMethod.PATCH
-            ).invoke();
+            DiscordResponse response = null;
+            try {
+                response = new DiscordRequest(
+                        body,
+                        new HashMap<>(),
+                        URLS.PATCH.CHANNEL.MODIFY_CHANNEL.replace("{channel.id}", channelId),
+                        djv,
+                        URLS.PATCH.CHANNEL.MODIFY_CHANNEL,
+                        RequestMethod.PATCH
+                ).invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                future.completeExceptionally(e);
+                return null;
+            }
 
             return Channel.decompile(response.body(), djv);
         });

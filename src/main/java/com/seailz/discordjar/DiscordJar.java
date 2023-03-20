@@ -115,7 +115,7 @@ public class DiscordJar {
     private List<Bucket> buckets;
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null);
+        this(token, intents, version, false, null, false);
     }
 
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
@@ -123,11 +123,15 @@ public class DiscordJar {
     }
 
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false);
     }
 
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, intents, version, httpOnly, httpOnlyInfo, false);
+    public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
+    }
+
+    public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
     }
 
         /**
@@ -160,7 +164,13 @@ public class DiscordJar {
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
-        if (!httpOnly) this.gatewayFactory = new GatewayFactory(this, debug);
+        if (!httpOnly) {
+            try {
+                this.gatewayFactory = new GatewayFactory(this, debug);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
+        }
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
@@ -200,6 +210,20 @@ public class DiscordJar {
 
         initiateNoShutdown();
         initiateShutdownHooks();
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if (gatewayFactory == null || !gatewayFactory.getSession().isOpen()) {
+                    restartGateway();
+                }
+            }
+        }).start();
     }
 
     public DiscordJar(String token) throws ExecutionException, InterruptedException {
@@ -232,6 +256,39 @@ public class DiscordJar {
 
     public GatewayFactory getGateway() {
         return gatewayFactory;
+    }
+
+    /**
+     * Kills the gateway connection and destroys the {@link GatewayFactory} instance.
+     * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
+     */
+    public Status killGateway() {
+        Status status = gatewayFactory == null ? null : gatewayFactory.getStatus();
+        try {
+            if (gatewayFactory != null) gatewayFactory.killConnection();
+        } catch (IOException ignored) {}
+        gatewayFactory = null;
+        // init garbage collection to avoid memory leaks
+        System.gc();
+        return status;
+    }
+
+    /**
+     * Restarts the gateway connection and creates a new {@link GatewayFactory} instance.
+     * This will invalidate and destroy the old {@link GatewayFactory} instance.
+     * This method will also initiate garbage collection to avoid memory leaks.
+     *
+     * @see GatewayFactory
+     * @see #killGateway()
+     */
+    public void restartGateway() {
+        Status stat = killGateway();
+        try {
+            gatewayFactory = new GatewayFactory(this, debug);
+        } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+        if (stat != null) setStatus(stat);
     }
 
     protected void initiateShutdownHooks() {
@@ -287,15 +344,15 @@ public class DiscordJar {
      * Sets the bot's status
      *
      * @param status The status to set
-     * @throws IOException If an error occurs while setting the status
      */
-    public void setStatus(@NotNull Status status) throws IOException {
+    public void setStatus(@NotNull Status status) {
         if (gatewayFactory == null)
             throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
         gatewayFactory.queueMessage(json);
+        gatewayFactory.setStatus(status);
     }
 
     /**
@@ -305,7 +362,7 @@ public class DiscordJar {
      * @return The user
      */
     @Nullable
-    public User getUserById(String id) {
+    public User getUserById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return userCache.getById(id);
     }
@@ -318,7 +375,7 @@ public class DiscordJar {
      * @return a {@link User} object
      */
     @Nullable
-    public User getSelfUser() {
+    public User getSelfUser() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         if (this.getSelfUserCache != null && getSelfUserCache.get() != null)
             return User.decompile(getSelfUserCache.get(), this);
 
@@ -344,7 +401,7 @@ public class DiscordJar {
      * @return The user
      */
     @Nullable
-    public User getUserById(long id) {
+    public User getUserById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(String.valueOf(id), "Given id is not a snowflake");
         return getUserById(String.valueOf(id));
     }
@@ -375,7 +432,7 @@ public class DiscordJar {
      * @return A {@link Channel} object
      */
     @Nullable
-    public MessagingChannel getTextChannelById(String id) {
+    public MessagingChannel getTextChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
     }
@@ -387,7 +444,7 @@ public class DiscordJar {
      * @return A {@link DMChannel} object
      */
     @Nullable
-    public DMChannel getDmChannelById(String id) {
+    public DMChannel getDmChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return DMChannel.decompile(getChannelCache().getFresh(id), this);
     }
@@ -399,7 +456,7 @@ public class DiscordJar {
      * @return A {@link ForumChannel} object
      */
     @Nullable
-    public ForumChannel getForumChannelById(String id) {
+    public ForumChannel getForumChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return ForumChannel.decompile(getChannelCache().getFresh(id), this);
     }
@@ -411,7 +468,7 @@ public class DiscordJar {
      * @return A {@link Category} object
      */
     @Nullable
-    public Category getCategoryById(String id) {
+    public Category getCategoryById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return Category.decompile(getChannelCache().getFresh(id), this);
     }
@@ -423,7 +480,7 @@ public class DiscordJar {
      * @return A {@link Guild} object
      */
     @Nullable
-    public Guild getGuildById(long id) {
+    public Guild getGuildById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(String.valueOf(id), "Given id is not a snowflake");
         return getGuildById(String.valueOf(id));
     }
@@ -435,7 +492,7 @@ public class DiscordJar {
      * @return A {@link Guild} object
      */
     @Nullable
-    public Guild getGuildById(String id) {
+    public Guild getGuildById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return getGuildCache().getById(id);
     }
@@ -447,7 +504,7 @@ public class DiscordJar {
      * @return A {@link Sticker} object
      */
     @Nullable
-    public Sticker getStickerById(String id) {
+    public Sticker getStickerById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         return Sticker.decompile(new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
@@ -461,7 +518,7 @@ public class DiscordJar {
      *
      * @return List of {@link StickerPack StickerPacks}
      */
-    public List<StickerPack> getNitroStickerPacks() {
+    public List<StickerPack> getNitroStickerPacks() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return StickerPack.decompileList(new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
                 URLS.GET.STICKER.GET_NITRO_STICKER_PACKS,
@@ -507,7 +564,7 @@ public class DiscordJar {
      * Returns a {@link Application} object containing information about the bot
      */
     @Nullable
-    public Application getSelfInfo() {
+    public Application getSelfInfo() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         if (this.selfUserCache != null && !selfUserCache.isEmpty())
             return Application.decompile(selfUserCache.get(), this);
 
@@ -593,7 +650,7 @@ public class DiscordJar {
      *
      *                                  <li>If a command option choice value is less than 1 character or more than 100 characters</li></ul>
      */
-    public void registerCommands(CommandListener... listeners) {
+    public void registerCommands(CommandListener... listeners) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         for (CommandListener listener : listeners) {
             Checker.check((listener instanceof SlashCommandListener) && !listener.getClass().isAnnotationPresent(SlashCommandInfo.class), "SlashCommandListener must have @SlashCommandInfo annotation");
             Checker.check((listener instanceof MessageContextCommandListener || listener instanceof UserContextCommandListener)
@@ -637,7 +694,7 @@ public class DiscordJar {
         }
     }
 
-    protected void registerCommand(Command command) {
+    protected void registerCommand(Command command) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(!(command.name().length() > 1 && command.name().length() < 32), "Command name must be within 1 and 32 characters!");
         Checker.check(!Objects.equals(command.description(), "") && !(command.description().length() > 1 && command.description().length() < 100), "Command description must be within 1 and 100 characters!");
         Checker.check(command.options().size() > 25, "Application commands can only have up to 25 options!");
@@ -668,7 +725,7 @@ public class DiscordJar {
     /**
      * Clears all the global commands for this app. Cannot be undone.
      */
-    public void clearCommands() {
+    public void clearCommands() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest cmdDelReq = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -686,7 +743,7 @@ public class DiscordJar {
      * @return List of {@link Command} objects.
      */
     @Nullable
-    public List<Command> getGlobalCommands(boolean withLocalizations) {
+    public List<Command> getGlobalCommands(boolean withLocalizations) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -702,7 +759,7 @@ public class DiscordJar {
     }
 
     @Nullable
-    public List<Command> getGlobalCommands() {
+    public List<Command> getGlobalCommands() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getGlobalCommands(true);
     }
 
@@ -712,7 +769,7 @@ public class DiscordJar {
      * @return The {@link Command} object.
      */
     @Nullable
-    public Command getGlobalCommand(String commandId) {
+    public Command getGlobalCommand(String commandId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -732,7 +789,7 @@ public class DiscordJar {
      * @return The {@link Command} object.
      */
     @Nullable
-    public Command editGlobalCommand(@NotNull Command newCommand, String commandId) {
+    public Command editGlobalCommand(@NotNull Command newCommand, String commandId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 newCommand.compile(),
                 new HashMap<>(),
@@ -749,7 +806,7 @@ public class DiscordJar {
      * Deletes a global command for this app.
      * @param commandId The id of the command.
      */
-    public void deleteGlobalCommand(String commandId) {
+    public void deleteGlobalCommand(String commandId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -765,7 +822,7 @@ public class DiscordJar {
      * Bulk overwrites all the global commands for this app.
      * @param commands The new commands to overwrite with.
      */
-    public void bulkOverwriteCommands(@NotNull List<Command> commands) {
+    public void bulkOverwriteCommands(@NotNull List<Command> commands) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         JSONArray arr = new JSONArray();
         commands.forEach(c -> arr.put(c.compile()));
         DiscordRequest req = new DiscordRequest(
@@ -786,7 +843,7 @@ public class DiscordJar {
      * @return List of {@link Command} objects.
      */
     @Nullable
-    public List<Command> getGuildCommands(String guildId, boolean withLocalizations) {
+    public List<Command> getGuildCommands(String guildId, boolean withLocalizations) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -802,7 +859,7 @@ public class DiscordJar {
     }
 
     @Nullable
-    public List<Command> getGuildCommands(String guildId) {
+    public List<Command> getGuildCommands(String guildId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getGuildCommands(guildId, true);
     }
 
@@ -813,7 +870,7 @@ public class DiscordJar {
      * @return The {@link Command} object.
      */
     @Nullable
-    public Command getGuildCommand(String guildId, String commandId) {
+    public Command getGuildCommand(String guildId, String commandId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -834,7 +891,7 @@ public class DiscordJar {
      * @return The edited {@link Command} object.
      */
     @Nullable
-    public Command editGuildCommand(@NotNull Command newCommand, String guildId, String commandId) {
+    public Command editGuildCommand(@NotNull Command newCommand, String guildId, String commandId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 newCommand.compile(),
                 new HashMap<>(),
@@ -852,7 +909,7 @@ public class DiscordJar {
      * @param guildId The id of the guild.
      * @param commandId The id of the command.
      */
-    public void deleteGuildCommand(String guildId, String commandId) {
+    public void deleteGuildCommand(String guildId, String commandId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -869,7 +926,7 @@ public class DiscordJar {
      * @param commands The new commands to overwrite with.
      * @param guildId The id of the guild.
      */
-    public void bulkOverwriteGuildCommands(@NotNull List<Command> commands, String guildId) {
+    public void bulkOverwriteGuildCommands(@NotNull List<Command> commands, String guildId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         JSONArray arr = new JSONArray();
         commands.forEach(c -> arr.put(c.compile()));
         DiscordRequest req = new DiscordRequest(
@@ -908,7 +965,7 @@ public class DiscordJar {
      *
      * @return A list of all voice regions.
      */
-    public List<VoiceRegion> getVoiceRegions() {
+    public List<VoiceRegion> getVoiceRegions() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -929,7 +986,7 @@ public class DiscordJar {
      * Retrieves an {@link com.seailz.discordjar.model.invite.Invite Invite} by its code.
      */
     @Nullable
-    public Invite getInvite(String code) {
+    public Invite getInvite(String code) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -946,7 +1003,7 @@ public class DiscordJar {
     /**
      * Deletes an {@link com.seailz.discordjar.model.invite.Invite Invite} by its code.
      */
-    public void deleteInvite(String code) {
+    public void deleteInvite(String code) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

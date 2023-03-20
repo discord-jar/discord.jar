@@ -21,6 +21,8 @@ import com.seailz.discordjar.model.guild.notification.DefaultMessageNotification
 import com.seailz.discordjar.model.guild.premium.PremiumTier;
 import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
+import com.seailz.discordjar.model.invite.Invite;
+import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
@@ -498,7 +500,7 @@ public record Guild(
     /**
      * Leaves a guild
      */
-    public void leave() {
+    public void leave() throws DiscordRequest.UnhandledDiscordAPIErrorException {
 
         new DiscordRequest(
                 new JSONObject(),
@@ -516,7 +518,7 @@ public record Guild(
     /**
      * Lists the stickers in the guild
      */
-    public List<Sticker> getStickers() {
+    public List<Sticker> getStickers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Sticker.decompileList(
                 new DiscordRequest(
                         new JSONObject(),
@@ -538,7 +540,7 @@ public record Guild(
      *
      * @param stickerId The sticker id
      */
-    public Sticker getStickerById(String stickerId) {
+    public Sticker getStickerById(String stickerId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Sticker.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -568,7 +570,7 @@ public record Guild(
     /**
      * Deletes a sticker
      */
-    public void deleteSticker(String stickerId) {
+    public void deleteSticker(String stickerId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -589,7 +591,7 @@ public record Guild(
      * Returns a list of {@link AutomodRule automod rules} that the guild has
      */
     @NotNull
-    public List<AutomodRule> getAutomodRules() {
+    public List<AutomodRule> getAutomodRules() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return AutomodRule.decompileList(
                 new DiscordRequest(
                         new JSONObject(),
@@ -608,7 +610,7 @@ public record Guild(
 
     @NotNull
     @Contract("_ -> new")
-    public AutomodRule getAutomodRuleById(String id) {
+    public AutomodRule getAutomodRuleById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return AutomodRule.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -630,7 +632,7 @@ public record Guild(
 
     @NotNull
     @Contract("_ -> new")
-    public AutomodRule getAutomodRuleById(long id)  {
+    public AutomodRule getAutomodRuleById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getAutomodRuleById(Long.toString(id));
     }
 
@@ -638,7 +640,7 @@ public record Guild(
         return new AutomodRuleCreateAction(name, eventType, triggerType, actions, this, discordJar);
     }
 
-    public void deleteAutoModRule(String id) {
+    public void deleteAutoModRule(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -659,29 +661,32 @@ public record Guild(
         return new AutomodRuleModifyAction(id, this, discordJar);
     }
 
-    public Member getMemberById(String id) {
+    public Member getMemberById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
+                        "{guild.id}",
+                        this.id
+                ).replace(
+                        "{user.id}",
+                        id
+                ),
+                discordJar,
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                RequestMethod.GET
+        ).invoke();
+
+        if (req.body() == null) return null;
         return Member.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                                "{guild.id}",
-                                this.id
-                        ).replace(
-                                "{user.id}",
-                                id
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                        RequestMethod.GET
-                ).invoke().body(),
+                req.body(),
                 discordJar,
                 this.id,
                 this
         );
     }
 
-    public List<Member> getMembers(int limit, String after) {
+    public List<Member> getMembers(int limit, String after) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(limit <= 0, "Limit must be greater than 0");
         Checker.check(limit > 1000, "Limit must be less than or equal to 1000");
         JSONArray arr = new DiscordRequest(
@@ -705,7 +710,7 @@ public record Guild(
     }
 
 
-    public List<Member> getMembers() {
+    public List<Member> getMembers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         JSONArray arr = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -730,7 +735,7 @@ public record Guild(
      * Lists the guild's custom emojis.
      * @return A list of the guild emojis.
      */
-    public List<Emoji> getEmojis() {
+    public List<Emoji> getEmojis() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<Emoji> emojis = new ArrayList<>();
 
         new DiscordRequest(
@@ -750,7 +755,7 @@ public record Guild(
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public Emoji getEmojiById(@NotNull String emojiId) {
+    public Emoji getEmojiById(@NotNull String emojiId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Emoji.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -769,7 +774,7 @@ public record Guild(
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public @NotNull Emoji getEmojiById(long emojiId) {
+    public @NotNull Emoji getEmojiById(long emojiId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getEmojiById(String.valueOf(emojiId));
     }
 
@@ -778,7 +783,7 @@ public record Guild(
      * Does not include threads.
      */
     @NotNull
-    public List<GuildChannel> getChannels() {
+    public List<GuildChannel> getChannels() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<GuildChannel> channels = new ArrayList<>();
         DiscordResponse req = new DiscordRequest(
                 new JSONObject(),
@@ -793,7 +798,13 @@ public record Guild(
             Logger.getLogger("DiscordJar").warning("Failed to get channels for guild " + req.code());
             return new ArrayList<>();
         }
-        res.forEach(o -> channels.add(GuildChannel.decompile((JSONObject) o, discordJar)));
+        res.forEach(o -> {
+            try {
+                channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return channels;
     }
 
@@ -821,7 +832,12 @@ public record Guild(
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
                 RequestMethod.GET
         );
-        JSONArray res = req.invoke().arr();
+        JSONArray res = null;
+        try {
+            res = req.invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
 
         if (roleCache != null) {
@@ -875,6 +891,27 @@ public record Guild(
 
     public CreateGuildChannelAction createChannel(String name, ChannelType type) {
         return new CreateGuildChannelAction(name, type, this, discordJar);
+    }
+
+    /**
+     * Returns the invite objects for this guild.
+     * <br>This method requires the <b>MANAGE_GUILD</b> permission.
+     * @return A list of {@link Invite invites} for this guild.
+     */
+    public List<Invite> getInvites() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        List<Invite> invites = new ArrayList<>();
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.GET_GUILD_INVITES.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.GET_GUILD_INVITES,
+                RequestMethod.GET
+        );
+        JSONArray res = null;
+        res = req.invoke().arr();
+        res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
+        return invites;
     }
 
 

@@ -294,7 +294,7 @@ public record Application(
      * @return {@link List} of {@link ApplicationRoleConnectionMetadata}
      */
     @Nullable
-    public List<ApplicationRoleConnectionMetadata> getRoleConnections() {
+    public List<ApplicationRoleConnectionMetadata> getRoleConnections() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -324,7 +324,7 @@ public record Application(
      * @throws com.seailz.discordjar.utils.Checker.NullArgumentException if the list is null.
      * @throws IllegalArgumentException if the list has more than 5 elements.
      */
-    public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) {
+    public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.notNull(roleConnections, "Role connections must not be null");
         Checker.sizeLessThan(roleConnections, 5, "You can only have up to 5 role connections.");
         JSONArray roleConnectionsArray = new JSONArray();
@@ -342,7 +342,7 @@ public record Application(
         ).invoke();
     }
 
-    public void setRoleConnections(ApplicationRoleConnectionMetadata... roleConnections) {
+    public void setRoleConnections(ApplicationRoleConnectionMetadata... roleConnections) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         setRoleConnections(Arrays.asList(roleConnections));
     }
 }

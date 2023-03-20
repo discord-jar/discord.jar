@@ -237,8 +237,14 @@ public class MessageEditAction {
             DiscordResponse response = null;
             if (fileUploads != null && !fileUploads.isEmpty())
                 response = request.invokeWithFiles(new ArrayList<>(fileUploads).toArray(new File[0]));
-            else
-                response = request.invoke();
+            else {
+                try {
+                    response = request.invoke();
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    future.completeExceptionally(e);
+                    return null;
+                }
+            }
             return Message.decompile(response.body(), discordJar);
         });
         return future;

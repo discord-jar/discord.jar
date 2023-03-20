@@ -1,5 +1,7 @@
 package com.seailz.discordjar.utils;
 
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -9,7 +11,7 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface TriFunction<A,B,C,R> {
 
-    R apply(A a, B b, C c);
+    R apply(A a, B b, C c) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
     default <V> TriFunction<A, B, C, V> andThen(
             Function<? super R, ? extends V> after) {

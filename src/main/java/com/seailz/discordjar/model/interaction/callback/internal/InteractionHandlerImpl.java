@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -30,7 +31,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public Message getOriginalResponse() {
+    public Message getOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Message.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -44,7 +45,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void deleteOriginalResponse() {
+    public void deleteOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -56,7 +57,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public Message getFollowup(String id) {
+    public Message getFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Message.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -71,7 +72,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void deleteFollowup(String id) {
+    public void deleteFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -84,7 +85,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public EditInteractionMessageAction editOriginalResponse() {
+    public EditInteractionMessageAction editOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return new EditInteractionMessageAction(
                 discordJar.getSelfInfo().id(),
                 token,
@@ -95,7 +96,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public EditInteractionMessageAction editFollowup(String id) {
+    public EditInteractionMessageAction editFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return new EditInteractionMessageAction(
                 discordJar.getSelfInfo().id(),
                 token,
@@ -106,7 +107,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void defer(boolean ephemeral) {
+    public void defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
                 new HashMap<>(),
@@ -118,7 +119,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void deferEdit() {
+    public void deferEdit() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject().put("type", 6),
                 new HashMap<>(),

@@ -139,7 +139,7 @@ public record Member(
      * 	Will throw a 403 error if the user has the ADMINISTRATOR permission or is the owner of the guild
      * @param seconds the amount of seconds to add to the timeout
      */
-    public void timeout(int seconds) {
+    public void timeout(int seconds) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(seconds > 2419200, "Timeout must be less than 28 days");
         Checker.check(seconds < 0, "Timeout must be greater than 0. To remove a timeout, use removeTimeout()");
 
@@ -161,7 +161,7 @@ public record Member(
 
     }
 
-    public void removeTimeout() {
+    public void removeTimeout() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject().put("communication_disabled_until", JSONObject.NULL),
                 new HashMap<>(),
@@ -177,7 +177,7 @@ public record Member(
      * Requires `MANAGE_ROLES` permission.
      * @param role the role to add
      */
-    public void addRole(Role role) {
+    public void addRole(Role role) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -193,7 +193,7 @@ public record Member(
      * Requires `MANAGE_ROLES` permission.
      * @param role the role to remove
      */
-    public void removeRole(Role role) {
+    public void removeRole(Role role) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

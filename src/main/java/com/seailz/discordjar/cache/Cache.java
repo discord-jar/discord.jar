@@ -152,7 +152,7 @@ public class Cache<T> {
         return returnObject.get() == null ? null : (T) returnObject.get();
     }
 
-    public JSONObject getFresh(String id) {
+    public JSONObject getFresh(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
         ).invoke();

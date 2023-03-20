@@ -1,11 +1,13 @@
 package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.channel.invites.CreateChannelInviteAction;
 import com.seailz.discordjar.model.channel.internal.GuildChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.Checker;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +62,7 @@ public interface GuildChannel extends Channel {
      */
     @NotNull
     @Contract("_, _ -> new")
-    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -104,5 +106,9 @@ public interface GuildChannel extends Channel {
     default void addPermissionOverwrite(@NotNull PermissionOverwrite overwrite) {
         permissionOverwrites().add(overwrite);
         modify().setPermissionOverwrites(permissionOverwrites()).run();
+    }
+
+    default CreateChannelInviteAction createInvite() {
+        return new CreateChannelInviteAction(discordJv(), id());
     }
 }

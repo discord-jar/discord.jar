@@ -15,12 +15,14 @@ public interface Embeder {
     Embeder url(String url);
 
     Embeder timestamp(String timestamp);
+    Embeder timestamp();
 
     Embeder field(EmbedField field);
 
     Embeder field(String name, String value, boolean inline);
 
     Embeder color(Color color);
+    Embeder color(int color);
 
     Embeder footer(EmbedFooter footer);
 

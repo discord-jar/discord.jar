@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.time.Instant;
 
 public class EmbederImpl implements Embeder {
 
@@ -122,6 +123,18 @@ public class EmbederImpl implements Embeder {
         this.color = color.getRGB();
         return this;
     }
+
+    @Override
+    public Embeder color(int color) {
+        this.color = color;
+        return this;
+    }
+
+    @Override
+    public Embeder timestamp() {
+        return timestamp(Instant.now().toString());
+    }
+
 
     @Override
     public JSONObject compile() {

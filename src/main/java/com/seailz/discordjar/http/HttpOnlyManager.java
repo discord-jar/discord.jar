@@ -15,10 +15,12 @@ import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMe
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.interaction.Interaction;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,7 +46,8 @@ public class HttpOnlyManager {
     }
 
     @PostMapping("/*")
-    public ResponseEntity<String> get(HttpServletRequest request) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, DecoderException {
+    @GetMapping("/*")
+    public ResponseEntity<String> get(HttpServletRequest request) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, DecoderException, DiscordRequest.UnhandledDiscordAPIErrorException {
         String path = request.getRequestURI();
         if (!path.endsWith(endpoint)) {
             return ResponseEntity.notFound().build();

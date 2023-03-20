@@ -305,12 +305,16 @@ public record Message(
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
         }
 
         try {
             thread = Thread.decompile(obj.getJSONObject("thread"), discordJar);
         } catch (JSONException e) {
             thread = null;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
         }
 
         return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, discordJar);
@@ -402,7 +406,7 @@ public record Message(
                 .put("components", componentsArray);
     }
 
-    public void delete() {
+    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
                 .replace("{channel.id}", channelId).replace("{message.id}", id),
                 discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
@@ -422,12 +426,45 @@ public record Message(
     public String getFormattedText() {
         String formatted = content;
 
-        for (User user : mentions)
-            formatted = formatted.replaceAll("<@" + user.id() + ">", "@" + user.username());
+        if (mentions != null) {
+            for (User user : mentions)
+                formatted = formatted.replaceAll("<@" + user.id() + ">", "@" + user.username());
+        }
 
-        for (Role role : mentionRoles)
-            formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
+        if (mentionRoles != null) {
+            for (Role role : mentionRoles)
+                formatted = formatted.replaceAll("<@&" + role.id() + ">", "@" + role.name());
+        }
         return formatted;
+    }
+
+    /**
+     * Pins the message within the channel.
+     * Note that the maximum pinned messages per channel is 50.
+     */
+    public void pin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                discordJar,
+                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE,
+                RequestMethod.PUT
+        ).invoke();
+    }
+
+    /**
+     * Unpins the message within the channel.
+     */
+    public void unpin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                discordJar,
+                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
+                RequestMethod.DELETE
+        ).invoke();
     }
 
 }

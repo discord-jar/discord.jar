@@ -70,6 +70,7 @@ public final class URLS {
 
         public static class CHANNELS {
             public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
+            public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
         }
 
         public static class USERS {

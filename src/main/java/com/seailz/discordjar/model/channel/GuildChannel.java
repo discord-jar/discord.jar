@@ -1,6 +1,7 @@
 package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.channel.invites.CreateChannelInviteAction;
 import com.seailz.discordjar.model.channel.internal.GuildChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
@@ -105,5 +106,9 @@ public interface GuildChannel extends Channel {
     default void addPermissionOverwrite(@NotNull PermissionOverwrite overwrite) {
         permissionOverwrites().add(overwrite);
         modify().setPermissionOverwrites(permissionOverwrites()).run();
+    }
+
+    default CreateChannelInviteAction createInvite() {
+        return new CreateChannelInviteAction(discordJv(), id());
     }
 }

@@ -26,6 +26,7 @@ import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.model.component.ComponentType;
+import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.interaction.InteractionType;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
@@ -57,7 +58,34 @@ public enum DispatchedEvents {
     /* Sent when bot is ready to receive events */
     READY((p, g, d) -> ReadyEvent.class),
     /* Sent when a guild is created */
-    GUILD_CREATE((p, d, g) -> GuildCreateEvent.class),
+    GUILD_CREATE((p, d, g) -> {
+        // cache guild
+        if (p.getJSONObject("d").has("unavailable") && p.getJSONObject("d").getBoolean("unavailable"))
+            // Guild is unavailable, don't cache it
+            return GuildCreateEvent.class;
+        Guild guild = Guild.decompile(p.getJSONObject("d"), g);
+        g.getGuildCache().cache(guild);
+        return GuildCreateEvent.class;
+    }),
+
+    GUILD_UPDATE((p, g, d) -> {
+        // modify cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().cache(guild);
+
+        // TODO: Create a GuildUpdateEvent
+        return null;
+    }),
+
+    GUILD_DELETE((p, g, d) -> {
+        // remove cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().remove(guild);
+
+        // TODO: Create a GuildDeleteEvent
+        return null;
+    }),
+
     /* Sent when a gateway connection is resumed */
     RESUMED((p, d, g) -> GatewayResumedEvent.class),
     /* Sent when a message is created */

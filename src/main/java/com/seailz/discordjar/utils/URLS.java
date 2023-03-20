@@ -164,6 +164,13 @@ public final class URLS {
         }
 
         public static class GUILDS {
+
+            /**
+             * Returns a list of invites for this guild.
+             * Requires the MANAGE_GUILD permission.
+             */
+            public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
+
             /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *

@@ -19,6 +19,8 @@ import com.seailz.discordjar.model.guild.notification.DefaultMessageNotification
 import com.seailz.discordjar.model.guild.premium.PremiumTier;
 import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
+import com.seailz.discordjar.model.invite.Invite;
+import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
@@ -887,6 +889,31 @@ public record Guild(
 
     public CreateGuildChannelAction createChannel(String name, ChannelType type) {
         return new CreateGuildChannelAction(name, type, this, discordJar);
+    }
+
+    /**
+     * Returns the invite objects for this guild.
+     * <br>This method requires the <b>MANAGE_GUILD</b> permission.
+     * @return A list of {@link Invite invites} for this guild.
+     */
+    public List<Invite> getInvites() {
+        List<Invite> invites = new ArrayList<>();
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.GET_GUILD_INVITES.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.GET_GUILD_INVITES,
+                RequestMethod.GET
+        );
+        JSONArray res = null;
+        try {
+            res = req.invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+        res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
+        return invites;
     }
 
 

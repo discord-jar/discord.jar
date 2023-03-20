@@ -896,7 +896,7 @@ public record Guild(
      * <br>This method requires the <b>MANAGE_GUILD</b> permission.
      * @return A list of {@link Invite invites} for this guild.
      */
-    public List<Invite> getInvites() {
+    public List<Invite> getInvites() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<Invite> invites = new ArrayList<>();
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
@@ -907,11 +907,7 @@ public record Guild(
                 RequestMethod.GET
         );
         JSONArray res = null;
-        try {
-            res = req.invoke().arr();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+        res = req.invoke().arr();
         res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
         return invites;
     }

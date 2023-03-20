@@ -136,6 +136,8 @@ public class CreateChannelInviteAction {
                 return null;
             }
 
+            if (res.body() == null) return null;
+
             return InviteImpl.decompile(res.body(), discordJar);
         });
         return future;

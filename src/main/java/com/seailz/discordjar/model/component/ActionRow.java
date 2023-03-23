@@ -31,6 +31,11 @@ public class ActionRow implements DisplayComponent {
     }
 
     @Override
+    public JSONObject raw() {
+        return compile();
+    }
+
+    @Override
     public ComponentType type() {
         return ComponentType.ACTION_ROW;
     }
@@ -60,15 +65,14 @@ public class ActionRow implements DisplayComponent {
     }
 
     @NotNull
-    public static ActionRow decompile(JSONObject obj, DiscordJar discordJar) {
+    public static ActionRow decompile(JSONObject obj) {
         ActionRow row = new ActionRow();
         List<RawComponent> comp = new ArrayList<>();
 
-        try {
-            Component.decompileList(obj.getJSONArray("components"), discordJar).forEach(component -> comp.add((RawComponent) component));
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        obj.getJSONArray("components").forEach(c -> {
+            JSONObject component = (JSONObject) c;
+            comp.add(RawComponent.unknown(component));
+        });
         return row;
     }
 }

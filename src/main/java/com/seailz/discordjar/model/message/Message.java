@@ -6,6 +6,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelMention;
+import com.seailz.discordjar.model.component.ActionRow;
 import com.seailz.discordjar.model.component.Component;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embed;
@@ -161,12 +162,8 @@ public record Message(
         try {
             JSONArray componentsJson = obj.getJSONArray("components");
             List<Component> componentsDecompiled = Component.decompileList(componentsJson, discordJar);
-            List<DisplayComponent> displayComponents = new ArrayList<>();
-            for (Component component : componentsDecompiled) {
-                if (component instanceof DisplayComponent) {
-                    displayComponents.add((DisplayComponent) component);
-                }
-            }
+            List<ActionRow> actionRowCom = componentsDecompiled.stream().map(component -> ActionRow.decompile(component.raw())).toList();
+            components = actionRowCom.stream().map(actionRow -> (DisplayComponent) actionRow).toList();
         } catch (JSONException e) {
             components = null;
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {

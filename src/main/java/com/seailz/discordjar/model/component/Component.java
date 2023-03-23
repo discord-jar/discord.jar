@@ -5,6 +5,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,6 +20,8 @@ import java.util.List;
  * @since 1.0
  */
 public interface Component extends Compilerable {
+
+    JSONObject raw();
 
     /**
      * The type of the component

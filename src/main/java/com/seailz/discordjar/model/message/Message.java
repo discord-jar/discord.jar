@@ -159,7 +159,7 @@ public record Message(
             mentionEveryone = false;
         }
 
-        try {
+        /*try {
             JSONArray componentsJson = obj.getJSONArray("components");
             List<Component> componentsDecompiled = Component.decompileList(componentsJson, discordJar);
             List<ActionRow> actionRowCom = componentsDecompiled.stream().map(component -> ActionRow.decompile(component.raw())).toList();
@@ -169,7 +169,7 @@ public record Message(
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             components = null;
             e.printStackTrace();
-        }
+        }*/
 
         try {
             JSONArray mentionsArray = obj.getJSONArray("mentions");

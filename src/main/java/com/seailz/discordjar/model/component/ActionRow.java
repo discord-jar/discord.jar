@@ -19,6 +19,7 @@ import java.util.List;
 public class ActionRow implements DisplayComponent {
 
     private List<RawComponent> components;
+    private JSONObject raw;
 
     @Override
     public JSONObject compile() {
@@ -32,7 +33,7 @@ public class ActionRow implements DisplayComponent {
 
     @Override
     public JSONObject raw() {
-        return compile();
+        return raw;
     }
 
     @Override
@@ -73,6 +74,8 @@ public class ActionRow implements DisplayComponent {
             JSONObject component = (JSONObject) c;
             comp.add(RawComponent.unknown(component));
         });
+        row.raw = obj;
+        row.components = comp;
         return row;
     }
 }

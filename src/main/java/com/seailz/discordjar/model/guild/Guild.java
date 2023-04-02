@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Represents a guild.
@@ -916,5 +917,181 @@ public record Guild(
     @Override
     public StringFormatter formatter() {
         return new StringFormatter("icons/", id, iconHash());
+    }
+
+    /**
+     * Returns the onboarding flow for this guild.
+     * @return {@link Onboarding}
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException If the request fails.
+     */
+    public @NotNull Onboarding getOnboarding() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.GET_GUILD_ONBOARDING.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.GET_GUILD_ONBOARDING,
+                RequestMethod.GET
+        );
+        return Onboarding.decompile(req.invoke().body(), this, discordJar);
+    }
+
+
+    /**
+     * Represents the <a href="https://support.discord.com/hc/en-us/articles/11074987197975-Community-Onboarding-FAQ">onboarding</a> flow for a guild.
+     * @param guild The guild this onboarding flow is for.
+     * @param prompts Prompts shown during onboarding and in customize community.
+     * @param defaultChannelIds Channel IDs that members get opted into automatically.
+     * @param enabled Whether onboarding is enabled in the guild.
+     */
+    public record Onboarding(
+            Guild guild,
+            List<Prompt> prompts,
+            List<String> defaultChannelIds,
+            boolean enabled
+    ) implements Compilerable {
+
+        @NotNull
+        @Override
+        public JSONObject compile() {
+            JSONObject obj = new JSONObject();
+            obj.put("enabled", enabled);
+            obj.put("default_channel_ids", defaultChannelIds);
+            obj.put("prompts", prompts.stream().map(Prompt::compile).collect(Collectors.toList()));
+            obj.put("guild_id", guild.id());
+            return obj;
+        }
+
+        @NotNull
+        @Contract("_, _, _ -> new")
+        public static Onboarding decompile(@NotNull JSONObject obj, @NotNull Guild guild, @NotNull DiscordJar djar) {
+            return new Onboarding(
+                    guild,
+                    obj.getJSONArray("prompts").toList().stream().map(o -> Prompt.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                    obj.getJSONArray("default_channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                    obj.getBoolean("enabled")
+            );
+        }
+
+        /**
+         * Represents a prompt shown during onboarding and in customize community.
+         * @param id ID of the prompt
+         * @param type Type of prompt
+         * @param options Options available within the prompt
+         * @param title Title of the prompt
+         * @param singleSelect Indicates whether users are limited to selecting one option for the prompt
+         * @param required Indicates whether the prompt is required before a user completes the onboarding flow
+         * @param inOnboarding Indicates whether the prompt is present in the onboarding flow. If `false`, the prompt will only appear
+         *                     in the Channels & Roles tab.
+         */
+        public record Prompt(
+                String id,
+                Type type,
+                List<Option> options,
+                String title,
+                boolean singleSelect,
+                boolean required,
+                boolean inOnboarding
+        ) implements Compilerable {
+
+            @NotNull
+            @Override
+            public JSONObject compile() {
+                JSONObject obj = new JSONObject();
+                obj.put("id", id);
+                obj.put("type", type.getCode());
+                obj.put("options", options.stream().map(Option::compile).collect(Collectors.toList()));
+                obj.put("title", title);
+                obj.put("single_select", singleSelect);
+                obj.put("required", required);
+                obj.put("in_onboarding", inOnboarding);
+                return obj;
+            }
+
+            @NotNull
+            @Contract("_, _ -> new")
+            public static Prompt decompile(@NotNull JSONObject obj, @NotNull DiscordJar djar) {
+                return new Prompt(
+                        obj.getString("id"),
+                        Type.fromCode(obj.getInt("type")),
+                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                        obj.getString("title"),
+                        obj.getBoolean("single_select"),
+                        obj.getBoolean("required"),
+                        obj.getBoolean("in_onboarding")
+                );
+            }
+
+            public enum Type {
+                MULTIPLE_CHOICE(0),
+                DROPDOWN(1),
+                UNKNOWN(-1)
+                ;
+
+                private final int code;
+
+                Type(int code) {
+                    this.code = code;
+                }
+
+                public int getCode() {
+                    return code;
+                }
+
+                public static Type fromCode(int code) {
+                    for (Type type : values()) {
+                        if (type.code == code) {
+                            return type;
+                        }
+                    }
+                    return UNKNOWN;
+                }
+            }
+
+            /**
+             * Represents an option available within a prompt.
+             * @param id ID of the option
+             * @param channelIds IDs for channels a member is added to when the option is selected
+             * @param roleIds IDs for roles assigned to a member when the option is selected
+             * @param emoji Emoji for the option
+             * @param title Title of the option
+             * @param description Description of the option. This may be null or an empty string.
+             */
+            public record Option(
+                String id,
+                List<String> channelIds,
+                List<String> roleIds,
+                Emoji emoji,
+                String title,
+                String description
+            ) implements Compilerable {
+                @NotNull
+                @Override
+                public JSONObject compile() {
+                    JSONObject obj = new JSONObject();
+                    obj.put("id", id);
+                    obj.put("channel_ids", channelIds);
+                    obj.put("role_ids", roleIds);
+                    obj.put("emoji", emoji.compile());
+                    obj.put("title", title);
+                    obj.put("description", description);
+                    return obj;
+                }
+
+                @NotNull
+                @Contract("_, _ -> new")
+                public static Option decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
+                    return new Option(
+                            obj.getString("id"),
+                            obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                            obj.getJSONArray("role_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                            Emoji.decompile(obj.getJSONObject("emoji"), discordJar),
+                            obj.getString("title"),
+                            obj.getString("description")
+                    );
+                }
+            }
+        }
+
     }
 }

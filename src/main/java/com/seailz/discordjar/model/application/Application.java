@@ -69,7 +69,7 @@ public record Application(
         String primary_sku_id,
         String slug,
         String coverImage,
-        EnumSet<ApplicationFlag> flags,
+        EnumSet<Flag> flags,
         int flagsRaw,
         List<String> tags,
         String customInstallUrl,
@@ -122,7 +122,7 @@ public record Application(
         String primary_sku_id;
         String slug;
         String coverImage;
-        EnumSet<ApplicationFlag> flags = null;
+        EnumSet<Flag> flags = null;
         int flagsRaw;
         List<String> tags;
         String customInstallUrl;
@@ -233,7 +233,7 @@ public record Application(
 
         try {
             flagsRaw = obj.getInt("flags");
-            flags = flags = new BitwiseUtil<ApplicationFlag>().get(flagsRaw, ApplicationFlag.class);
+            flags = flags = new BitwiseUtil<Flag>().get(flagsRaw, Flag.class);
         } catch (JSONException e) {
             flagsRaw = 0;
         }

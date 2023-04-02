@@ -355,7 +355,7 @@ public record Application(
      * @since 1.0
      */
     @SuppressWarnings("rawtypes")
-    public enum ApplicationFlag implements Bitwiseable {
+    public enum Flag implements Bitwiseable {
         // Indicates if an app uses the Auto Moderation API.
         APPLICATION_AUTO_MODERATION_RULE_CREATE_BADGE(6),
         // Intent required for bots in 100 or more servers to receive presence_update events
@@ -382,7 +382,7 @@ public record Application(
 
         private final int id;
 
-        ApplicationFlag(int id) {
+        Flag(int id) {
             this.id = id;
         }
 

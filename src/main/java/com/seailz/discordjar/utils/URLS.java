@@ -450,6 +450,9 @@ public final class URLS {
 
 
         public static class CHANNELS {
+            public static class PERMISSIONS {
+                public static String EDIT_CHANNEL_PERMS = "/channels/{channel.id}/permissions/{overwrite.id}";
+            }
             public static class PINS {
                 public static String PIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }

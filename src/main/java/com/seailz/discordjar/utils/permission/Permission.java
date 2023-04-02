@@ -72,8 +72,8 @@ public enum Permission implements Bitwiseable<Permission> {
     MANAGE_ROLES(28),
     /*   Allows management and editing of webhook */
     MANAGE_WEBHOOKS(29),
-    /*	 Allows management and editing of emojis and stickers */
-    MANAGE_EMOJIS_AND_STICKERS(30),
+    /*	 Allows management and editing of emojis, stickers, and soundboard sounds */
+    MANAGE_GUILD_EXPRESSIONS(30),
     /* 	 Allows members to use application commands, including slash commands and context menu commands. */
     USE_APPLICATION_COMMANDS(31),
     /* 	 Allows for requesting to speak in stage channels. (This permission is under active development and may be changed or removed.) */
@@ -93,7 +93,12 @@ public enum Permission implements Bitwiseable<Permission> {
     /*   Allows for using Activities (applications with the EMBEDDED flag) in a voice channel (Also known as voice chanel games/activities) */
     USE_EMBEDDED_ACTIVITIES(39),
     /* 	Allows for timing out users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels */
-    MODERATE_MEMBERS(40);
+    MODERATE_MEMBERS(40),
+    // Allows for viewing role subscription insights
+    VIEW_CREATOR_MONETIZATION_ANALYTICS(41),
+    // Allows for using soundboard in a voice channel
+    USE_SOUNDBOARD(42)
+    ;
 
     private final int code;
 

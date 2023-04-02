@@ -117,6 +117,7 @@ public record Guild(
         String preferredLocale,
         Channel publicUpdatesChannel,
         int maxVideoChannelUsers,
+        int maxStageVideoChannelUsers,
         int approximateMemberCount,
         int approximatePresenceCount,
         WelcomeScreen welcomeScreen,
@@ -162,6 +163,7 @@ public record Guild(
                 .put("preferred_locale", preferredLocale)
                 .put("public_updates_channel_id", publicUpdatesChannel.id())
                 .put("max_video_channel_users", maxVideoChannelUsers)
+                .put("max_stage_video_channel_users", maxStageVideoChannelUsers)
                 .put("approximate_member_count", approximateMemberCount)
                 .put("approximate_presence_count", approximatePresenceCount)
                 .put("welcome_screen", welcomeScreen)
@@ -203,6 +205,7 @@ public record Guild(
         String preferredLocale;
         Channel publicUpdatesChannel;
         int maxVideoChannelUsers;
+        int maxStageVideoChannelUsers = 0;
         int approximateMemberCount;
         int approximatePresenceCount;
         WelcomeScreen welcomeScreen;
@@ -409,6 +412,12 @@ public record Guild(
         } catch (JSONException e) {
             maxVideoChannelUsers = 0;
         }
+        
+        try {
+            approximateMemberCount = obj.getInt("approximate_member_count");
+        } catch (JSONException e) {
+            approximateMemberCount = 0;
+        }
 
         try {
             approximateMemberCount = obj.getInt("approximate_member_count");
@@ -477,6 +486,7 @@ public record Guild(
                 preferredLocale,
                 publicUpdatesChannel,
                 maxVideoChannelUsers,
+                maxStageVideoChannelUsers,
                 approximateMemberCount,
                 approximatePresenceCount,
                 welcomeScreen,

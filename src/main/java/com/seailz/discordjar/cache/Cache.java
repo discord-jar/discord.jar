@@ -99,7 +99,8 @@ public class Cache<T> {
      */
     public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
-        cache.forEach(t -> {
+        ArrayList<T> cacheCopy = new ArrayList<>(cache);
+        cacheCopy.forEach(t -> {
             String itemId;
 
             for (Method method : clazz.getMethods()) {

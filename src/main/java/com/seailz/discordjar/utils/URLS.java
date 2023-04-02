@@ -167,6 +167,12 @@ public final class URLS {
         public static class GUILDS {
 
             /**
+             * Retrieves the guild onboarding flow for the guild.
+             * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
+             */
+            public static String GET_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
+
+            /**
              * Returns a list of invites for this guild.
              * Requires the MANAGE_GUILD permission.
              */

@@ -48,7 +48,8 @@ public interface Transcriptable extends MessageRetrievable {
         List<Message> messages = get500Messages();
         File htmlTemplate = new File("template.html");
         if (messages.isEmpty()) {
-            throw new IllegalArgumentException("No messages to generate a transcript from");
+            // return empty file
+            return new ByteArrayInputStream("".getBytes());
         }
         MessagingChannel channel = djv().getTextChannelById(messages.iterator().next().channelId());
         Document document = Jsoup.parse(htmlTemplate, "UTF-8");

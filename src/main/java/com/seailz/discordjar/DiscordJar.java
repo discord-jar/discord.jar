@@ -434,7 +434,21 @@ public class DiscordJar {
     @Nullable
     public MessagingChannel getTextChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return MessagingChannel.decompile(getChannelCache().getFresh(id), this);
+        JSONObject raw = getChannelCache().getById(id).raw();
+        return MessagingChannel.decompile(raw, this);
+    }
+
+    /**
+     * Returns info about a {@link com.seailz.discordjar.model.channel.thread.Thread Thread}
+     *
+     * @param id The id of the channel
+     * @return A {@link com.seailz.discordjar.model.channel.thread.Thread} object
+     */
+    @Nullable
+    public com.seailz.discordjar.model.channel.thread.Thread getThreadById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        JSONObject raw = getChannelCache().getById(id).raw();
+        return com.seailz.discordjar.model.channel.thread.Thread.decompile(raw, this);
     }
 
     /**
@@ -446,7 +460,8 @@ public class DiscordJar {
     @Nullable
     public DMChannel getDmChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return DMChannel.decompile(getChannelCache().getFresh(id), this);
+        JSONObject raw = getChannelCache().getById(id).raw();
+        return DMChannel.decompile(raw, this);
     }
 
     /**
@@ -458,7 +473,8 @@ public class DiscordJar {
     @Nullable
     public ForumChannel getForumChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return ForumChannel.decompile(getChannelCache().getFresh(id), this);
+        JSONObject raw = getChannelCache().getById(id).raw();
+        return ForumChannel.decompile(raw, this);
     }
 
     /**
@@ -470,7 +486,8 @@ public class DiscordJar {
     @Nullable
     public Category getCategoryById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        return Category.decompile(getChannelCache().getFresh(id), this);
+        JSONObject raw = getChannelCache().getById(id).raw();
+        return Category.decompile(raw, this);
     }
 
     /**

@@ -25,6 +25,7 @@ import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMe
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.command.CommandType;
+import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
@@ -65,7 +66,39 @@ public enum DispatchedEvents {
             return GuildCreateEvent.class;
         Guild guild = Guild.decompile(p.getJSONObject("d"), g);
         g.getGuildCache().cache(guild);
+
+        JSONArray arr = p.getJSONObject("d").getJSONArray("channels");
+        arr.forEach(o -> g.getChannelCache().cache(
+                Channel.decompile((JSONObject) o, g)
+        ));
         return GuildCreateEvent.class;
+    }),
+
+    CHANNEL_CREATE((p, g, d) -> {
+        // cache
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().cache(channel);
+
+        // TODO: Create a ChannelCreateEvent
+        return null;
+    }),
+
+    CHANNEL_UPDATE((p, g, d) -> {
+        // modify cached channel, if it exists
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().cache(channel);
+
+       // TODO: Create a ChannelUpdateEvent
+        return null;
+    }),
+
+    CHANNEL_DELETE((p, g, d) -> {
+        // remove cached channel, if it exists
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().remove(channel);
+
+        // TODO: Create a ChannelDeleteEvent
+        return null;
     }),
 
     GUILD_UPDATE((p, g, d) -> {

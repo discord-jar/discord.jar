@@ -55,10 +55,10 @@ public interface Transcriptable extends MessageRetrievable {
         Document document = Jsoup.parse(htmlTemplate, "UTF-8");
         document.outputSettings().indentAmount(0).prettyPrint(true);
         document.getElementsByClass("preamble__guild-icon")
-                .first().attr("src", "https://cdn.discordapp.com/icons/" + channel.guild().id() + "/" + channel.guild().iconHash() + ".png"); // set guild icon
+                .first().attr("src", "https://cdn.discordapp.com/icons/" +"" + "/" + "" + ".png"); // set guild icon
 
         document.getElementById("transcriptTitle").text(channel.name()); // set title
-        document.getElementById("guildname").text(channel.guild().name()); // set guild name
+        document.getElementById("guildname").text(""); // set guild name
         document.getElementById("ticketname").text(channel.name()); // set channel name
 
         Element chatLog = document.getElementById("chatlog"); // chat log
@@ -82,11 +82,7 @@ public interface Transcriptable extends MessageRetrievable {
 
                 Message referenceMessage = message.referencedMessage();
                 User author = referenceMessage.author();
-                Member member = channel.guild().getMemberById(author.id());
                 String color = "#ffffff";
-
-                if (member != null)
-                    TranscriptFormatter.toHex(Objects.requireNonNull(new Color(member.roles()[0].color())));
 
                 reference.html("<img class=\"chatlog__reference-avatar\" src=\""
                         + author.imageUrl() + "\" alt=\"Avatar\" loading=\"lazy\">" +

@@ -6,6 +6,7 @@ import com.seailz.discordjar.model.automod.AutomodRule;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -29,7 +30,7 @@ public class AutoModExecutionEvent extends GuildEvent {
      * The rule that was triggered.
      */
     @Nullable
-    public AutomodRule getRule() {
+    public AutomodRule getRule() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         if (getGuild() == null) return null;
         return getGuild().getAutomodRuleById(
                 getJson().getJSONObject("d").getString("rule_id")
@@ -49,7 +50,7 @@ public class AutoModExecutionEvent extends GuildEvent {
     }
 
     @Nullable
-    public User getUser() {
+    public User getUser() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getBot().getUserById(getJson().getJSONObject("d").getString("user_id"));
     }
 

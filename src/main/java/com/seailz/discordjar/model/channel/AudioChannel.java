@@ -2,11 +2,15 @@ package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
+import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
+import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.AudioChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Represents an audio channel.
  */
-public interface AudioChannel extends GuildChannel, CategoryMember {
+public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Messageable, MessageRetrievable {
     /**
      * Returns the ID of the last {@link Message} sent in the text section
      * <br>of the voice channel.
@@ -32,7 +36,7 @@ public interface AudioChannel extends GuildChannel, CategoryMember {
      */
     int bitrate();
 
-    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

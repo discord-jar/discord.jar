@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -79,23 +80,30 @@ public class CreateGuildChannelAction {
 
     public CompletableFuture<GuildChannel> run() {
         CompletableFuture<GuildChannel> future = new CompletableFuture<>();
-        future.completeAsync(() -> GuildChannel.decompile(
-                new DiscordRequest(
-                        new JSONObject()
-                                .put("name", name)
-                                .put("type", type.getCode())
-                                .put("topic", topic)
-                                .put("position", position)
-                                .put("permission_overwrites", permissionOverwrites)
-                                .put("parent_id", category.id()),
-                        new HashMap<>(),
-                        URLS.POST.GUILDS.CHANNELS.CREATE.replace("{guild.id}", guild.id()),
-                        discordJar,
-                        URLS.POST.GUILDS.CHANNELS.CREATE,
-                        RequestMethod.POST
-                ).invoke().body(),
-                discordJar
-        ));
+        future.completeAsync(() -> {
+            try {
+                return GuildChannel.decompile(
+                        new DiscordRequest(
+                                new JSONObject()
+                                        .put("name", name)
+                                        .put("type", type.getCode())
+                                        .put("topic", topic != null ? topic : JSONObject.NULL)
+                                        .put("position", position)
+                                        .put("permission_overwrites", permissionOverwrites)
+                                        .put("parent_id", category != null ? category.id() : JSONObject.NULL),
+                                new HashMap<>(),
+                                URLS.POST.GUILDS.CHANNELS.CREATE.replace("{guild.id}", guild.id()),
+                                discordJar,
+                                URLS.POST.GUILDS.CHANNELS.CREATE,
+                                RequestMethod.POST
+                        ).invoke().body(),
+                        discordJar
+                );
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                future.completeExceptionally(e);
+            }
+            return null;
+        });
         return future;
     }
 

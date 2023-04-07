@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -164,7 +165,7 @@ public class Interaction implements Compilerable {
     }
 
     @NotNull
-    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = json.has("id") ? json.getString("id") : null;
         Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;

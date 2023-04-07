@@ -174,7 +174,12 @@ public class EditInteractionMessageAction {
                     RequestMethod.PATCH
             );
 
-            return Message.decompile(request.invoke().body(), discordJar);
+            try {
+                return Message.decompile(request.invoke().body(), discordJar);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                future.completeExceptionally(e);
+                return null;
+            }
         });
         return future;
     }

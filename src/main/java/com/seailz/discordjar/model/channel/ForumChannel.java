@@ -4,10 +4,12 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.StartThreadForumChannelAction;
 import com.seailz.discordjar.model.channel.forum.DefaultSortOrder;
 import com.seailz.discordjar.model.channel.forum.ForumTag;
+import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ForumChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -85,7 +87,7 @@ public interface ForumChannel extends GuildChannel {
         return obj;
     }
 
-    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");
@@ -107,7 +109,7 @@ public interface ForumChannel extends GuildChannel {
             }
         }
 
-        Guild guild = discordJar.getGuildById(obj.getString("guild_id"));
+        Guild guild = obj.has("guild_id") && !obj.isNull("guild_id") ?  discordJar.getGuildById(obj.getString("guild_id")) : null;
         DefaultForumLayout dfl = obj.has("default_forum_layout") && !obj.isNull("default_forum_layout")  ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
         return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJar, dfl);
     }

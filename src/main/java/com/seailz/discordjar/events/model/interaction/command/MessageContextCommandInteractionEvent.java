@@ -24,7 +24,7 @@ public class MessageContextCommandInteractionEvent extends CommandInteractionEve
      * @return {@link Message} object containing the message data.
      */
     @Nullable
-    public Message getTarget() {
+    public Message getTarget() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response =
                 new DiscordRequest(
                         new JSONObject(),

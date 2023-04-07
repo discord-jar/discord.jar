@@ -122,7 +122,7 @@ public record ResolvedData(
                 finalRoles.put(key, Role.decompile(new JSONObject(json)));
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            roles = null;
         }
 
         try {

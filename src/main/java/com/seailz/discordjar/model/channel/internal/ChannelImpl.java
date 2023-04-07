@@ -63,7 +63,7 @@ public class ChannelImpl implements Channel {
     }
 
     @Override
-    public void delete() {
+    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

@@ -210,7 +210,7 @@ public record User(
      * @return {@link DMChannel} object
      */
     @Nullable
-    public DMChannel createDM() {
+    public DMChannel createDM() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         JSONObject obj = new JSONObject()
                 .put("recipient_id", id);
         DiscordResponse resp = new DiscordRequest(

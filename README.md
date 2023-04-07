@@ -9,6 +9,12 @@ a **work in progress** Java wrapper for the [Discord API](https://discord.com/de
 Everything that needs doing can be found in the [Issues](https://github.com/discord-jar/discord.jar/issues) tab, so if you're
 interested in helping out it would be greatly appreciated! Developed & maintained by @seailz
 
+🧵Multi-Threaded<br>
+🌐Supports interaction only/http-only bots!<br>
+🔗Supports linked roles<br>
+🏃Efficient!
+
+
 Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
@@ -51,7 +57,7 @@ To make your bot an <a href="https://discord.com/developers/docs/topics/gateway#
 you'll need to specify a couple more parameters.
 
 ```java
-new DiscordJar("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES), APIVersion.getLatest(), true,
+new DiscordJar("token", true,
         new HTTPOnlyInfo(
         "interactions",
         "EXAMPLE_APPLICATION_PUBLIC_KEY" // this cxan be found in your application's page in the dev panel

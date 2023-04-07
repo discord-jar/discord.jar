@@ -1,19 +1,31 @@
 package com.seailz.discordjar.model.channel.thread;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.TextChannel;
+import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ThreadImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
+import com.seailz.discordjar.model.component.DisplayComponent;
+import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -40,7 +52,7 @@ import java.util.List;
  * @since  1.0
  * @see    GuildChannel
  */
-public interface Thread extends GuildChannel {
+public interface Thread extends GuildChannel, Typeable {
 
     /**
      * The id of the parent channel
@@ -132,7 +144,7 @@ public interface Thread extends GuildChannel {
      */
     @NotNull
     @Contract("_, _ -> new")
-    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -161,6 +173,68 @@ public interface Thread extends GuildChannel {
 
         return new ThreadImpl(id, type, name, guild, position, permissionOverwrites, nsfw, owner, rateLimitPerUser, creatorId, lastPinTimestamp, messageCount, metadata,
                 member, totalMessageSent, defaultThreadRateLimitPerUser, lastMessageId, obj, discordJar);
+    }
+
+    default MessageCreateAction sendMessage(String text) {
+        return new MessageCreateAction(text, id(), discordJv());
+    }
+
+    default MessageCreateAction sendComponents(DisplayComponent... components) {
+        return new MessageCreateAction(new ArrayList<>(List.of(components)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendEmbeds(Embeder... embeds) {
+        return new MessageCreateAction(new ArrayList<>(List.of(embeds)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendAttachments(Attachment... attachments) {
+        return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
+    }
+
+    default void removeMember(String userId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER
+                        .replace("{channel.id}", id())
+                        .replace("{user.id}", userId),
+                discordJv(),
+                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+    default void removeMember(User user) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        removeMember(user.id());
+    }
+
+    default void removeMember(Member member) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        removeMember(member.user().id());
+    }
+
+    public enum AutoArchiveDuration {
+        MINUTES_60(60),
+        MINUTES_1440(1440),
+        MINUTES_4320(4320),
+        MINUTES_10080(10080);
+
+        private final int minutes;
+
+        AutoArchiveDuration(int minutes) {
+            this.minutes = minutes;
+        }
+
+        public int minutes() {
+            return minutes;
+        }
+
+        public static AutoArchiveDuration fromMinutes(int minutes) {
+            for (AutoArchiveDuration duration : values()) {
+                if (duration.minutes() == minutes)
+                    return duration;
+            }
+            return null;
+        }
     }
 
 }

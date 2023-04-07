@@ -46,6 +46,7 @@ public final class URLS {
 
         public static class MESSAGES {
             public static final String SEND = "/channels/{channel.id}/messages";
+            public static final String EDIT = "/channels/{channel.id}/messages/{message.id}";
             public static final String START_THREAD_FORUM = "/channels/{channel.id}/threads";
         }
 
@@ -64,6 +65,17 @@ public final class URLS {
                  * Creates a channel
                  */
                 public static final String CREATE = "/guilds/{guild.id}/channels";
+            }
+        }
+
+        public static class CHANNELS {
+            public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
+            public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
+
+            public static class MESSAGES {
+                public static class THREADS {
+                    public static String START_THREAD_FROM_MESSAGE = "/channels/{channel.id}/messages/{message.id}/threads";
+                }
             }
         }
 
@@ -151,10 +163,27 @@ public final class URLS {
                  * @param id The id of the channel
                  */
                 public static String GET_MESSAGES = "/channels/{channel.id}/messages";
+                /**
+                 * Returns a message
+                 */
+                public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
         }
 
         public static class GUILDS {
+
+            /**
+             * Retrieves the guild onboarding flow for the guild.
+             * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
+             */
+            public static String GET_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
+
+            /**
+             * Returns a list of invites for this guild.
+             * Requires the MANAGE_GUILD permission.
+             */
+            public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
+
             /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *
@@ -320,6 +349,9 @@ public final class URLS {
         }
 
         public static class CHANNEL {
+            public static class PINS {
+                public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
+            }
             public static class MESSAGE {
                 public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
             }
@@ -329,6 +361,10 @@ public final class URLS {
              * @param id The id of the channel
              */
             public static String DELETE_CHANNEL = "/channels/{channel.id}";
+
+            public static class THREAD_MEMBERS {
+                public static String REMOVE_THREAD_MEMBER = "/channels/{channel.id}/thread-members/{user.id}";
+            }
         }
 
         public static class INVITE {
@@ -376,6 +412,10 @@ public final class URLS {
 
         public static class CHANNEL {
             public static String MODIFY_CHANNEL = "/channels/{channel.id}";
+
+            public static class MESSAGE {
+                public static String EDIT = "/channels/{channel.id}/messages/{message.id}";
+            }
         }
 
         public static class INTERACTIONS {
@@ -411,6 +451,16 @@ public final class URLS {
                      */
                     public static String ADD_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";
                 }
+            }
+        }
+
+
+        public static class CHANNELS {
+            public static class PERMISSIONS {
+                public static String EDIT_CHANNEL_PERMS = "/channels/{channel.id}/permissions/{overwrite.id}";
+            }
+            public static class PINS {
+                public static String PIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }
         }
     }

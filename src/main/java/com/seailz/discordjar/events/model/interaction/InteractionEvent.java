@@ -14,6 +14,7 @@ import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -44,7 +45,8 @@ public class InteractionEvent extends Event {
     public Interaction getInteraction() {
         try {
             return Interaction.decompile(getJson().getJSONObject("d"), getBot());
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException |
+                 DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -101,13 +103,13 @@ public class InteractionEvent extends Event {
     }
 
     @NotNull
-    public InteractionHandler defer() {
+    public InteractionHandler defer() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         getHandler().defer();
         return getHandler();
     }
 
     @NotNull
-    public InteractionHandler defer(boolean ephemeral) {
+    public InteractionHandler defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         getHandler().defer(ephemeral);
         return getHandler();
     }

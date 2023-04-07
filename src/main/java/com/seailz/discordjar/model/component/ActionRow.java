@@ -19,6 +19,7 @@ import java.util.List;
 public class ActionRow implements DisplayComponent {
 
     private List<RawComponent> components;
+    private JSONObject raw;
 
     @Override
     public JSONObject compile() {
@@ -28,6 +29,11 @@ public class ActionRow implements DisplayComponent {
         List<Component> components = new ArrayList<>(components());
         obj.put("components", Component.compileList(components));
         return obj;
+    }
+
+    @Override
+    public JSONObject raw() {
+        return raw;
     }
 
     @Override
@@ -60,15 +66,16 @@ public class ActionRow implements DisplayComponent {
     }
 
     @NotNull
-    public static ActionRow decompile(JSONObject obj, DiscordJar discordJar) {
+    public static ActionRow decompile(JSONObject obj) {
         ActionRow row = new ActionRow();
         List<RawComponent> comp = new ArrayList<>();
 
-        try {
-            Component.decompileList(obj.getJSONArray("components"), discordJar).forEach(component -> comp.add((RawComponent) component));
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        obj.getJSONArray("components").forEach(c -> {
+            JSONObject component = (JSONObject) c;
+            comp.add(RawComponent.unknown(component));
+        });
+        row.raw = obj;
+        row.components = comp;
         return row;
     }
 }

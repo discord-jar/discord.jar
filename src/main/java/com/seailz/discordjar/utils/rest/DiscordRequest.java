@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -63,7 +66,11 @@ public class DiscordRequest {
                 double currentEpoch = Instant.now().toEpochMilli() * 10;
                 if (currentEpoch > resetAfter) {
                     djv.removeBucket(bucket);
-                    invoke();
+                    try {
+                        invoke();
+                    } catch (UnhandledDiscordAPIErrorException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 }
             }
@@ -168,8 +175,24 @@ public class DiscordRequest {
                 }
                 JSONObject body = new JSONObject(response.body());
                 Bucket exceededBucket = djv.getBucket(response.headers().map().get("X-RateLimit-Bucket").get(0));
-               queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                //queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
 
+                if (body.has("retry_after")) {
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep((long) (body.getFloat("retry_after") * 1000));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            invoke(contentType, auth);
+                        } catch (UnhandledDiscordAPIErrorException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).start();
+                } else {
+                    queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                }
                 if (body.getBoolean("global")) {
                     Logger.getLogger("RateLimit").severe(
                             "[RATE LIMIT] This seems to be a global rate limit. If you are not sending a huge amount" +
@@ -213,27 +236,33 @@ public class DiscordRequest {
                     responseCode,
                     "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
             );
-        } catch (UnhandledDiscordAPIErrorException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException | IOException | URISyntaxException e) {
+            // attempt gateway reconnect
+            throw new DiscordUnexpectedError(e);
         }
-        return null;
     }
 
-    public DiscordResponse invoke(JSONObject body) {
+    public class DiscordUnexpectedError extends RuntimeException {
+        public DiscordUnexpectedError(Throwable throwable) {
+            super(throwable);
+            // attempt gateway reconnect
+            djv.restartGateway();
+        }
+    }
+
+    public DiscordResponse invoke(JSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
 
-    public DiscordResponse invokeNoAuth(JSONObject body) {
+    public DiscordResponse invokeNoAuth(JSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, false);
     }
 
-    public DiscordResponse invokeNoAuthCustomContent(String contentType) {
+    public DiscordResponse invokeNoAuthCustomContent(String contentType) throws UnhandledDiscordAPIErrorException {
         return invoke(contentType, false);
     }
 
-    public DiscordResponse invoke(JSONArray arr) {
+    public DiscordResponse invoke(JSONArray arr) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
 
@@ -311,6 +340,8 @@ public class DiscordRequest {
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
+            System.out.println(response.body());
+
             if (responseCode == 200 || responseCode == 201) {
 
                 var bodyResponse = new Object();
@@ -348,12 +379,16 @@ public class DiscordRequest {
 
             errorArray.forEach(o -> {
                 JSONObject errorObject = (JSONObject) o;
-                throw new DiscordAPIErrorException(
-                        responseCode,
-                        errorObject.getString("code"),
-                        errorObject.getString("message"),
-                        error.toString()
-                );
+                try {
+                    throw new DiscordAPIErrorException(
+                            responseCode,
+                            errorObject.getString("code"),
+                            errorObject.getString("message"),
+                            error.toString()
+                    );
+                } catch (DiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -362,13 +397,13 @@ public class DiscordRequest {
     }
 
 
-    public static class DiscordAPIErrorException extends RuntimeException {
+    public static class DiscordAPIErrorException extends Exception {
         public DiscordAPIErrorException(int code, String errorCode, String error, String body) {
             super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + errorCode + " " + error + " " + body);
         }
     }
 
-    public static class UnhandledDiscordAPIErrorException extends RuntimeException {
+    public static class UnhandledDiscordAPIErrorException extends Exception {
         public UnhandledDiscordAPIErrorException(int code, String error) {
             super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
         }

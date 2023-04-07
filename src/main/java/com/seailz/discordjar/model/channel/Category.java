@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.channel.internal.CategoryImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,7 +16,7 @@ public interface Category extends GuildChannel {
 
     List<CategoryMember> members();
 
-    static Category decompile(JSONObject obj, DiscordJar discordJar) {
+    static Category decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -41,7 +42,7 @@ public interface Category extends GuildChannel {
         return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, channels, obj, discordJar);
     }
 
-    static Category fromId(String id, DiscordJar discordJar) {
+    static Category fromId(String id, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return discordJar.getCategoryById(id);
     }
 

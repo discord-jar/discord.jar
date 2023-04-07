@@ -52,23 +52,30 @@ public class ModifyStickerAction {
 
     public CompletableFuture<Sticker> run() {
         CompletableFuture<Sticker> stickerCompletableFuture = new CompletableFuture<>();
-        stickerCompletableFuture.completeAsync(() -> Sticker.decompile(
-                new DiscordRequest(
-                        new JSONObject()
-                                .put("name", name != null ? name : JSONObject.NULL)
-                                .put("description", description != null ? description : JSONObject.NULL)
-                                .put("tags", tags != null ? tags : JSONObject.NULL),
-                        new HashMap<>(),
-                        URLS.PATCH.GUILD.STICKER.MODIFY_GUILD_STICKER.replace(
-                                "{sticker_id}",
-                                stickerId
-                        ),
-                        discordJar,
-                        URLS.PATCH.GUILD.STICKER.MODIFY_GUILD_STICKER,
-                        RequestMethod.PATCH
-                ).invoke().body(),
-                discordJar
-        ));
+        stickerCompletableFuture.completeAsync(() -> {
+            try {
+                return Sticker.decompile(
+                        new DiscordRequest(
+                                new JSONObject()
+                                        .put("name", name != null ? name : JSONObject.NULL)
+                                        .put("description", description != null ? description : JSONObject.NULL)
+                                        .put("tags", tags != null ? tags : JSONObject.NULL),
+                                new HashMap<>(),
+                                URLS.PATCH.GUILD.STICKER.MODIFY_GUILD_STICKER.replace(
+                                        "{sticker_id}",
+                                        stickerId
+                                ),
+                                discordJar,
+                                URLS.PATCH.GUILD.STICKER.MODIFY_GUILD_STICKER,
+                                RequestMethod.PATCH
+                        ).invoke().body(),
+                        discordJar
+                );
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                stickerCompletableFuture.completeExceptionally(e);
+                return null;
+            }
+        });
         return stickerCompletableFuture;
     }
 

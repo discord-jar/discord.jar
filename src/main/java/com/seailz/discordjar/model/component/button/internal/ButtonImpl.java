@@ -20,13 +20,15 @@ public class ButtonImpl implements Button {
     private String url;
     private boolean isDisabled;
 
+    private JSONObject raw;
+
     @Override
     public JSONObject compile() {
         JSONObject json = new JSONObject();
         json.put("type", ComponentType.BUTTON.getCode());
         json.put("label", label);
         json.put("style", style.code());
-        json.put("custom_id", customId);
+        if (customId != null) json.put("custom_id", customId);
         if (url != null) json.put("url", url);
         if (isDisabled) json.put("disabled", true);
         if (emoji != null) json.put("emoji", emoji.compile());
@@ -121,10 +123,21 @@ public class ButtonImpl implements Button {
         ButtonImpl button = new ButtonImpl();
         button.setLabel(obj.getString("label"));
         button.setStyle(ButtonStyle.fromCode(obj.getInt("style")));
-        button.setCustomId(obj.getString("custom_id"));
+        if (obj.has("custom_id")) button.setCustomId(obj.getString("custom_id"));
         if (obj.has("url")) button.setUrl(obj.getString("url"));
         if (obj.has("disabled")) button.setDisabled(obj.getBoolean("disabled"));
         if (obj.has("emoji")) button.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJar));
+        button.setRaw(obj);
         return button;
+    }
+
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+        this.raw = raw;
     }
 }

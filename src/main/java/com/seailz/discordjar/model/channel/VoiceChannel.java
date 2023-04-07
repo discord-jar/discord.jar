@@ -3,10 +3,12 @@ package com.seailz.discordjar.model.channel;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.audio.VideoQualityMode;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.internal.VoiceChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -41,7 +43,7 @@ public interface VoiceChannel extends AudioChannel {
         return obj;
     }
 
-    static VoiceChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static VoiceChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

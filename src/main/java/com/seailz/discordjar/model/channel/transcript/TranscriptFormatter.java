@@ -61,7 +61,7 @@ public class TranscriptFormatter {
             String group = matcher.group();
             newText = newText.replace(group,
                     "<div class=\"pre pre--multiline nohighlight\">"
-                            + group.replace("```", "").substring(3, -3) + "</div>");
+                            + group.replace("```", "").substring(3, group.length() - 3) + "</div>");
             findCode = true;
         }
         if (!findCode) {

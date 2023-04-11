@@ -73,8 +73,12 @@ public class Interaction implements Compilerable {
         this.token = token;
         this.version = version;
         this.message = message;
-        BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
-        this.appPermissions = bitwiseUtil.get(Long.parseLong(appPermissions), Permission.class);
+        if (appPermissions != null) {
+            BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
+            this.appPermissions = bitwiseUtil.get(Long.parseLong(appPermissions), Permission.class);
+        } else {
+            this.appPermissions = EnumSet.noneOf(Permission.class);
+        }
         this.locale = locale;
         this.guildLocale = guildLocale;
         this.raw = raw;

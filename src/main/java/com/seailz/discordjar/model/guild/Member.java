@@ -136,6 +136,21 @@ public record Member(
     }
 
     /**
+     * Nickname the member
+     * @param nick the nickname to set
+     */
+    public void nickname(String nick) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject().put("nick", nick),
+                new HashMap<>(),
+                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                discordJar,
+                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                RequestMethod.PATCH
+        ).invoke();
+    }
+
+    /**
      * 	Will throw a 403 error if the user has the ADMINISTRATOR permission or is the owner of the guild
      * @param seconds the amount of seconds to add to the timeout
      */

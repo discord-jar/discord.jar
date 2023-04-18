@@ -6,6 +6,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelMention;
+import com.seailz.discordjar.model.component.ActionRow;
 import com.seailz.discordjar.model.component.Component;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embed;
@@ -18,6 +19,7 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public record Message(
         // The snowflake ID of the message
@@ -158,21 +161,17 @@ public record Message(
             mentionEveryone = false;
         }
 
-        try {
+        /*try {
             JSONArray componentsJson = obj.getJSONArray("components");
             List<Component> componentsDecompiled = Component.decompileList(componentsJson, discordJar);
-            List<DisplayComponent> displayComponents = new ArrayList<>();
-            for (Component component : componentsDecompiled) {
-                if (component instanceof DisplayComponent) {
-                    displayComponents.add((DisplayComponent) component);
-                }
-            }
+            List<ActionRow> actionRowCom = componentsDecompiled.stream().map(component -> ActionRow.decompile(component.raw())).toList();
+            components = actionRowCom.stream().map(actionRow -> (DisplayComponent) actionRow).toList();
         } catch (JSONException e) {
             components = null;
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             components = null;
             e.printStackTrace();
-        }
+        }*/
 
         try {
             JSONArray mentionsArray = obj.getJSONArray("mentions");
@@ -465,6 +464,42 @@ public record Message(
                 URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
                 RequestMethod.DELETE
         ).invoke();
+    }
+
+    /**
+     * Creates a new thread from the message.
+     * @param name The name of the thread.
+     * @param archiveAfter The duration which after no activity the thread will be archived.
+     */
+    public CompletableFuture<Thread> startThreadFromMessage(String name, Thread.AutoArchiveDuration archiveAfter, int rateLimitPerUser) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        CompletableFuture<Thread> future = new CompletableFuture<>();
+        future.completeAsync(() -> {
+            JSONObject body = new JSONObject();
+            body.put("name", name);
+            body.put("auto_archive_duration", archiveAfter.minutes());
+            body.put("rate_limit_per_user", rateLimitPerUser);
+
+            DiscordResponse res = null;
+            try {
+                res = new DiscordRequest(
+                        body,
+                        new HashMap<>(),
+                        URLS.POST.CHANNELS.MESSAGES.THREADS.START_THREAD_FROM_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                        discordJar,
+                        URLS.POST.CHANNELS.MESSAGES.THREADS.START_THREAD_FROM_MESSAGE,
+                        RequestMethod.POST
+                ).invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                return Thread.decompile(res.body(), discordJar);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return future;
     }
 
 }

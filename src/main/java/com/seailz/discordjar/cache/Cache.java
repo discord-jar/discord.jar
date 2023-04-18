@@ -99,7 +99,8 @@ public class Cache<T> {
      */
     public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
-        cache.forEach(t -> {
+        ArrayList<T> cacheCopy = new ArrayList<>(cache);
+        cacheCopy.forEach(t -> {
             String itemId;
 
             for (Method method : clazz.getMethods()) {
@@ -142,7 +143,7 @@ public class Cache<T> {
                     returnObject.set(decompile.invoke(null, response.body()));
                     Logger.getLogger("discord.jar").info("Successfully retrieved object from cache!");
                 } catch (IllegalAccessException | InvocationTargetException ex) {
-                    Logger.getLogger("DiscordJar").severe("Was unable to return user from cache, please report this to discord.jar's github!");
+                    Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
                     throw new RuntimeException(ex);
                 }
             }

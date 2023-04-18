@@ -148,6 +148,10 @@ public interface MessageRetrievable extends Channel {
             lastMessageId = m.id();
         }
 
+        if (messages.size() == 0) {
+            return messages;
+        }
+
         for (int i = 0; i < 4; i++) {
             for (Message m : messagesBefore(lastMessageId, 100)) {
                 messages.add(m);

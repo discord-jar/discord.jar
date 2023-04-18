@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.team.Team;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.flag.Bitwiseable;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.Snowflake;
@@ -68,7 +69,7 @@ public record Application(
         String primary_sku_id,
         String slug,
         String coverImage,
-        EnumSet<ApplicationFlag> flags,
+        EnumSet<Flag> flags,
         int flagsRaw,
         List<String> tags,
         String customInstallUrl,
@@ -121,7 +122,7 @@ public record Application(
         String primary_sku_id;
         String slug;
         String coverImage;
-        EnumSet<ApplicationFlag> flags = null;
+        EnumSet<Flag> flags = null;
         int flagsRaw;
         List<String> tags;
         String customInstallUrl;
@@ -232,7 +233,7 @@ public record Application(
 
         try {
             flagsRaw = obj.getInt("flags");
-            flags = flags = new BitwiseUtil<ApplicationFlag>().get(flagsRaw, ApplicationFlag.class);
+            flags = flags = new BitwiseUtil<Flag>().get(flagsRaw, Flag.class);
         } catch (JSONException e) {
             flagsRaw = 0;
         }
@@ -344,5 +345,55 @@ public record Application(
 
     public void setRoleConnections(ApplicationRoleConnectionMetadata... roleConnections) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         setRoleConnections(Arrays.asList(roleConnections));
+    }
+
+    /**
+     * Represents a flag on an application's account.
+     * This is used to determine if an application has a certain feature enabled or not.
+     *
+     * @author Seailz
+     * @since 1.0
+     */
+    @SuppressWarnings("rawtypes")
+    public enum Flag implements Bitwiseable {
+        // Indicates if an app uses the Auto Moderation API.
+        APPLICATION_AUTO_MODERATION_RULE_CREATE_BADGE(6),
+        // Intent required for bots in 100 or more servers to receive presence_update events
+        GATEWAY_PRESENCE(12),
+        // Intent required for bots in under 100 servers to receive presence_update events, found in Bot Settings
+        GATEWAY_PRESENCE_LIMITED(13),
+        // Intent required for bots in 100 or more servers to receive member-related events like guild_member_add. See list of member-related events under GUILD_MEMBERS
+        GATEWAY_GUILD_MEMBERS(14),
+        // Intent required for bots in under 100 servers to receive member-related events like guild_member_add, found in Bot Settings. See list of member-related events under GUILD_MEMBERS
+        GATEWAY_GUILD_MEMBERS_LIMITED(15),
+        // Indicates unusual growth of an app that prevents verification
+        VERIFICATION_PENDING_GUILD_LIMIT(16),
+        // Indicates if an app is embedded within the Discord client (currently unavailable publicly)
+        EMBEDDED(17),
+        // Intent required for bots in 100 or more servers to receive message content
+        GATEWAY_MESSAGE_CONTENT(18),
+        // Intent required for bots in under 100 servers to receive message content, found in Bot Settings
+        GATEWAY_MESSAGE_CONTENT_LIMITED(19),
+        // Indicates if an app has registered global application commands
+        APPLICATION_COMMANDS_BADE(23),
+        // considered an "active" bot, can be used for getting the "Active Developer" badge
+        ACTIVE_BOT(24),
+        ;
+
+        private final int id;
+
+        Flag(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public int getLeftShiftId() {
+            return 1 << id;
+        }
+
+        @Override
+        public int id() {
+            return id;
+        }
     }
 }

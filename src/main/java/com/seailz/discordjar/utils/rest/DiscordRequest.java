@@ -175,8 +175,24 @@ public class DiscordRequest {
                 }
                 JSONObject body = new JSONObject(response.body());
                 Bucket exceededBucket = djv.getBucket(response.headers().map().get("X-RateLimit-Bucket").get(0));
-               queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                //queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
 
+                if (body.has("retry_after")) {
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep((long) (body.getFloat("retry_after") * 1000));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            invoke(contentType, auth);
+                        } catch (UnhandledDiscordAPIErrorException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).start();
+                } else {
+                    queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                }
                 if (body.getBoolean("global")) {
                     Logger.getLogger("RateLimit").severe(
                             "[RATE LIMIT] This seems to be a global rate limit. If you are not sending a huge amount" +

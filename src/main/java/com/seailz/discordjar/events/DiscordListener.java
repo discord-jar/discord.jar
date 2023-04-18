@@ -4,6 +4,7 @@ import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
+import com.seailz.discordjar.events.model.guild.member.GuildMemberRemoveEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberUpdateEvent;
 import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.modal.ModalInteractionEvent;
@@ -43,6 +44,9 @@ public abstract class DiscordListener {
     }
 
     public void onGuildMemberUpdate(@NotNull GuildMemberUpdateEvent event) {
+    }
+
+    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
     }
 
     // Command Events

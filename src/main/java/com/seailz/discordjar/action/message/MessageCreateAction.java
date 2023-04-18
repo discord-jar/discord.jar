@@ -306,6 +306,10 @@ public class MessageCreateAction {
             if (flagsInt != 0)
                 payload.put("flags", flagsInt);
 
+            if (allowedMentions != null) {
+                payload.put("allowed_mentions", allowedMentions.compile());
+            }
+
             DiscordRequest request = new DiscordRequest(
                     payload,
                     new HashMap<>(),

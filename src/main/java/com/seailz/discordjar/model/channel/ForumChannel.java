@@ -109,7 +109,7 @@ public interface ForumChannel extends GuildChannel {
             }
         }
 
-        Guild guild = discordJar.getGuildById(obj.getString("guild_id"));
+        Guild guild = obj.has("guild_id") && !obj.isNull("guild_id") ?  discordJar.getGuildById(obj.getString("guild_id")) : null;
         DefaultForumLayout dfl = obj.has("default_forum_layout") && !obj.isNull("default_forum_layout")  ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
         return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJar, dfl);
     }

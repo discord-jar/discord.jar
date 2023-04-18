@@ -212,4 +212,29 @@ public interface Thread extends GuildChannel, Typeable {
         removeMember(member.user().id());
     }
 
+    public enum AutoArchiveDuration {
+        MINUTES_60(60),
+        MINUTES_1440(1440),
+        MINUTES_4320(4320),
+        MINUTES_10080(10080);
+
+        private final int minutes;
+
+        AutoArchiveDuration(int minutes) {
+            this.minutes = minutes;
+        }
+
+        public int minutes() {
+            return minutes;
+        }
+
+        public static AutoArchiveDuration fromMinutes(int minutes) {
+            for (AutoArchiveDuration duration : values()) {
+                if (duration.minutes() == minutes)
+                    return duration;
+            }
+            return null;
+        }
+    }
+
 }

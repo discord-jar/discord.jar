@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.component;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.button.internal.ButtonImpl;
+import com.seailz.discordjar.model.component.impl.UnknownRawComponent;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.component.select.entity.ChannelSelectMenu;
 import com.seailz.discordjar.model.component.select.entity.RoleSelectMenu;
@@ -87,6 +88,10 @@ public interface RawComponent extends Component {
     @Override
     default boolean isModalCompatible() {
         return type().isModalCompatible();
+    }
+
+    static RawComponent unknown(JSONObject obj) {
+        return UnknownRawComponent.of(obj);
     }
 
 }

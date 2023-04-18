@@ -77,6 +77,12 @@ public final class URLS {
         public static class CHANNELS {
             public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
             public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
+
+            public static class MESSAGES {
+                public static class THREADS {
+                    public static String START_THREAD_FROM_MESSAGE = "/channels/{channel.id}/messages/{message.id}/threads";
+                }
+            }
         }
 
         public static class USERS {
@@ -171,6 +177,12 @@ public final class URLS {
         }
 
         public static class GUILDS {
+
+            /**
+             * Retrieves the guild onboarding flow for the guild.
+             * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
+             */
+            public static String GET_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
 
             /**
              * Returns a list of invites for this guild.
@@ -484,6 +496,9 @@ public final class URLS {
 
 
         public static class CHANNELS {
+            public static class PERMISSIONS {
+                public static String EDIT_CHANNEL_PERMS = "/channels/{channel.id}/permissions/{overwrite.id}";
+            }
             public static class PINS {
                 public static String PIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }

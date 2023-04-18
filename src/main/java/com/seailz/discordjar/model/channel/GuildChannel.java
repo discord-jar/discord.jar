@@ -7,14 +7,17 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.Checker;
+import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface GuildChannel extends Channel {
@@ -110,5 +113,17 @@ public interface GuildChannel extends Channel {
 
     default CreateChannelInviteAction createInvite() {
         return new CreateChannelInviteAction(discordJv(), id());
+    }
+
+    default void editChannelPermissions(PermissionOverwrite ov) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordRequest req = new DiscordRequest(
+                ov.compile(),
+                new HashMap<>(),
+                URLS.PUT.CHANNELS.PERMISSIONS.EDIT_CHANNEL_PERMS.replace("{channel.id}", id()).replace("{overwrite.id}", ov.id()),
+                discordJv(),
+                URLS.PUT.CHANNELS.PERMISSIONS.EDIT_CHANNEL_PERMS,
+                RequestMethod.PUT
+        );
+        req.invoke();
     }
 }

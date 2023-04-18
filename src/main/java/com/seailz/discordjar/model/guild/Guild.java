@@ -1375,12 +1375,13 @@ public record Guild(
 
         /**
          * Represents a prompt shown during onboarding and in customize community.
-         * @param id ID of the prompt
-         * @param type Type of prompt
-         * @param options Options available within the prompt
-         * @param title Title of the prompt
+         *
+         * @param id           ID of the prompt
+         * @param type         Type of prompt
+         * @param options      Options available within the prompt
+         * @param title        Title of the prompt
          * @param singleSelect Indicates whether users are limited to selecting one option for the prompt
-         * @param required Indicates whether the prompt is required before a user completes the onboarding flow
+         * @param required     Indicates whether the prompt is required before a user completes the onboarding flow
          * @param inOnboarding Indicates whether the prompt is present in the onboarding flow. If `false`, the prompt will only appear
          *                     in the Channels & Roles tab.
          */
@@ -1425,8 +1426,7 @@ public record Guild(
             public enum Type {
                 MULTIPLE_CHOICE(0),
                 DROPDOWN(1),
-                UNKNOWN(-1)
-                ;
+                UNKNOWN(-1);
 
                 private final int code;
 
@@ -1450,20 +1450,21 @@ public record Guild(
 
             /**
              * Represents an option available within a prompt.
-             * @param id ID of the option
-             * @param channelIds IDs for channels a member is added to when the option is selected
-             * @param roleIds IDs for roles assigned to a member when the option is selected
-             * @param emoji Emoji for the option
-             * @param title Title of the option
+             *
+             * @param id          ID of the option
+             * @param channelIds  IDs for channels a member is added to when the option is selected
+             * @param roleIds     IDs for roles assigned to a member when the option is selected
+             * @param emoji       Emoji for the option
+             * @param title       Title of the option
              * @param description Description of the option. This may be null or an empty string.
              */
             public record Option(
-                String id,
-                List<String> channelIds,
-                List<String> roleIds,
-                Emoji emoji,
-                String title,
-                String description
+                    String id,
+                    List<String> channelIds,
+                    List<String> roleIds,
+                    Emoji emoji,
+                    String title,
+                    String description
             ) implements Compilerable {
                 @NotNull
                 @Override
@@ -1492,4 +1493,5 @@ public record Guild(
                 }
             }
         }
+    }
 }

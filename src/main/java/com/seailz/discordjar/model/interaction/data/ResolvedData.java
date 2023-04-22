@@ -94,8 +94,6 @@ public record ResolvedData(
         HashMap<String, Message> messages = new HashMap<>();
         HashMap<String, Attachment> attachments = new HashMap<>();
 
-        System.out.println(obj);
-
         if (obj.has("users") && !obj.isNull("users")) {
             JSONObject usersObj = obj.getJSONObject("users");
             for (String s : usersObj.keySet()) {

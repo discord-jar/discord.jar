@@ -57,6 +57,7 @@ public final class URLS {
              * @param id The id of the guild
              */
             public static final String PRUNE = "/guilds/{guild.id}/prune";
+            public static final String UPDATE_MFA = "/guilds/{guild.id}/mfa";
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule

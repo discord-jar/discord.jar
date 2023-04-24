@@ -843,7 +843,7 @@ public record Guild(
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
                 RequestMethod.GET
         );
-        JSONArray res = null;
+        JSONArray res;
         try {
             res = req.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -867,7 +867,7 @@ public record Guild(
      * If a guild has over a certain threshold of members, this will only send members wo are online,
      * <br>have a role, have a nickname, or are in a voice channel, and if it has under the threshold,
      * <br>it will send all members.
-     *
+     * <p>
      * Limitations put in place by Discord for this method:
      * <ul>
      *     <li><b>GUILD_PRESENCES</b> intent is required to set presences to true, otherwise it will always be false.</li>
@@ -919,7 +919,7 @@ public record Guild(
                 URLS.GET.GUILDS.GET_GUILD_INVITES,
                 RequestMethod.GET
         );
-        JSONArray res = null;
+        JSONArray res;
         res = req.invoke().arr();
         res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
         return invites;
@@ -937,7 +937,7 @@ public record Guild(
      * <b>This action is irreversible!</b>
      */
     public void delete() throws IllegalAccessException {
-        DiscordResponse response = null;
+        DiscordResponse response;
         try {
             response = new DiscordRequest(
                     new JSONObject(),
@@ -960,7 +960,7 @@ public record Guild(
      */
     public void deleteRole(Role role) {
         try {
-            DiscordResponse response = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.ROLES.replace("{guild.id}", id).replace("{role.id}", role.id()),
@@ -1005,14 +1005,35 @@ public record Guild(
         return roles;
     }
 
-    // Guild bans
+    /**
+     * Modifies the MFA level of a Guild. This requires Guild ownership.
+     * @param level The new MFA level to set.
+     */
+    public void modifyMFALevel(MFALevel level) {
+        if (!isOwner()) {
+            Logger.getLogger("DiscordJar").warning("You are attempting to set the MFA Level of a Guild your app does not own. This is not allowed per the Discord API.");
+            return;
+        }
+        try {
+            new DiscordRequest(
+                    new JSONObject("level", String.valueOf(level.getCode())),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.UPDATE_MFA.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.POST.GUILDS.UPDATE_MFA,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Gets a list of all currently banned users on the guild. Requires the {@code BAN_MEMBERS} permission.
      * @return Current guild bans
      */
     public List<GuildBan> getBans() {
-        DiscordResponse response = null;
+        DiscordResponse response;
         try {
             response = new DiscordRequest(
                     new JSONObject(),
@@ -1027,9 +1048,7 @@ public record Guild(
         }
 
         List<GuildBan> bans = new ArrayList<>();
-        response.arr().forEach((object) -> {
-            bans.add(GuildBan.decompile((JSONObject) object, discordJar));
-        });
+        response.arr().forEach((object) -> bans.add(GuildBan.decompile((JSONObject) object, discordJar)));
 
         return bans;
     }
@@ -1040,7 +1059,7 @@ public record Guild(
      * @return The ban on the user, if applicable
      */
     public GuildBan getBan(String userId) {
-        DiscordResponse response = null;
+        DiscordResponse response;
         try {
             response = new DiscordRequest(
                     new JSONObject(),
@@ -1062,7 +1081,7 @@ public record Guild(
      * @return The ban on the user, if applicable
      */
     public GuildBan getBan(long userId) {
-        DiscordResponse response = null;
+        DiscordResponse response;
         try {
             response = new DiscordRequest(
                     new JSONObject(),
@@ -1084,7 +1103,7 @@ public record Guild(
      */
     public void banUser(String userId) {
         try {
-            DiscordResponse response = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
@@ -1103,7 +1122,7 @@ public record Guild(
      */
     public void banUser(long userId) {
         try {
-            DiscordResponse response = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
@@ -1122,7 +1141,7 @@ public record Guild(
      */
     public void unbanUser(String userId) {
         try {
-            DiscordResponse response = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
@@ -1141,7 +1160,7 @@ public record Guild(
      */
     public void unbanUser(long userId) {
         try {
-            DiscordResponse response = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
@@ -1304,7 +1323,7 @@ public record Guild(
         }
 
         try {
-            DiscordResponse response = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject()
                             .put("days", days)
                             .put("include_roles", commaDelimitedSnowflakesString),

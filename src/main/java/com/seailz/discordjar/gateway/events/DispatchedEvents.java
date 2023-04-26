@@ -35,6 +35,8 @@ import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.utils.TriFunction;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.voice.model.VoiceServerUpdate;
+import com.seailz.discordjar.voice.model.VoiceStateUpdate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -201,6 +203,20 @@ public enum DispatchedEvents {
                 return null;
             }
         }
+        return null;
+    }),
+
+    VOICE_STATE_UPDATE((p, g, d) -> {
+        VoiceStateUpdate update = VoiceStateUpdate.decompile(p.getJSONObject("d"), d);
+        g.getOnVoiceStateUpdateListeners().forEach(lis -> lis.accept(update));
+        // TODO: Create a VoiceStateUpdateEvent
+        return null;
+    }),
+
+    VOICE_SERVER_UPDATE((p, g, d) -> {
+        VoiceServerUpdate update = VoiceServerUpdate.decompile(p.getJSONObject("d"));
+        g.getOnVoiceServerUpdateListeners().forEach(lis -> lis.accept(update));
+        // TODO: Create a VoiceServerUpdateEvent
         return null;
     }),
 

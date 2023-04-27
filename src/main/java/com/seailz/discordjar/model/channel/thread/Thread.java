@@ -5,6 +5,9 @@ import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.TextChannel;
+import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
+import com.seailz.discordjar.model.channel.interfaces.Transcriptable;
 import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ThreadImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
@@ -52,7 +55,7 @@ import java.util.List;
  * @since  1.0
  * @see    GuildChannel
  */
-public interface Thread extends GuildChannel, Typeable {
+public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetrievable, Transcriptable {
 
     /**
      * The id of the parent channel

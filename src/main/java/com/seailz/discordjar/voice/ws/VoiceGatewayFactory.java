@@ -1,5 +1,7 @@
 package com.seailz.discordjar.voice.ws;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seailz.discordjar.voice.model.packet.AudioPacket;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import com.seailz.discordjar.voice.udp.VoiceUDP;
@@ -76,7 +78,8 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 VoiceUDP udp = null;
                 ssrc = finalPayload.getInt("ssrc");
                 try {
-                    udp = new VoiceUDP(new InetSocketAddress(InetAddress.getByName(finalPayload.getString("ip")), finalPayload.getInt("port")), provider, finalPayload.getInt("ssrc"));
+                    System.out.println("IP:" + finalPayload.getString("ip") + " PORT:" + finalPayload.getInt("port") + " SSRC:" + finalPayload.getInt("ssrc") + " MODES:" + finalPayload.getJSONArray("modes"));
+                    udp = new VoiceUDP(new InetSocketAddress(InetAddress.getByName(finalPayload.getString("ip")), finalPayload.getInt("port")), provider, finalPayload.getInt("ssrc"), this);
                 } catch (SocketException | UnknownHostException e) {
                     throw new RuntimeException(e);
                 }
@@ -143,11 +146,12 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
             case 4: {
                 speaking(true);
 
-                JSONObject data = payload.getJSONObject("d");
-                byte[] secretKey = new byte[32];
-                for (int i = 0; i < 32; i++) {
-                    secretKey[i] = (byte) data.getJSONArray("secret_key").getInt(i);
-                }
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode packet = mapper.readTree(payload.toString());
+                System.out.println(payload);
+
+                JsonNode data = packet.get("d");
+                byte[] secretKey = new ObjectMapper().convertValue(data.get("secret_key"), byte[].class);
 
                 socket.setSecretKey(secretKey);
                 socket.start();
@@ -170,6 +174,8 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 .put("port", address.getPort())
                 .put("mode", "xsalsa20_poly1305"));
         selectProtocol.put("d", data);
+        System.out.println("Sending select protocol");
+        System.out.println(selectProtocol.toString());
         session.sendMessage(new TextMessage(selectProtocol.toString()));
     }
 
@@ -304,7 +310,7 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
             JSONObject speaking = new JSONObject();
             speaking.put("op", 5);
             JSONObject speakingData = new JSONObject();
-            speakingData.put("speaking", speak ? 1 : 0);
+            speakingData.put("speaking", speak ? 5 : 0);
             speakingData.put("ssrc", ssrc);
             speakingData.put("delay", 0);
             speaking.put("d", speakingData);

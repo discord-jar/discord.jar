@@ -1,7 +1,9 @@
 package com.seailz.discordjar.voice.udp;
 
+import com.codahale.xsalsa20poly1305.SecretBox;
 import com.seailz.discordjar.voice.model.packet.AudioPacket;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
+import com.seailz.discordjar.voice.ws.VoiceGatewayFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,13 +23,16 @@ public class VoiceUDP {
 
     private byte[] secretKey;
     private char sequence = 0;
-    private boolean sending = false;
+    private volatile boolean sending = false;
+    private volatile boolean speaking = false;
+    private final VoiceGatewayFactory voiceGateway;
 
-    public VoiceUDP(InetSocketAddress address, VoiceProvider provider, int srrc) throws SocketException {
+    public VoiceUDP(InetSocketAddress address, VoiceProvider provider, int srrc, VoiceGatewayFactory voiceGateway) throws SocketException {
         this.address = address;
         this.provider = provider;
         this.ssrc = srrc;
         this.socket = new DatagramSocket();
+        this.voiceGateway = voiceGateway;
     }
 
     public void setSecretKey(byte[] secretKey) {
@@ -49,27 +54,43 @@ public class VoiceUDP {
     }
 
     public void start() throws IOException {
-        System.out.println(socket.isConnected());
+        if (!socket.isConnected()) {
+            socket.connect(address);
+        }
         sending = true;
         new Thread(() -> {
             long nextFrameTimestamp = System.nanoTime();
             while (sending) {
                 if (!provider.canProvide()) {
-                    //System.out.println("Cannot provide!");
+                    System.out.println("Cannot provide!");
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     continue;
                 }
-                byte[] data = provider.provide20ms();
-                if (data == null) {
+                byte[] frame = provider.provide20ms();
+                if (frame == null) {
                     continue;
                 }
 
-                AudioPacket packet = new AudioPacket(data, ssrc, sequence, ((int) sequence) * 960);
+                AudioPacket packet = null;
+
+                if (!speaking && frame != null) {
+                    speaking = true;
+                    voiceGateway.speaking(true);
+                }
+                packet = new AudioPacket(frame, ssrc, sequence, ((int) sequence) * 960);
+
                 if (secretKey == null) {
                     Logger.getLogger("VoiceUDPConnection (discord.jar)").severe("Secret key is set to null, cannot encrypt audio packet. This is a bug, packet will be skipped.");
                     continue;
                 }
 
-                packet.encrypt(secretKey);
+                if (packet != null) {
+                    packet.encrypt(secretKey);
+                }
                 if (socket.isClosed()) {
                     System.out.println("Socket was closed!");
                     continue;
@@ -82,12 +103,18 @@ public class VoiceUDP {
                     throw new RuntimeException(e);
                 }
 
-                System.out.println(Arrays.toString(packet.toDatagramPacket(address).getData()));
+                if (sequence + 1 > Character.MAX_VALUE)
+                    sequence = 0;
+                else
+                    sequence++;
 
-                try {
-                    socket.send(packet.toDatagramPacket(address));
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                if (packet != null) {
+                    try {
+                        socket.send(packet.toDatagramPacket(address));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
 
 

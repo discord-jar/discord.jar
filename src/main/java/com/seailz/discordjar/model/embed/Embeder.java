@@ -20,8 +20,12 @@ public interface Embeder {
     Embeder removeField(String name);
 
     Embeder field(EmbedField field);
+    Embeder field(EmbedField field, int index);
+    Embeder field(String name, String value);
+    Embeder field(String name, String value, int index);
 
     Embeder field(String name, String value, boolean inline);
+    Embeder field(String name, String value, boolean inline, int index);
 
     Embeder color(Color color);
     Embeder color(int color);

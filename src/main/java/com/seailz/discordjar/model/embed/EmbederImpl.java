@@ -135,6 +135,20 @@ public class EmbederImpl implements Embeder {
         return timestamp(Instant.now().toString());
     }
 
+    @Override
+    public Embeder removeField(String name) {
+        EmbedField[] fields = this.fields;
+        EmbedField[] newFields = new EmbedField[fields.length - 1];
+        int i = 0;
+        for (EmbedField field : fields) {
+            if (!field.name().equals(name)) {
+                newFields[i++] = field;
+            }
+        }
+        this.fields = newFields;
+        return this;
+    }
+
 
     @Override
     public JSONObject compile() {

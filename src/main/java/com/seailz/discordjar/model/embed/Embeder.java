@@ -17,6 +17,8 @@ public interface Embeder {
     Embeder timestamp(String timestamp);
     Embeder timestamp();
 
+    Embeder removeField(String name);
+
     Embeder field(EmbedField field);
 
     Embeder field(String name, String value, boolean inline);

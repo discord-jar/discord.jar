@@ -133,8 +133,6 @@ public class DiscordRequest {
             HttpClient client = HttpClient.newHttpClient();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.headers().map().isEmpty());
-            System.out.println(response.headers().map().toString());
             int responseCode = response.statusCode();
             if (djv.isDebug()) {
                 System.out.println(request.method() + " " +  request.uri() + " with " + body + " returned " + responseCode + " with " + response.body());
@@ -144,7 +142,6 @@ public class DiscordRequest {
 
             // check headers for rate-limit
             if (response.headers().firstValue(("X-RateLimit-Bucket")).isPresent()) {
-                System.out.println("Rate limit headers found!");
                 String bucketId = response.headers().firstValue("X-RateLimit-Bucket").get();
                 Bucket buck = djv.getBucket(bucketId);
 
@@ -171,8 +168,6 @@ public class DiscordRequest {
             }
 
             if (responseCode == 429) {
-                System.out.println("Rate limit has been exceeded. Please make sure you are not sending too many requests.");
-                System.out.println(response.body());
                 if (djv.isDebug()) {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure" +
                             " you are not sending too many requests.");
@@ -348,7 +343,6 @@ public class DiscordRequest {
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
-            System.out.println(response.body());
 
             if (responseCode == 200 || responseCode == 201) {
 

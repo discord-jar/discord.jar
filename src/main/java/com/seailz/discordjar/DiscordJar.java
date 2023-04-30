@@ -114,6 +114,9 @@ public class DiscordJar {
      */
     private List<Bucket> buckets;
 
+    public int gatewayConnections = 0;
+    public List<GatewayFactory> gatewayFactories = new ArrayList<>();
+
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, false);
     }
@@ -285,6 +288,7 @@ public class DiscordJar {
         Status stat = killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug);
+            gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);
         }

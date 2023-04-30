@@ -65,6 +65,25 @@ public class GatewayFactory extends TextWebSocketHandler {
     public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
         this.discordJar = discordJar;
         this.debug = debug;
+
+        new Thread(() -> {
+            if (discordJar.gatewayConnections > 0) {
+                // Kill all other connections
+                for (GatewayFactory gatewayFactory : discordJar.gatewayFactories) {
+                    if (gatewayFactory != null && gatewayFactory.session.isOpen()) {
+                        try {
+                            gatewayFactory.killConnection();
+                            discordJar.gatewayFactories.remove(gatewayFactory);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+
+            discordJar.gatewayConnections = 1;
+        }).start();
+
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

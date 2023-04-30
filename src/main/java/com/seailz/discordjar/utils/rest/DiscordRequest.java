@@ -171,6 +171,8 @@ public class DiscordRequest {
             }
 
             if (responseCode == 429) {
+                System.out.println("Rate limit has been exceeded. Please make sure you are not sending too many requests.");
+                System.out.println(response.body());
                 if (djv.isDebug()) {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure" +
                             " you are not sending too many requests.");

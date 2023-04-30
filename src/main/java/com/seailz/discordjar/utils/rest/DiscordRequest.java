@@ -177,8 +177,7 @@ public class DiscordRequest {
                 }
 
                 JSONObject body = new JSONObject(response.body());
-                Bucket exceededBucket = djv.getBucket(response.headers().firstValue("X-RateLimit-Bucket").get());
-                queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
+                //queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
 
                 if (body.has("retry_after")) {
                     new Thread(() -> {
@@ -194,6 +193,10 @@ public class DiscordRequest {
                         }
                     }).start();
                 } else {
+                    if (response.headers().firstValue("X-RateLimit-Bucket").isEmpty() || response.headers().firstValue("X-RateLimit-Reset").isEmpty()) {
+                        return new DiscordResponse(429, null, null, null);
+                    }
+                    Bucket exceededBucket = djv.getBucket(response.headers().firstValue("X-RateLimit-Bucket").get());
                     queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
                 }
                 if (body.getBoolean("global")) {

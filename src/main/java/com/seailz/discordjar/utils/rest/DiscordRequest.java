@@ -133,7 +133,8 @@ public class DiscordRequest {
             HttpClient client = HttpClient.newHttpClient();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+            System.out.println(response.headers().map().isEmpty());
+            System.out.println(response.headers().map().toString());
             int responseCode = response.statusCode();
             if (djv.isDebug()) {
                 System.out.println(request.method() + " " +  request.uri() + " with " + body + " returned " + responseCode + " with " + response.body());
@@ -142,8 +143,9 @@ public class DiscordRequest {
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
             // check headers for rate-limit
-            if (response.headers().map().containsKey("X-RateLimit-Bucket")) {
-                String bucketId = response.headers().map().get("X-RateLimit-Bucket").get(0);
+            if (response.headers().firstValue(("X-RateLimit-Bucket")).isPresent()) {
+                System.out.println("Rate limit headers found!");
+                String bucketId = response.headers().firstValue("X-RateLimit-Bucket").get();
                 Bucket buck = djv.getBucket(bucketId);
 
                 List<String> affectedRoutes = buck == null ? new ArrayList<>() : new ArrayList<>(buck.getAffectedRoutes());
@@ -151,10 +153,10 @@ public class DiscordRequest {
                 else affectedRoutes.add(url);
 
                 djv.updateBucket(bucketId, new Bucket(
-                        bucketId, Integer.parseInt(response.headers().map().get("X-RateLimit-Remaining").get(0)),
-                        Double.parseDouble(response.headers().map().get(
+                        bucketId, Integer.parseInt(response.headers().firstValue("X-RateLimit-Remaining").get()),
+                        Double.parseDouble(response.headers().firstValue(
                                 "X-RateLimit-Reset"
-                        ).get(0))
+                        ).get())
                 ).setAffectedRoutes(affectedRoutes));
             }
 
@@ -173,9 +175,10 @@ public class DiscordRequest {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure" +
                             " you are not sending too many requests.");
                 }
+
                 JSONObject body = new JSONObject(response.body());
-                Bucket exceededBucket = djv.getBucket(response.headers().map().get("X-RateLimit-Bucket").get(0));
-                //queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                Bucket exceededBucket = djv.getBucket(response.headers().firstValue("X-RateLimit-Bucket").get());
+                queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
 
                 if (body.has("retry_after")) {
                     new Thread(() -> {
@@ -191,7 +194,7 @@ public class DiscordRequest {
                         }
                     }).start();
                 } else {
-                    queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                    queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
                 }
                 if (body.getBoolean("global")) {
                     Logger.getLogger("RateLimit").severe(

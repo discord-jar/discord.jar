@@ -1,5 +1,6 @@
 package com.seailz.discordjar.events;
 
+import com.seailz.discordjar.command.listeners.CommandListener;
 import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
@@ -7,6 +8,7 @@ import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberRemoveEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberUpdateEvent;
 import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
+import com.seailz.discordjar.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
@@ -51,6 +53,15 @@ public abstract class DiscordListener {
 
     // Command Events
     public void onCommandPermissionUpdate(@NotNull CommandPermissionUpdateEvent event) {
+    }
+
+    /**
+     * <b>It is not recommend to use this method.</b> Instead, where possible, you should use {@link com.seailz.discordjar.command.listeners.slash.SlashCommandListener SLashCommandListener} with a
+     * {@link com.seailz.discordjar.command.annotation.SlashCommandInfo SlashCommandInfo} annotation and then register it using {@link com.seailz.discordjar.DiscordJar#registerCommands(CommandListener...)}
+     * @param event The event
+     */
+    @Deprecated
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
     }
 
     // Message Component Events

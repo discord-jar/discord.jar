@@ -7,6 +7,7 @@ import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 /**
@@ -62,14 +63,12 @@ public class EventDispatcher {
 
             int index = 0;
             for (Method i : listeners.values()) {
-                if (i.isAnnotationPresent(EventMethod.class)) {
-                    if (i.getParameterTypes()[0].equals(type)) {
-                        try {
-                            i.setAccessible(true);
-                            i.invoke(listeners.keySet().toArray()[index], event);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                if (i.getParameterCount() == 1 && i.getParameterTypes()[0].equals(type) && Modifier.isPublic(i.getModifiers())) {
+                    try {
+                        i.setAccessible(true);
+                        i.invoke(listeners.keySet().toArray()[index], event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 index++;

@@ -44,7 +44,7 @@ public class CommandDispatcher {
 
     public void dispatch(String name, CommandInteractionEvent event) {
         Class<? extends CommandInteractionEvent> eventClass = (event instanceof SlashCommandInteractionEvent ? SlashCommandInteractionEvent.class : CommandInteractionEvent.class);
-        new EventDispatcher(event.getBot()).dispatchEvent(event, eventClass, event.getBot());
+        event.getBot().getEventDispatcher().dispatchEvent(event, eventClass, event.getBot());
         if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptionsInternal() != null && !((SlashCommandInteractionEvent) event).getOptionsInternal().isEmpty()) {
             for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptionsInternal()) {
                 if (option.type() == CommandOptionType.SUB_COMMAND) {

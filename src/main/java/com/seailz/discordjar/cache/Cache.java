@@ -1,6 +1,7 @@
 package com.seailz.discordjar.cache;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
@@ -29,11 +30,13 @@ public class Cache<T> {
     private final DiscordJar discordJar;
     private final Class<T> clazz;
     private final DiscordRequest discordRequest;
+    private final boolean isMember;
 
     public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request) {
         this.discordJar = discordJar;
         this.clazz = clazz;
         this.discordRequest = request;
+        isMember = clazz == Member.class;
 
         new Thread(() -> {
             while (true) {
@@ -55,7 +58,9 @@ public class Cache<T> {
     public void cache(@NotNull T t)  {
         String id;
         try {
-             id = (String) t.getClass().getMethod("id").invoke(t);
+            if (isMember) {
+                id = ((Member) t).user().id();
+            } else id = (String) t.getClass().getMethod("id").invoke(t);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
@@ -63,7 +68,9 @@ public class Cache<T> {
         for (T cacheMember : cache) {
             String cacheId;
             try {
-                cacheId = (String) cacheMember.getClass().getMethod("id").invoke(cacheMember);
+                if (isMember) {
+                    cacheId = ((Member) cacheMember).user().id();
+                } else cacheId = (String) t.getClass().getMethod("id").invoke(t);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
@@ -106,14 +113,20 @@ public class Cache<T> {
         cacheCopy.forEach(t -> {
             String itemId;
 
-            for (Method method : clazz.getMethods()) {
-                if (method.getName().equals("id")) {
-                    try {
-                        itemId = (String) method.invoke(t);
-                        if (Objects.equals(itemId, id))
-                            returnObject.set(t);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
+            if (isMember) {
+                itemId = ((Member) t).user().id();
+                if (Objects.equals(itemId, id))
+                    returnObject.set(t);
+            } else {
+                for (Method method : clazz.getMethods()) {
+                    if (method.getName().equals("id")) {
+                        try {
+                            itemId = (String) method.invoke(t);
+                            if (Objects.equals(itemId, id))
+                                returnObject.set(t);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

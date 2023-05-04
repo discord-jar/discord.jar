@@ -25,6 +25,7 @@ import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.model.emoji.sticker.StickerPack;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.status.Status;
@@ -76,18 +77,27 @@ public class DiscordJar {
      * Intents the bot will use when connecting to the gateway
      */
     private final EnumSet<Intent> intents;
+
+    /* Caches */
+
     /**
-     * Used for caching guilds in memory
+     * Used for caching {@link Guild guilds} in memory
      */
     private final Cache<Guild> guildCache;
     /**
-     * Used for caching users in memory
+     * Used for caching {@link User users} in memory
      */
     private final Cache<User> userCache;
     /**
-     * Used for caching channels in memory
+     * Used for caching {@link Channel Channels} in memory
      */
     private final Cache<Channel> channelCache;
+    /**
+     * Used for caching {@link com.seailz.discordjar.model.guild.Member Guild Members} in memory
+     */
+    private final Cache<Member> memberCache;
+
+
     /**
      * Manages dispatching events to listeners
      */
@@ -117,47 +127,72 @@ public class DiscordJar {
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
 
+    /**
+     * Creates a new instance of discord.jar.
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, false);
     }
 
+    /**
+     * Creates a new instance of discord.jar.
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, debug);
     }
 
+    /**
+     * Creates a new instance of discord.jar.
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), version, false, null, false);
     }
 
+    /**
+     * Creates a new instance of discord.jar.
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
     }
 
+    /**
+     * Creates a new instance of discord.jar.
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
     }
 
-        /**
-         * Creates a new instance of the DiscordJar class
-         * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
-         *
-         * @param token        The token of the bot
-         * @param intents      The intents the bot will use
-         * @param version      The version of the Discord API the bot will use
-         * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
-         *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
-         *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
-         *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
-         *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
-         *                     Interaction-based events will still be delivered as usual.
-         *                     For a full tutorial, see the README.md file.
-         * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
-         *                     See the above parameter for more information.
-         * @param debug        Should the bot be in debug mode?
-         * @throws ExecutionException   If an error occurs while connecting to the gateway
-         * @throws InterruptedException If an error occurs while connecting to the gateway
-         */
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
+    /**
+     * Creates a new instance of the DiscordJar class
+     * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
+     *
+     * @param token        The token of the bot
+     * @param intents      The intents the bot will use
+     * @param version      The version of the Discord API the bot will use
+     * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
+     *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
+     *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
+     *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
+     *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
+     *                     Interaction-based events will still be delivered as usual.
+     *                     For a full tutorial, see the README.md file.
+     * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
+     *                     See the above parameter for more information.
+     * @param debug        Should the bot be in debug mode?
+     * @throws ExecutionException   If an error occurs while connecting to the gateway
+     * @throws InterruptedException If an error occurs while connecting to the gateway
+     */
+    private DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
         this.token = token;
@@ -200,6 +235,15 @@ public class DiscordJar {
                 URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", "%s"),
                 this,
                 URLS.GET.CHANNELS.GET_CHANNEL,
+                RequestMethod.GET
+        ));
+
+        this.memberCache = new Cache<>(this, Member.class, new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace("{guild.id}", "%s").replace("{user.id}", "%s"),
+                this,
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
                 RequestMethod.GET
         ));
 
@@ -609,6 +653,14 @@ public class DiscordJar {
     @NotNull
     public Cache<User> getUserCache() {
         return userCache;
+    }
+
+    /**
+     * Returns the cache for storing guild members
+     */
+    @NotNull
+    public Cache<Member> getMemberCache() {
+        return memberCache;
     }
 
     /**

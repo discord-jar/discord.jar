@@ -91,13 +91,16 @@ public class Cache<T> {
         return cache;
     }
 
+    public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        return getById(id, null);
+    }
     /**
      * Gets an item from the cache
      *
      * @param id The id of the item to get
      * @return The item
      */
-    public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public T getById(String id, String id2) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
         ArrayList<T> cacheCopy = new ArrayList<>(cache);
         cacheCopy.forEach(t -> {
@@ -118,9 +121,11 @@ public class Cache<T> {
 
         if (returnObject.get() == null) {
             // request from discord
+            String url = discordRequest.url().replaceAll("%s", id);
+            if (id2 != null) url = url.replaceAll("%s", id2);
             DiscordResponse response;
             response = new DiscordRequest(
-                    discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
+                    discordRequest.body(), discordRequest.headers(), url, discordJar, discordRequest.url(), RequestMethod.GET
             ).invoke();
             Method decompile;
             try {

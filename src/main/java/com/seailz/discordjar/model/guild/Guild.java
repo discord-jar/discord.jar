@@ -670,29 +670,31 @@ public record Guild(
         return new AutomodRuleModifyAction(id, this, discordJar);
     }
 
+    /**
+     * Given an id, returns the {@link Member member} object
+     * @param id The id of the member
+     * @return A {@link Member} object, usually from the cache, but if the member was not in the cache, it will be requested from the Discord API.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException If a member was not in the cache and there was an error getting the member from the Discord API
+     */
+    @Nullable
     public Member getMemberById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse req = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                        "{guild.id}",
-                        this.id
-                ).replace(
-                        "{user.id}",
-                        id
-                ),
-                discordJar,
-                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                RequestMethod.GET
-        ).invoke();
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        return discordJar.getMemberCache().getById(id, this.id);
+    }
 
-        if (req.body() == null) return null;
-        return Member.decompile(
-                req.body(),
-                discordJar,
-                this.id,
-                this
-        );
+    /**
+     * Returns members from the member cache rather than through the Gateway or REST API
+     * @return A {@link List<Member>} of members from the cache.
+     */
+    @NotNull
+    public List<Member> getMembersFromCache() {
+        List<Member> members = new ArrayList<>();
+        for (Member member : discordJar.getMemberCache().getCache()) {
+            if (member.guildId() != null && member.guildId().equals(id)) {
+                members.add(member);
+            }
+        }
+        return members;
     }
 
     public List<Member> getMembers(int limit, String after) throws DiscordRequest.UnhandledDiscordAPIErrorException {

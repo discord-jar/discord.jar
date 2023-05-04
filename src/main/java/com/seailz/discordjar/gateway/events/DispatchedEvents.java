@@ -68,18 +68,10 @@ public enum DispatchedEvents {
         Guild guild = Guild.decompile(p.getJSONObject("d"), g);
         g.getGuildCache().cache(guild);
 
-        // Cache all the channels
         JSONArray arr = p.getJSONObject("d").getJSONArray("channels");
         arr.forEach(o -> g.getChannelCache().cache(
                 Channel.decompile((JSONObject) o, g)
         ));
-
-        // Cache all the members
-        arr = p.getJSONObject("d").getJSONArray("members");
-        arr.forEach(o -> g.getMemberCache().cache(
-                Member.decompile((JSONObject) o, g, guild.id(), guild)
-        ));
-
         return GuildCreateEvent.class;
     }),
 
@@ -248,21 +240,9 @@ public enum DispatchedEvents {
         return null;
     }),
 
-    GUILD_MEMBER_ADD((p, g, d) -> {
-        Member member = Member.decompile(p.getJSONObject("d"), d, p.getJSONObject("d").getString("guild_id"), d.getGuildById(p.getJSONObject("d").getString("guild_id")));
-        d.getMemberCache().cache(member);
-        return GuildMemberAddEvent.class;
-    }),
-    GUILD_MEMBER_UPDATE((p, g, d) -> {
-        Member member = Member.decompile(p.getJSONObject("d"), d, p.getJSONObject("d").getString("guild_id"), d.getGuildById(p.getJSONObject("d").getString("guild_id")));
-        d.getMemberCache().cache(member);
-        return GuildMemberUpdateEvent.class;
-    }),
-    GUILD_MEMBER_REMOVE((p, g, d) -> {
-        Member member = Member.decompile(p.getJSONObject("d"), d, p.getJSONObject("d").getString("guild_id"), d.getGuildById(p.getJSONObject("d").getString("guild_id")));
-        d.getMemberCache().remove(member);
-        return GuildMemberRemoveEvent.class;
-    }),
+    GUILD_MEMBER_ADD((p, g, d) -> GuildMemberAddEvent.class),
+    GUILD_MEMBER_UPDATE((p, g, d) -> GuildMemberUpdateEvent.class),
+    GUILD_MEMBER_REMOVE((p, g, d) -> GuildMemberRemoveEvent.class),
     /* Unknown */
     UNKNOWN((p, g, d) -> null),
     ;

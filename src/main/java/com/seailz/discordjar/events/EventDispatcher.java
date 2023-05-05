@@ -3,7 +3,10 @@ package com.seailz.discordjar.events;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.annotation.EventMethod;
 import com.seailz.discordjar.events.model.Event;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
+import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.utils.annotation.RequireCustomId;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 
 import java.lang.reflect.Method;
@@ -65,6 +68,13 @@ public class EventDispatcher {
             for (Method i : listeners.values()) {
                 if (i.getParameterCount() == 1 && i.getParameterTypes()[0].equals(type) && Modifier.isPublic(i.getModifiers())) {
                     try {
+                        if (event instanceof CustomIdable) {
+                            if (i.isAnnotationPresent(RequireCustomId.class)) {
+                                if (!((CustomIdable) event).getCustomId().equals(i.getAnnotation(RequireCustomId.class).value()))
+                                    continue;
+                            }
+                        }
+
                         i.setAccessible(true);
                         i.invoke(listeners.keySet().toArray()[index], event);
                     } catch (Exception e) {

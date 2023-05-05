@@ -64,24 +64,23 @@ public class EventDispatcher {
                 }
             }
 
-            int index = 0;
-            for (Method i : listeners.values()) {
-                if (i.getParameterCount() == 1 && i.getParameterTypes()[0].equals(type) && Modifier.isPublic(i.getModifiers())) {
+            for (DiscordListener listener : listeners.keySet()) {
+                Method method = listeners.get(listener);
+                if (method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(type) && Modifier.isPublic(method.getModifiers())) {
                     try {
                         if (event instanceof CustomIdable) {
-                            if (i.isAnnotationPresent(RequireCustomId.class)) {
-                                if (!((CustomIdable) event).getCustomId().equals(i.getAnnotation(RequireCustomId.class).value()))
+                            if (method.isAnnotationPresent(RequireCustomId.class)) {
+                                if (!((CustomIdable) event).getCustomId().equals(method.getAnnotation(RequireCustomId.class).value()))
                                     continue;
                             }
                         }
 
-                        i.setAccessible(true);
-                        i.invoke(listeners.keySet().toArray()[index], event);
+                        method.setAccessible(true);
+                        method.invoke(listener, event);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                index++;
             }
         }, "EventDispatcher").start();
     }

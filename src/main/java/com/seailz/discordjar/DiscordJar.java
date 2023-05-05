@@ -686,19 +686,25 @@ public class DiscordJar {
             Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
-            registerCommand(
-                    new Command(
-                            name,
-                            listener.getType(),
-                            description,
-                            (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
-                            nameLocales,
-                            descriptionLocales,
-                            defaultMemberPermissions,
-                            canUseInDms,
-                            nsfw
-                    )
-            );
+            new Thread(() -> {
+                try {
+                    registerCommand(
+                            new Command(
+                                    name,
+                                    listener.getType(),
+                                    description,
+                                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                                    nameLocales,
+                                    descriptionLocales,
+                                    defaultMemberPermissions,
+                                    canUseInDms,
+                                    nsfw
+                            )
+                    );
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
             commandDispatcher.registerCommand(name, listener);
 
             if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;

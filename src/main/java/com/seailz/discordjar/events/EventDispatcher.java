@@ -38,9 +38,7 @@ public class EventDispatcher {
     public void addListener(DiscordListener... listeners) {
         for (DiscordListener listener : listeners) {
             for (Method method : listener.getClass().getMethods()) {
-                if (method.isAnnotationPresent(EventMethod.class)) {
-                    this.listeners.put(listener, method);
-                }
+                if (method.getParameterCount() == 1 && method.getParameterTypes()[0].getSuperclass().equals(Event.class)) this.listeners.put(listener, method);
             }
         }
     }

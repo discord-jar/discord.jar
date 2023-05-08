@@ -3,14 +3,10 @@ package com.seailz.discordjar.events;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.annotation.EventMethod;
 import com.seailz.discordjar.events.model.Event;
-import com.seailz.discordjar.events.model.interaction.CustomIdable;
-import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
-import com.seailz.discordjar.utils.annotation.RequireCustomId;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 /**
@@ -40,12 +36,7 @@ public class EventDispatcher {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.isAnnotationPresent(EventMethod.class)) {
                     this.listeners.put(listener, method);
-                    continue;
                 }
-                if (method.getParameterCount() == 1 && method.getParameterTypes()[0].getSuperclass() != null &&
-                        (method.getParameterTypes()[0].getSuperclass().equals(Event.class) ||
-                        (method.getParameterTypes()[0].getSuperclass().getSuperclass() != null && method.getParameterTypes()[0].getSuperclass().getSuperclass().equals(Event.class))))
-                    this.listeners.put(listener, method);
             }
         }
     }
@@ -69,28 +60,20 @@ public class EventDispatcher {
                 }
             }
 
-            for (DiscordListener listener : listeners.keySet()) {
-                Method method = listeners.get(listener);
-                if ((method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(type) && Modifier.isPublic(method.getModifiers())) || method.isAnnotationPresent(EventMethod.class)) {
-                    try {
-                        if (event instanceof CustomIdable) {
-                            if (method.isAnnotationPresent(RequireCustomId.class)) {
-                                if (!((CustomIdable) event).getCustomId().equals(method.getAnnotation(RequireCustomId.class).value()))
-                                    continue;
-                            }
+            int index = 0;
+            for (Method i : listeners.values()) {
+                if (i.isAnnotationPresent(EventMethod.class)) {
+                    if (i.getParameterTypes()[0].equals(type)) {
+                        try {
+                            i.setAccessible(true);
+                            i.invoke(listeners.keySet().toArray()[index], event);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-
-                        method.setAccessible(true);
-                        method.invoke(listener, event);
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
+                index++;
             }
         }, "EventDispatcher").start();
-    }
-
-    public HashMap<DiscordListener, Method> getListeners() {
-        return listeners;
     }
 }

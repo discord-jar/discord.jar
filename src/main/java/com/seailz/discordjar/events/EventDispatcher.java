@@ -71,7 +71,7 @@ public class EventDispatcher {
 
             for (DiscordListener listener : listeners.keySet()) {
                 Method method = listeners.get(listener);
-                if (method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(type) && Modifier.isPublic(method.getModifiers())) {
+                if ((method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(type) && Modifier.isPublic(method.getModifiers())) || method.isAnnotationPresent(EventMethod.class)) {
                     try {
                         if (event instanceof CustomIdable) {
                             if (method.isAnnotationPresent(RequireCustomId.class)) {

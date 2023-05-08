@@ -236,8 +236,7 @@ public class DiscordRequest {
             }
 
             throw new UnhandledDiscordAPIErrorException(
-                    responseCode,
-                    "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
+                    new JSONObject(response.body())
             );
         } catch (InterruptedException | IOException | URISyntaxException e) {
             // attempt gateway reconnect
@@ -360,38 +359,8 @@ public class DiscordRequest {
 
 
             JSONObject error = new JSONObject(response.body());
-            JSONArray errorArray;
 
-            try {
-                errorArray = error.getJSONArray("errors").getJSONArray(3);
-            } catch (JSONException e) {
-                try {
-                    errorArray = error.getJSONArray("errors").getJSONArray(1);
-                } catch (JSONException ex) {
-                    try {
-                        errorArray = error.getJSONArray("errors").getJSONArray(0);
-                    } catch (JSONException exx) {
-                        throw new UnhandledDiscordAPIErrorException(
-                                responseCode,
-                                "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
-                        );
-                    }
-                }
-            }
-
-            errorArray.forEach(o -> {
-                JSONObject errorObject = (JSONObject) o;
-                try {
-                    throw new DiscordAPIErrorException(
-                            responseCode,
-                            errorObject.getString("code"),
-                            errorObject.getString("message"),
-                            error.toString()
-                    );
-                } catch (DiscordAPIErrorException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            throw new UnhandledDiscordAPIErrorException(error);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -406,8 +375,25 @@ public class DiscordRequest {
     }
 
     public static class UnhandledDiscordAPIErrorException extends Exception {
-        public UnhandledDiscordAPIErrorException(int code, String error) {
-            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
+        private int code;
+        private JSONObject body;
+        private String error;
+        public UnhandledDiscordAPIErrorException(JSONObject body) {
+            this.body = body.getJSONObject("errors");
+            this.code = body.getInt("code");
+            this.error = body.getString("message");
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public JSONObject getBody() {
+            return body;
+        }
+
+        public String getError() {
+            return error;
         }
     }
 

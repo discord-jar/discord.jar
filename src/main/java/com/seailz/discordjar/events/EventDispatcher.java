@@ -89,4 +89,8 @@ public class EventDispatcher {
             }
         }, "EventDispatcher").start();
     }
+
+    public HashMap<DiscordListener, Method> getListeners() {
+        return listeners;
+    }
 }

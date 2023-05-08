@@ -39,8 +39,8 @@ public class EventDispatcher {
         for (DiscordListener listener : listeners) {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.getParameterCount() == 1 && method.getParameterTypes()[0].getSuperclass() != null &&
-                        method.getParameterTypes()[0].getSuperclass().equals(Event.class) ||
-                        (method.getParameterTypes()[0].getSuperclass().getSuperclass() != null && method.getParameterTypes()[0].getSuperclass().getSuperclass().equals(Event.class)))
+                        (method.getParameterTypes()[0].getSuperclass().equals(Event.class) ||
+                        (method.getParameterTypes()[0].getSuperclass().getSuperclass() != null && method.getParameterTypes()[0].getSuperclass().getSuperclass().equals(Event.class))))
                     this.listeners.put(listener, method);
             }
         }

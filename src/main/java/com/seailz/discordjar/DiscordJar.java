@@ -114,6 +114,9 @@ public class DiscordJar {
      */
     private List<Bucket> buckets;
 
+    public int gatewayConnections = 0;
+    public List<GatewayFactory> gatewayFactories = new ArrayList<>();
+
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, false);
     }
@@ -285,6 +288,7 @@ public class DiscordJar {
         Status stat = killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug);
+            gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);
         }
@@ -682,19 +686,25 @@ public class DiscordJar {
             Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
-            registerCommand(
-                    new Command(
-                            name,
-                            listener.getType(),
-                            description,
-                            (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
-                            nameLocales,
-                            descriptionLocales,
-                            defaultMemberPermissions,
-                            canUseInDms,
-                            nsfw
-                    )
-            );
+            new Thread(() -> {
+                try {
+                    registerCommand(
+                            new Command(
+                                    name,
+                                    listener.getType(),
+                                    description,
+                                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                                    nameLocales,
+                                    descriptionLocales,
+                                    defaultMemberPermissions,
+                                    canUseInDms,
+                                    nsfw
+                            )
+                    );
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
             commandDispatcher.registerCommand(name, listener);
 
             if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;

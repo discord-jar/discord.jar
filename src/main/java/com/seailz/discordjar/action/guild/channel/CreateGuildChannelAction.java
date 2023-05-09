@@ -9,6 +9,7 @@ import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -78,11 +79,11 @@ public class CreateGuildChannelAction {
         return guild;
     }
 
-    public CompletableFuture<GuildChannel> run() {
-        CompletableFuture<GuildChannel> future = new CompletableFuture<>();
-        future.completeAsync(() -> {
+    public Response<GuildChannel> run() {
+        Response<GuildChannel> res = new Response<>();
+        new Thread(() -> {
             try {
-                return GuildChannel.decompile(
+                GuildChannel chan = GuildChannel.decompile(
                         new DiscordRequest(
                                 new JSONObject()
                                         .put("name", name)
@@ -99,12 +100,16 @@ public class CreateGuildChannelAction {
                         ).invoke().body(),
                         discordJar
                 );
+                res.complete(chan);
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                future.completeExceptionally(e);
+                res.completeError(new Response.Error(
+                        e.getCode(),
+                        e.getMessage(),
+                        e.getBody()
+                ));
             }
-            return null;
-        });
-        return future;
+        }).start();
+        return res;
     }
 
 }

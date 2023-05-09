@@ -182,7 +182,7 @@ public class MessageEditAction {
     public CompletableFuture<Message> run() {
         CompletableFuture<Message> future = new CompletableFuture<>();
         future.completeAsync(() -> {
-            String url = URLS.PATCH.CHANNEL.MESSAGE.EDIT.replace("{channel.id}", channelId);
+            String url = URLS.PATCH.CHANNEL.MESSAGE.EDIT.replace("{channel.id}", channelId).replace("{message.id}", messageId);
 
             JSONObject payload = new JSONObject();
             if (this.text != null) payload.put("content", this.text);

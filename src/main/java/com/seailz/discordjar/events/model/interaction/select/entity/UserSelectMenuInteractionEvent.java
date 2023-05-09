@@ -3,6 +3,7 @@ package com.seailz.discordjar.events.model.interaction.select.entity;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjar.events.DiscordListener;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.model.component.select.entity.UserSelectMenu;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
@@ -29,7 +30,7 @@ import java.util.List;
  * @see com.seailz.discordjar.model.component.select.entity.UserSelectMenu
  * @since 1.0
  */
-public class UserSelectMenuInteractionEvent extends InteractionEvent {
+public class UserSelectMenuInteractionEvent extends InteractionEvent implements CustomIdable {
 
     public UserSelectMenuInteractionEvent(DiscordJar bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
@@ -69,6 +70,7 @@ public class UserSelectMenuInteractionEvent extends InteractionEvent {
      * @return {@link String} object containing the custom id.
      */
     @NotNull
+    @Override
     public String getCustomId() {
         return getInteractionData().customId();
     }

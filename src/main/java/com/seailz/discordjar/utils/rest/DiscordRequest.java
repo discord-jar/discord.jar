@@ -133,7 +133,6 @@ public class DiscordRequest {
             HttpClient client = HttpClient.newHttpClient();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
             int responseCode = response.statusCode();
             if (djv.isDebug()) {
                 System.out.println(request.method() + " " +  request.uri() + " with " + body + " returned " + responseCode + " with " + response.body());
@@ -142,8 +141,8 @@ public class DiscordRequest {
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
             // check headers for rate-limit
-            if (response.headers().map().containsKey("X-RateLimit-Bucket")) {
-                String bucketId = response.headers().map().get("X-RateLimit-Bucket").get(0);
+            if (response.headers().firstValue(("X-RateLimit-Bucket")).isPresent()) {
+                String bucketId = response.headers().firstValue("X-RateLimit-Bucket").get();
                 Bucket buck = djv.getBucket(bucketId);
 
                 List<String> affectedRoutes = buck == null ? new ArrayList<>() : new ArrayList<>(buck.getAffectedRoutes());
@@ -151,10 +150,10 @@ public class DiscordRequest {
                 else affectedRoutes.add(url);
 
                 djv.updateBucket(bucketId, new Bucket(
-                        bucketId, Integer.parseInt(response.headers().map().get("X-RateLimit-Remaining").get(0)),
-                        Double.parseDouble(response.headers().map().get(
+                        bucketId, Integer.parseInt(response.headers().firstValue("X-RateLimit-Remaining").get()),
+                        Double.parseDouble(response.headers().firstValue(
                                 "X-RateLimit-Reset"
-                        ).get(0))
+                        ).get())
                 ).setAffectedRoutes(affectedRoutes));
             }
 
@@ -173,9 +172,9 @@ public class DiscordRequest {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure" +
                             " you are not sending too many requests.");
                 }
+
                 JSONObject body = new JSONObject(response.body());
-                Bucket exceededBucket = djv.getBucket(response.headers().map().get("X-RateLimit-Bucket").get(0));
-                //queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                //queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
 
                 if (body.has("retry_after")) {
                     new Thread(() -> {
@@ -191,7 +190,11 @@ public class DiscordRequest {
                         }
                     }).start();
                 } else {
-                    queueRequest(Double.parseDouble(response.headers().map().get("X-RateLimit-Reset").get(0)), exceededBucket);
+                    if (response.headers().firstValue("X-RateLimit-Bucket").isEmpty() || response.headers().firstValue("X-RateLimit-Reset").isEmpty()) {
+                        return new DiscordResponse(429, null, null, null);
+                    }
+                    Bucket exceededBucket = djv.getBucket(response.headers().firstValue("X-RateLimit-Bucket").get());
+                    queueRequest(Double.parseDouble(response.headers().firstValue("X-RateLimit-Reset").get()), exceededBucket);
                 }
                 if (body.getBoolean("global")) {
                     Logger.getLogger("RateLimit").severe(
@@ -233,8 +236,7 @@ public class DiscordRequest {
             }
 
             throw new UnhandledDiscordAPIErrorException(
-                    responseCode,
-                    "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
+                    new JSONObject(response.body())
             );
         } catch (InterruptedException | IOException | URISyntaxException e) {
             // attempt gateway reconnect
@@ -340,7 +342,6 @@ public class DiscordRequest {
             HashMap<String, String> headers = new HashMap<>();
             response.headers().map().forEach((key, value) -> headers.put(key, value.get(0)));
 
-            System.out.println(response.body());
 
             if (responseCode == 200 || responseCode == 201) {
 
@@ -358,38 +359,8 @@ public class DiscordRequest {
 
 
             JSONObject error = new JSONObject(response.body());
-            JSONArray errorArray;
 
-            try {
-                errorArray = error.getJSONArray("errors").getJSONArray(3);
-            } catch (JSONException e) {
-                try {
-                    errorArray = error.getJSONArray("errors").getJSONArray(1);
-                } catch (JSONException ex) {
-                    try {
-                        errorArray = error.getJSONArray("errors").getJSONArray(0);
-                    } catch (JSONException exx) {
-                        throw new UnhandledDiscordAPIErrorException(
-                                responseCode,
-                                "Unhandled Discord API Error. Please report this to the developer of DiscordJar." + error
-                        );
-                    }
-                }
-            }
-
-            errorArray.forEach(o -> {
-                JSONObject errorObject = (JSONObject) o;
-                try {
-                    throw new DiscordAPIErrorException(
-                            responseCode,
-                            errorObject.getString("code"),
-                            errorObject.getString("message"),
-                            error.toString()
-                    );
-                } catch (DiscordAPIErrorException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            throw new UnhandledDiscordAPIErrorException(error);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -404,8 +375,25 @@ public class DiscordRequest {
     }
 
     public static class UnhandledDiscordAPIErrorException extends Exception {
-        public UnhandledDiscordAPIErrorException(int code, String error) {
-            super("DiscordAPI [Error " + HttpStatus.valueOf(code) + "]: " + error);
+        private int code;
+        private JSONObject body;
+        private String error;
+        public UnhandledDiscordAPIErrorException(JSONObject body) {
+            this.body = body.getJSONObject("errors");
+            this.code = body.getInt("code");
+            this.error = body.getString("message");
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public JSONObject getBody() {
+            return body;
+        }
+
+        public String getError() {
+            return error;
         }
     }
 

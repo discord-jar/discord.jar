@@ -25,6 +25,7 @@ public class CreateGuildChannelAction {
     private int position;
     private List<PermissionOverwrite> permissionOverwrites;
     private Category category;
+    private String categoryId;
     private final Guild guild;
     private final DiscordJar discordJar;
 
@@ -35,20 +36,32 @@ public class CreateGuildChannelAction {
         this.discordJar = discordJar;
     }
 
-    public void setTopic(String topic) {
+    public CreateGuildChannelAction setTopic(String topic) {
         this.topic = topic;
+        return this;
     }
 
-    public void setPosition(int position) {
+    public CreateGuildChannelAction setPosition(int position) {
         this.position = position;
+        return this;
     }
 
-    public void setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
+    public CreateGuildChannelAction setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
         this.permissionOverwrites = permissionOverwrites;
+        return this;
     }
 
-    public void setCategory(Category category) {
+    public CreateGuildChannelAction setCategory(Category category) {
         this.category = category;
+        return this;
+    }
+
+    /**
+     * This is generally not recommended to use. If you set this, it will take priority over {@link #setCategory(Category)}.
+     */
+    public CreateGuildChannelAction setCategoryWithId(String id) {
+        this.categoryId = id;
+        return this;
     }
 
     public String getName() {
@@ -81,7 +94,11 @@ public class CreateGuildChannelAction {
 
     public Response<GuildChannel> run() {
         Response<GuildChannel> res = new Response<>();
+
         new Thread(() -> {
+            String categoryId = null;
+            if (this.categoryId != null) categoryId = this.categoryId;
+            else if (this.category != null) categoryId = this.category.id();
             try {
                 GuildChannel chan = GuildChannel.decompile(
                         new DiscordRequest(
@@ -91,7 +108,7 @@ public class CreateGuildChannelAction {
                                         .put("topic", topic != null ? topic : JSONObject.NULL)
                                         .put("position", position)
                                         .put("permission_overwrites", permissionOverwrites)
-                                        .put("parent_id", category != null ? category.id() : JSONObject.NULL),
+                                        .put("parent_id", categoryId != null ? categoryId : JSONObject.NULL),
                                 new HashMap<>(),
                                 URLS.POST.GUILDS.CHANNELS.CREATE.replace("{guild.id}", guild.id()),
                                 discordJar,

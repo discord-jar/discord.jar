@@ -229,7 +229,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
         if (discordJar.getGateway() != this) {
-            logger.warning("[DISCORD.JAR] Received a message from a gateway that isn't the main gateway. This is usually a bug, please report it on discord.jar's GitHub with this log message. Payload: " + payload.toString());
             return;
         }
 

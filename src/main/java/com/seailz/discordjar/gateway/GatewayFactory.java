@@ -68,23 +68,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         this.discordJar = discordJar;
         this.debug = debug;
 
-        new Thread(() -> {
-            if (discordJar.gatewayConnections > 0) {
-                // Kill all other connections
-                for (GatewayFactory gatewayFactory : discordJar.gatewayFactories) {
-                    if (gatewayFactory != null && gatewayFactory.session.isOpen()) {
-                        try {
-                            gatewayFactory.killConnection();
-                            discordJar.gatewayFactories.remove(gatewayFactory);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
-
-            discordJar.gatewayConnections = 1;
-        }).start();
+        discordJar.setGatewayFactory(this);
 
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
@@ -106,10 +90,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
         }
+        discordJar.setGatewayFactory(this);
     }
 
     public void connect() throws ExecutionException, InterruptedException {
         connect(gatewayUrl);
+
     }
 
     @Override
@@ -229,6 +215,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
         if (discordJar.getGateway() != this) {
+            logger.info("[DISCORD.JAR] Received message from a gateway that isn't the main gateway. This is usually a bug, please report it on discord.jar's GitHub with this log message. Payload: " + payload.toString());
             return;
         }
 

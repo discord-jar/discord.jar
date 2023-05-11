@@ -312,6 +312,10 @@ public class DiscordJar {
         }));
     }
 
+    public void setGatewayFactory(GatewayFactory gatewayFactory) {
+        this.gatewayFactory = gatewayFactory;
+    }
+
     public List<Bucket> getBuckets() {
         return buckets;
     }

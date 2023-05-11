@@ -7,6 +7,7 @@ import com.seailz.discordjar.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjar.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjar.action.sticker.ModifyStickerAction;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.automod.AutomodRule;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.GuildChannel;
@@ -1332,6 +1333,51 @@ public record Guild(
                     discordJar,
                     URLS.POST.GUILDS.PRUNE,
                     RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns a list of Guild {@link Member}s whose names (and optionally, nicknames) contain a filter string.
+     * @param filter The username filter string.
+     * @param includeNicknames Whether to include members whose nicknames contain the filter string.
+     * @return A list of Guild {@link Member}s
+     */
+    public List<Member> getMembersByName(String filter, boolean includeNicknames) {
+        try {
+            List<Member> namedMembers = new ArrayList<>();
+            for (Member member : getMembers()) {
+                if (includeNicknames) {
+                    if (member.user().username().contains(filter) || (member.nick() != null && member.nick().contains(filter))) namedMembers.add(member);
+                } else {
+                    if (member.user().username().contains(filter)) namedMembers.add(member);
+                }
+            }
+            return namedMembers;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Kicks a {@link Member} from the Guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param member The member to kick.
+     */
+    public void kickMember(Member member) {
+        try {
+            if (!discordJar.getIntents().contains(Intent.GUILD_MEMBERS)) {
+                Logger.getLogger("[DISCORD.JAR]").severe("Your bot cannot kick members since it does not have the GUILD_MEMBERS intent.");
+                return;
+            }
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.MEMBER.KICK_MEMBER.replace("{guild.id}", id()).replace("{user.id}", member.user().id()),
+                    discordJar,
+                    URLS.DELETE.GUILD.MEMBER.KICK_MEMBER,
+                    RequestMethod.DELETE
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);

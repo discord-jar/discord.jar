@@ -351,6 +351,12 @@ public final class URLS {
 
             public static class MEMBER {
                 /**
+                 * Kicks a member from a Guild.
+                 * @param guild.id The id of the guild.
+                 * @param user.id The id of the user.
+                 */
+                public static final String KICK_MEMBER = "/guilds/{guild.id}/members/{user.id}";
+                /**
                  * Removes a role from a member.
                  */
                 public static String REMOVE_GUILD_MEMBER_ROLE = "/guilds/{guild.id}/members/{user.id}/roles/{role.id}";

@@ -31,6 +31,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,6 +62,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
+    public UUID uuid = UUID.randomUUID();
 
     public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
         this.discordJar = discordJar;
@@ -226,6 +228,10 @@ public class GatewayFactory extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
+        if (discordJar.getGateway() != this) {
+            logger.warning("[DISCORD.JAR] Received a message from a gateway that isn't the main gateway. This is usually a bug, please report it on discord.jar's GitHub with this log message. Payload: " + payload.toString());
+            return;
+        }
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Received message: " + payload.toString());

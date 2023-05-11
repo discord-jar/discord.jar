@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 /**
@@ -39,12 +40,13 @@ public class MessageCreateEvent extends MessageEvent {
 
     /**
      * The {@link Guild} the message was sent in
-     * This shouldn't return null.
+     * This will return null if the message was sent in a DM.
      *
      * @return A {@link Guild} object
      */
-    @NotNull
+    @Nullable
     public Guild getGuild() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        if (!getJson().getJSONObject("d").has("guild_id") || getJson().getJSONObject("d").isNull("guild_id")) return null;
         return getBot().getGuildCache().getById((getJson().getJSONObject("d").getString("guild_id")));
     }
 }

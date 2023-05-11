@@ -187,11 +187,7 @@ License info can be found [here](https://github.com/discord-jar/discord.jar/blob
 Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
-## Donations
+## Support me :)
 <a href="https://github.com/sponsors/seailz">
  <img alt="Ghsponsors Singular badge" height="56" href="https://github.com/seailz" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/ghsponsors-singular_vector.svg">
-</a>
-
-<a href="https://ko-fi.com/discordjv" target="_blank">
- <img alt="Kofi Singular badge" height="56" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/kofi-singular_vector.svg">
 </a>

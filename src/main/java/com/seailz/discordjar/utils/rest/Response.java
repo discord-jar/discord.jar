@@ -1,11 +1,10 @@
 package com.seailz.discordjar.utils.rest;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -17,9 +16,9 @@ import java.util.function.Supplier;
  */
 public class Response<T> {
 
-    public T response;
-    public Error error;
-    public boolean completed = false;
+    public volatile T response;
+    public volatile Error error;
+    public volatile boolean completed = false;
 
     public List<Consumer<T>> onCompletion = new ArrayList<>();
     public List<Consumer<Error>> onError = new ArrayList<>();
@@ -31,16 +30,21 @@ public class Response<T> {
      * @return Either the response or null if an error occurred.
      */
     public T awaitCompleted() {
-        while (!completed) {
+        while(true) {
+            synchronized(this) {
+                if (this.completed) {
+                    break;
+                }
+            }
             try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.sleep(1L);
+            } catch (InterruptedException var2) {
+                var2.printStackTrace();
             }
         }
-        return response; // Response will be null if an error occurred
-    }
 
+        return this.response;
+    }
     /**
      * Blocks the current thread until an error occurs, or the response is received.
      * @return Either the error or null if the response was received.
@@ -65,11 +69,17 @@ public class Response<T> {
     }
 
     public Response<T> complete(T response) {
-        this.response = response;
-        for (Consumer<T> tConsumer : onCompletion) {
-            tConsumer.accept(response);
+        synchronized(this) {
+            this.response = response;
+            Iterator var2 = this.onCompletion.iterator();
+
+            while(var2.hasNext()) {
+                Consumer<T> tConsumer = (Consumer) var2.next();
+                tConsumer.accept(response);
+            }
+
+            this.completed = true;
         }
-        completed = true;
         return this;
     }
 
@@ -95,7 +105,7 @@ public class Response<T> {
     public Response<T> completeAsync(Supplier<T> response) {
         new Thread(() -> {
             complete(response.get());
-        });
+        }).start();
         return this;
     }
 

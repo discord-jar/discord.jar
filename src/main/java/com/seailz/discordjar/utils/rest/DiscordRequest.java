@@ -225,7 +225,11 @@ public class DiscordRequest {
                 if (responseBody.startsWith("[")) {
                     body = new JSONArray(responseBody);
                 } else {
-                    body = new JSONObject(responseBody);
+                    try {
+                        body = new JSONObject(responseBody);
+                    } catch (JSONException err) {
+                        throw new DiscordUnexpectedError(new RuntimeException("Invalid JSON response from Discord API: " + responseBody));
+                    }
                 }
 
                 return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);

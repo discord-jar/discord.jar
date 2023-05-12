@@ -326,7 +326,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        session.close(CloseStatus.SERVER_ERROR);
+        if (session != null) session.close(CloseStatus.SERVER_ERROR);
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed.");

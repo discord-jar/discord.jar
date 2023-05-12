@@ -222,7 +222,7 @@ public class DiscordJar {
                     throw new RuntimeException(e);
                 }
 
-                if ((gatewayFactory == null || !gatewayFactory.getSession().isOpen())) {
+                if (gatewayFactory == null || (gatewayFactory.getSession() != null && !gatewayFactory.getSession().isOpen())) {
                     restartGateway();
                 }
             }

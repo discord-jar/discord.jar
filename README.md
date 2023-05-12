@@ -40,14 +40,18 @@ account [here](https://discord.com/developers/applications).
 To initialize a bot that uses the gateway (is able to receive events), you can use the following code:
 
 ```java
-new DiscordJar("token");
+
+DiscordJar djar = new DiscordJarBuilder("token").build();
 ```
 
 You can specify intents to use with the gateway by using the following code:
 
 ```java
-new DiscordJar("token", EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
+DiscordJar djar = new DiscordJarBuilder("token")
+        .addIntents(Intent.GUILDS, Intent.GUILD_MESSAGES).build();
 ```
+
+Doing so will override the default intents.
 
 Note: You can use the `Intent.ALL` constant to specify all intents. This does not include privileged intents.
 
@@ -57,11 +61,12 @@ To make your bot an <a href="https://discord.com/developers/docs/topics/gateway#
 you'll need to specify a couple more parameters.
 
 ```java
-new DiscordJar("token", true,
-        new HTTPOnlyInfo(
-        "interactions",
-        "EXAMPLE_APPLICATION_PUBLIC_KEY" // this cxan be found in your application's page in the dev panel
-));
+DiscordJar djar = new DiscordJarBuilder("token_here")
+        .setHTTPOnly(true)
+        .setHTTPOnlyInfo(new HTTPOnlyInfo(
+                "interactions", 
+                "EXAMPLE_APPLICATION_PUBLIC_KEY"
+        )).build();
 ```
 
 You should set `"interactions"` to whatever endpoint you want to use to receive post requests from Discord. This will be

@@ -53,7 +53,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
- * The main class of the discord.jar wrapper for the Discord API.
+ * The main class of the discord.jar wrapper for the Discord API. It is <b>HIGHLY</b> recommended that you use
+ * {@link DiscordJarBuilder} for creating new instances of this class as the other constructors are deprecated
+ * and will be set to protected/removed in the future.
  *
  * @author Seailz
  * @since 1.0
@@ -117,22 +119,42 @@ public class DiscordJar {
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, false);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, debug);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), version, false, null, false);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
     }
@@ -156,7 +178,10 @@ public class DiscordJar {
          * @param debug        Should the bot be in debug mode?
          * @throws ExecutionException   If an error occurs while connecting to the gateway
          * @throws InterruptedException If an error occurs while connecting to the gateway
+         *
+         * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
+        @Deprecated
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
@@ -229,14 +254,26 @@ public class DiscordJar {
         }).start();
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest());
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean debug) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest(), debug);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
         this(token, intents, APIVersion.getLatest());
     }

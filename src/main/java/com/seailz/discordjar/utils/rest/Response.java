@@ -5,114 +5,64 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Response from Discord's API. This is similar to a {@link java.util.concurrent.CompletableFuture CompletableFuture}.
+ * Response from Discord's API.
  * @see DiscordRequest
  * @author Seailz
  * @since 1.0.0
  */
 public class Response<T> {
 
-    public volatile T response;
-    public volatile Error error;
-    public volatile boolean completed = false;
-
-    public List<Consumer<T>> onCompletion = new ArrayList<>();
-    public List<Consumer<Error>> onError = new ArrayList<>();
+    private final CompletableFuture<T> responseFuture = new CompletableFuture<>();
+    private final CompletableFuture<Error> errorFuture = new CompletableFuture<>();
 
     public Response() {}
 
-    /**
-     * Blocks the current thread until the response is received, or an error occurs.
-     * @return Either the response or null if an error occurred.
-     */
     public T awaitCompleted() {
-        while(true) {
-            synchronized(this) {
-                if (this.completed) {
-                    break;
-                }
-            }
-            try {
-                Thread.sleep(1L);
-            } catch (InterruptedException var2) {
-                var2.printStackTrace();
-            }
-        }
-
-        return this.response;
+        return responseFuture.join();
     }
-    /**
-     * Blocks the current thread until an error occurs, or the response is received.
-     * @return Either the error or null if the response was received.
-     */
+
     public Error awaitError() {
-        while (!completed) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return error; // Error will be null if no error occurred
+        return errorFuture.join();
     }
 
     public Error getError() {
-        return error;
+        return errorFuture.getNow(null);
     }
 
     public T getResponse() {
-        return response;
+        return responseFuture.getNow(null);
     }
 
     public Response<T> complete(T response) {
-        synchronized(this) {
-            this.response = response;
-            Iterator var2 = this.onCompletion.iterator();
-
-            while(var2.hasNext()) {
-                Consumer<T> tConsumer = (Consumer) var2.next();
-                tConsumer.accept(response);
-            }
-
-            this.completed = true;
-        }
+        responseFuture.complete(response);
         return this;
     }
 
     public Response<T> completeError(Error error) {
-        this.error = error;
-        for (Consumer<Error> errorConsumer : onError) {
-            errorConsumer.accept(error);
-        }
-        completed = true;
+        errorFuture.complete(error);
         return this;
     }
 
     public Response<T> onCompletion(Consumer<T> consumer) {
-        onCompletion.add(consumer);
+        responseFuture.thenAccept(consumer);
         return this;
     }
 
     public Response<T> onError(Consumer<Error> consumer) {
-        onError.add(consumer);
+        errorFuture.thenAccept(consumer);
         return this;
     }
 
     public Response<T> completeAsync(Supplier<T> response) {
-        new Thread(() -> {
-            complete(response.get());
-        }).start();
+        CompletableFuture.supplyAsync(response).thenAccept(this::complete);
         return this;
     }
 
-    /**
-     * Represents an error received from the Discord API.
-     * <br>TODO: Convert this to an enum
-     */
     public static class Error {
         private int code;
         private String message;

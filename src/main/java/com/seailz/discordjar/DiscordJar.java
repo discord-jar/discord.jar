@@ -115,6 +115,8 @@ public class DiscordJar {
      * List of rate-limit buckets
      */
     private List<Bucket> buckets;
+    private int shardId;
+    private int numShards;
 
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
@@ -124,7 +126,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false);
+        this(token, intents, version, false, null, false, -1, -1);
     }
 
     /**
@@ -132,7 +134,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug);
+        this(token, intents, version, false, null, debug, -1, -1);
     }
 
     /**
@@ -140,7 +142,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1);
     }
 
     /**
@@ -148,7 +150,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1);
     }
 
     /**
@@ -156,7 +158,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1);
     }
 
         /**
@@ -182,7 +184,7 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
         this.token = token;
@@ -194,7 +196,7 @@ public class DiscordJar {
         this.buckets = new ArrayList<>();
         if (!httpOnly) {
             try {
-                this.gatewayFactory = new GatewayFactory(this, debug);
+                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
                 throw new RuntimeException(e);
             }
@@ -252,6 +254,8 @@ public class DiscordJar {
                 }
             }
         }).start();
+        this.shardId = shardId;
+        this.numShards = numShards;
     }
 
     /**
@@ -324,7 +328,7 @@ public class DiscordJar {
     public void restartGateway() {
         Status stat = killGateway();
         try {
-            gatewayFactory = new GatewayFactory(this, debug);
+            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);

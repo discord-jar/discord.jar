@@ -3,8 +3,8 @@ package com.seailz.discordjar.utils.rest;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
-import okhttp3.*;
 import okhttp3.Response;
+import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,7 +23,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 public class DiscordRequest {
@@ -79,6 +76,98 @@ public class DiscordRequest {
         }).start();
     }
 
+    public DiscordResponse invokeNoDiscordJar(String token) {
+        assert djv == null;
+        try {
+            String url = URLS.BASE_URL + this.url;
+            OkHttpClient client = new OkHttpClient();
+
+            Request.Builder requestBuilder = new Request.Builder().url(url);
+
+            String s = body != null ? body.toString() : aBody.toString();
+            RequestBody requestBody;
+
+            String contentType = "application/json";
+
+            if (requestMethod == RequestMethod.POST) {
+                requestBody = RequestBody.create(MediaType.parse(contentType), s);
+                requestBuilder.post(requestBody);
+            } else if (requestMethod == RequestMethod.PATCH) {
+                requestBody = RequestBody.create(MediaType.parse(contentType), s);
+                requestBuilder.patch(requestBody);
+            } else if (requestMethod == RequestMethod.PUT) {
+                requestBody = RequestBody.create(MediaType.parse(contentType), s);
+                requestBuilder.put(requestBody);
+            } else if (requestMethod == RequestMethod.DELETE) {
+                requestBody = RequestBody.create(MediaType.parse(contentType), s);
+                requestBuilder.delete(requestBody);
+            } else if (requestMethod == RequestMethod.GET) {
+                requestBuilder.get();
+            } else {
+                requestBody = RequestBody.create(MediaType.parse(contentType), s);
+                requestBuilder.method(requestMethod.name(), requestBody);
+            }
+
+            requestBuilder.addHeader("User-Agent", "DiscordBot (https://github.com/discord-jar/, 1.0.0)");
+            requestBuilder.addHeader("Authorization", "Bot " + token);
+            requestBuilder.addHeader("Content-Type", contentType);
+            headers.forEach(requestBuilder::addHeader);
+
+            Request request = requestBuilder.build();
+            Response response = client.newCall(request).execute();
+
+            int responseCode = response.code();
+            String sb = response.body().string();
+            HashMap<String, String> headers = new HashMap<>();
+            Headers responseHeaders = response.headers();
+            for (String name : responseHeaders.names()) {
+                headers.put(name, responseHeaders.get(name));
+            }
+
+            try {
+                if (sb.startsWith("[")) {
+                    new JSONArray(sb);
+                } else {
+                    new JSONObject(sb);
+                }
+            } catch (JSONException err) {
+                System.out.println(sb);
+            }
+
+            if (responseCode == 200 || responseCode == 201) {
+                Object body;
+                if (sb.startsWith("[")) {
+                    body = new JSONArray(sb);
+                } else {
+                    try {
+                        body = new JSONObject(sb);
+                    } catch (JSONException err) {
+                        throw new DiscordUnexpectedError(new RuntimeException("Invalid JSON response from Discord API: " + sb));
+                    }
+                }
+
+                return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
+            }
+            if (responseCode == 204) {
+                return null;
+            }
+
+            if (responseCode == 401) {
+                return new DiscordResponse(401, null, null, null);
+            }
+
+            if (responseCode == 404) {
+                Logger.getLogger("DISCORDJAR").warning("Received 404 error from the Discord API. It's likely that you're trying to access a resource that doesn't exist.");
+                return new DiscordResponse(404, null, null, null);
+            }
+
+            throw new UnhandledDiscordAPIErrorException(new JSONObject(sb));
+        } catch (IOException | UnhandledDiscordAPIErrorException e) {
+            // attempt gateway reconnect
+            throw new DiscordUnexpectedError(e);
+        }
+    }
+
     /**
      * Sends the request to the Discord API
      * If the request is rate-limited, it will be queued.
@@ -106,7 +195,7 @@ public class DiscordRequest {
             }
 
             String s = body != null ? body.toString() : aBody.toString();
-            RequestBody requestBody = null;
+            RequestBody requestBody;
 
             if (contentType == null) {
                 contentType = "application/json";
@@ -131,7 +220,7 @@ public class DiscordRequest {
                 requestBuilder.method(requestMethod.name(), requestBody);
             }
 
-            requestBuilder.addHeader("User-Agent", "discord.jar (https://github.com/discord-jar/, 1.0.0)");
+            requestBuilder.addHeader("User-Agent", "DiscordBot (https://github.com/discord-jar/, 1.0.0)");
             if (auth) {
                 requestBuilder.addHeader("Authorization", "Bot " + djv.getToken());
             }
@@ -339,7 +428,7 @@ public class DiscordRequest {
                 con.method(requestMethod.name(), HttpRequest.BodyPublishers.ofByteArray(body));
             }
 
-            con.header("User-Agent", "discord.jar (https://github.com/discord-jar/discord.jar, 1.0.0)");
+            con.header("User-Agent", "DiscordBot (https://github.com/discord-jar/discord.jar, 1.0.0)");
             con.header("Authorization", "Bot " + djv.getToken());
             con.header("Content-Type", "multipart/form-data; boundary=" + boundary);
 

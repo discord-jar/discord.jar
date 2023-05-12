@@ -110,6 +110,7 @@ public final class URLS {
              * Returns the gateway URL
              */
             public static String GET_GATEWAY_URL = "/gateway";
+            public static String GET_GATEWAY_BOT = "/gateway/bot";
         }
 
         public static class APPLICATION {

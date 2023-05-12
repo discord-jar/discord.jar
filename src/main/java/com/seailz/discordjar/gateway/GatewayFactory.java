@@ -14,6 +14,7 @@ import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,10 +64,14 @@ public class GatewayFactory extends TextWebSocketHandler {
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
     public UUID uuid = UUID.randomUUID();
+    private int shardId;
+    private int numShards;
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
         this.discordJar = discordJar;
         this.debug = debug;
+        this.shardId = shardId;
+        this.numShards = numShards;
 
         discordJar.setGatewayFactory(this);
 
@@ -379,6 +384,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         payload.put("op", 2);
         JSONObject data = new JSONObject();
         data.put("token", discordJar.getToken());
+        if (numShards != -1 && shardId != -1) {
+            data.put("shard", new JSONArray().put(shardId).put(numShards));
+        }
         String os = System.getProperty("os.name").toLowerCase();
         data.put("properties", new JSONObject().put("os", os).put("browser", "discord.jar").put("device", "discord.jar"));
         data.put("intents", intents.get());

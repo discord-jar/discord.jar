@@ -16,6 +16,7 @@ public class Response<T> {
 
     private final CompletableFuture<T> responseFuture = new CompletableFuture<>();
     private final CompletableFuture<Error> errorFuture = new CompletableFuture<>();
+    private boolean throwOnError = false;
 
     public Response() {}
 
@@ -35,6 +36,14 @@ public class Response<T> {
         return responseFuture.getNow(null);
     }
 
+    /**
+     * Tells the class to throw a runtime exception if an error is received.
+     */
+    public Response<T> throwOnError() {
+        throwOnError = true;
+        return this;
+    }
+
     public Response<T> complete(T response) {
         responseFuture.complete(response);
         return this;
@@ -42,6 +51,9 @@ public class Response<T> {
 
     public Response<T> completeError(Error error) {
         errorFuture.complete(error);
+        if (throwOnError) {
+            throw new DiscordResponseError(error);
+        }
         return this;
     }
 
@@ -58,6 +70,19 @@ public class Response<T> {
     public Response<T> completeAsync(Supplier<T> response) {
         CompletableFuture.supplyAsync(response).thenAccept(this::complete);
         return this;
+    }
+
+    public static class DiscordResponseError extends RuntimeException {
+        private final Error error;
+
+        public DiscordResponseError(Error error) {
+            super(error.getMessage());
+            this.error = error;
+        }
+
+        public Error getError() {
+            return error;
+        }
     }
 
     public static class Error {

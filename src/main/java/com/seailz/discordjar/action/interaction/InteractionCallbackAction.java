@@ -6,6 +6,7 @@ import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionReply;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -43,7 +44,7 @@ public class InteractionCallbackAction {
         return reply;
     }
 
-    public InteractionHandler run() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public Response<InteractionHandler> run() {
         JSONObject json = new JSONObject();
         json.put("type", this.type.getCode());
         json.put("data", this.reply.compile());
@@ -53,8 +54,14 @@ public class InteractionCallbackAction {
                         URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", this.id)
                                 .replace("{interaction.token}", this.token), discordJar, URLS.POST.INTERACTIONS.CALLBACK,
                         RequestMethod.POST);
-        request.invoke();
-        return InteractionHandler.from(token, id, discordJar);
+        Response<InteractionHandler> response = new Response<>();
+        try {
+            request.invoke();
+            response.complete(InteractionHandler.from(token, id, discordJar));
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            response.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
+        }
+        return response;
     }
 
 

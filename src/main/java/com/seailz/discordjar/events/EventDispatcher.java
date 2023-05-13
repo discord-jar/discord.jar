@@ -3,11 +3,17 @@ package com.seailz.discordjar.events;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.annotation.EventMethod;
 import com.seailz.discordjar.events.model.Event;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.utils.annotation.RequireCustomId;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is used to dispatch events to the correct listeners.
@@ -18,10 +24,22 @@ import java.util.HashMap;
  */
 public class EventDispatcher {
 
-    private final HashMap<DiscordListener, Method> listeners;
+    // Map: Event type -> List of pairs (Listener, Method)
+    private final Map<Class<? extends Event>, List<ListenerMethodPair>> listenersByEventType = new HashMap<>();
+
+    // Pair of listener instance and method to call
+    private static class ListenerMethodPair {
+        final DiscordListener listener;
+        final Method method;
+
+        ListenerMethodPair(DiscordListener listener, Method method) {
+            this.listener = listener;
+            this.method = method;
+        }
+    }
+
 
     public EventDispatcher(DiscordJar bot) {
-        listeners = new HashMap<>();
     }
 
     /**
@@ -35,7 +53,8 @@ public class EventDispatcher {
         for (DiscordListener listener : listeners) {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.isAnnotationPresent(EventMethod.class)) {
-                    this.listeners.put(listener, method);
+                    Class<? extends Event> eventType = (Class<? extends Event>) method.getParameterTypes()[0];
+                    listenersByEventType.computeIfAbsent(eventType, k -> new ArrayList<>()).add(new ListenerMethodPair(listener, method));
                 }
             }
         }
@@ -51,29 +70,36 @@ public class EventDispatcher {
      */
     public void dispatchEvent(Event event, Class<? extends Event> type, DiscordJar djv) {
         new Thread(() -> {
-            if (event instanceof MessageCreateEvent) {
-                try {
-                    if (((MessageCreateEvent) event).getMessage().author().id().equals(djv.getSelfUser().id()))
-                        return;
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    throw new RuntimeException(e);
-                }
+            long start = System.currentTimeMillis();
+            List<ListenerMethodPair> listenersForEventType = listenersByEventType.get(type);
+            if (listenersForEventType == null) {
+                return;
             }
 
-            int index = 0;
-            for (Method i : listeners.values()) {
-                if (i.isAnnotationPresent(EventMethod.class)) {
-                    if (i.getParameterTypes()[0].equals(type)) {
-                        try {
-                            i.setAccessible(true);
-                            i.invoke(listeners.keySet().toArray()[index], event);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+            for (ListenerMethodPair listenerMethodPair : listenersForEventType) {
+                Method method = listenerMethodPair.method;
+                if (method.isAnnotationPresent(RequireCustomId.class)) {
+                    if (event instanceof CustomIdable) {
+                        if (((CustomIdable) event).getCustomId() == null) {
+                            continue;
+                        }
+
+                        if (!((CustomIdable) event).getCustomId().matches(method.getAnnotation(RequireCustomId.class).value())) {
+                            continue;
                         }
                     }
                 }
-                index++;
+
+                method.setAccessible(true);
+                new Thread(() -> {
+                    try {
+                        method.invoke(listenerMethodPair.listener, event);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
             }
+            System.out.println("Event " + event.getClass().getSimpleName() + " took " + (System.currentTimeMillis() - start) + "ms to dispatch.");
         }, "EventDispatcher").start();
     }
 }

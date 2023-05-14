@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -416,7 +417,7 @@ public record Message(
      * @return The MessageEditAction object.
      */
     public MessageEditAction edit() {
-        return new MessageEditAction(channelId, discordJar, id);
+        return new MessageEditAction(channelId, discordJar, id, Arrays.stream(flags).toList().contains(MessageFlag.IS_VOICE_MESSAGE));
     }
 
     /**

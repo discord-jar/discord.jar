@@ -97,7 +97,9 @@ public enum Permission implements Bitwiseable<Permission> {
     // Allows for viewing role subscription insights
     VIEW_CREATOR_MONETIZATION_ANALYTICS(41),
     // Allows for using soundboard in a voice channel
-    USE_SOUNDBOARD(42)
+    USE_SOUNDBOARD(42),
+    // Allows sending voice messages
+    SEND_VOICE_MESSAGES(46),
     ;
 
     private final int code;

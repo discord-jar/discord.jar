@@ -64,19 +64,22 @@ public class GatewayFactory extends TextWebSocketHandler {
     private final boolean debug;
     public UUID uuid = UUID.randomUUID();
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException {
         this.discordJar = discordJar;
         this.debug = debug;
 
         discordJar.setGatewayFactory(this);
 
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                "/gateway",
-                discordJar,
-                "/gateway", RequestMethod.GET
-        ).invoke();
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJar,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
         if (response == null || response.body() == null || !response.body().has("url")) {
             // In case the request fails, we can attempt to use the backup gateway URL instead.
             this.gatewayUrl = URLS.GATEWAY.BASE_URL;

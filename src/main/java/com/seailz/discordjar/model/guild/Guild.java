@@ -1586,10 +1586,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      */
     public void kickMember(Member member) {
         try {
-            if (!discordJar.getIntents().contains(Intent.GUILD_MEMBERS)) {
-                Logger.getLogger("[DISCORD.JAR]").severe("Your bot cannot kick members since it does not have the GUILD_MEMBERS intent.");
-                return;
-            }
             new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),

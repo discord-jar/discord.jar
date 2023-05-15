@@ -14,6 +14,10 @@ public enum GuildFeature {
     BANNER,
     // guild can enable welcome screen, Membership Screening, stage channels and discovery, and receives community updates
     COMMUNITY,
+    // guild has enabled monetization
+    CREATOR_MONETIZABLE_PROVISIONAL,
+    // guild has enabled the role subscription promo page
+    CREATOR_STORE_PAGE,
     // guild has been set as a support server on the App Directory
     DEVELOPER_SUPPORT_SERVER,
     // guild is able to be discovered in the directory
@@ -40,6 +44,10 @@ public enum GuildFeature {
     PRIVATE_THREADS,
     // guild is able to set role icons
     ROLE_ICONS,
+    // guild has role subscriptions that can be purchased
+    ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE,
+    // guild has enabled role subscriptions
+    ROLE_SUBSCRIPTIONS_ENABLED,
     // guild has enabled ticketed events
     TICKETED_EVENTS_ENABLED,
     // guild has access to set a vanity URL

@@ -178,7 +178,10 @@ public final class URLS {
         }
 
         public static class GUILDS {
-
+            /**
+             * Gets active threads in a guild.
+             */
+            public static final String GET_ACTIVE_THREADS = "/guilds/{guild.id}/threads/active";
             /**
              * Retrieves the guild onboarding flow for the guild.
              * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}

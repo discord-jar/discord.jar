@@ -13,6 +13,7 @@ import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.VoiceChannel;
+import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
@@ -1605,6 +1606,51 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Returns all active threads in the guild, including public and private threads.
+     * @return A List of active threads.
+     */
+    public List<Thread> getActiveThreads() {
+        try {
+            List<Thread> threads = new ArrayList<>();
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.GET_ACTIVE_THREADS.replace("{guild.id}", id()),
+                    discordJar,
+                    URLS.GET.GUILDS.GET_ACTIVE_THREADS,
+                    RequestMethod.GET
+            ).invoke().body().getJSONArray("threads").forEach((thread) -> {
+                try {
+                    Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
+                    threads.add(decompiledThread);
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            return threads;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Gets the URL for the PNG image widget for the guild. Requires no permissions or authentication.
+     * @return A URL as a String, pointing to the widget image.
+     */
+    public String getWidgetImageURL() {
+        return getWidgetImageURL("shield");
+    }
+
+    /**
+     * Gets the URL for the PNG image widget for the guild. Requires no permissions or authentication.
+     * @param style The style for the widget image. One of {@code shield}, {@code banner1}, {@code banner2}, {@code banner3}, {@code banner4}
+     * @return A URL as a String, pointing to the widget image.
+     */
+    public String getWidgetImageURL(String style) {
+        return "https://discord.com/api/guilds/%s/widget.png?style=%s".formatted(id(), style);
     }
     
     /**

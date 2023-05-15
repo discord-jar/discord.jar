@@ -1356,18 +1356,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @param userId The id of the user to unban
      */
     public void unbanUser(long userId) {
-        try {
-            new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
-                    discordJar,
-                    URLS.PUT.GUILD.BAN_USER,
-                    RequestMethod.DELETE
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+        unbanUser(String.valueOf(userId));
     }
 
     /**

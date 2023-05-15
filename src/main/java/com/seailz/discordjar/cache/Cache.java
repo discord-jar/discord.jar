@@ -119,8 +119,9 @@ public class Cache<T> {
                     if (method.getName().equals("id")) {
                         try {
                             itemId = (String) method.invoke(t);
-                            if (Objects.equals(itemId, id))
+                            if (Objects.equals(itemId, id)) {
                                 returnObject.set(t);
+                            }
                         } catch (IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                         }
@@ -128,6 +129,7 @@ public class Cache<T> {
                 }
             }
         });
+
 
         if (returnObject.get() == null) {
             // request from discord

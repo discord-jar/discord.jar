@@ -48,87 +48,287 @@ import java.util.stream.Collectors;
 
 /**
  * Represents a guild.
- *
- * @param id                              The id of the guild
- * @param name                            The name of the guild
- * @param icon                            The icon hash of the guild
- * @param iconHash                        The icon hash of the guild (included with template object)
- * @param splash                          The splash hash of the guild
- * @param discoverySplash                 The discovery splash hash of the guild
- * @param isOwner                         Whether the user is the owner of the guild
- * @param owner                           The owner of the guild
- * @param permissions                     The total permissions of the user in the guild (excludes overwrites)
- * @param afkChannel                      The afk channel of the guild
- * @param afkTimeout                      The afk timeout of the guild
- * @param isWidgetEnabled                 Whether the widget is enabled for the guild
- * @param widgetChannel                   The widget channel of the guild
- * @param verificationLevel               The verification level of the guild
- * @param defaultMessageNotificationLevel The default message notification level of the guild
- * @param explicitContentFilterLevel      The explicit content filter level of the guild
- * @param roles                           The roles of the guild
- * @param emojis                          The emojis of the guild
- * @param features                        The features of the guild
- * @param mfaLevel                        The mfa level of the guild
- * @param applicationId                   The application id of the guild
- * @param systemChannel                   The system channel of the guild
- * @param maxPresences                    The maximum presences of the guild
- * @param maxMembers                      The maximum members of the guild
- * @param vanityUrlCode                   The vanity url code of the guild
- * @param description                     The description of the guild
- * @param banner                          The banner hash of the guild
- * @param premiumTier                     The premium tier of the guild
- * @param premiumSubscriptionCount        The premium subscription count of the guild
- * @param preferredLocale                 The preferred locale of the guild
- * @param publicUpdatesChannel            The public updates channel of the guild
- * @param maxVideoChannelUsers            The maximum video channel users of the guild
- * @param approximateMemberCount          The approximate member count of the guild
- * @param approximatePresenceCount        The approximate presence count of the guild
- * @param welcomeScreen                   The welcome screen of the guild
- * @param stickers                        The stickers of the guild
- * @param premiumProgressBarEnabled       Whether the premium progress bar is enabled for the guild
  */
-public record Guild(
-        String id,
-        String name,
-        String icon,
-        String iconHash,
-        String splash,
-        String discoverySplash,
-        boolean isOwner,
-        User owner,
-        String permissions,
-        Channel afkChannel,
-        int afkTimeout,
-        boolean isWidgetEnabled,
-        Channel widgetChannel,
-        VerificationLevel verificationLevel,
-        DefaultMessageNotificationLevel defaultMessageNotificationLevel,
-        ExplicitContentFilterLevel explicitContentFilterLevel,
-        List<Role> roles,
-        List<Emoji> emojis,
-        EnumSet<GuildFeature> features,
-        MFALevel mfaLevel,
-        String applicationId,
-        Channel systemChannel,
-        int maxPresences,
-        int maxMembers,
-        String vanityUrlCode,
-        String description,
-        String banner,
-        PremiumTier premiumTier,
-        int premiumSubscriptionCount,
-        String preferredLocale,
-        Channel publicUpdatesChannel,
-        int maxVideoChannelUsers,
-        int maxStageVideoChannelUsers,
-        int approximateMemberCount,
-        int approximatePresenceCount,
-        WelcomeScreen welcomeScreen,
-        List<Sticker> stickers,
-        boolean premiumProgressBarEnabled,
-        DiscordJar discordJar,
-        JsonCache roleCache
-) implements Compilerable, Snowflake, CDNAble {
+public class Guild implements Compilerable, Snowflake, CDNAble {
+    private final String id;
+    private final String name;
+    private final String icon;
+    private final String iconHash;
+    private final String splash;
+    private final String discoverySplash;
+    private final boolean isOwner;
+    private final User owner;
+    private final String permissions;
+    private final Channel afkChannel;
+    private final int afkTimeout;
+    private final boolean isWidgetEnabled;
+    private Channel widgetChannel = null;
+    private final String widgetChannelId;
+    private final VerificationLevel verificationLevel;
+    private final DefaultMessageNotificationLevel defaultMessageNotificationLevel;
+    private final ExplicitContentFilterLevel explicitContentFilterLevel;
+    private final List<Role> roles;
+    private final List<Emoji> emojis;
+    private final EnumSet<GuildFeature> features;
+    private final MFALevel mfaLevel;
+    private final String applicationId;
+    private Channel systemChannel;
+    private final String systemChannelId;
+    private final int maxPresences;
+    private final int maxMembers;
+    private final String vanityUrlCode;
+    private final String description;
+    private final String banner;
+    private final PremiumTier premiumTier;
+    private final int premiumSubscriptionCount;
+    private final String preferredLocale;
+    private Channel publicUpdatesChannel;
+    private final String publicUpdatesChannelId;
+    private final int maxVideoChannelUsers;
+    private final int maxStageVideoChannelUsers;
+    private final int approximateMemberCount;
+    private final int approximatePresenceCount;
+    private final WelcomeScreen welcomeScreen;
+    private final List<Sticker> stickers;
+    private final boolean premiumProgressBarEnabled;
+    private final DiscordJar discordJar;
+    private final JsonCache roleCache;
+
+    public Guild(
+            String id,
+            String name,
+            String icon,
+            String iconHash,
+            String splash,
+            String discoverySplash,
+            boolean isOwner,
+            User owner,
+            String permissions,
+            Channel afkChannel,
+            int afkTimeout,
+            boolean isWidgetEnabled,
+            String widgetChannelId,
+            VerificationLevel verificationLevel,
+            DefaultMessageNotificationLevel defaultMessageNotificationLevel,
+            ExplicitContentFilterLevel explicitContentFilterLevel,
+            List<Role> roles,
+            List<Emoji> emojis,
+            EnumSet<GuildFeature> features,
+            MFALevel mfaLevel,
+            String applicationId,
+            Channel systemChannel,
+            String systemChannelId,
+            int maxPresences,
+            int maxMembers,
+            String vanityUrlCode,
+            String description,
+            String banner,
+            PremiumTier premiumTier,
+            int premiumSubscriptionCount,
+            String preferredLocale,
+            Channel publicUpdatesChannel,
+            String publicUpdatesChannelId,
+            int maxVideoChannelUsers,
+            int maxStageVideoChannelUsers,
+            int approximateMemberCount,
+            int approximatePresenceCount,
+            WelcomeScreen welcomeScreen,
+            List<Sticker> stickers,
+            boolean premiumProgressBarEnabled,
+            DiscordJar discordJar,
+            JsonCache roleCache
+    ) {
+        this.id = id;
+        this.name = name;
+        this.icon = icon;
+        this.iconHash = iconHash;
+        this.splash = splash;
+        this.discoverySplash = discoverySplash;
+        this.isOwner = isOwner;
+        this.owner = owner;
+        this.permissions = permissions;
+        this.afkChannel = afkChannel;
+        this.afkTimeout = afkTimeout;
+        this.isWidgetEnabled = isWidgetEnabled;
+        this.widgetChannelId = widgetChannelId;
+        this.verificationLevel = verificationLevel;
+        this.defaultMessageNotificationLevel = defaultMessageNotificationLevel;
+        this.explicitContentFilterLevel = explicitContentFilterLevel;
+        this.roles = roles;
+        this.emojis = emojis;
+        this.features = features;
+        this.mfaLevel = mfaLevel;
+        this.applicationId = applicationId;
+        this.systemChannel = systemChannel;
+        this.systemChannelId = systemChannelId;
+        this.maxPresences = maxPresences;
+        this.maxMembers = maxMembers;
+        this.vanityUrlCode = vanityUrlCode;
+        this.description = description;
+        this.banner = banner;
+        this.premiumTier = premiumTier;
+        this.premiumSubscriptionCount = premiumSubscriptionCount;
+        this.preferredLocale = preferredLocale;
+        this.publicUpdatesChannel = publicUpdatesChannel;
+        this.publicUpdatesChannelId = publicUpdatesChannelId;
+        this.maxVideoChannelUsers = maxVideoChannelUsers;
+        this.maxStageVideoChannelUsers = maxStageVideoChannelUsers;
+        this.approximateMemberCount = approximateMemberCount;
+        this.approximatePresenceCount = approximatePresenceCount;
+        this.welcomeScreen = welcomeScreen;
+        this.stickers = stickers;
+        this.premiumProgressBarEnabled = premiumProgressBarEnabled;
+        this.discordJar = discordJar;
+        this.roleCache = roleCache;
+    }
+
+    public String id() {
+        return id;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String icon() {
+        return icon;
+    }
+
+    public String iconHash() {
+        return iconHash;
+    }
+
+    public String splash() {
+        return splash;
+    }
+
+    public String discoverySplash() {
+        return discoverySplash;
+    }
+
+    public boolean isOwner() {
+        return isOwner;
+    }
+
+    public User owner() {
+        return owner;
+    }
+
+    public String permissions() {
+        return permissions;
+    }
+
+    public Channel afkChannel() {
+        return afkChannel;
+    }
+
+    public int afkTimeout() {
+        return afkTimeout;
+    }
+
+    public boolean isWidgetEnabled() {
+        return isWidgetEnabled;
+    }
+
+    public VerificationLevel verificationLevel() {
+        return verificationLevel;
+    }
+
+    public DefaultMessageNotificationLevel defaultMessageNotificationLevel() {
+        return defaultMessageNotificationLevel;
+    }
+
+    public ExplicitContentFilterLevel explicitContentFilterLevel() {
+        return explicitContentFilterLevel;
+    }
+
+    public List<Emoji> emojis() {
+        return emojis;
+    }
+
+    public EnumSet<GuildFeature> features() {
+        return features;
+    }
+
+    public MFALevel mfaLevel() {
+        return mfaLevel;
+    }
+
+    public String applicationId() {
+        return applicationId;
+    }
+
+    public String systemChannelId() {
+        return systemChannelId;
+    }
+
+    public int maxPresences() {
+        return maxPresences;
+    }
+
+    public int maxMembers() {
+        return maxMembers;
+    }
+
+    public String vanityUrlCode() {
+        return vanityUrlCode;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public String banner() {
+        return banner;
+    }
+
+    public PremiumTier premiumTier() {
+        return premiumTier;
+    }
+
+    public int premiumSubscriptionCount() {
+        return premiumSubscriptionCount;
+    }
+
+    public String preferredLocale() {
+        return preferredLocale;
+    }
+
+    public int maxVideoChannelUsers() {
+        return maxVideoChannelUsers;
+    }
+
+    public int maxStageVideoChannelUsers() {
+        return maxStageVideoChannelUsers;
+    }
+
+    public int approximateMemberCount() {
+        return approximateMemberCount;
+    }
+
+    public int approximatePresenceCount() {
+        return approximatePresenceCount;
+    }
+
+    public WelcomeScreen welcomeScreen() {
+        return welcomeScreen;
+    }
+
+    public List<Sticker> stickers() {
+        return stickers;
+    }
+
+    public boolean premiumProgressBarEnabled() {
+        return premiumProgressBarEnabled;
+    }
+
+    public DiscordJar discordJar() {
+        return discordJar;
+    }
+
+    public JsonCache roleCache() {
+        return roleCache;
+    }
 
 
     @Override
@@ -155,7 +355,7 @@ public record Guild(
                 .put("features", features)
                 .put("mfa_level", mfaLevel.getCode())
                 .put("application_id", applicationId)
-                .put("system_channel_id", systemChannel.id())
+                .put("system_channel_id", systemChannelId)
                 .put("max_presences", maxPresences)
                 .put("max_members", maxMembers)
                 .put("vanity_url_code", vanityUrlCode)
@@ -164,7 +364,7 @@ public record Guild(
                 .put("premium_tier", premiumTier.getCode())
                 .put("premium_subscription_count", premiumSubscriptionCount)
                 .put("preferred_locale", preferredLocale)
-                .put("public_updates_channel_id", publicUpdatesChannel.id())
+                .put("public_updates_channel_id", publicUpdatesChannelId)
                 .put("max_video_channel_users", maxVideoChannelUsers)
                 .put("max_stage_video_channel_users", maxStageVideoChannelUsers)
                 .put("approximate_member_count", approximateMemberCount)
@@ -176,6 +376,7 @@ public record Guild(
 
     @NotNull
     public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+        long nano = System.nanoTime();
         String id;
         String name;
         String icon;
@@ -188,7 +389,7 @@ public record Guild(
         Channel afkChannel;
         int afkTimeout;
         boolean isWidgetEnabled;
-        Channel widgetChannel;
+        String widgetChannelId;
         VerificationLevel verificationLevel;
         DefaultMessageNotificationLevel defaultMessageNotificationLevel;
         ExplicitContentFilterLevel explicitContentFilterLevel;
@@ -197,7 +398,7 @@ public record Guild(
         EnumSet<GuildFeature> features;
         MFALevel mfaLevel;
         String applicationId;
-        Channel systemChannel;
+        String systemChannelId;
         int maxPresences;
         int maxMembers;
         String vanityUrlCode;
@@ -206,7 +407,7 @@ public record Guild(
         PremiumTier premiumTier;
         int premiumSubscriptionCount;
         String preferredLocale;
-        Channel publicUpdatesChannel;
+        String publicUpdatesChannelId;
         int maxVideoChannelUsers;
         int maxStageVideoChannelUsers = 0;
         int approximateMemberCount;
@@ -288,9 +489,9 @@ public record Guild(
         }
 
         try {
-            widgetChannel = discordJar.getChannelById(obj.getString("widget_channel_id"));
+            widgetChannelId =obj.getString("widget_channel_id");
         } catch (JSONException e) {
-            widgetChannel = null;
+            widgetChannelId = null;
         }
 
         try {
@@ -350,9 +551,9 @@ public record Guild(
         }
 
         try {
-            systemChannel = discordJar.getChannelById(obj.getString("system_channel_id"));
+            systemChannelId = obj.getString("system_channel_id");
         } catch (IllegalArgumentException | JSONException e) {
-            systemChannel = null;
+            systemChannelId = null;
         }
 
         try {
@@ -404,10 +605,9 @@ public record Guild(
         }
 
         try {
-            publicUpdatesChannel =
-                    discordJar.getChannelById(obj.getString("public_updates_channel_id"));
+            publicUpdatesChannelId = obj.getString("public_updates_channel_id");
         } catch (Exception e) {
-            publicUpdatesChannel = null;
+            publicUpdatesChannelId = null;
         }
 
         try {
@@ -469,7 +669,7 @@ public record Guild(
                 afkChannel,
                 afkTimeout,
                 isWidgetEnabled,
-                widgetChannel,
+                widgetChannelId,
                 verificationLevel,
                 defaultMessageNotificationLevel,
                 explicitContentFilterLevel,
@@ -478,7 +678,8 @@ public record Guild(
                 features,
                 mfaLevel,
                 applicationId,
-                systemChannel,
+                null,
+                systemChannelId,
                 maxPresences,
                 maxMembers,
                 vanityUrlCode,
@@ -487,7 +688,8 @@ public record Guild(
                 premiumTier,
                 premiumSubscriptionCount,
                 preferredLocale,
-                publicUpdatesChannel,
+                null,
+                publicUpdatesChannelId,
                 maxVideoChannelUsers,
                 maxStageVideoChannelUsers,
                 approximateMemberCount,
@@ -507,6 +709,27 @@ public record Guild(
         );
         g.roleCache.reset(60000);
         return g;
+    }
+
+    public Channel systemChannel() {
+        if (systemChannelId == null) return null;
+        if (this.systemChannel != null) return this.systemChannel;
+        this.systemChannel = discordJar.getChannelById(systemChannelId);
+        return this.systemChannel;
+    }
+
+    public Channel publicUpdatesChannel() {
+        if (publicUpdatesChannelId == null) return null;
+        if (this.publicUpdatesChannel != null) return this.publicUpdatesChannel;
+        this.publicUpdatesChannel = discordJar.getChannelById(publicUpdatesChannelId);
+        return this.publicUpdatesChannel;
+    }
+
+    public Channel widgetChannel() {
+        if (widgetChannelId == null) return null;
+        if (this.widgetChannel != null) return this.widgetChannel;
+        this.widgetChannel = discordJar.getChannelById(widgetChannelId);
+        return this.widgetChannel;
     }
 
     /**

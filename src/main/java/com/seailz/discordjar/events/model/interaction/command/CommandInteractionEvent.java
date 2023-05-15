@@ -43,7 +43,7 @@ public class CommandInteractionEvent extends InteractionEvent {
         return (ApplicationCommandInteractionData) getInteraction().data();
     }
 
-    public ModalInteractionCallbackAction replyModal(Modal modal) {
+    public ModalInteractionCallbackAction reply(Modal modal) {
         return new ModalInteractionCallbackAction(
                 InteractionCallbackType.MODAL,
                 new InteractionModalResponse(modal.title(), modal.customId(), modal.components()),

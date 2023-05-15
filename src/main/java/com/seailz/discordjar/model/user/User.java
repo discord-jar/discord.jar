@@ -235,4 +235,9 @@ public record User(
     public StringFormatter formatter() {
         return new StringFormatter("avatars", id, avatarHash());
     }
+
+    @Override
+    public String iconHash() {
+        return avatarHash;
+    }
 }

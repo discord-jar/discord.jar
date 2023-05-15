@@ -1,108 +1,90 @@
 package com.seailz.discordjar.utils.rest;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Response from Discord's API. This is similar to a {@link java.util.concurrent.CompletableFuture CompletableFuture}.
+ * Response from Discord's API.
  * @see DiscordRequest
  * @author Seailz
  * @since 1.0.0
  */
 public class Response<T> {
 
-    public T response;
-    public Error error;
-    public boolean completed = false;
-
-    public List<Consumer<T>> onCompletion = new ArrayList<>();
-    public List<Consumer<Error>> onError = new ArrayList<>();
+    private final CompletableFuture<T> responseFuture = new CompletableFuture<>();
+    private final CompletableFuture<Error> errorFuture = new CompletableFuture<>();
+    private boolean throwOnError = false;
 
     public Response() {}
 
-    /**
-     * Blocks the current thread until the response is received, or an error occurs.
-     * @return Either the response or null if an error occurred.
-     */
     public T awaitCompleted() {
-        while (!completed) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return response; // Response will be null if an error occurred
+        return responseFuture.join();
     }
 
-    /**
-     * Blocks the current thread until an error occurs, or the response is received.
-     * @return Either the error or null if the response was received.
-     */
     public Error awaitError() {
-        while (!completed) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return error; // Error will be null if no error occurred
+        return errorFuture.join();
     }
 
     public Error getError() {
-        return error;
+        return errorFuture.getNow(null);
     }
 
     public T getResponse() {
-        return response;
+        return responseFuture.getNow(null);
+    }
+
+    /**
+     * Tells the class to throw a runtime exception if an error is received.
+     */
+    public Response<T> throwOnError() {
+        throwOnError = true;
+        return this;
     }
 
     public Response<T> complete(T response) {
-        this.response = response;
-        for (Consumer<T> tConsumer : onCompletion) {
-            tConsumer.accept(response);
-        }
-        completed = true;
+        responseFuture.complete(response);
         return this;
     }
 
     public Response<T> completeError(Error error) {
-        this.error = error;
-        for (Consumer<Error> errorConsumer : onError) {
-            errorConsumer.accept(error);
+        errorFuture.complete(error);
+        if (throwOnError) {
+            throw new DiscordResponseError(error);
         }
-        completed = true;
         return this;
     }
 
     public Response<T> onCompletion(Consumer<T> consumer) {
-        onCompletion.add(consumer);
+        responseFuture.thenAccept(consumer);
         return this;
     }
 
     public Response<T> onError(Consumer<Error> consumer) {
-        onError.add(consumer);
+        errorFuture.thenAccept(consumer);
         return this;
     }
 
     public Response<T> completeAsync(Supplier<T> response) {
-        new Thread(() -> {
-            complete(response.get());
-        });
+        CompletableFuture.supplyAsync(response).thenAccept(this::complete);
         return this;
     }
 
-    /**
-     * Represents an error received from the Discord API.
-     * <br>TODO: Convert this to an enum
-     */
+    public static class DiscordResponseError extends RuntimeException {
+        private final Error error;
+
+        public DiscordResponseError(Error error) {
+            super(error.getMessage());
+            this.error = error;
+        }
+
+        public Error getError() {
+            return error;
+        }
+    }
+
     public static class Error {
         private int code;
         private String message;

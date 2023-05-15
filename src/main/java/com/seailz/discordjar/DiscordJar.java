@@ -53,7 +53,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
- * The main class of the discord.jar wrapper for the Discord API.
+ * The main class of the discord.jar wrapper for the Discord API. It is <b>HIGHLY</b> recommended that you use
+ * {@link DiscordJarBuilder} for creating new instances of this class as the other constructors are deprecated
+ * and will be set to protected/removed in the future.
  *
  * @author Seailz
  * @since 1.0
@@ -113,26 +115,50 @@ public class DiscordJar {
      * List of rate-limit buckets
      */
     private List<Bucket> buckets;
+    /**
+     * The current status of the bot, or null if not set.
+     */
+    private Status status;
 
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, false);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
         this(token, intents, version, false, null, debug);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), version, false, null, false);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
         this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
     }
@@ -156,7 +182,10 @@ public class DiscordJar {
          * @param debug        Should the bot be in debug mode?
          * @throws ExecutionException   If an error occurs while connecting to the gateway
          * @throws InterruptedException If an error occurs while connecting to the gateway
+         *
+         * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
+        @Deprecated
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
@@ -168,11 +197,7 @@ public class DiscordJar {
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
         if (!httpOnly) {
-            try {
-                this.gatewayFactory = new GatewayFactory(this, debug);
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            this.gatewayFactory = new GatewayFactory(this, debug);
         }
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
@@ -222,21 +247,33 @@ public class DiscordJar {
                     throw new RuntimeException(e);
                 }
 
-                if (gatewayFactory == null || !gatewayFactory.getSession().isOpen()) {
+                if (gatewayFactory == null || (gatewayFactory.getSession() != null && !gatewayFactory.getSession().isOpen())) {
                     restartGateway();
                 }
             }
         }).start();
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest());
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean debug) throws ExecutionException, InterruptedException {
         this(token, EnumSet.of(Intent.ALL), APIVersion.getLatest(), debug);
     }
 
+    /**
+     * @deprecated Use {@link DiscordJarBuilder} instead.
+     */
+    @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents) throws ExecutionException, InterruptedException {
         this(token, intents, APIVersion.getLatest());
     }
@@ -265,15 +302,13 @@ public class DiscordJar {
      * Kills the gateway connection and destroys the {@link GatewayFactory} instance.
      * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
      */
-    public Status killGateway() {
-        Status status = gatewayFactory == null ? null : gatewayFactory.getStatus();
+    public void killGateway() {
         try {
             if (gatewayFactory != null) gatewayFactory.killConnection();
         } catch (IOException ignored) {}
         gatewayFactory = null;
         // init garbage collection to avoid memory leaks
         System.gc();
-        return status;
     }
 
     /**
@@ -285,14 +320,13 @@ public class DiscordJar {
      * @see #killGateway()
      */
     public void restartGateway() {
-        Status stat = killGateway();
+        killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug);
             gatewayFactories.add(gatewayFactory);
-        } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        if (stat != null) setStatus(stat);
     }
 
     protected void initiateShutdownHooks() {
@@ -310,6 +344,10 @@ public class DiscordJar {
                 }
             }
         }));
+    }
+
+    public void setGatewayFactory(GatewayFactory gatewayFactory) {
+        this.gatewayFactory = gatewayFactory;
     }
 
     public List<Bucket> getBuckets() {
@@ -357,6 +395,11 @@ public class DiscordJar {
         json.put("op", 3);
         gatewayFactory.queueMessage(json);
         gatewayFactory.setStatus(status);
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     /**

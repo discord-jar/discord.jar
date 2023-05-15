@@ -1489,21 +1489,32 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     /**
-     * Returns a list of Guild {@link Member}s whose names (and optionally, nicknames) contain a filter string.
+     * Returns a list of Guild {@link Member}s whose names or nicknames contain a filter string.
      * @param filter The username filter string.
-     * @param includeNicknames Whether to include members whose nicknames contain the filter string.
-     * @return A list of Guild {@link Member}s
+     * @return A list of Guild {@link Member}s.
      */
-    public List<Member> getMembersByName(String filter, boolean includeNicknames) {
+    public List<Member> getMembersByName(String filter) {
+        return getMembersByName(filter, 1);
+    }
+
+    /**
+     * Returns a list of Guild {@link Member}s whose names or nicknames contain a filter string.
+     * @param filter The username filter string.
+     * @param limit The limit of members to get. Must be 1-1000.
+     * @return A list of Guild {@link Member}s.
+     */
+    public List<Member> getMembersByName(String filter, int limit) {
+        if (!Checker.inRange(1, 1000, limit, () -> {throw new RuntimeException("Limit must be within 1-1000!");})) return null;
         try {
             List<Member> namedMembers = new ArrayList<>();
-            for (Member member : getMembers()) {
-                if (includeNicknames) {
-                    if (member.user().username().contains(filter) || (member.nick() != null && member.nick().contains(filter))) namedMembers.add(member);
-                } else {
-                    if (member.user().username().contains(filter)) namedMembers.add(member);
-                }
-            }
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.SEARCH_MEMBERS.replace("{guild.id}", id()).replace("{filter}", filter).replace("{limit}", String.valueOf(limit)),
+                    discordJar,
+                    URLS.GET.GUILDS.SEARCH_MEMBERS,
+                    RequestMethod.GET
+            ).invoke().arr().forEach((memberObject) -> namedMembers.add(Member.decompile((JSONObject) memberObject, discordJar, id(), this)));
             return namedMembers;
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);

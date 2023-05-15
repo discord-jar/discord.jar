@@ -183,6 +183,10 @@ public final class URLS {
              */
             public static final String GET_ACTIVE_THREADS = "/guilds/{guild.id}/threads/active";
             /**
+             * Searches a guild's members with a specified filter.
+             */
+            public static final String SEARCH_MEMBERS = "/guilds/{guild.id}/members/search?query={filter}&limit={limit}";
+            /**
              * Retrieves the guild onboarding flow for the guild.
              * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
              */

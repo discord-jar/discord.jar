@@ -123,10 +123,7 @@ public enum DispatchedEvents {
     /* Sent when a gateway connection is resumed */
     RESUMED((p, d, g) -> GatewayResumedEvent.class),
     /* Sent when a message is created */
-    MESSAGE_CREATE((p, d, g) -> {
-        System.out.println(p.getJSONObject("d").toString());
-        return MessageCreateEvent.class;
-    }),
+    MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
     /* Sent when a command permission is updated */
     APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, g, d) -> CommandPermissionUpdateEvent.class),
 

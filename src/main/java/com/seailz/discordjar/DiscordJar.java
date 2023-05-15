@@ -197,11 +197,7 @@ public class DiscordJar {
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
         if (!httpOnly) {
-            try {
-                this.gatewayFactory = new GatewayFactory(this, debug);
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            this.gatewayFactory = new GatewayFactory(this, debug);
         }
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
@@ -328,7 +324,7 @@ public class DiscordJar {
         try {
             gatewayFactory = new GatewayFactory(this, debug);
             gatewayFactories.add(gatewayFactory);
-        } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

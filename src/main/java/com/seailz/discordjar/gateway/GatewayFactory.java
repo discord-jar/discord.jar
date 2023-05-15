@@ -77,8 +77,18 @@ public class GatewayFactory extends TextWebSocketHandler {
                 discordJar,
                 "/gateway", RequestMethod.GET
         ).invoke();
-        this.gatewayUrl = response.body().getString("url");
+        if (response == null || response.body() == null || !response.body().has("url")) {
+            // In case the request fails, we can attempt to use the backup gateway URL instead.
+            this.gatewayUrl = URLS.GATEWAY.BASE_URL;
+        } else this.gatewayUrl = response.body().getString("url");
         connect();
+
+        if (discordJar.getStatus() != null) {
+            JSONObject json = new JSONObject();
+            json.put("d", discordJar.getStatus().compile());
+            json.put("op", 3);
+            queueMessage(json);
+        }
     }
 
     public void connect(String customUrl) throws ExecutionException, InterruptedException {
@@ -189,6 +199,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
+
+    /**
+     * Do not use this method - it is for internal use only.
+     * @param status The status to set.
+     */
+    @Deprecated
     public void setStatus(Status status) {
         this.status = status;
     }

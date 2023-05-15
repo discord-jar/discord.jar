@@ -115,6 +115,10 @@ public class DiscordJar {
      * List of rate-limit buckets
      */
     private List<Bucket> buckets;
+    /**
+     * The current status of the bot, or null if not set.
+     */
+    private Status status;
 
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
@@ -302,15 +306,13 @@ public class DiscordJar {
      * Kills the gateway connection and destroys the {@link GatewayFactory} instance.
      * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
      */
-    public Status killGateway() {
-        Status status = gatewayFactory == null ? null : gatewayFactory.getStatus();
+    public void killGateway() {
         try {
             if (gatewayFactory != null) gatewayFactory.killConnection();
         } catch (IOException ignored) {}
         gatewayFactory = null;
         // init garbage collection to avoid memory leaks
         System.gc();
-        return status;
     }
 
     /**
@@ -322,14 +324,13 @@ public class DiscordJar {
      * @see #killGateway()
      */
     public void restartGateway() {
-        Status stat = killGateway();
+        killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);
         }
-        if (stat != null) setStatus(stat);
     }
 
     protected void initiateShutdownHooks() {
@@ -398,6 +399,11 @@ public class DiscordJar {
         json.put("op", 3);
         gatewayFactory.queueMessage(json);
         gatewayFactory.setStatus(status);
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     /**

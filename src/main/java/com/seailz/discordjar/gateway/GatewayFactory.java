@@ -85,13 +85,6 @@ public class GatewayFactory extends TextWebSocketHandler {
             this.gatewayUrl = URLS.GATEWAY.BASE_URL;
         } else this.gatewayUrl = response.body().getString("url");
         connect();
-
-        if (discordJar.getStatus() != null) {
-            JSONObject json = new JSONObject();
-            json.put("d", discordJar.getStatus().compile());
-            json.put("op", 3);
-            queueMessage(json);
-        }
     }
 
     public void connect(String customUrl) throws ExecutionException, InterruptedException {
@@ -317,6 +310,13 @@ public class GatewayFactory extends TextWebSocketHandler {
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
                 this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
                 readyForMessages = true;
+
+                if (discordJar.getStatus() != null) {
+                    JSONObject json = new JSONObject();
+                    json.put("d", discordJar.getStatus().compile());
+                    json.put("op", 3);
+                    queueMessage(json);
+                }
                 break;
             case GUILD_CREATE:
                 discordJar.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJar));

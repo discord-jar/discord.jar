@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -31,71 +32,91 @@ public class InteractionHandlerImpl implements InteractionHandler {
 
     @Override
     public Message getOriginalResponse() {
-        return Message.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id()),
-                        discordJar,
-                        URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE,
-                        RequestMethod.GET
-                ).invoke().body(), discordJar
-        );
+        try {
+            return Message.decompile(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id()),
+                            discordJar,
+                            URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE,
+                            RequestMethod.GET
+                    ).invoke().body(), discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void deleteOriginalResponse() {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id()),
-                discordJar,
-                URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE,
-                RequestMethod.DELETE
-        ).invoke();
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id()),
+                    discordJar,
+                    URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Message getFollowup(String id) {
-        return Message.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id())
-                                .replace("{message.id}", id),
-                        discordJar,
-                        URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE,
-                        RequestMethod.GET
-                ).invoke().body(), discordJar
-        );
+        try {
+            return Message.decompile(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id())
+                                    .replace("{message.id}", id),
+                            discordJar,
+                            URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE,
+                            RequestMethod.GET
+                    ).invoke().body(), discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void deleteFollowup(String id) {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id())
-                        .replace("{message.id}", id),
-                discordJar,
-                URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE,
-                RequestMethod.DELETE
-        ).invoke();
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id())
+                            .replace("{message.id}", id),
+                    discordJar,
+                    URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public EditInteractionMessageAction editOriginalResponse() {
-        return new EditInteractionMessageAction(
-                discordJar.getSelfInfo().id(),
-                token,
-                discordJar,
-                true,
-                null
-        );
+        try {
+            return new EditInteractionMessageAction(
+                    discordJar.getSelfInfo().id(),
+                    token,
+                    discordJar,
+                    true,
+                    null
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public EditInteractionMessageAction editFollowup(String id) {
+    public EditInteractionMessageAction editFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return new EditInteractionMessageAction(
                 discordJar.getSelfInfo().id(),
                 token,
@@ -106,7 +127,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void defer(boolean ephemeral) {
+    public void defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
                 new HashMap<>(),
@@ -118,7 +139,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void deferEdit() {
+    public void deferEdit() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject().put("type", 6),
                 new HashMap<>(),

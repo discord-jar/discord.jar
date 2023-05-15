@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.channel.forum;
 public enum DefaultSortOrder {
     LATEST(0),
     CREATION(1),
+    UNKNOWN(-1)
     ;
 
     private final int code;
@@ -21,6 +22,6 @@ public enum DefaultSortOrder {
                 return value;
             }
         }
-        return null;
+        return UNKNOWN;
     }
 }

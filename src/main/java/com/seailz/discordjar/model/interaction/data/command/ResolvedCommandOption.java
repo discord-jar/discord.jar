@@ -3,11 +3,14 @@ package com.seailz.discordjar.model.interaction.data.command;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.command.CommandOptionType;
 import com.seailz.discordjar.model.interaction.data.ResolvedData;
+import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.role.Role;
+import com.seailz.discordjar.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,9 +89,27 @@ public class ResolvedCommandOption implements Compilerable {
     public boolean getAsBoolean() {
         return (boolean) data;
     }
+    public double getAsDouble() {
+        BigDecimal bd = (BigDecimal) data;
+        return bd.doubleValue();
+    }
+
+    /**
+     * Returns a raw version of the data of the option.
+     * <br>This can be used to case it to whatever value it needs to be used as.
+     */
+    public Object getData() {
+        return data;
+    }
 
     public Role getAsRole() {
         return this.resolved.roles().get(getAsString());
+    }
+    public User getAsUser() {
+        return this.resolved.users().get(getAsString());
+    }
+    public Attachment getAsAttachment() {
+        return this.resolved.attachments().get(getAsString());
     }
 
     public CommandOptionType type() {
@@ -97,6 +118,10 @@ public class ResolvedCommandOption implements Compilerable {
 
     public List<ResolvedCommandOption> options() {
         return options;
+    }
+
+    public ResolvedData resolved() {
+        return resolved;
     }
 
     public boolean focused() {

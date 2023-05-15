@@ -2,11 +2,14 @@ package com.seailz.discordjar.action.interaction.followup;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.DisplayComponent;
+import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
+import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -126,21 +129,37 @@ public class InteractionFollowupAction {
         return this;
     }
 
+    public InteractionFollowupAction setAllowedMentions(AllowedMentions allowedMentions) {
+        this.getReply().setAllowedMentions(allowedMentions);
+        return this;
+    }
+
+    public InteractionFollowupAction addEmbed(Embeder embed) {
+        this.getReply().addEmbed(embed);
+        return this;
+    }
+
     public InteractionMessageResponse getReply() {
         return reply;
     }
 
-    public InteractionHandler run() {
-        new DiscordRequest(
-                getReply().compile(),
-                new HashMap<>(),
-                URLS.POST.INTERACTIONS.FOLLOWUP
-                        .replaceAll("application.id", discordJar.getSelfInfo().id())
-                        .replaceAll("interaction.token", token),
-                discordJar,
-                URLS.POST.INTERACTIONS.FOLLOWUP,
-                RequestMethod.POST
-        ).invoke();
-        return InteractionHandler.from(token, id, discordJar);
+    public Response<InteractionHandler> run() {
+        Response<InteractionHandler> response = new Response<>();
+        try {
+            new DiscordRequest(
+                    getReply().compile(),
+                    new HashMap<>(),
+                    URLS.POST.INTERACTIONS.FOLLOWUP
+                            .replaceAll("application.id", discordJar.getSelfInfo().id())
+                            .replaceAll("interaction.token", token),
+                    discordJar,
+                    URLS.POST.INTERACTIONS.FOLLOWUP,
+                    RequestMethod.POST
+            ).invoke();
+            response.complete(InteractionHandler.from(token, id, discordJar));
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            response.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
+        }
+        return response;
     }
 }

@@ -87,68 +87,64 @@ public record ResolvedData(
 
     @NotNull
     public static ResolvedData decompile(JSONObject obj, DiscordJar discordJar) {
-        HashMap<String, User> users;
-        HashMap<String, Member> members;
-        HashMap<String, Role> roles = null;
-        HashMap<String, Channel> channels;
-        HashMap<String, Message> messages;
-        HashMap<String, Attachment> attachments;
+        HashMap<String, User> users = new HashMap<>();
+        HashMap<String, Member> members = new HashMap<>();
+        HashMap<String, Role> roles = new HashMap<>();
+        HashMap<String, Channel> channels = new HashMap<>();
+        HashMap<String, Message> messages = new HashMap<>();
+        HashMap<String, Attachment> attachments = new HashMap<>();
 
-        try {
-            JSONObject resolved = obj.getJSONObject("users");
-            users = new HashMap<>();
-            HashMap<String, User> finalUsers = users;
-            resolved.toMap().forEach((key, value) -> finalUsers.put(key, User.decompile((JSONObject) value, discordJar)));
-        } catch (Exception e) {
+        if (obj.has("users") && !obj.isNull("users")) {
+            JSONObject usersObj = obj.getJSONObject("users");
+            for (String s : usersObj.keySet()) {
+                users.put(s, User.decompile(usersObj.getJSONObject(s), discordJar));
+            }
+        } else {
             users = null;
         }
 
-        try {
-            JSONObject resolved = obj.getJSONObject("members");
-            members = new HashMap<>();
-            HashMap<String, Member> finalMembers = members;
-            resolved.toMap().forEach((key, value) -> finalMembers.put(key, Member.decompile((JSONObject) value, discordJar, null, null)));
-        } catch (Exception e) {
+        if (obj.has("members") && !obj.isNull("members")) {
+            JSONObject membersObj = obj.getJSONObject("members");
+            for (String s : membersObj.keySet()) {
+                members.put(s, Member.decompile(membersObj.getJSONObject(s), discordJar, null, null));
+            }
+        } else {
             members = null;
         }
 
-        try {
+        if (obj.has("roles") && !obj.isNull("roles")) {
             JSONObject rolesObj = obj.getJSONObject("roles");
-            roles = new HashMap<>();
-
-            HashMap<String, Role> finalRoles = roles;
-            rolesObj.toMap().forEach((key, value) -> {
-                String json = new com.google.gson.Gson().toJson(value);
-                finalRoles.put(key, Role.decompile(new JSONObject(json)));
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
+            for (String s : rolesObj.keySet()) {
+                roles.put(s, Role.decompile(rolesObj.getJSONObject(s)));
+            }
+        } else {
+            roles = null;
         }
 
-        try {
+        if (obj.has("channels") && !obj.isNull("channels")) {
             JSONObject channelsObj = obj.getJSONObject("channels");
-            channels = new HashMap<>();
-            HashMap<String, Channel> finalChannels = channels;
-            channelsObj.toMap().forEach((key, value) -> finalChannels.put(key, Channel.decompile((JSONObject) value, discordJar)));
-        } catch (Exception e) {
+            for (String s : channelsObj.keySet()) {
+                channels.put(s, Channel.decompile(channelsObj.getJSONObject(s), discordJar));
+            }
+        } else {
             channels = null;
         }
 
-        try {
+        if (obj.has("messages") && !obj.isNull("messages")) {
             JSONObject messagesObj = obj.getJSONObject("messages");
-            messages = new HashMap<>();
-            HashMap<String, Message> finalMessages = messages;
-            messagesObj.toMap().forEach((key, value) -> finalMessages.put(key, Message.decompile((JSONObject) value, discordJar)));
-        } catch (Exception e) {
+            for (String s : messagesObj.keySet()) {
+                messages.put(s, Message.decompile(messagesObj.getJSONObject(s), discordJar));
+            }
+        } else {
             messages = null;
         }
 
-        try {
+        if (obj.has("attachments") && !obj.isNull("attachments")) {
             JSONObject attachmentsObj = obj.getJSONObject("attachments");
-            attachments = new HashMap<>();
-            HashMap<String, Attachment> finalAttachments = attachments;
-            attachmentsObj.toMap().forEach((key, value) -> finalAttachments.put(key, Attachment.decompile((JSONObject) value)));
-        } catch (Exception e) {
+            for (String s : attachmentsObj.keySet()) {
+                attachments.put(s, Attachment.decompile(attachmentsObj.getJSONObject(s)));
+            }
+        } else {
             attachments = null;
         }
 

@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.time.Instant;
 
 public class EmbederImpl implements Embeder {
 
@@ -54,17 +55,38 @@ public class EmbederImpl implements Embeder {
 
     @Override
     public Embeder field(EmbedField field) {
+        return field(field, fields.length);
+    }
+
+    @Override
+    public Embeder field(EmbedField field, int index) {
         EmbedField[] fields = this.fields;
         EmbedField[] newFields = new EmbedField[fields.length + 1];
-        System.arraycopy(fields, 0, newFields, 0, fields.length);
-        newFields[fields.length] = field;
+        System.arraycopy(fields, 0, newFields, 0, index);
+        newFields[index] = field;
+        System.arraycopy(fields, index, newFields, index + 1, fields.length - index);
         this.fields = newFields;
         return this;
     }
 
     @Override
+    public Embeder field(String name, String value) {
+        return field(new EmbedField(name, value, false));
+    }
+
+    @Override
+    public Embeder field(String name, String value, int index) {
+        return field(new EmbedField(name, value, false), index);
+    }
+
+    @Override
     public Embeder field(String name, String value, boolean inline) {
         return field(new EmbedField(name, value, inline));
+    }
+
+    @Override
+    public Embeder field(String name, String value, boolean inline, int index) {
+        return field(new EmbedField(name, value, inline), index);
     }
 
     @Override
@@ -122,6 +144,32 @@ public class EmbederImpl implements Embeder {
         this.color = color.getRGB();
         return this;
     }
+
+    @Override
+    public Embeder color(int color) {
+        this.color = color;
+        return this;
+    }
+
+    @Override
+    public Embeder timestamp() {
+        return timestamp(Instant.now().toString());
+    }
+
+    @Override
+    public Embeder removeField(String name) {
+        EmbedField[] fields = this.fields;
+        EmbedField[] newFields = new EmbedField[fields.length - 1];
+        int i = 0;
+        for (EmbedField field : fields) {
+            if (!field.name().equals(name)) {
+                newFields[i++] = field;
+            }
+        }
+        this.fields = newFields;
+        return this;
+    }
+
 
     @Override
     public JSONObject compile() {

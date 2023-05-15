@@ -8,11 +8,17 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.flag.BitwiseUtil;
+import com.seailz.discordjar.utils.permission.Permission;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Represents the data of an interaction
@@ -46,14 +52,16 @@ public class Interaction implements Compilerable {
     // For components, the message they were attached to
     private final Message message;
     // Bitwise set of permissions the app or bot has within the channel the interaction was sent from
-    private final String appPermissions;
+    private final EnumSet<Permission> appPermissions;
     // Selected language of the invoking user
     private final String locale;
     // Guild's preferred locale, if invoked in a guild
     private final String guildLocale;
     private final String raw;
+    @Deprecated
+    private final String channelId;
 
-    public Interaction(String id, Application application, InteractionType type, InteractionData data, Guild guild, Channel channel, Member member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw) {
+    public Interaction(String id, Application application, InteractionType type, InteractionData data, Guild guild, Channel channel, Member member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId) {
         this.id = id;
         this.application = application;
         this.type = type;
@@ -65,10 +73,21 @@ public class Interaction implements Compilerable {
         this.token = token;
         this.version = version;
         this.message = message;
-        this.appPermissions = appPermissions;
+        if (appPermissions != null) {
+            BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
+            this.appPermissions = bitwiseUtil.get(Long.parseLong(appPermissions), Permission.class);
+        } else {
+            this.appPermissions = EnumSet.noneOf(Permission.class);
+        }
         this.locale = locale;
         this.guildLocale = guildLocale;
         this.raw = raw;
+        this.channelId = channelId;
+    }
+
+    @Deprecated
+    public String channelId() {
+        return channelId;
     }
 
     public String id() {
@@ -115,7 +134,7 @@ public class Interaction implements Compilerable {
         return message;
     }
 
-    public String appPermissions() {
+    public EnumSet<Permission> appPermissions() {
         return appPermissions;
     }
 
@@ -153,34 +172,36 @@ public class Interaction implements Compilerable {
                 .put("type", type.getCode())
                 .put("data", data)
                 .put("guild", guild.id())
-                .put("channel", channel.id())
+                .put("channel", channel.compile())
                 .put("member", member.compile())
                 .put("token", token)
                 .put("version", version)
                 .put("message", message.compile())
-                .put("appPermissions", appPermissions)
+                .put("app_permissions", appPermissions)
                 .put("locale", locale)
-                .put("guildLocale", guildLocale);
+                .put("guildLocale", guildLocale)
+                .put("channel_id", channelId);
     }
 
     @NotNull
-    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = json.has("id") ? json.getString("id") : null;
         Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
         InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJar) : null;
         Guild guild = json.has("guild_id") ? discordJar.getGuildCache().getById(json.getString("guild_id")) : null;
-        Channel channel = json.has("channel_id") ? discordJar.getChannelById(json.getString("channel_id")) : null;
+        Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJar) : null;
         Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJar, guild != null ? guild.id() : json.getString("guild_id"), guild) : null;
         User user = json.has("user") ? User.decompile(json.getJSONObject("user"), discordJar) : null;
         String token = json.has("token") ? json.getString("token") : null;
         int version = json.has("version") ? json.getInt("version") : 0;
         Message message = json.has("message") ? Message.decompile(json.getJSONObject("message"), discordJar) : null;
-        String appPermissions = json.has("appPermissions") ? json.getString("appPermissions") : null;
+        String appPermissions = json.has("app_permissions") ? json.getString("app_permissions") : null;
         String locale = json.has("locale") ? json.getString("locale") : null;
-        String guildLocale = json.has("guildLocale") ? json.getString("guildLocale") : null;
+        String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
+        String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
 
-        return new Interaction(id, application, type, data, guild, channel, member, user, token, version, message, appPermissions, locale, guildLocale, json.toString());
+        return new Interaction(id, application, type, data, guild, channel, member, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId);
     }
 
 

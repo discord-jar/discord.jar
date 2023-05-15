@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,7 +89,7 @@ public record AutomodRule(
 
     @NotNull
     @Contract("_, _ -> new")
-    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id;
         Guild guild;
         String name;
@@ -138,7 +139,7 @@ public record AutomodRule(
     }
 
     @NotNull
-    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) {
+    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<AutomodRule> rules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             rules.add(decompile(array.getJSONObject(i), discordJar));

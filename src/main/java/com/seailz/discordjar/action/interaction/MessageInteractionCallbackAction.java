@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
+import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 
 import java.util.List;
@@ -145,6 +146,11 @@ public class MessageInteractionCallbackAction extends InteractionCallbackAction 
 
     public MessageInteractionCallbackAction addEmbed(Embeder embed) {
         ((InteractionMessageResponse) this.getReply()).addEmbed(embed);
+        return this;
+    }
+
+    public MessageInteractionCallbackAction setAllowedMentions(AllowedMentions allowedMentions) {
+        ((InteractionMessageResponse) this.getReply()).setAllowedMentions(allowedMentions);
         return this;
     }
 

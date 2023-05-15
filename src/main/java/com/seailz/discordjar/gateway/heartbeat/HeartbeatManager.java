@@ -40,20 +40,6 @@ public class HeartbeatManager {
                     throw new RuntimeException(e);
                 }
                 if (!factory.getSession().isOpen()) {
-                    Logger.getLogger("HeartbeatManager").warning(
-                            """
-                                    [HEARTBEAT] Session is closed but heartbeat manager hasn't been killed.
-                                    This is weird but probably not a problem.
-                                    If you don't see any disconnect messages below, please report this to discord.jar's GitHub.
-                                    For now, this heartbeat manager instance will be deactivated to avoid errors.
-                                 """
-                    );
-                    Logger.getLogger("HeartbeatManager").info(
-                            """
-                                    [HEARTBEAT] If the above message is appearing frequently, and no errors are being thrown
-                                    below, let Seailz#0001 know.\040\040\040
-                                 """
-                    );
                     deactivate();
                     break;
                 }

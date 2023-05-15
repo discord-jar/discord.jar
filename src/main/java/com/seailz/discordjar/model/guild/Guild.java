@@ -19,11 +19,14 @@ import com.seailz.discordjar.model.guild.notification.DefaultMessageNotification
 import com.seailz.discordjar.model.guild.premium.PremiumTier;
 import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
+import com.seailz.discordjar.model.invite.Invite;
+import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,89 +40,292 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Represents a guild.
- *
- * @param id                              The id of the guild
- * @param name                            The name of the guild
- * @param icon                            The icon hash of the guild
- * @param iconHash                        The icon hash of the guild (included with template object)
- * @param splash                          The splash hash of the guild
- * @param discoverySplash                 The discovery splash hash of the guild
- * @param isOwner                         Whether the user is the owner of the guild
- * @param owner                           The owner of the guild
- * @param permissions                     The total permissions of the user in the guild (excludes overwrites)
- * @param afkChannel                      The afk channel of the guild
- * @param afkTimeout                      The afk timeout of the guild
- * @param isWidgetEnabled                 Whether the widget is enabled for the guild
- * @param widgetChannel                   The widget channel of the guild
- * @param verificationLevel               The verification level of the guild
- * @param defaultMessageNotificationLevel The default message notification level of the guild
- * @param explicitContentFilterLevel      The explicit content filter level of the guild
- * @param roles                           The roles of the guild
- * @param emojis                          The emojis of the guild
- * @param features                        The features of the guild
- * @param mfaLevel                        The mfa level of the guild
- * @param applicationId                   The application id of the guild
- * @param systemChannel                   The system channel of the guild
- * @param maxPresences                    The maximum presences of the guild
- * @param maxMembers                      The maximum members of the guild
- * @param vanityUrlCode                   The vanity url code of the guild
- * @param description                     The description of the guild
- * @param banner                          The banner hash of the guild
- * @param premiumTier                     The premium tier of the guild
- * @param premiumSubscriptionCount        The premium subscription count of the guild
- * @param preferredLocale                 The preferred locale of the guild
- * @param publicUpdatesChannel            The public updates channel of the guild
- * @param maxVideoChannelUsers            The maximum video channel users of the guild
- * @param approximateMemberCount          The approximate member count of the guild
- * @param approximatePresenceCount        The approximate presence count of the guild
- * @param welcomeScreen                   The welcome screen of the guild
- * @param stickers                        The stickers of the guild
- * @param premiumProgressBarEnabled       Whether the premium progress bar is enabled for the guild
  */
-public record Guild(
-        String id,
-        String name,
-        String icon,
-        String iconHash,
-        String splash,
-        String discoverySplash,
-        boolean isOwner,
-        User owner,
-        String permissions,
-        Channel afkChannel,
-        int afkTimeout,
-        boolean isWidgetEnabled,
-        Channel widgetChannel,
-        VerificationLevel verificationLevel,
-        DefaultMessageNotificationLevel defaultMessageNotificationLevel,
-        ExplicitContentFilterLevel explicitContentFilterLevel,
-        List<Role> roles,
-        List<Emoji> emojis,
-        EnumSet<GuildFeature> features,
-        MFALevel mfaLevel,
-        String applicationId,
-        Channel systemChannel,
-        int maxPresences,
-        int maxMembers,
-        String vanityUrlCode,
-        String description,
-        String banner,
-        PremiumTier premiumTier,
-        int premiumSubscriptionCount,
-        String preferredLocale,
-        Channel publicUpdatesChannel,
-        int maxVideoChannelUsers,
-        int approximateMemberCount,
-        int approximatePresenceCount,
-        WelcomeScreen welcomeScreen,
-        List<Sticker> stickers,
-        boolean premiumProgressBarEnabled,
-        DiscordJar discordJar,
-        JsonCache roleCache
-) implements Compilerable, Snowflake, CDNAble {
+public class Guild implements Compilerable, Snowflake, CDNAble {
+    private final String id;
+    private final String name;
+    private final String icon;
+    private final String iconHash;
+    private final String splash;
+    private final String discoverySplash;
+    private final boolean isOwner;
+    private final User owner;
+    private final String permissions;
+    private final Channel afkChannel;
+    private final int afkTimeout;
+    private final boolean isWidgetEnabled;
+    private Channel widgetChannel = null;
+    private final String widgetChannelId;
+    private final VerificationLevel verificationLevel;
+    private final DefaultMessageNotificationLevel defaultMessageNotificationLevel;
+    private final ExplicitContentFilterLevel explicitContentFilterLevel;
+    private final List<Role> roles;
+    private final List<Emoji> emojis;
+    private final EnumSet<GuildFeature> features;
+    private final MFALevel mfaLevel;
+    private final String applicationId;
+    private Channel systemChannel;
+    private final String systemChannelId;
+    private final int maxPresences;
+    private final int maxMembers;
+    private final String vanityUrlCode;
+    private final String description;
+    private final String banner;
+    private final PremiumTier premiumTier;
+    private final int premiumSubscriptionCount;
+    private final String preferredLocale;
+    private Channel publicUpdatesChannel;
+    private final String publicUpdatesChannelId;
+    private final int maxVideoChannelUsers;
+    private final int maxStageVideoChannelUsers;
+    private final int approximateMemberCount;
+    private final int approximatePresenceCount;
+    private final WelcomeScreen welcomeScreen;
+    private final List<Sticker> stickers;
+    private final boolean premiumProgressBarEnabled;
+    private final DiscordJar discordJar;
+    private final JsonCache roleCache;
+
+    public Guild(
+            String id,
+            String name,
+            String icon,
+            String iconHash,
+            String splash,
+            String discoverySplash,
+            boolean isOwner,
+            User owner,
+            String permissions,
+            Channel afkChannel,
+            int afkTimeout,
+            boolean isWidgetEnabled,
+            String widgetChannelId,
+            VerificationLevel verificationLevel,
+            DefaultMessageNotificationLevel defaultMessageNotificationLevel,
+            ExplicitContentFilterLevel explicitContentFilterLevel,
+            List<Role> roles,
+            List<Emoji> emojis,
+            EnumSet<GuildFeature> features,
+            MFALevel mfaLevel,
+            String applicationId,
+            Channel systemChannel,
+            String systemChannelId,
+            int maxPresences,
+            int maxMembers,
+            String vanityUrlCode,
+            String description,
+            String banner,
+            PremiumTier premiumTier,
+            int premiumSubscriptionCount,
+            String preferredLocale,
+            Channel publicUpdatesChannel,
+            String publicUpdatesChannelId,
+            int maxVideoChannelUsers,
+            int maxStageVideoChannelUsers,
+            int approximateMemberCount,
+            int approximatePresenceCount,
+            WelcomeScreen welcomeScreen,
+            List<Sticker> stickers,
+            boolean premiumProgressBarEnabled,
+            DiscordJar discordJar,
+            JsonCache roleCache
+    ) {
+        this.id = id;
+        this.name = name;
+        this.icon = icon;
+        this.iconHash = iconHash;
+        this.splash = splash;
+        this.discoverySplash = discoverySplash;
+        this.isOwner = isOwner;
+        this.owner = owner;
+        this.permissions = permissions;
+        this.afkChannel = afkChannel;
+        this.afkTimeout = afkTimeout;
+        this.isWidgetEnabled = isWidgetEnabled;
+        this.widgetChannelId = widgetChannelId;
+        this.verificationLevel = verificationLevel;
+        this.defaultMessageNotificationLevel = defaultMessageNotificationLevel;
+        this.explicitContentFilterLevel = explicitContentFilterLevel;
+        this.roles = roles;
+        this.emojis = emojis;
+        this.features = features;
+        this.mfaLevel = mfaLevel;
+        this.applicationId = applicationId;
+        this.systemChannel = systemChannel;
+        this.systemChannelId = systemChannelId;
+        this.maxPresences = maxPresences;
+        this.maxMembers = maxMembers;
+        this.vanityUrlCode = vanityUrlCode;
+        this.description = description;
+        this.banner = banner;
+        this.premiumTier = premiumTier;
+        this.premiumSubscriptionCount = premiumSubscriptionCount;
+        this.preferredLocale = preferredLocale;
+        this.publicUpdatesChannel = publicUpdatesChannel;
+        this.publicUpdatesChannelId = publicUpdatesChannelId;
+        this.maxVideoChannelUsers = maxVideoChannelUsers;
+        this.maxStageVideoChannelUsers = maxStageVideoChannelUsers;
+        this.approximateMemberCount = approximateMemberCount;
+        this.approximatePresenceCount = approximatePresenceCount;
+        this.welcomeScreen = welcomeScreen;
+        this.stickers = stickers;
+        this.premiumProgressBarEnabled = premiumProgressBarEnabled;
+        this.discordJar = discordJar;
+        this.roleCache = roleCache;
+    }
+
+    public String id() {
+        return id;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String icon() {
+        return icon;
+    }
+
+    public String iconHash() {
+        return iconHash;
+    }
+
+    public String splash() {
+        return splash;
+    }
+
+    public String discoverySplash() {
+        return discoverySplash;
+    }
+
+    public boolean isOwner() {
+        return isOwner;
+    }
+
+    public User owner() {
+        return owner;
+    }
+
+    public String permissions() {
+        return permissions;
+    }
+
+    public Channel afkChannel() {
+        return afkChannel;
+    }
+
+    public int afkTimeout() {
+        return afkTimeout;
+    }
+
+    public boolean isWidgetEnabled() {
+        return isWidgetEnabled;
+    }
+
+    public VerificationLevel verificationLevel() {
+        return verificationLevel;
+    }
+
+    public DefaultMessageNotificationLevel defaultMessageNotificationLevel() {
+        return defaultMessageNotificationLevel;
+    }
+
+    public ExplicitContentFilterLevel explicitContentFilterLevel() {
+        return explicitContentFilterLevel;
+    }
+
+    public List<Emoji> emojis() {
+        return emojis;
+    }
+
+    public EnumSet<GuildFeature> features() {
+        return features;
+    }
+
+    public MFALevel mfaLevel() {
+        return mfaLevel;
+    }
+
+    public String applicationId() {
+        return applicationId;
+    }
+
+    public String systemChannelId() {
+        return systemChannelId;
+    }
+
+    public int maxPresences() {
+        return maxPresences;
+    }
+
+    public int maxMembers() {
+        return maxMembers;
+    }
+
+    public String vanityUrlCode() {
+        return vanityUrlCode;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public String banner() {
+        return banner;
+    }
+
+    public PremiumTier premiumTier() {
+        return premiumTier;
+    }
+
+    public int premiumSubscriptionCount() {
+        return premiumSubscriptionCount;
+    }
+
+    public String preferredLocale() {
+        return preferredLocale;
+    }
+
+    public int maxVideoChannelUsers() {
+        return maxVideoChannelUsers;
+    }
+
+    public int maxStageVideoChannelUsers() {
+        return maxStageVideoChannelUsers;
+    }
+
+    public int approximateMemberCount() {
+        return approximateMemberCount;
+    }
+
+    public int approximatePresenceCount() {
+        return approximatePresenceCount;
+    }
+
+    public WelcomeScreen welcomeScreen() {
+        return welcomeScreen;
+    }
+
+    public List<Sticker> stickers() {
+        return stickers;
+    }
+
+    public boolean premiumProgressBarEnabled() {
+        return premiumProgressBarEnabled;
+    }
+
+    public DiscordJar discordJar() {
+        return discordJar;
+    }
+
+    public JsonCache roleCache() {
+        return roleCache;
+    }
 
 
     @Override
@@ -146,7 +352,7 @@ public record Guild(
                 .put("features", features)
                 .put("mfa_level", mfaLevel.getCode())
                 .put("application_id", applicationId)
-                .put("system_channel_id", systemChannel.id())
+                .put("system_channel_id", systemChannelId)
                 .put("max_presences", maxPresences)
                 .put("max_members", maxMembers)
                 .put("vanity_url_code", vanityUrlCode)
@@ -155,8 +361,9 @@ public record Guild(
                 .put("premium_tier", premiumTier.getCode())
                 .put("premium_subscription_count", premiumSubscriptionCount)
                 .put("preferred_locale", preferredLocale)
-                .put("public_updates_channel_id", publicUpdatesChannel.id())
+                .put("public_updates_channel_id", publicUpdatesChannelId)
                 .put("max_video_channel_users", maxVideoChannelUsers)
+                .put("max_stage_video_channel_users", maxStageVideoChannelUsers)
                 .put("approximate_member_count", approximateMemberCount)
                 .put("approximate_presence_count", approximatePresenceCount)
                 .put("welcome_screen", welcomeScreen)
@@ -166,6 +373,7 @@ public record Guild(
 
     @NotNull
     public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+        long nano = System.nanoTime();
         String id;
         String name;
         String icon;
@@ -178,7 +386,7 @@ public record Guild(
         Channel afkChannel;
         int afkTimeout;
         boolean isWidgetEnabled;
-        Channel widgetChannel;
+        String widgetChannelId;
         VerificationLevel verificationLevel;
         DefaultMessageNotificationLevel defaultMessageNotificationLevel;
         ExplicitContentFilterLevel explicitContentFilterLevel;
@@ -187,7 +395,7 @@ public record Guild(
         EnumSet<GuildFeature> features;
         MFALevel mfaLevel;
         String applicationId;
-        Channel systemChannel;
+        String systemChannelId;
         int maxPresences;
         int maxMembers;
         String vanityUrlCode;
@@ -196,8 +404,9 @@ public record Guild(
         PremiumTier premiumTier;
         int premiumSubscriptionCount;
         String preferredLocale;
-        Channel publicUpdatesChannel;
+        String publicUpdatesChannelId;
         int maxVideoChannelUsers;
+        int maxStageVideoChannelUsers = 0;
         int approximateMemberCount;
         int approximatePresenceCount;
         WelcomeScreen welcomeScreen;
@@ -277,9 +486,9 @@ public record Guild(
         }
 
         try {
-            widgetChannel = discordJar.getChannelById(obj.getString("widget_channel_id"));
+            widgetChannelId =obj.getString("widget_channel_id");
         } catch (JSONException e) {
-            widgetChannel = null;
+            widgetChannelId = null;
         }
 
         try {
@@ -339,9 +548,9 @@ public record Guild(
         }
 
         try {
-            systemChannel = discordJar.getChannelById(obj.getString("system_channel_id"));
+            systemChannelId = obj.getString("system_channel_id");
         } catch (IllegalArgumentException | JSONException e) {
-            systemChannel = null;
+            systemChannelId = null;
         }
 
         try {
@@ -393,16 +602,21 @@ public record Guild(
         }
 
         try {
-            publicUpdatesChannel =
-                    discordJar.getChannelById(obj.getString("public_updates_channel_id"));
+            publicUpdatesChannelId = obj.getString("public_updates_channel_id");
         } catch (Exception e) {
-            publicUpdatesChannel = null;
+            publicUpdatesChannelId = null;
         }
 
         try {
             maxVideoChannelUsers = obj.getInt("max_video_channel_users");
         } catch (JSONException e) {
             maxVideoChannelUsers = 0;
+        }
+        
+        try {
+            approximateMemberCount = obj.getInt("approximate_member_count");
+        } catch (JSONException e) {
+            approximateMemberCount = 0;
         }
 
         try {
@@ -452,7 +666,7 @@ public record Guild(
                 afkChannel,
                 afkTimeout,
                 isWidgetEnabled,
-                widgetChannel,
+                widgetChannelId,
                 verificationLevel,
                 defaultMessageNotificationLevel,
                 explicitContentFilterLevel,
@@ -461,7 +675,8 @@ public record Guild(
                 features,
                 mfaLevel,
                 applicationId,
-                systemChannel,
+                null,
+                systemChannelId,
                 maxPresences,
                 maxMembers,
                 vanityUrlCode,
@@ -470,8 +685,10 @@ public record Guild(
                 premiumTier,
                 premiumSubscriptionCount,
                 preferredLocale,
-                publicUpdatesChannel,
+                null,
+                publicUpdatesChannelId,
                 maxVideoChannelUsers,
+                maxStageVideoChannelUsers,
                 approximateMemberCount,
                 approximatePresenceCount,
                 welcomeScreen,
@@ -491,10 +708,31 @@ public record Guild(
         return g;
     }
 
+    public Channel systemChannel() {
+        if (systemChannelId == null) return null;
+        if (this.systemChannel != null) return this.systemChannel;
+        this.systemChannel = discordJar.getChannelById(systemChannelId);
+        return this.systemChannel;
+    }
+
+    public Channel publicUpdatesChannel() {
+        if (publicUpdatesChannelId == null) return null;
+        if (this.publicUpdatesChannel != null) return this.publicUpdatesChannel;
+        this.publicUpdatesChannel = discordJar.getChannelById(publicUpdatesChannelId);
+        return this.publicUpdatesChannel;
+    }
+
+    public Channel widgetChannel() {
+        if (widgetChannelId == null) return null;
+        if (this.widgetChannel != null) return this.widgetChannel;
+        this.widgetChannel = discordJar.getChannelById(widgetChannelId);
+        return this.widgetChannel;
+    }
+
     /**
      * Leaves a guild
      */
-    public void leave() {
+    public void leave() throws DiscordRequest.UnhandledDiscordAPIErrorException {
 
         new DiscordRequest(
                 new JSONObject(),
@@ -512,7 +750,7 @@ public record Guild(
     /**
      * Lists the stickers in the guild
      */
-    public List<Sticker> getStickers() {
+    public List<Sticker> getStickers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Sticker.decompileList(
                 new DiscordRequest(
                         new JSONObject(),
@@ -534,7 +772,7 @@ public record Guild(
      *
      * @param stickerId The sticker id
      */
-    public Sticker getStickerById(String stickerId) {
+    public Sticker getStickerById(String stickerId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Sticker.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -564,7 +802,7 @@ public record Guild(
     /**
      * Deletes a sticker
      */
-    public void deleteSticker(String stickerId) {
+    public void deleteSticker(String stickerId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -585,7 +823,7 @@ public record Guild(
      * Returns a list of {@link AutomodRule automod rules} that the guild has
      */
     @NotNull
-    public List<AutomodRule> getAutomodRules() {
+    public List<AutomodRule> getAutomodRules() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return AutomodRule.decompileList(
                 new DiscordRequest(
                         new JSONObject(),
@@ -604,7 +842,7 @@ public record Guild(
 
     @NotNull
     @Contract("_ -> new")
-    public AutomodRule getAutomodRuleById(String id) {
+    public AutomodRule getAutomodRuleById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return AutomodRule.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -626,7 +864,7 @@ public record Guild(
 
     @NotNull
     @Contract("_ -> new")
-    public AutomodRule getAutomodRuleById(long id)  {
+    public AutomodRule getAutomodRuleById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getAutomodRuleById(Long.toString(id));
     }
 
@@ -634,7 +872,7 @@ public record Guild(
         return new AutomodRuleCreateAction(name, eventType, triggerType, actions, this, discordJar);
     }
 
-    public void deleteAutoModRule(String id) {
+    public void deleteAutoModRule(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -655,29 +893,32 @@ public record Guild(
         return new AutomodRuleModifyAction(id, this, discordJar);
     }
 
-    public Member getMemberById(String id) {
+    public Member getMemberById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
+                        "{guild.id}",
+                        this.id
+                ).replace(
+                        "{user.id}",
+                        id
+                ),
+                discordJar,
+                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                RequestMethod.GET
+        ).invoke();
+
+        if (req.body() == null) return null;
         return Member.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                                "{guild.id}",
-                                this.id
-                        ).replace(
-                                "{user.id}",
-                                id
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                        RequestMethod.GET
-                ).invoke().body(),
+                req.body(),
                 discordJar,
                 this.id,
                 this
         );
     }
 
-    public List<Member> getMembers(int limit, String after) {
+    public List<Member> getMembers(int limit, String after) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         Checker.check(limit <= 0, "Limit must be greater than 0");
         Checker.check(limit > 1000, "Limit must be less than or equal to 1000");
         JSONArray arr = new DiscordRequest(
@@ -701,7 +942,7 @@ public record Guild(
     }
 
 
-    public List<Member> getMembers() {
+    public List<Member> getMembers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         JSONArray arr = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -726,7 +967,7 @@ public record Guild(
      * Lists the guild's custom emojis.
      * @return A list of the guild emojis.
      */
-    public List<Emoji> getEmojis() {
+    public List<Emoji> getEmojis() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<Emoji> emojis = new ArrayList<>();
 
         new DiscordRequest(
@@ -746,7 +987,7 @@ public record Guild(
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public Emoji getEmojiById(@NotNull String emojiId) {
+    public Emoji getEmojiById(@NotNull String emojiId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return Emoji.decompile(
                 new DiscordRequest(
                         new JSONObject(),
@@ -765,7 +1006,7 @@ public record Guild(
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public @NotNull Emoji getEmojiById(long emojiId) {
+    public @NotNull Emoji getEmojiById(long emojiId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         return getEmojiById(String.valueOf(emojiId));
     }
 
@@ -774,17 +1015,28 @@ public record Guild(
      * Does not include threads.
      */
     @NotNull
-    public List<GuildChannel> getChannels() {
+    public List<GuildChannel> getChannels() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         List<GuildChannel> channels = new ArrayList<>();
-        JSONArray res = new DiscordRequest(
+        DiscordResponse req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
                 discordJar,
                 URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS,
                 RequestMethod.GET
-        ).invoke().arr();
-        res.forEach(o -> channels.add(GuildChannel.decompile((JSONObject) o, discordJar)));
+        ).invoke();
+        JSONArray res = req.arr();
+        if (res == null) {
+            Logger.getLogger("DiscordJar").warning("Failed to get channels for guild " + req.code());
+            return new ArrayList<>();
+        }
+        res.forEach(o -> {
+            try {
+                channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return channels;
     }
 
@@ -812,7 +1064,12 @@ public record Guild(
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
                 RequestMethod.GET
         );
-        JSONArray res = req.invoke().arr();
+        JSONArray res = null;
+        try {
+            res = req.invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
 
         if (roleCache != null) {
@@ -868,9 +1125,206 @@ public record Guild(
         return new CreateGuildChannelAction(name, type, this, discordJar);
     }
 
+    /**
+     * Returns the invite objects for this guild.
+     * <br>This method requires the <b>MANAGE_GUILD</b> permission.
+     * @return A list of {@link Invite invites} for this guild.
+     */
+    public List<Invite> getInvites() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        List<Invite> invites = new ArrayList<>();
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.GET_GUILD_INVITES.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.GET_GUILD_INVITES,
+                RequestMethod.GET
+        );
+        JSONArray res = null;
+        res = req.invoke().arr();
+        res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
+        return invites;
+    }
+
 
     @Override
     public StringFormatter formatter() {
         return new StringFormatter("icons/", id, iconHash());
+    }
+
+    /**
+     * Returns the onboarding flow for this guild.
+     * @return {@link Onboarding}
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException If the request fails.
+     */
+    public @NotNull Onboarding getOnboarding() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.GET_GUILD_ONBOARDING.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.GET_GUILD_ONBOARDING,
+                RequestMethod.GET
+        );
+        return Onboarding.decompile(req.invoke().body(), this, discordJar);
+    }
+
+
+    /**
+     * Represents the <a href="https://support.discord.com/hc/en-us/articles/11074987197975-Community-Onboarding-FAQ">onboarding</a> flow for a guild.
+     * @param guild The guild this onboarding flow is for.
+     * @param prompts Prompts shown during onboarding and in customize community.
+     * @param defaultChannelIds Channel IDs that members get opted into automatically.
+     * @param enabled Whether onboarding is enabled in the guild.
+     */
+    public record Onboarding(
+            Guild guild,
+            List<Prompt> prompts,
+            List<String> defaultChannelIds,
+            boolean enabled
+    ) implements Compilerable {
+
+        @NotNull
+        @Override
+        public JSONObject compile() {
+            JSONObject obj = new JSONObject();
+            obj.put("enabled", enabled);
+            obj.put("default_channel_ids", defaultChannelIds);
+            obj.put("prompts", prompts.stream().map(Prompt::compile).collect(Collectors.toList()));
+            obj.put("guild_id", guild.id());
+            return obj;
+        }
+
+        @NotNull
+        @Contract("_, _, _ -> new")
+        public static Onboarding decompile(@NotNull JSONObject obj, @NotNull Guild guild, @NotNull DiscordJar djar) {
+            return new Onboarding(
+                    guild,
+                    obj.getJSONArray("prompts").toList().stream().map(o -> Prompt.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                    obj.getJSONArray("default_channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                    obj.getBoolean("enabled")
+            );
+        }
+
+        /**
+         * Represents a prompt shown during onboarding and in customize community.
+         * @param id ID of the prompt
+         * @param type Type of prompt
+         * @param options Options available within the prompt
+         * @param title Title of the prompt
+         * @param singleSelect Indicates whether users are limited to selecting one option for the prompt
+         * @param required Indicates whether the prompt is required before a user completes the onboarding flow
+         * @param inOnboarding Indicates whether the prompt is present in the onboarding flow. If `false`, the prompt will only appear
+         *                     in the Channels & Roles tab.
+         */
+        public record Prompt(
+                String id,
+                Type type,
+                List<Option> options,
+                String title,
+                boolean singleSelect,
+                boolean required,
+                boolean inOnboarding
+        ) implements Compilerable {
+
+            @NotNull
+            @Override
+            public JSONObject compile() {
+                JSONObject obj = new JSONObject();
+                obj.put("id", id);
+                obj.put("type", type.getCode());
+                obj.put("options", options.stream().map(Option::compile).collect(Collectors.toList()));
+                obj.put("title", title);
+                obj.put("single_select", singleSelect);
+                obj.put("required", required);
+                obj.put("in_onboarding", inOnboarding);
+                return obj;
+            }
+
+            @NotNull
+            @Contract("_, _ -> new")
+            public static Prompt decompile(@NotNull JSONObject obj, @NotNull DiscordJar djar) {
+                return new Prompt(
+                        obj.getString("id"),
+                        Type.fromCode(obj.getInt("type")),
+                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                        obj.getString("title"),
+                        obj.getBoolean("single_select"),
+                        obj.getBoolean("required"),
+                        obj.getBoolean("in_onboarding")
+                );
+            }
+
+            public enum Type {
+                MULTIPLE_CHOICE(0),
+                DROPDOWN(1),
+                UNKNOWN(-1)
+                ;
+
+                private final int code;
+
+                Type(int code) {
+                    this.code = code;
+                }
+
+                public int getCode() {
+                    return code;
+                }
+
+                public static Type fromCode(int code) {
+                    for (Type type : values()) {
+                        if (type.code == code) {
+                            return type;
+                        }
+                    }
+                    return UNKNOWN;
+                }
+            }
+
+            /**
+             * Represents an option available within a prompt.
+             * @param id ID of the option
+             * @param channelIds IDs for channels a member is added to when the option is selected
+             * @param roleIds IDs for roles assigned to a member when the option is selected
+             * @param emoji Emoji for the option
+             * @param title Title of the option
+             * @param description Description of the option. This may be null or an empty string.
+             */
+            public record Option(
+                String id,
+                List<String> channelIds,
+                List<String> roleIds,
+                Emoji emoji,
+                String title,
+                String description
+            ) implements Compilerable {
+                @NotNull
+                @Override
+                public JSONObject compile() {
+                    JSONObject obj = new JSONObject();
+                    obj.put("id", id);
+                    obj.put("channel_ids", channelIds);
+                    obj.put("role_ids", roleIds);
+                    obj.put("emoji", emoji.compile());
+                    obj.put("title", title);
+                    obj.put("description", description);
+                    return obj;
+                }
+
+                @NotNull
+                @Contract("_, _ -> new")
+                public static Option decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
+                    return new Option(
+                            obj.getString("id"),
+                            obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                            obj.getJSONArray("role_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                            Emoji.decompile(obj.getJSONObject("emoji"), discordJar),
+                            obj.getString("title"),
+                            obj.getString("description")
+                    );
+                }
+            }
+        }
+
     }
 }

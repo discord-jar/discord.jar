@@ -1,18 +1,34 @@
 package com.seailz.discordjar.model.channel.thread;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.GuildChannel;
+import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.TextChannel;
+import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
+import com.seailz.discordjar.model.channel.interfaces.Transcriptable;
+import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ThreadImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
+import com.seailz.discordjar.model.component.DisplayComponent;
+import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -39,12 +55,12 @@ import java.util.List;
  * @since  1.0
  * @see    GuildChannel
  */
-public interface Thread extends GuildChannel {
+public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetrievable, Transcriptable {
 
     /**
      * The id of the parent channel
      */
-    TextChannel owner();
+    MessagingChannel owner();
 
     /**
      * Message sending rate limit in seconds.
@@ -131,23 +147,23 @@ public interface Thread extends GuildChannel {
      */
     @NotNull
     @Contract("_, _ -> new")
-    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
         Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
-        int position = obj.getInt("position");
-        boolean nsfw = obj.getBoolean("nsfw");
-        TextChannel owner = obj.has("parent_id") ? (TextChannel) discordJar.getChannelById(obj.getString("parent_id")) : null;
-        int rateLimitPerUser = obj.has("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
-        String creatorId = obj.has("creator_id") ? obj.getString("creator_id") : null;
-        String lastPinTimestamp = obj.has("last_pin_timestamp") ? obj.getString("last_pin_timestamp") : null;
-        int messageCount = obj.has("message_count") ? obj.getInt("message_count") : 0;
-        ThreadMetadata metadata = obj.has("thread_metadata") ? ThreadMetadata.decompile(obj.getJSONObject("thread_metadata")) : null;
-        ThreadMember member = obj.has("member") ? ThreadMember.decompile(obj.getJSONObject("member")) : null;
-        int totalMessageSent = obj.has("total_message_sent") ? obj.getInt("total_message_sent") : 0;
-        int defaultThreadRateLimitPerUser = obj.has("default_thread_rate_limit_per_user") ? obj.getInt("default_thread_rate_limit_per_user") : 0;
-        String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
+        int position = obj.has("position") && !obj.isNull("position") ? obj.getInt("position") : 0;
+        boolean nsfw = obj.has("nsfw") && !obj.isNull("nsfw") && obj.getBoolean("nsfw");
+        MessagingChannel owner = obj.has("parent_id") && !obj.isNull("parent_id") ? discordJar.getTextChannelById(obj.getString("parent_id")) : null;
+        int rateLimitPerUser = obj.has("rate_limit_per_user") && !obj.isNull("rate_limit_per_user") ? obj.getInt("rate_limit_per_user") : 0;
+        String creatorId = obj.has("creator_id")  && !obj.isNull("creator_id") ? obj.getString("creator_id") : null;
+        String lastPinTimestamp = obj.has("last_pin_timestamp") && !obj.isNull("last_pin_timestamp") ? obj.getString("last_pin_timestamp") : null;
+        int messageCount = obj.has("message_count")  && !obj.isNull("message_count") ? obj.getInt("message_count") : 0;
+        ThreadMetadata metadata = obj.has("thread_metadata") && !obj.isNull("thread_metadata") ? ThreadMetadata.decompile(obj.getJSONObject("thread_metadata")) : null;
+        ThreadMember member = obj.has("member") && !obj.isNull("member") ? ThreadMember.decompile(obj.getJSONObject("member")) : null;
+        int totalMessageSent = obj.has("total_message_sent") && !obj.isNull("total_message_sent") ? obj.getInt("total_message_sent") : 0;
+        int defaultThreadRateLimitPerUser = obj.has("default_thread_rate_limit_per_user") && !obj.isNull("default_thread_rate_limit_per_user") ? obj.getInt("default_thread_rate_limit_per_user") : 0;
+        String lastMessageId = obj.has("last_message_id") && !obj.isNull("last_message_id") ? obj.getString("last_message_id") : null;
 
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (obj.has("permission_overwrites")) {
@@ -160,6 +176,68 @@ public interface Thread extends GuildChannel {
 
         return new ThreadImpl(id, type, name, guild, position, permissionOverwrites, nsfw, owner, rateLimitPerUser, creatorId, lastPinTimestamp, messageCount, metadata,
                 member, totalMessageSent, defaultThreadRateLimitPerUser, lastMessageId, obj, discordJar);
+    }
+
+    default MessageCreateAction sendMessage(String text) {
+        return new MessageCreateAction(text, id(), discordJv());
+    }
+
+    default MessageCreateAction sendComponents(DisplayComponent... components) {
+        return new MessageCreateAction(new ArrayList<>(List.of(components)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendEmbeds(Embeder... embeds) {
+        return new MessageCreateAction(new ArrayList<>(List.of(embeds)), id(), discordJv());
+    }
+
+    default MessageCreateAction sendAttachments(Attachment... attachments) {
+        return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
+    }
+
+    default void removeMember(String userId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER
+                        .replace("{channel.id}", id())
+                        .replace("{user.id}", userId),
+                discordJv(),
+                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+    default void removeMember(User user) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        removeMember(user.id());
+    }
+
+    default void removeMember(Member member) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        removeMember(member.user().id());
+    }
+
+    public enum AutoArchiveDuration {
+        MINUTES_60(60),
+        MINUTES_1440(1440),
+        MINUTES_4320(4320),
+        MINUTES_10080(10080);
+
+        private final int minutes;
+
+        AutoArchiveDuration(int minutes) {
+            this.minutes = minutes;
+        }
+
+        public int minutes() {
+            return minutes;
+        }
+
+        public static AutoArchiveDuration fromMinutes(int minutes) {
+            for (AutoArchiveDuration duration : values()) {
+                if (duration.minutes() == minutes)
+                    return duration;
+            }
+            return null;
+        }
     }
 
 }

@@ -9,6 +9,12 @@ a **work in progress** Java wrapper for the [Discord API](https://discord.com/de
 Everything that needs doing can be found in the [Issues](https://github.com/discord-jar/discord.jar/issues) tab, so if you're
 interested in helping out it would be greatly appreciated! Developed & maintained by @seailz
 
+🧵Multi-Threaded<br>
+🌐Supports interaction only/http-only bots!<br>
+🔗Supports linked roles<br>
+🏃Efficient!
+
+
 Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
@@ -20,6 +26,12 @@ https://discord.gg/tmvS8A57J4
 JitPack to host our builds. See tutorials for your dependency management
 system [here](https://jitpack.io/#discord-jar/discord.jar/-SNAPSHOT).</b>
 
+<details>
+<summary>Above will change soon</summary>
+<br>
+When discord.jar officially releases, we'll be using our own repository. (Thanks @joeecodes). I'm also looking into getting djar on maven central.
+</details>
+
 A Discord bot token is required to use the API. You can get one by creating a bot
 account [here](https://discord.com/developers/applications).
 
@@ -28,14 +40,18 @@ account [here](https://discord.com/developers/applications).
 To initialize a bot that uses the gateway (is able to receive events), you can use the following code:
 
 ```java
-new DiscordJar("token");
+
+DiscordJar djar = new DiscordJarBuilder("token").build();
 ```
 
 You can specify intents to use with the gateway by using the following code:
 
 ```java
-new DiscordJar("token", EnumSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES));
+DiscordJar djar = new DiscordJarBuilder("token")
+        .addIntents(Intent.GUILDS, Intent.GUILD_MESSAGES).build();
 ```
+
+Doing so will override the default intents.
 
 Note: You can use the `Intent.ALL` constant to specify all intents. This does not include privileged intents.
 
@@ -45,11 +61,12 @@ To make your bot an <a href="https://discord.com/developers/docs/topics/gateway#
 you'll need to specify a couple more parameters.
 
 ```java
-new DiscordJar("token",EnumSet.of(Intents.GUILDS,Intents.GUILD_MESSAGES), APIVersion.getLatest(), true,
-        new HTTPOnlyInfo(
-        "interactions",
-        "EXAMPLE_APPLICATION_PUBLIC_KEY" // this cxan be found in your application's page in the dev panel
-));
+DiscordJar djar = new DiscordJarBuilder("token_here")
+        .setHTTPOnly(true)
+        .setHTTPOnlyInfo(new HTTPOnlyInfo(
+                "interactions", 
+                "EXAMPLE_APPLICATION_PUBLIC_KEY"
+        )).build();
 ```
 
 You should set `"interactions"` to whatever endpoint you want to use to receive post requests from Discord. This will be
@@ -175,11 +192,7 @@ License info can be found [here](https://github.com/discord-jar/discord.jar/blob
 Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
-## Donations
+## Support me :)
 <a href="https://github.com/sponsors/seailz">
  <img alt="Ghsponsors Singular badge" height="56" href="https://github.com/seailz" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/ghsponsors-singular_vector.svg">
-</a>
-
-<a href="https://ko-fi.com/discordjv" target="_blank">
- <img alt="Kofi Singular badge" height="56" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/kofi-singular_vector.svg">
 </a>

@@ -9,8 +9,10 @@ package com.seailz.discordjar.utils;
 public interface CDNAble {
 
     StringFormatter formatter();
+    String iconHash();
 
     default String imageUrl() {
+        if (iconHash() == null) return null;
         return formatter().format("https://cdn.discordapp.com/{0}/{1}/{2}.png");
     }
 

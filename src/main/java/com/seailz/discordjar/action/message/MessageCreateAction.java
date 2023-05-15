@@ -1,8 +1,9 @@
-package com.seailz.discordjar.action;
+package com.seailz.discordjar.action.message;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embeder;
+import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.message.MessageFlag;
@@ -17,10 +18,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -37,7 +35,6 @@ public class MessageCreateAction {
     private String nonce;
     private boolean tts;
     private List<Embeder> embeds;
-    // TODO: allowed mentions
     private MessageReference messageReference;
     private List<DisplayComponent> components;
     private List<String> stickerIds;
@@ -49,6 +46,9 @@ public class MessageCreateAction {
     private final String channelId;
     private final DiscordJar discordJar;
     private boolean silent = false;
+    private AllowedMentions allowedMentions;
+    private byte[] waveform;
+    private float duration = -1;
 
     public MessageCreateAction(@Nullable String text, @NotNull String channelId, @NotNull DiscordJar discordJar) {
         this.text = text;
@@ -125,6 +125,31 @@ public class MessageCreateAction {
     public MessageCreateAction setText(@Nullable String text) {
         this.text = text;
         return this;
+    }
+
+    /**
+     * For voice messages
+     */
+    public MessageCreateAction setWaveform(byte[] waveform) {
+        this.waveform = waveform;
+        return this;
+    }
+
+    /**
+     * For voice messages
+     */
+    public MessageCreateAction setDuration(float dur) {
+        this.duration = dur;
+        return this;
+    }
+
+    public MessageCreateAction setAllowedMentions(AllowedMentions allowedMentions) {
+        this.allowedMentions = allowedMentions;
+        return this;
+    }
+
+    public AllowedMentions getAllowedMentions() {
+        return allowedMentions;
     }
 
     public MessageCreateAction setNonce(@Nullable String nonce) {
@@ -246,6 +271,15 @@ public class MessageCreateAction {
             if (this.nonce != null) payload.put("nonce", this.nonce);
             if (this.tts) payload.put("tts", true);
             if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
+            if (this.waveform != null) {
+                // Encode base64
+                String encoded = Base64.getEncoder().encodeToString(this.waveform);
+                payload.put("waveform", encoded);
+            }
+
+            if (this.duration != -1) {
+                payload.put("duration", this.duration);
+            }
 
             JSONArray components = new JSONArray();
             if (this.components != null && !this.components.isEmpty()) {
@@ -266,7 +300,6 @@ public class MessageCreateAction {
 
             if (this.embeds != null)
                 payload.put("embeds", embeds);
-
 
             JSONArray stickerIds = new JSONArray();
             if (this.stickerIds != null) {
@@ -297,6 +330,10 @@ public class MessageCreateAction {
             if (flagsInt != 0)
                 payload.put("flags", flagsInt);
 
+            if (allowedMentions != null) {
+                payload.put("allowed_mentions", allowedMentions.compile());
+            }
+
             DiscordRequest request = new DiscordRequest(
                     payload,
                     new HashMap<>(),
@@ -309,8 +346,14 @@ public class MessageCreateAction {
             DiscordResponse response = null;
             if (fileUploads != null && !fileUploads.isEmpty())
                 response = request.invokeWithFiles(new ArrayList<>(fileUploads).toArray(new File[0]));
-            else
-                request.invoke();
+            else {
+                try {
+                    response = request.invoke();
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    future.completeExceptionally(e);
+                    return null;
+                }
+            }
             return Message.decompile(response.body(), discordJar);
         });
         return future;

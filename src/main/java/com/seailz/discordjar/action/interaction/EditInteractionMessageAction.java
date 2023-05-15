@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -124,9 +125,9 @@ public class EditInteractionMessageAction {
         return this;
     }
 
-    public CompletableFuture<Message> run() {
-        CompletableFuture<Message> future = new CompletableFuture<>();
-        future.completeAsync(() -> {
+    public Response<Message> run() {
+        Response<Message> future = new Response<>();
+        new Thread(() -> {
             JSONObject obj = new JSONObject();
             if (content != null) obj.put("content", content);
             if (embeds != null) {
@@ -174,8 +175,12 @@ public class EditInteractionMessageAction {
                     RequestMethod.PATCH
             );
 
-            return Message.decompile(request.invoke().body(), discordJar);
-        });
+            try {
+                future.complete(Message.decompile(request.invoke().body(), discordJar));
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
+            }
+        }).start();
         return future;
     }
 

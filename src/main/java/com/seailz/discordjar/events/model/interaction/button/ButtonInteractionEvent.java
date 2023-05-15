@@ -2,6 +2,7 @@ package com.seailz.discordjar.events.model.interaction.button;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.ModalInteractionCallbackAction;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.data.message.MessageComponentInteractionData;
@@ -12,7 +13,7 @@ import com.seailz.discordjar.utils.registry.ButtonRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-public class ButtonInteractionEvent extends InteractionEvent {
+public class ButtonInteractionEvent extends InteractionEvent implements CustomIdable {
     public ButtonInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
         // First checks the button registry for any actions that match the custom id.
@@ -41,6 +42,7 @@ public class ButtonInteractionEvent extends InteractionEvent {
      * @return {@link String} object containing the custom id.
      */
     @NotNull
+    @Override
     public String getCustomId() {
         return getInteractionData().customId();
     }

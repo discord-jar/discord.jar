@@ -26,6 +26,8 @@ public class ChannelSelectMenu implements SelectMenu {
     private List<ChannelType> channelTypes;
     private boolean disabled;
 
+    private JSONObject raw;
+
     /**
      * Creates a new channel select menu
      *
@@ -44,13 +46,14 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues    The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled) {
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled, JSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
         this.channelTypes = channelTypes;
         this.disabled = disabled;
+        this.raw = raw;
     }
 
     /**
@@ -62,8 +65,8 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues    The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, ChannelType... channelTypes) {
-        this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled);
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw, ChannelType... channelTypes) {
+        this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled, raw);
     }
 
     @Override
@@ -118,7 +121,7 @@ public class ChannelSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new ChannelSelectMenu(
-                customId, placeholder, minValues, maxValues, disabled
+                customId, placeholder, minValues, maxValues, disabled, raw, channelTypes.toArray(new ChannelType[0])
         );
     }
 
@@ -168,7 +171,17 @@ public class ChannelSelectMenu implements SelectMenu {
             });
         }
 
-        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled);
+        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled, json);
+    }
+
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+        this.raw = raw;
     }
 }
 

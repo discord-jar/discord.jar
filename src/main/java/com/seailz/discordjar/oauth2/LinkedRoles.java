@@ -97,7 +97,7 @@ public class LinkedRoles {
      * @param values           object mapping application role connection metadata keys to their string-ified value (max 100 characters) for the user on the platform a bot has connected
      * @param authToken        The authorization token
      */
-    private void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values, String authToken, boolean attemptedRefreshToken) throws IOException, InterruptedException, URISyntaxException {
+    private void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values, String authToken, boolean attemptedRefreshToken) throws IOException, InterruptedException, URISyntaxException, DiscordRequest.UnhandledDiscordAPIErrorException {
         HashMap<String, String> headers = new HashMap<>();
         if (authToken == null) {
             String accToken;
@@ -161,11 +161,11 @@ public class LinkedRoles {
         }
     }
 
-    public void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values) throws IllegalStateException, IOException, URISyntaxException, InterruptedException {
+    public void updateRoles(String userId, String platformName, String platformUsername, HashMap<String, Object> values) throws IllegalStateException, IOException, URISyntaxException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
         updateRoles(userId, platformName, platformUsername, values, null, false);
     }
 
-    public void updateRoles(String platformName, String platformUsername, HashMap<String, Object> values, String authToken) throws IllegalStateException, IOException, URISyntaxException, InterruptedException {
+    public void updateRoles(String platformName, String platformUsername, HashMap<String, Object> values, String authToken) throws IllegalStateException, IOException, URISyntaxException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
         updateRoles(null, platformName, platformUsername, values, authToken, false);
     }
 

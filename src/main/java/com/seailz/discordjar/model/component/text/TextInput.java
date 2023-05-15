@@ -25,6 +25,8 @@ public class TextInput implements ModalComponent {
     private int maxLength;
     private boolean required;
 
+    private JSONObject raw;
+
     /**
      * Creates a new text input component
      *
@@ -36,7 +38,7 @@ public class TextInput implements ModalComponent {
      * @param minLength   The minimum length of the input (min 0, max 4000), default 0
      * @param maxLength   The maximum length of the input (min 1, max 4000), default 4000
      */
-    public TextInput(@NotNull String customId, @NotNull TextInputStyle style, @NotNull String label, @Nullable String placeholder, @Nullable String value, int minLength, int maxLength, boolean required) {
+    public TextInput(@NotNull String customId, @NotNull TextInputStyle style, @NotNull String label, @Nullable String placeholder, @Nullable String value, int minLength, int maxLength, boolean required, JSONObject raw) {
         this.customId = customId;
         this.style = style;
         this.label = label;
@@ -45,10 +47,11 @@ public class TextInput implements ModalComponent {
         this.minLength = minLength;
         this.maxLength = maxLength;
         this.required = required;
+        this.raw = raw;
     }
 
     public TextInput(@NotNull String customId, @NotNull TextInputStyle style, @NotNull String label) {
-        this(customId, style, label, null, null, 0, 4000, false);
+        this(customId, style, label, null, null, 0, 4000, false, null);
     }
 
     /**
@@ -108,7 +111,7 @@ public class TextInput implements ModalComponent {
         int maxLength = json.has("max_length") ? json.getInt("max_length") : 4000;
         boolean required = json.has("required") && json.getBoolean("required");
 
-        return new TextInput(customId, style, label, placeholder, value, minLength, maxLength, required);
+        return new TextInput(customId, style, label, placeholder, value, minLength, maxLength, required, json);
     }
 
     /**
@@ -209,5 +212,15 @@ public class TextInput implements ModalComponent {
     @Override
     public boolean required() {
         return required;
+    }
+
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+        this.raw = raw;
     }
 }

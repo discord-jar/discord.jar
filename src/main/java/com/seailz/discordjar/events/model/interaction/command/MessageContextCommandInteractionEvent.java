@@ -24,12 +24,12 @@ public class MessageContextCommandInteractionEvent extends CommandInteractionEve
      * @return {@link Message} object containing the message data.
      */
     @Nullable
-    public Message getTarget() {
+    public Message getTarget() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response =
                 new DiscordRequest(
                         new JSONObject(),
                         new HashMap<>(),
-                        URLS.GET.CHANNELS.GET_MESSAGE.replace("{channel_id}", getInteraction().channel().id()).replace("{message_id}", String.valueOf(getCommandData().targetId())),
+                        URLS.GET.CHANNELS.GET_MESSAGE.replace("{channel.id}", getInteraction().channel().id()).replace("{message.id}", String.valueOf(getCommandData().targetId())),
                         getBot(),
                         URLS.GET.CHANNELS.GET_MESSAGE,
                         RequestMethod.GET

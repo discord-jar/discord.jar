@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,4 +82,6 @@ public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflak
         }
         return null;
     }
+
+    void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException;
 }

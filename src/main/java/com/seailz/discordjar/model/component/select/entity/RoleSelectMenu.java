@@ -20,6 +20,8 @@ public class RoleSelectMenu implements SelectMenu {
     private int maxValues;
     private boolean isDisabled;
 
+    private JSONObject raw;
+
     /**
      * Creates a new role select menu
      *
@@ -38,11 +40,13 @@ public class RoleSelectMenu implements SelectMenu {
      * @param maxValues   The maximum amount of values that can be selected
      * @param disabled    If the select menu is disabled
      */
-    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled) {
+    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
+        this.isDisabled = disabled;
+        this.raw = raw;
     }
 
     @Override
@@ -88,7 +92,7 @@ public class RoleSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new RoleSelectMenu(
-                customId, placeholder, minValues, maxValues, disabled
+                customId, placeholder, minValues, maxValues, disabled, raw
         );
     }
 
@@ -124,9 +128,18 @@ public class RoleSelectMenu implements SelectMenu {
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
         boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new RoleSelectMenu(customId, placeholder, minValues, maxValues, disabled);
+        return new RoleSelectMenu(customId, placeholder, minValues, maxValues, disabled, json);
     }
 
 
+    @Override
+    public JSONObject raw() {
+        return raw;
+    }
+
+    @Override
+    public void setRaw(JSONObject raw) {
+        this.raw = raw;
+    }
 }
 

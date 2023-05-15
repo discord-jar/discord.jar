@@ -1175,7 +1175,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new RuntimeException(e);
         }
-        if (response.code() == 401) throw new IllegalAccessException("(Received 401) Application is not authorized to delete the guild. Make sure the application owns the guild before doing this.");
+        if (response.code() != 200) throw new RuntimeException("An error occurred when deleting the guild. Make sure the application owns the guild before doing this.");
     }
 
     /**

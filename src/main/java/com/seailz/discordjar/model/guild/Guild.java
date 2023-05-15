@@ -1306,20 +1306,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @return The ban on the user, if applicable
      */
     public GuildBan getBan(long userId) {
-        DiscordResponse response;
-        try {
-            response = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
-                    discordJar,
-                    URLS.GET.GUILDS.USER_BAN,
-                    RequestMethod.GET
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
-        return GuildBan.decompile(response.body(), discordJar);
+        return getBan(String.valueOf(userId));
     }
 
     /**
@@ -1346,18 +1333,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @param userId The id of the user to ban
      */
     public void banUser(long userId) {
-        try {
-            new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", String.valueOf(userId)),
-                    discordJar,
-                    URLS.PUT.GUILD.BAN_USER,
-                    RequestMethod.PUT
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+        banUser(String.valueOf(userId));
     }
 
     /**

@@ -18,10 +18,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -50,6 +47,8 @@ public class MessageCreateAction {
     private final DiscordJar discordJar;
     private boolean silent = false;
     private AllowedMentions allowedMentions;
+    private byte[] waveform;
+    private float duration = -1;
 
     public MessageCreateAction(@Nullable String text, @NotNull String channelId, @NotNull DiscordJar discordJar) {
         this.text = text;
@@ -125,6 +124,22 @@ public class MessageCreateAction {
 
     public MessageCreateAction setText(@Nullable String text) {
         this.text = text;
+        return this;
+    }
+
+    /**
+     * For voice messages
+     */
+    public MessageCreateAction setWaveform(byte[] waveform) {
+        this.waveform = waveform;
+        return this;
+    }
+
+    /**
+     * For voice messages
+     */
+    public MessageCreateAction setDuration(float dur) {
+        this.duration = dur;
         return this;
     }
 
@@ -256,6 +271,15 @@ public class MessageCreateAction {
             if (this.nonce != null) payload.put("nonce", this.nonce);
             if (this.tts) payload.put("tts", true);
             if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
+            if (this.waveform != null) {
+                // Encode base64
+                String encoded = Base64.getEncoder().encodeToString(this.waveform);
+                payload.put("waveform", encoded);
+            }
+
+            if (this.duration != -1) {
+                payload.put("duration", this.duration);
+            }
 
             JSONArray components = new JSONArray();
             if (this.components != null && !this.components.isEmpty()) {

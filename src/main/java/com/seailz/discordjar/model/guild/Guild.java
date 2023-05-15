@@ -1469,7 +1469,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @return The amount of pruned users
      */
     public int prune(int days) {
-        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside 1-30!"))) return 0;
+        if (!Checker.inRange(1, 30, days, () -> {throw new RuntimeException("Days cannot be outside 1-30!");})) return 0;
 
         try {
             DiscordResponse response = new DiscordRequest(
@@ -1494,7 +1494,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @return The number of members that would be pruned in the prune operation.
      */
     public int getPruneCount(int days, List<Role> includedRoles) {
-        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!"))) return 0;
+        if (!Checker.inRange(1, 30, days, () -> {throw new RuntimeException("Days cannot be outisde 1-30!");})) return 0;
 
         StringBuilder commaDelimitedSnowflakesString = new StringBuilder("[");
         if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());

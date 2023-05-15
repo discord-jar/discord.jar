@@ -43,10 +43,11 @@ public class MessageEditAction {
     private final DiscordJar discordJar;
     private final String messageId;
 
-    public MessageEditAction(@NotNull String channelId, @NotNull DiscordJar discordJar, String messageId) {
+    public MessageEditAction(@NotNull String channelId, @NotNull DiscordJar discordJar, String messageId, boolean isVoiceMessage) {
         this.channelId = channelId;
         this.discordJar = discordJar;
         this.messageId = messageId;
+        if (isVoiceMessage) throw new IllegalArgumentException("Cannot edit a voice message");
     }
 
     public MessageEditAction(ArrayList<DisplayComponent> components, @NotNull String channelId, @NotNull DiscordJar discordJar, String messageId) {

@@ -57,8 +57,10 @@ public class DiscordJarBuilder {
     }
 
     public DiscordJarBuilder addIntent(Intent intent) {
-        if (this.intents == null) this.intents = EnumSet.noneOf(Intent.class);
-        this.intents.remove(Intent.ALL);
+        if (this.intents == null) {
+            this.intents = EnumSet.noneOf(Intent.class);
+            intents.add(Intent.ALL);
+        };
         this.intents.add(intent);
         return this;
     }

@@ -7,9 +7,13 @@ import com.seailz.discordjar.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjar.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjar.action.sticker.ModifyStickerAction;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.automod.AutomodRule;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.GuildChannel;
+import com.seailz.discordjar.model.channel.MessagingChannel;
+import com.seailz.discordjar.model.channel.VoiceChannel;
+import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
@@ -1064,7 +1068,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
                 RequestMethod.GET
         );
-        JSONArray res = null;
+        JSONArray res;
         try {
             res = req.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1088,7 +1092,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * If a guild has over a certain threshold of members, this will only send members wo are online,
      * <br>have a role, have a nickname, or are in a voice channel, and if it has under the threshold,
      * <br>it will send all members.
-     *
+     * <p>
      * Limitations put in place by Discord for this method:
      * <ul>
      *     <li><b>GUILD_PRESENCES</b> intent is required to set presences to true, otherwise it will always be false.</li>
@@ -1140,7 +1144,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 URLS.GET.GUILDS.GET_GUILD_INVITES,
                 RequestMethod.GET
         );
-        JSONArray res = null;
+        JSONArray res;
         res = req.invoke().arr();
         res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
         return invites;
@@ -1152,6 +1156,435 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         return new StringFormatter("icons/", id, iconHash());
     }
 
+    /**
+     * Deletes the guild. The application must own the guild in order to perform this action.
+     * <p/>
+     * <b>This action is irreversible!</b>
+     */
+    public void delete() throws IllegalAccessException {
+        DiscordResponse response;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.DELETE_GUILD.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.DELETE.GUILD.DELETE_GUILD,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+        if (response.code() != 200) throw new RuntimeException("An error occurred when deleting the guild. Make sure the application owns the guild before doing this.");
+    }
+
+    /**
+     * Deletes a role from the guild.
+     * This requires your application to have the {@code MANAGE_ROLES} permission.
+     * @param role The role to delete.
+     */
+    public void deleteRole(Role role) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.ROLES.replace("{guild.id}", id).replace("{role.id}", role.id()),
+                    discordJar,
+                    URLS.DELETE.GUILD.ROLES,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Gets a role in the guild by its id if it exists.
+     * @param id The id of the role to find.
+     * @return The role if it exists, {@code null} if it does not.
+     */
+    public Role getRoleById(long id) {
+        return getRoleById(String.valueOf(id));
+    }
+
+    /**
+     * Gets a role in the guild by its id if it exists.
+     * @param id The id of the role to find.
+     * @return The role if it exists, {@code null} if it does not.
+     */
+    public Role getRoleById(String id) {
+        for (Role r : roles()) {
+            if (r.id().equals(id)) return r;
+        }
+        return null;
+    }
+
+    /**
+     * Gets a list of roles from the guild with the given name.
+     * @param name A name to find.
+     * @return A list of roles with the given name, which may be empty.
+     */
+    public List<Role> getRolesByName(String name) {
+        List<Role> roles = new ArrayList<>();
+        roles().forEach(r -> {if (r.name().equals(name)) roles.add(r);});
+        return roles;
+    }
+
+    /**
+     * Modifies the MFA level of a Guild. This requires Guild ownership.
+     * @param level The new MFA level to set.
+     */
+    public void modifyMFALevel(MFALevel level) {
+        try {
+            new DiscordRequest(
+                    new JSONObject("level", String.valueOf(level.getCode())),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.UPDATE_MFA.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.POST.GUILDS.UPDATE_MFA,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Gets a list of all currently banned users on the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @return Current guild bans
+     */
+    public List<GuildBan> getBans() {
+        DiscordResponse response;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.BANS.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.BANS,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+
+        List<GuildBan> bans = new ArrayList<>();
+        response.arr().forEach((object) -> bans.add(GuildBan.decompile((JSONObject) object, discordJar)));
+
+        return bans;
+    }
+
+    /**
+     * Gets a ban on a user in the guild. Returns {@code null} if no ban could be found. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the banned user
+     * @return The ban on the user, if applicable
+     */
+    public GuildBan getBan(String userId) {
+        DiscordResponse response;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", userId),
+                    discordJar,
+                    URLS.GET.GUILDS.USER_BAN,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+        return GuildBan.decompile(response.body(), discordJar);
+    }
+
+    /**
+     * Gets a ban on a user in the guild. Returns {@code null} if no ban could be found. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the banned user
+     * @return The ban on the user, if applicable
+     */
+    public GuildBan getBan(long userId) {
+        return getBan(String.valueOf(userId));
+    }
+
+    /**
+     * Bans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to ban
+     */
+    public void banUser(String userId) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
+                    discordJar,
+                    URLS.PUT.GUILD.BAN_USER,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Bans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to ban
+     */
+    public void banUser(long userId) {
+        banUser(String.valueOf(userId));
+    }
+
+    /**
+     * Unbans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to unban
+     */
+    public void unbanUser(String userId) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
+                    discordJar,
+                    URLS.PUT.GUILD.BAN_USER,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Unban a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     * @param userId The id of the user to unban
+     */
+    public void unbanUser(long userId) {
+        unbanUser(String.valueOf(userId));
+    }
+
+    /**
+     * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     * </p>
+     * By default, this tests for 7 days.
+     * @return The number of members that would be pruned in the prune operation.
+     */
+    public int getPruneCount() {
+        return getPruneCount(7);
+    }
+
+    /**
+     * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     * @return The number of members that would be pruned in the prune operation.
+     */
+    public int getPruneCount(int days) {
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!"))) return 0;
+
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject()
+                        .put("days", days),
+                new HashMap<>(),
+                URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.PRUNE,
+                RequestMethod.GET
+        );
+        try {
+            return req.invoke().body().getInt("pruned");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     * @return The amount of pruned users
+     */
+    public int prune(int days) {
+        if (!Checker.inRange(1, 30, days, () -> {throw new RuntimeException("Days cannot be outside 1-30!");})) return 0;
+
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject()
+                            .put("days", days),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.PRUNE.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.POST.GUILDS.PRUNE,
+                    RequestMethod.POST
+            ).invoke();
+            return response.body().getInt("pruned");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     * @param includedRoles A list of roles to include in the count.
+     * @return The number of members that would be pruned in the prune operation.
+     */
+    public int getPruneCount(int days, List<Role> includedRoles) {
+        if (!Checker.inRange(1, 30, days, () -> {throw new RuntimeException("Days cannot be outisde 1-30!");})) return 0;
+
+        StringBuilder commaDelimitedSnowflakesString = new StringBuilder("[");
+        if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
+        else {
+            for (Role r : includedRoles) {
+                commaDelimitedSnowflakesString.append(r.id());
+                commaDelimitedSnowflakesString.append(",");
+            }
+        }
+        commaDelimitedSnowflakesString.append("]");
+
+        JSONArray snowflakes = new JSONArray();
+        roles.forEach(r -> snowflakes.put(r.id()));
+
+        try {
+            DiscordResponse req = new DiscordRequest(
+                    new JSONObject()
+                            .put("days", days)
+                            .put("include_roles", commaDelimitedSnowflakesString),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.PRUNE,
+                    RequestMethod.GET
+            ).invoke();
+            return req.body().getInt("pruned");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param days The amount of days to check users against, from 1-30.
+     */
+    public void prune(int days, List<Role> includedRoles) {
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside 1-30!"))) return;
+
+        StringBuilder commaDelimitedSnowflakesString = new StringBuilder();
+        if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
+        else {
+            for (Role r : includedRoles) {
+                commaDelimitedSnowflakesString.append(r.id());
+                commaDelimitedSnowflakesString.append(",");
+            }
+        }
+
+        try {
+            new DiscordRequest(
+                    new JSONObject()
+                            .put("days", days)
+                            .put("include_roles", commaDelimitedSnowflakesString),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.PRUNE.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.POST.GUILDS.PRUNE,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns a list of Guild {@link Member}s whose names or nicknames contain a filter string.
+     * @param filter The username filter string.
+     * @return A list of Guild {@link Member}s.
+     */
+    public List<Member> getMembersByName(String filter) {
+        return getMembersByName(filter, 1);
+    }
+
+    /**
+     * Returns a list of Guild {@link Member}s whose names or nicknames contain a filter string.
+     * @param filter The username filter string.
+     * @param limit The limit of members to get. Must be 1-1000.
+     * @return A list of Guild {@link Member}s.
+     */
+    public List<Member> getMembersByName(String filter, int limit) {
+        if (!Checker.inRange(1, 1000, limit, () -> {throw new RuntimeException("Limit must be within 1-1000!");})) return null;
+        try {
+            List<Member> namedMembers = new ArrayList<>();
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.SEARCH_MEMBERS.replace("{guild.id}", id()).replace("{filter}", filter).replace("{limit}", String.valueOf(limit)),
+                    discordJar,
+                    URLS.GET.GUILDS.SEARCH_MEMBERS,
+                    RequestMethod.GET
+            ).invoke().arr().forEach((memberObject) -> namedMembers.add(Member.decompile((JSONObject) memberObject, discordJar, id(), this)));
+            return namedMembers;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Kicks a {@link Member} from the Guild. This requires the {@code KICK_MEMBERS} permission.
+     * @param member The member to kick.
+     */
+    public void kickMember(Member member) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.MEMBER.KICK_MEMBER.replace("{guild.id}", id()).replace("{user.id}", member.user().id()),
+                    discordJar,
+                    URLS.DELETE.GUILD.MEMBER.KICK_MEMBER,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns all active threads in the guild, including public and private threads.
+     * @return A List of active threads.
+     */
+    public List<Thread> getActiveThreads() {
+        try {
+            List<Thread> threads = new ArrayList<>();
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.GET_ACTIVE_THREADS.replace("{guild.id}", id()),
+                    discordJar,
+                    URLS.GET.GUILDS.GET_ACTIVE_THREADS,
+                    RequestMethod.GET
+            ).invoke().body().getJSONArray("threads").forEach((thread) -> {
+                try {
+                    Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
+                    threads.add(decompiledThread);
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            return threads;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Gets the URL for the PNG image widget for the guild. Requires no permissions or authentication.
+     * @return A URL as a String, pointing to the widget image.
+     */
+    public String getWidgetImageURL() {
+        return getWidgetImageURL("shield");
+    }
+
+    /**
+     * Gets the URL for the PNG image widget for the guild. Requires no permissions or authentication.
+     * @param style The style for the widget image. One of {@code shield}, {@code banner1}, {@code banner2}, {@code banner3}, {@code banner4}
+     * @return A URL as a String, pointing to the widget image.
+     */
+    public String getWidgetImageURL(String style) {
+        return "https://discord.com/api/guilds/%s/widget.png?style=%s".formatted(id(), style);
+    }
+    
     /**
      * Returns the onboarding flow for this guild.
      * @return {@link Onboarding}
@@ -1208,12 +1641,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         /**
          * Represents a prompt shown during onboarding and in customize community.
-         * @param id ID of the prompt
-         * @param type Type of prompt
-         * @param options Options available within the prompt
-         * @param title Title of the prompt
+         *
+         * @param id           ID of the prompt
+         * @param type         Type of prompt
+         * @param options      Options available within the prompt
+         * @param title        Title of the prompt
          * @param singleSelect Indicates whether users are limited to selecting one option for the prompt
-         * @param required Indicates whether the prompt is required before a user completes the onboarding flow
+         * @param required     Indicates whether the prompt is required before a user completes the onboarding flow
          * @param inOnboarding Indicates whether the prompt is present in the onboarding flow. If `false`, the prompt will only appear
          *                     in the Channels & Roles tab.
          */
@@ -1258,8 +1692,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             public enum Type {
                 MULTIPLE_CHOICE(0),
                 DROPDOWN(1),
-                UNKNOWN(-1)
-                ;
+                UNKNOWN(-1);
 
                 private final int code;
 
@@ -1283,20 +1716,21 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
             /**
              * Represents an option available within a prompt.
-             * @param id ID of the option
-             * @param channelIds IDs for channels a member is added to when the option is selected
-             * @param roleIds IDs for roles assigned to a member when the option is selected
-             * @param emoji Emoji for the option
-             * @param title Title of the option
+             *
+             * @param id          ID of the option
+             * @param channelIds  IDs for channels a member is added to when the option is selected
+             * @param roleIds     IDs for roles assigned to a member when the option is selected
+             * @param emoji       Emoji for the option
+             * @param title       Title of the option
              * @param description Description of the option. This may be null or an empty string.
              */
             public record Option(
-                String id,
-                List<String> channelIds,
-                List<String> roleIds,
-                Emoji emoji,
-                String title,
-                String description
+                    String id,
+                    List<String> channelIds,
+                    List<String> roleIds,
+                    Emoji emoji,
+                    String title,
+                    String description
             ) implements Compilerable {
                 @NotNull
                 @Override
@@ -1325,6 +1759,5 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 }
             }
         }
-
     }
 }

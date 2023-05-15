@@ -1,3 +1,5 @@
+package examples;
+
 import com.seailz.discordjar.command.annotation.SlashCommandInfo;
 import com.seailz.discordjar.command.listeners.MessageContextCommandListener;
 import com.seailz.discordjar.events.model.interaction.command.MessageContextCommandInteractionEvent;

@@ -1,5 +1,6 @@
 package com.seailz.discordjar.utils;
 
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.version.APIVersion;
 
@@ -51,6 +52,12 @@ public final class URLS {
         }
 
         public static class GUILDS {
+            /**
+             * Returns the number of members that would be pruned from the guild under specific circumstances.
+             * @param id The id of the guild
+             */
+            public static final String PRUNE = "/guilds/{guild.id}/prune";
+            public static final String UPDATE_MFA = "/guilds/{guild.id}/mfa";
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule
@@ -172,7 +179,14 @@ public final class URLS {
         }
 
         public static class GUILDS {
-
+            /**
+             * Gets active threads in a guild.
+             */
+            public static final String GET_ACTIVE_THREADS = "/guilds/{guild.id}/threads/active";
+            /**
+             * Searches a guild's members with a specified filter.
+             */
+            public static final String SEARCH_MEMBERS = "/guilds/{guild.id}/members/search?query={filter}&limit={limit}";
             /**
              * Retrieves the guild onboarding flow for the guild.
              * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
@@ -185,6 +199,22 @@ public final class URLS {
              */
             public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
 
+            /**
+             * Returns bans in a guild
+             * @param id The id of the guild
+             */
+            public static final String BANS = "/guilds/{guild.id}/bans";
+            /**
+             * Returns a ban on a user in a guild
+             * @param guild.id The id of the guild
+             * @param user.id The id of the banned user
+             */
+            public static final String USER_BAN = "/guilds/{guild.id}/bans/{user.id}";
+            /**
+             * Returns the number of members that would be pruned from the guild under specific circumstances.
+             * @param id The id of the guild
+             */
+            public static final String PRUNE = "/guilds/{guild.id}/prune";
             /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *
@@ -310,6 +340,17 @@ public final class URLS {
 
         public static class GUILD {
             /**
+             * Deletes a guild.
+             * @param id The id of the guild
+             */
+            public static final String DELETE_GUILD = "/guilds/{guild.id}";
+            /**
+             * Deletes a role from a guild.
+             * @param guild.id The id of the guild
+             * @param role.id The id of the role
+             */
+            public static final String ROLES = "/guilds/{guild.id}/roles/{role.id}";
+            /**
              * Leaves a guild
              *
              * @param id The id of the guild
@@ -317,6 +358,12 @@ public final class URLS {
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
 
             public static class MEMBER {
+                /**
+                 * Kicks a member from a Guild.
+                 * @param guild.id The id of the guild.
+                 * @param user.id The id of the user.
+                 */
+                public static final String KICK_MEMBER = "/guilds/{guild.id}/members/{user.id}";
                 /**
                  * Removes a role from a member.
                  */
@@ -441,6 +488,13 @@ public final class URLS {
         }
 
         public static class GUILD {
+            /**
+             * Bans a user from a guild.
+             * @param guild.id The id of the guild
+             * @param user.id The id of the user to ban
+             */
+            public static final String BAN_USER = "/guilds/{guild.id}/bans/{user.id}";
+
             public static class MEMBERS {
                 public static class ROLES {
                     /**

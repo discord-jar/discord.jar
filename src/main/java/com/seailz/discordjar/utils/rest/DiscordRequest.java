@@ -481,7 +481,7 @@ public class DiscordRequest {
         private JSONObject body;
         private String error;
         public UnhandledDiscordAPIErrorException(JSONObject body) {
-            this.body = body.getJSONObject("errors");
+            this.body = body.has("errors") ?  body.getJSONObject("errors") : body;
             this.code = body.getInt("code");
             this.error = body.getString("message");
         }

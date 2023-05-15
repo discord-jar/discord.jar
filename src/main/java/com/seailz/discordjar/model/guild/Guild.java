@@ -1509,11 +1509,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         JSONArray snowflakes = new JSONArray();
         roles.forEach(r -> snowflakes.put(r.id()));
 
-        System.out.println(new JSONObject()
-                .put("days", days)
-                .put("include_roles", commaDelimitedSnowflakesString).toString());
-        System.out.println(snowflakes);
-
         try {
             DiscordResponse req = new DiscordRequest(
                     new JSONObject()

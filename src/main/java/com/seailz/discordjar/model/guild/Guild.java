@@ -1398,37 +1398,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
     }
 
-    private GuildChannel getChannelById(String channelId) {
-        try {
-            for (GuildChannel c:getChannels()) {
-                if (c.id().equals(channelId)) return c;
-            }
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }
-
-    public MessagingChannel getTextChannelById(long channelId) {
-        return getTextChannelById(String.valueOf(channelId));
-    }
-
-    public MessagingChannel getTextChannelById(String channelId) {
-        return getChannelById(channelId).asMessagingChannel();
-    }
-
-    public VoiceChannel getVoiceChannelById(long channelId) {
-        return getVoiceChannelById(String.valueOf(channelId));
-    }
-
-    public VoiceChannel getVoiceChannelById(String channelId) {
-        try {
-            return VoiceChannel.decompile(getChannelById(channelId).compile(), discordJar);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
      * </p>

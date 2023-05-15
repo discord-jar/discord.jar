@@ -1235,10 +1235,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @param level The new MFA level to set.
      */
     public void modifyMFALevel(MFALevel level) {
-        if (!isOwner()) {
-            Logger.getLogger("DiscordJar").warning("You are attempting to set the MFA Level of a Guild your app does not own. This is not allowed per the Discord API.");
-            return;
-        }
         try {
             new DiscordRequest(
                     new JSONObject("level", String.valueOf(level.getCode())),

@@ -101,4 +101,30 @@ public class Checker {
             super(message);
         }
     }
+
+    public static boolean inRange(int min, int max, int num) {
+        return num >= min && num <= max;
+    }
+
+    public static boolean inRange(float min, float max, float num) {
+        return num >= min && num <= max;
+    }
+
+    public static boolean inRange(int min, int max, int num, Runnable callback) {
+        if (!inRange(min, max, num)) {
+            callback.run();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean inRange(float min, float max, float num, Runnable callback) {
+        if (!inRange(min, max, num)) {
+            callback.run();
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

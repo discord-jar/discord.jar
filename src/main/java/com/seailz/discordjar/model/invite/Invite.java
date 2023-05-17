@@ -93,6 +93,8 @@ public interface Invite extends Compilerable, Resolvable {
         STREAM(1),
         EMBEDDED_APPLICATION(2), // This is for voice channel activities.
 
+        ROLE_SUBSCRIPTIONS_PURCHASE(3), // This is for role subscriptions. Bots can not create these invites.
+
         UNKNOWN(-1);
 
         private final int code;

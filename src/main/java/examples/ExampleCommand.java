@@ -1,4 +1,6 @@
-import com.seailz.discordjar.DiscordJv;
+package examples;
+
+import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.command.CommandOption;
 import com.seailz.discordjar.command.CommandOptionType;
 import com.seailz.discordjar.command.listeners.CommandListener;
@@ -12,7 +14,7 @@ import com.seailz.discordjar.events.model.interaction.command.SlashCommandIntera
  * This is an example of a slash command.
  * It will reply with "Hello World!" when the command is executed.
  * <p>
- * To register commands, you must use the {@link DiscordJv#registerCommands(CommandListener...)} method.
+ * To register commands, you must use the {@link DiscordJar#registerCommands(CommandListener...)} method.
  * You can also implement other types of commands,
  * like {@link com.seailz.discordjar.command.listeners.MessageContextCommandListener MessageContextCommandListener} and {@link com.seailz.discordjar.command.listeners.UserContextCommandListener UserContextCommandListener}.
  * <p>
@@ -21,7 +23,7 @@ import com.seailz.discordjar.events.model.interaction.command.SlashCommandIntera
  * @author Seailz
  * @since 1.0
  * @Date: <b>2022-11-28</b> - Added sub commands
- * @see DiscordJv#registerCommands(CommandListener...)
+ * @see DiscordJar#registerCommands(CommandListener...)
  * @see com.seailz.discordjar.command.listeners.MessageContextCommandListener
  * @see com.seailz.discordjar.command.listeners.UserContextCommandListener
  */

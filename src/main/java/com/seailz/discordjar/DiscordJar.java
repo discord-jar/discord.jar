@@ -115,6 +115,8 @@ public class DiscordJar {
      * List of rate-limit buckets
      */
     private List<Bucket> buckets;
+    private int shardId;
+    private int numShards;
     /**
      * The current status of the bot, or null if not set.
      */
@@ -128,7 +130,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false);
+        this(token, intents, version, false, null, false, -1, -1);
     }
 
     /**
@@ -136,7 +138,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug);
+        this(token, intents, version, false, null, debug, -1, -1);
     }
 
     /**
@@ -144,7 +146,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1);
     }
 
     /**
@@ -152,7 +154,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1);
     }
 
     /**
@@ -160,7 +162,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1);
     }
 
         /**
@@ -186,7 +188,7 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
         this.token = token;
@@ -197,7 +199,7 @@ public class DiscordJar {
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
         if (!httpOnly) {
-            this.gatewayFactory = new GatewayFactory(this, debug);
+            this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);
         }
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
@@ -252,6 +254,8 @@ public class DiscordJar {
                 }
             }
         }).start();
+        this.shardId = shardId;
+        this.numShards = numShards;
     }
 
     /**
@@ -322,7 +326,7 @@ public class DiscordJar {
     public void restartGateway() {
         killGateway();
         try {
-            gatewayFactory = new GatewayFactory(this, debug);
+            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

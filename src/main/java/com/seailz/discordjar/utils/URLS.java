@@ -545,4 +545,9 @@ public final class URLS {
         public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
     }
 
+    public static class CDN {
+        public static String BASE_URL = "https://cdn.discordapp.com";
+        public static String DEFAULT_USER_AVATAR = BASE_URL + "/embed/avatars/%s.png";
+    }
+
 }

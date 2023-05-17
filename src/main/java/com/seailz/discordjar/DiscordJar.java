@@ -34,6 +34,7 @@ import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.cache.Cache;
 import com.seailz.discordjar.cache.JsonCache;
+import com.seailz.discordjar.utils.memory.MemoryWatcher;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.RequestQueueHandler;
@@ -256,6 +257,8 @@ public class DiscordJar {
         }).start();
         this.shardId = shardId;
         this.numShards = numShards;
+
+        new MemoryWatcher(this).start();
     }
 
     /**

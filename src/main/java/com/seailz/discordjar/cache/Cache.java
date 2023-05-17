@@ -174,4 +174,8 @@ public class Cache<T> {
         ).invoke();
         return response.body();
     }
+
+    public void clear() {
+        cache.clear();
+    }
 }

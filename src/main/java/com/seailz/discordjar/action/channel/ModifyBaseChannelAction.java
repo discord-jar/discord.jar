@@ -13,6 +13,7 @@ import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -254,8 +255,8 @@ public class ModifyBaseChannelAction {
         this.defaultForumLayout = defaultForumLayout;
     }
 
-    public CompletableFuture<Channel> run() {
-        CompletableFuture<Channel> future = new CompletableFuture<>();
+    public Response<Channel> run() {
+        Response<Channel> future = new Response<>();
         future.completeAsync(() -> {
             JSONObject body = new JSONObject();
             if (name != null) body.put("name", name);
@@ -302,7 +303,7 @@ public class ModifyBaseChannelAction {
                         RequestMethod.PATCH
                 ).invoke();
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                future.completeExceptionally(e);
+                future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
                 return null;
             }
 

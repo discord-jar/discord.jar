@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.MessageFlag;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -108,8 +109,8 @@ public class StartThreadForumChannelAction {
     }
 
 
-    public CompletableFuture<Thread> run() {
-        CompletableFuture<Thread> future = new CompletableFuture<>();
+    public Response<Thread> run() {
+        Response<Thread> future = new Response<>();
         future.completeAsync(() -> {
             JSONObject payload = new JSONObject();
             payload.put("name", name);
@@ -142,7 +143,7 @@ public class StartThreadForumChannelAction {
                         request.invoke().body(), djar
                 );
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                future.completeExceptionally(e);
+                future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
                 return null;
             }
         });

@@ -6,6 +6,7 @@ import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -102,8 +103,8 @@ public class CreateChannelInviteAction {
         return this;
     }
 
-    public CompletableFuture<Invite> run() {
-        CompletableFuture<Invite> future = new CompletableFuture<>();
+    public Response<Invite> run() {
+        Response<Invite> future = new Response<>();
         future.completeAsync(() -> {
             if (targetType == Invite.VoiceInviteTargetType.STREAM && targetUser == null)
                 throw new IllegalStateException("Target user must be set if target type is set to STREAM");
@@ -132,7 +133,7 @@ public class CreateChannelInviteAction {
                         RequestMethod.POST
                 ).invoke();
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                future.completeExceptionally(e);
+                future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
                 return null;
             }
 

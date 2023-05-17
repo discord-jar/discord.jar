@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -180,8 +181,8 @@ public class MessageEditAction {
         return this;
     }
 
-    public CompletableFuture<Message> run() {
-        CompletableFuture<Message> future = new CompletableFuture<>();
+    public Response<Message> run() {
+        Response<Message> future = new Response<>();
         future.completeAsync(() -> {
             String url = URLS.PATCH.CHANNEL.MESSAGE.EDIT.replace("{channel.id}", channelId).replace("{message.id}", messageId);
 
@@ -242,7 +243,7 @@ public class MessageEditAction {
                 try {
                     response = request.invoke();
                 } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    future.completeExceptionally(e);
+                    future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
                     return null;
                 }
             }

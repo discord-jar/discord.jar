@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -50,8 +51,8 @@ public class ModifyStickerAction {
         return tags;
     }
 
-    public CompletableFuture<Sticker> run() {
-        CompletableFuture<Sticker> stickerCompletableFuture = new CompletableFuture<>();
+    public Response<Sticker> run() {
+        Response<Sticker> stickerCompletableFuture = new Response<>();
         stickerCompletableFuture.completeAsync(() -> {
             try {
                 return Sticker.decompile(
@@ -71,8 +72,9 @@ public class ModifyStickerAction {
                         ).invoke().body(),
                         discordJar
                 );
+
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                stickerCompletableFuture.completeExceptionally(e);
+                stickerCompletableFuture.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
                 return null;
             }
         });

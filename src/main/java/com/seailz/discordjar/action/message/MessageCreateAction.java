@@ -11,6 +11,7 @@ import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Used to create a message and define extra properties
@@ -261,8 +261,8 @@ public class MessageCreateAction {
         return silent;
     }
 
-    public CompletableFuture<Message> run() {
-        CompletableFuture<Message> future = new CompletableFuture<>();
+    public Response<Message> run() {
+        Response<Message> future = new Response<>();
         future.completeAsync(() -> {
             String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
 
@@ -350,7 +350,7 @@ public class MessageCreateAction {
                 try {
                     response = request.invoke();
                 } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    future.completeExceptionally(e);
+                    future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
                     return null;
                 }
             }

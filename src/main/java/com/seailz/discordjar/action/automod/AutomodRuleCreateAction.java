@@ -8,13 +8,13 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class AutomodRuleCreateAction {
 
@@ -144,8 +144,8 @@ public class AutomodRuleCreateAction {
     }
 
 
-    public CompletableFuture<AutomodRule> run() {
-        CompletableFuture<AutomodRule> future = new CompletableFuture<>();
+    public Response<AutomodRule> run() {
+        Response<AutomodRule> future = new Response<>();
         future.completeAsync(() -> {
             JSONObject payload = new JSONObject();
             payload.put("name", name);
@@ -186,7 +186,8 @@ public class AutomodRuleCreateAction {
             try {
                 return AutomodRule.decompile(request.invoke().body(), discordJar);
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
+                future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
+                return null;
             }
         });
         Checker.notNull(name, "name");

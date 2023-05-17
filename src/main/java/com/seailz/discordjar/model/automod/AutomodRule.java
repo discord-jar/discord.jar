@@ -70,7 +70,7 @@ public record AutomodRule(
         obj.put("enabled", enabled);
 
         JSONArray exemptRolesArray = new JSONArray();
-        Checker.check(exemptChannels.size() < 20, "Exempt roles cannot be more than 20");
+        Checker.check(exemptChannels.size() > 20, "Exempt roles cannot be more than 20");
         for (Role role : exemptRoles) {
             exemptRolesArray.put(role.id());
         }
@@ -78,7 +78,7 @@ public record AutomodRule(
         obj.put("exempt_roles", exemptRolesArray);
 
         JSONArray exemptChannelsArray = new JSONArray();
-        Checker.check(exemptChannels.size() < 50, "Exempt channels cannot be more than 50");
+        Checker.check(exemptChannels.size() > 50, "Exempt channels cannot be more than 50");
         for (Channel channel : exemptChannels) {
             exemptChannelsArray.put(channel.id());
         }
@@ -227,7 +227,7 @@ public record AutomodRule(
             JSONObject obj = new JSONObject();
 
             if (keywords != null) {
-                Checker.check(keywords.size() < 1000, "keywords list must be less than 1000");
+                Checker.check(keywords.size() > 1000, "keywords list must be less than 1000");
                 JSONArray array = new JSONArray();
                 for (String keyword : keywords) {
                     array.put(keyword);
@@ -235,7 +235,7 @@ public record AutomodRule(
             }
 
             if (regexes != null) {
-                Checker.check(regexes.size() < 10, "regexes list must be less than 10");
+                Checker.check(regexes.size() > 10, "regexes list must be less than 10");
                 JSONArray array = new JSONArray();
                 for (String regex : regexes) {
                     array.put(regex);
@@ -257,7 +257,7 @@ public record AutomodRule(
             }
 
             if (mentionTotalLimit != 0) {
-                Checker.check(mentionTotalLimit < 50, "mentionTotalLimit must be less than 50");
+                Checker.check(mentionTotalLimit > 50, "mentionTotalLimit must be less than 50");
                 obj.put("mention_total_limit", mentionTotalLimit);
             }
             return obj;

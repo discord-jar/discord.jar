@@ -232,6 +232,7 @@ public record AutomodRule(
                 for (String keyword : keywords) {
                     array.put(keyword);
                 }
+                obj.put("keywords", array);
             }
 
             if (regexes != null) {
@@ -240,6 +241,7 @@ public record AutomodRule(
                 for (String regex : regexes) {
                     array.put(regex);
                 }
+                obj.put("regexes", array);
             }
 
             if (presets != null) {
@@ -247,6 +249,7 @@ public record AutomodRule(
                 for (KeywordPresetType preset : presets) {
                     array.put(preset.getCode());
                 }
+                obj.put("presets", array);
             }
 
             if (allowList != null) {
@@ -254,6 +257,7 @@ public record AutomodRule(
                 for (String allow : allowList) {
                     array.put(allow);
                 }
+                obj.put("allow_list", array);
             }
 
             if (mentionTotalLimit != 0) {

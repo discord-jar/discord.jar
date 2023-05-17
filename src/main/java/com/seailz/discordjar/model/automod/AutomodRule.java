@@ -232,7 +232,7 @@ public record AutomodRule(
                 for (String keyword : keywords) {
                     array.put(keyword);
                 }
-                obj.put("keywords", array);
+                obj.put("keyword_filter", array);
             }
 
             if (regexes != null) {
@@ -241,7 +241,7 @@ public record AutomodRule(
                 for (String regex : regexes) {
                     array.put(regex);
                 }
-                obj.put("regexes", array);
+                obj.put("regex_patterns", array);
             }
 
             if (presets != null) {

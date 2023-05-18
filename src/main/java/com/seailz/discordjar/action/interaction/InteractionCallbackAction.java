@@ -10,7 +10,9 @@ import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Used to react to an interaction.
@@ -56,7 +58,13 @@ public class InteractionCallbackAction {
                         RequestMethod.POST);
         Response<InteractionHandler> response = new Response<>();
         try {
-            request.invoke();
+            if (getReply().useFiles()) {
+                List<File> files = getReply().getFiles();
+                File[] filesArray = new File[files.size()];
+                filesArray = files.toArray(filesArray);
+                request.invokeWithFiles(filesArray);
+            } else
+                request.invoke();
             response.complete(InteractionHandler.from(token, id, discordJar));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             response.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));

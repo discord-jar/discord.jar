@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.component.RawComponent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,5 +115,15 @@ public class InteractionModalResponse implements InteractionReply {
         json.put("custom_id", customId);
         json.put("components", components);
         return json;
+    }
+
+    @Override
+    public boolean useFiles() {
+        return false;
+    }
+
+    @Override
+    public List<File> getFiles() {
+        return null;
     }
 }

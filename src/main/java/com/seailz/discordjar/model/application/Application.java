@@ -307,7 +307,6 @@ public record Application(
         ).invoke();
 
         if (response.code() == 200) {
-            System.out.println(response.body());
             return new JSONArray(response.body()).toList().stream()
                     .map(o -> ApplicationRoleConnectionMetadata.decompile((JSONObject) o))
                     .toList();
@@ -331,7 +330,6 @@ public record Application(
         JSONArray roleConnectionsArray = new JSONArray();
         roleConnections.stream().map(ApplicationRoleConnectionMetadata::compile).forEach(roleConnectionsArray::put);
 
-        System.out.println("{\"data\":" + roleConnectionsArray.toString() + "}");
         new DiscordRequest(
                 roleConnectionsArray,
                 new HashMap<>(),

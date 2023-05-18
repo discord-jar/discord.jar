@@ -27,7 +27,6 @@ public class MemoryWatcher extends Thread {
             double usedMemory = getUsedMemory();
             double totalMemory = getTotalMemory();
             double usedPercent = usedMemory / totalMemory;
-            System.out.println(usedPercent);
 
             // Check if memory usage is above threshold
             if (usedPercent > THRESHOLD) {

@@ -10,7 +10,7 @@ import java.io.File;
 /**
  * Represents a message attachment.
  *
- * @param id          The attachment ID.
+ * @param id          Incremental integer for the attachment that matches the order that the corresponding file is attached.
  * @param fileName    The name of the file attached.
  * @param description The attachment description.
  * @param type        The attachment MIME type.

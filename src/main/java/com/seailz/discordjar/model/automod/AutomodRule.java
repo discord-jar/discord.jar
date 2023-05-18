@@ -440,6 +440,24 @@ public record AutomodRule(
                 return new TimeoutActionMetadata(duration);
             }
         }
+
+        public record BlockMessageActionMetadata(
+                String customMessage
+        ) implements ActionMetadata {
+            @Override
+            public @NotNull JSONObject compile() {
+                JSONObject obj = new JSONObject();
+                obj.put("custom_message", customMessage);
+                return obj;
+            }
+
+            @NotNull
+            @Contract("_ -> new")
+            public static BlockMessageActionMetadata decompile(@NotNull JSONObject obj) {
+                String customMessage = obj.getString("custom_message");
+                return new BlockMessageActionMetadata(customMessage);
+            }
+        }
     }
 
 }

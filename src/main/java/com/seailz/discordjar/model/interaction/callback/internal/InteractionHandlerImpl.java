@@ -44,7 +44,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
                     ).invoke().body(), discordJar
             );
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -60,7 +60,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
                     RequestMethod.DELETE
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -79,7 +79,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
                     ).invoke().body(), discordJar
             );
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -96,27 +96,23 @@ public class InteractionHandlerImpl implements InteractionHandler {
                     RequestMethod.DELETE
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
     @Override
     public EditInteractionMessageAction editOriginalResponse() {
-        try {
-            return new EditInteractionMessageAction(
-                    discordJar.getSelfInfo().id(),
-                    token,
-                    discordJar,
-                    true,
-                    null
-            );
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+        return new EditInteractionMessageAction(
+                discordJar.getSelfInfo().id(),
+                token,
+                discordJar,
+                true,
+                null
+        );
     }
 
     @Override
-    public EditInteractionMessageAction editFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public EditInteractionMessageAction editFollowup(String id) {
         return new EditInteractionMessageAction(
                 discordJar.getSelfInfo().id(),
                 token,
@@ -127,27 +123,35 @@ public class InteractionHandlerImpl implements InteractionHandler {
     }
 
     @Override
-    public void defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
-                new HashMap<>(),
-                URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
-                discordJar,
-                URLS.POST.INTERACTIONS.CALLBACK,
-                RequestMethod.POST
-        ).invoke();
+    public void defer(boolean ephemeral) {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
+                    new HashMap<>(),
+                    URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
+                    discordJar,
+                    URLS.POST.INTERACTIONS.CALLBACK,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     @Override
-    public void deferEdit() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject().put("type", 6),
-                new HashMap<>(),
-                URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
-                discordJar,
-                URLS.POST.INTERACTIONS.CALLBACK,
-                RequestMethod.POST
-        ).invoke();
+    public void deferEdit() {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("type", 6),
+                    new HashMap<>(),
+                    URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
+                    discordJar,
+                    URLS.POST.INTERACTIONS.CALLBACK,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     @Override

@@ -119,10 +119,14 @@ public class DiscordJarBuilder {
     }
 
     @SuppressWarnings("deprecation") // Deprecation warning is suppressed here because the intended use of that constructor is here.
-    public DiscordJar build() throws ExecutionException, InterruptedException {
+    public DiscordJar build() {
         if (intents == null) defaultIntents();
         if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
-        return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards);
+        try {
+            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

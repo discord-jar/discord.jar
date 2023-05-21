@@ -24,7 +24,9 @@ import com.seailz.discordjar.model.guild.premium.PremiumTier;
 import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjar.model.invite.Invite;
+import com.seailz.discordjar.model.invite.InviteMetadata;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
+import com.seailz.discordjar.model.invite.internal.InviteMetadataImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
@@ -1189,8 +1191,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * <br>This method requires the <b>MANAGE_GUILD</b> permission.
      * @return A list of {@link Invite invites} for this guild.
      */
-    public List<Invite> getInvites() {
-        List<Invite> invites = new ArrayList<>();
+    public List<InviteMetadata> getInvites() {
+        List<InviteMetadata> invites = new ArrayList<>();
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -1205,7 +1207,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
+        res.forEach(o -> invites.add(InviteMetadataImpl.decompile((JSONObject) o, discordJar)));
         return invites;
     }
 

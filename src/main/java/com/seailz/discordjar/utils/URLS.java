@@ -220,7 +220,7 @@ public final class URLS {
              *
              * @param id The id of the guild
              */
-            public static String GET_GUILD = "/guilds/{guild.id}";
+            public static String GET_GUILD = "/guilds/{guild.id}?with_counts=true";
 
             /**
              * Read {@link DiscordJar#getGuilds()} for more information

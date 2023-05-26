@@ -1,7 +1,7 @@
-package com.seailz.discordjar.utils.registry;
+package com.seailz.discordjar.utils.registry.components;
 
 import com.seailz.discordjar.model.component.button.Button;
-import com.seailz.discordjar.utils.Registry;
+import com.seailz.discordjar.utils.registry.Registry;
 
 /**
  * Used for registering button actions.

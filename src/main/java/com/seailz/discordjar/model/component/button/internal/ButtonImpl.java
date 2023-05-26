@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.button.ButtonStyle;
 import com.seailz.discordjar.model.emoji.Emoji;
-import com.seailz.discordjar.utils.registry.ButtonRegistry;
+import com.seailz.discordjar.utils.registry.components.ButtonRegistry;
 import org.json.JSONObject;
 
 import java.util.function.Consumer;

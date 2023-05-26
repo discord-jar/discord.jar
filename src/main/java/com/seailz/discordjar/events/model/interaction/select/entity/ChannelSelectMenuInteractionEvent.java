@@ -12,6 +12,8 @@ import com.seailz.discordjar.model.interaction.data.message.MessageComponentInte
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
+import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -34,6 +36,10 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent implemen
 
     public ChannelSelectMenuInteractionEvent(DiscordJar bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
+
+        ChannelSelectRegistry.getInstance().getRegistry().stream()
+                .filter(select -> select.menu().customId().equals(getCustomId()))
+                .forEach(select -> select.action().accept(this));
     }
 
     /**

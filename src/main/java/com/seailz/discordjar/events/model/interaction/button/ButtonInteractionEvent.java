@@ -9,7 +9,7 @@ import com.seailz.discordjar.model.interaction.data.message.MessageComponentInte
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.registry.ButtonRegistry;
+import com.seailz.discordjar.utils.registry.components.ButtonRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

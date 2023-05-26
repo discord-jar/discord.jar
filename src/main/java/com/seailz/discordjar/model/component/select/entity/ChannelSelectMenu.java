@@ -1,14 +1,20 @@
 package com.seailz.discordjar.model.component.select.entity;
 
+import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
+import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectMenu;
+import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
+import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
+import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Represents a channel select menu
@@ -125,6 +131,16 @@ public class ChannelSelectMenu implements SelectMenu {
         );
     }
 
+    /**
+     * Sets the action of the select.
+     *
+     * @param action The action you want to set.
+     */
+    public ChannelSelectMenu setAction(Consumer<ChannelSelectMenuInteractionEvent> action) {
+        ChannelSelectRegistry.getInstance().register(new ChannelSelectMenu.ChannelSelectAction(this, action));
+        return this;
+    }
+
     @Override
     public ComponentType type() {
         return ComponentType.CHANNEL_SELECT;
@@ -183,5 +199,8 @@ public class ChannelSelectMenu implements SelectMenu {
     public void setRaw(JSONObject raw) {
         this.raw = raw;
     }
+
+    public record ChannelSelectAction(ChannelSelectMenu menu, Consumer<ChannelSelectMenuInteractionEvent> action) {}
+
 }
 

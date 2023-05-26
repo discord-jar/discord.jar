@@ -1,4 +1,4 @@
-package com.seailz.discordjar.utils;
+package com.seailz.discordjar.utils.registry;
 
 import java.util.ArrayList;
 import java.util.List;

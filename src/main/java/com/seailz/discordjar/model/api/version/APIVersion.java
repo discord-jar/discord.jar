@@ -1,4 +1,4 @@
-package com.seailz.discordjar.utils.version;
+package com.seailz.discordjar.model.api.version;
 
 /**
  * Represents a version of the Discord API

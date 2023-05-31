@@ -1,11 +1,12 @@
 package com.seailz.discordjar;
 
+import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.utils.version.APIVersion;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -24,6 +25,7 @@ public class DiscordJarBuilder {
     private final String token;
     private EnumSet<Intent> intents;
     private APIVersion apiVersion = APIVersion.getLatest();
+    private APIRelease apiRelease = APIRelease.STABLE;
     private boolean httpOnly;
     private HTTPOnlyInfo httpOnlyInfo;
     private boolean debug;
@@ -76,6 +78,10 @@ public class DiscordJarBuilder {
         return this;
     }
 
+    public void setAPIRelease(APIRelease apiRelease) {
+        this.apiRelease = apiRelease;
+    }
+
     public DiscordJarBuilder setHTTPOnly(boolean httpOnly) {
         this.httpOnly = httpOnly;
         return this;
@@ -123,7 +129,7 @@ public class DiscordJarBuilder {
         if (intents == null) defaultIntents();
         if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
         try {
-            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards);
+            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

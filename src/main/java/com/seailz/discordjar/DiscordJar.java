@@ -18,6 +18,7 @@ import com.seailz.discordjar.events.DiscordListener;
 import com.seailz.discordjar.events.EventDispatcher;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.http.HttpOnlyApplication;
+import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.channel.*;
@@ -39,9 +40,8 @@ import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.RequestQueueHandler;
 import com.seailz.discordjar.utils.permission.Permission;
-import com.seailz.discordjar.utils.rest.Response;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
-import com.seailz.discordjar.utils.version.APIVersion;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -132,7 +132,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false, -1, -1);
+        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE);
     }
 
     /**
@@ -140,7 +140,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug, -1, -1);
+        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE);
     }
 
     /**
@@ -148,7 +148,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE);
     }
 
     /**
@@ -156,7 +156,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE);
     }
 
     /**
@@ -164,7 +164,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE);
     }
 
         /**
@@ -190,12 +190,12 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
-        new URLS(version);
+        new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();

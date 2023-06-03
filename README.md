@@ -20,6 +20,8 @@ https://discord.gg/tmvS8A57J4
 
 ## Getting Started
 
+Before we start - please note that discord.jar is still a work in progress and there are some risks of deploying it in a production enviroment.
+
 ### Prerequisites
 
 <b>You'll need to add discord.jar to your project's dependencies. We are currently using

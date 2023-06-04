@@ -30,6 +30,9 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
 
     @Override
     public @NotNull Guild guild() {
+        if (this.guild == null) {
+
+        }
         return this.guild;
     }
 

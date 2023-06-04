@@ -136,6 +136,11 @@
             <artifactId>okhttp</artifactId>
             <version>5.0.0-alpha.11</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.codahale</groupId>
+            <artifactId>xsalsa20poly1305</artifactId>
+            <version>v0.10.1		</version>
+        </dependency>
         <!-- TODO: REMOVE -->
         <dependency>
             <groupId>com.sedmelluq</groupId>

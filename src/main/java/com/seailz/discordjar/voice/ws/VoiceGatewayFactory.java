@@ -152,6 +152,8 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
 
                 JsonNode data = packet.get("d");
                 byte[] secretKey = new ObjectMapper().convertValue(data.get("secret_key"), byte[].class);
+                System.out.println("Secret key: " + Arrays.toString(secretKey));
+                System.out.println("Secret key: " + payload.getJSONObject("d").get("secret_key"));
 
                 socket.setSecretKey(secretKey);
                 socket.start();
@@ -310,7 +312,7 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
             JSONObject speaking = new JSONObject();
             speaking.put("op", 5);
             JSONObject speakingData = new JSONObject();
-            speakingData.put("speaking", speak ? 5 : 0);
+            speakingData.put("speaking", speak ? 1 : 0);
             speakingData.put("ssrc", ssrc);
             speakingData.put("delay", 0);
             speaking.put("d", speakingData);

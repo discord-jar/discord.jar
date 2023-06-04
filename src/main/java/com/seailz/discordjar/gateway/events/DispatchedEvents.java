@@ -71,9 +71,14 @@ public enum DispatchedEvents {
         g.getGuildCache().cache(guild);
 
         JSONArray arr = p.getJSONObject("d").getJSONArray("channels");
-        arr.forEach(o -> g.getChannelCache().cache(
-                Channel.decompile((JSONObject) o, g)
-        ));
+        arr.forEach(o -> {
+            JSONObject obj = (JSONObject) o;
+            obj.put("guild_id", guild.id());
+
+            g.getChannelCache().cache(
+                    Channel.decompile(obj, g)
+            );
+        });
         return GuildCreateEvent.class;
     }),
 

@@ -98,6 +98,8 @@ public enum Permission implements Bitwiseable<Permission> {
     VIEW_CREATOR_MONETIZATION_ANALYTICS(41),
     // Allows for using soundboard in a voice channel
     USE_SOUNDBOARD(42),
+    // Allows the usage of custom soundboard sounds from other servers
+    USE_EXTERNAL_SOUNDS(45),
     // Allows sending voice messages
     SEND_VOICE_MESSAGES(46),
     ;

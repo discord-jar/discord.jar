@@ -237,7 +237,7 @@ public record User(
      * Returns the user's default avatar URL. This is the avatar shown when the user has no custom avatar set.
      */
     public String getDefaultAvatarUrl() {
-        return URLS.CDN.DEFAULT_USER_AVATAR.formatted((Long.parseLong(id) >> 22) % 5);
+        return URLS.CDN.DEFAULT_USER_AVATAR.formatted((Long.parseLong(id) >> 22) % 6);
     }
 
     /**

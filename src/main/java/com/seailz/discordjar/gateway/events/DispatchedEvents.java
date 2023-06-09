@@ -140,19 +140,23 @@ public enum DispatchedEvents {
                 Logger.getLogger("EventDispatcher")
                         .log(Level.WARNING, "[discord.jar] Ping request received. This is unusual, will ACK anyway.");
 
-                new DiscordRequest(
-                        new JSONObject()
-                                .put("type", InteractionCallbackType.PONG.getCode()),
-                        new HashMap<>(),
-                        URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}",
-                                p.getJSONObject("d").getString("id").replace(
-                                        "{interaction.token}", p.getJSONObject("d")
-                                                .getString("token")
-                                )),
-                        d,
-                        URLS.POST.INTERACTIONS.CALLBACK,
-                        RequestMethod.POST
-                ).invoke();
+                try {
+                    new DiscordRequest(
+                            new JSONObject()
+                                    .put("type", InteractionCallbackType.PONG.getCode()),
+                            new HashMap<>(),
+                            URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}",
+                                    p.getJSONObject("d").getString("id").replace(
+                                            "{interaction.token}", p.getJSONObject("d")
+                                                    .getString("token")
+                                    )),
+                            d,
+                            URLS.POST.INTERACTIONS.CALLBACK,
+                            RequestMethod.POST
+                    ).invoke();
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new DiscordRequest.DiscordAPIErrorException(e);
+                }
             }
             case APPLICATION_COMMAND -> {
                 CommandInteractionEvent event = null;

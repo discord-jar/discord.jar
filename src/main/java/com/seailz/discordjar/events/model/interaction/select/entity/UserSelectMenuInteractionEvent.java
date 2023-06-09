@@ -52,9 +52,8 @@ public class UserSelectMenuInteractionEvent extends InteractionEvent implements 
      * Returns the selected users of the {@link com.seailz.discordjar.model.component.select.entity.UserSelectMenu UserSelectMenu}.
      *
      * @return A list of {@link User} objects containing the selected users.
-     * @throws IllegalStateException if the event was not fied in a {@link com.seailz.discordjar.model.guild.Guild Guild}.
      */
-    public List<User> getSelectedUsers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public List<User> getSelectedUsers() {
         List<User> returnList = new ArrayList<>();
         for (String s : getInteractionData().snowflakes()) {
             returnList.add(getBot().getUserById(s));

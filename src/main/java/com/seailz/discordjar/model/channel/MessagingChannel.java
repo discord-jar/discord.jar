@@ -76,7 +76,7 @@ public interface MessagingChannel extends GuildChannel, CategoryMember, Typeable
 
     @NotNull DiscordJar discordJv();
 
-    static MessagingChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static MessagingChannel decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");

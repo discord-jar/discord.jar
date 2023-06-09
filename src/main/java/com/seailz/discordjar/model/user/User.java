@@ -210,17 +210,22 @@ public record User(
      * @return {@link DMChannel} object
      */
     @Nullable
-    public DMChannel createDM() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public DMChannel createDM() {
         JSONObject obj = new JSONObject()
                 .put("recipient_id", id);
-        DiscordResponse resp = new DiscordRequest(
-                obj,
-                new HashMap<>(),
-                URLS.POST.USERS.CREATE_DM,
-                discordJar,
-                URLS.POST.USERS.CREATE_DM,
-                RequestMethod.POST
-        ).invoke();
+        DiscordResponse resp = null;
+        try {
+            resp = new DiscordRequest(
+                    obj,
+                    new HashMap<>(),
+                    URLS.POST.USERS.CREATE_DM,
+                    discordJar,
+                    URLS.POST.USERS.CREATE_DM,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         return resp != null && resp.body() != null ? DMChannel.decompile(resp.body(), discordJar) : null;
     }

@@ -87,9 +87,13 @@ public interface JsonCache {
      *
      * @see #howToUpdateFresh()
      */
-    default void updateFresh() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void updateFresh() {
         if (howToUpdateFresh() == null) return;
-        update(howToUpdateFresh().invoke().body());
+        try {
+            update(howToUpdateFresh().invoke().body());
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**

@@ -134,9 +134,9 @@ public class Cache<T> {
         if (returnObject.get() == null) {
             // request from discord
             DiscordResponse response;
-            response = new DiscordRequest(
-                    discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
-            ).invoke();
+                response = new DiscordRequest(
+                        discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
+                ).invoke();
             Method decompile;
             try {
                 decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJar.class);
@@ -168,10 +168,15 @@ public class Cache<T> {
         return returnObject.get() == null ? null : (T) returnObject.get();
     }
 
-    public JSONObject getFresh(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = new DiscordRequest(
-                discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
-        ).invoke();
+    public JSONObject getFresh(String id) {
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
         return response.body();
     }
 

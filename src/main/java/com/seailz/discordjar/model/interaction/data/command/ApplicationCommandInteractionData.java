@@ -44,7 +44,7 @@ public class ApplicationCommandInteractionData extends InteractionData implement
         this.targetId = targetId;
     }
 
-    public ApplicationCommandInteractionData(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public ApplicationCommandInteractionData(JSONObject obj, DiscordJar discordJar) {
         id = obj.has("id") ? obj.getString("id") : null;
         name = obj.has("name") ? obj.getString("name") : null;
         resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved"), discordJar) : null;
@@ -56,7 +56,11 @@ public class ApplicationCommandInteractionData extends InteractionData implement
             }
         }
 
-        guild = obj.has("guild_id") ? discordJar.getGuildCache().getById(obj.getString("guild_id")) : null;
+        try {
+            guild = obj.has("guild_id") ? discordJar.getGuildCache().getById(obj.getString("guild_id")) : null;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
         targetId = obj.has("target_id") ? obj.getString("target_id") : null;
     }
 

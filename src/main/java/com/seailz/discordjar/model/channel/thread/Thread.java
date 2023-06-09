@@ -147,7 +147,7 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
      */
     @NotNull
     @Contract("_, _ -> new")
-    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -194,24 +194,28 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
         return new MessageCreateAction(new LinkedList<>(List.of(attachments)), id(), discordJv());
     }
 
-    default void removeMember(String userId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER
-                        .replace("{channel.id}", id())
-                        .replace("{user.id}", userId),
-                discordJv(),
-                URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER,
-                RequestMethod.DELETE
-        ).invoke();
+    default void removeMember(String userId) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER
+                            .replace("{channel.id}", id())
+                            .replace("{user.id}", userId),
+                    discordJv(),
+                    URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
-    default void removeMember(User user) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void removeMember(User user) {
         removeMember(user.id());
     }
 
-    default void removeMember(Member member) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void removeMember(Member member) {
         removeMember(member.user().id());
     }
 

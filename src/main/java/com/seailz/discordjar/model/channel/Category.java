@@ -16,7 +16,7 @@ public interface Category extends GuildChannel {
 
     List<CategoryMember> members();
 
-    static Category decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static Category decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -42,7 +42,7 @@ public interface Category extends GuildChannel {
         return new CategoryImpl(id, type, name, guild, position, permissionOverwrites, channels, obj, discordJar);
     }
 
-    static Category fromId(String id, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static Category fromId(String id, DiscordJar discordJar) {
         return discordJar.getCategoryById(id);
     }
 

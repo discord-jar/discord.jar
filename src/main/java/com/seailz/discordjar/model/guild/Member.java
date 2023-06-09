@@ -139,22 +139,26 @@ public record Member(
      * Nickname the member
      * @param nick the nickname to set
      */
-    public void nickname(String nick) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject().put("nick", nick),
-                new HashMap<>(),
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
-                discordJar,
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
-                RequestMethod.PATCH
-        ).invoke();
+    public void nickname(String nick) {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("nick", nick),
+                    new HashMap<>(),
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                    discordJar,
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                    RequestMethod.PATCH
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * 	Will throw a 403 error if the user has the ADMINISTRATOR permission or is the owner of the guild
      * @param seconds the amount of seconds to add to the timeout
      */
-    public void timeout(int seconds) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void timeout(int seconds) {
         Checker.check(seconds > 2419200, "Timeout must be less than 28 days");
         Checker.check(seconds < 0, "Timeout must be greater than 0. To remove a timeout, use removeTimeout()");
 
@@ -165,26 +169,34 @@ public record Member(
         String timeout = dateFormat.format(date);
 
 
-        new DiscordRequest(
-                new JSONObject().put("communication_disabled_until", timeout),
-                new HashMap<>(),
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
-                discordJar,
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
-                RequestMethod.PATCH
-        ).invoke();
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("communication_disabled_until", timeout),
+                    new HashMap<>(),
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                    discordJar,
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                    RequestMethod.PATCH
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
     }
 
-    public void removeTimeout() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject().put("communication_disabled_until", JSONObject.NULL),
-                new HashMap<>(),
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
-                discordJar,
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
-                RequestMethod.PATCH
-        ).invoke();
+    public void removeTimeout() {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("communication_disabled_until", JSONObject.NULL),
+                    new HashMap<>(),
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                    discordJar,
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                    RequestMethod.PATCH
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -192,15 +204,19 @@ public record Member(
      * Requires `MANAGE_ROLES` permission.
      * @param role the role to add
      */
-    public void addRole(Role role) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
-                discordJar,
-                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
-                RequestMethod.PUT
-        ).invoke();
+    public void addRole(Role role) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                    discordJar,
+                    URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -208,15 +224,19 @@ public record Member(
      * Requires `MANAGE_ROLES` permission.
      * @param role the role to remove
      */
-    public void removeRole(Role role) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
-                discordJar,
-                URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE,
-                RequestMethod.DELETE
-        ).invoke();
+    public void removeRole(Role role) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                    discordJar,
+                    URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     public boolean hasPermission(Permission perm) {

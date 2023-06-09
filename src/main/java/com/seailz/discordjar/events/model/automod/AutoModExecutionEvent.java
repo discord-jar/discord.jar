@@ -30,7 +30,7 @@ public class AutoModExecutionEvent extends GuildEvent {
      * The rule that was triggered.
      */
     @Nullable
-    public AutomodRule getRule() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public AutomodRule getRule() {
         if (getGuild() == null) return null;
         return getGuild().getAutomodRuleById(
                 getJson().getJSONObject("d").getString("rule_id")
@@ -50,7 +50,7 @@ public class AutoModExecutionEvent extends GuildEvent {
     }
 
     @Nullable
-    public User getUser() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public User getUser() {
         return getBot().getUserById(getJson().getJSONObject("d").getString("user_id"));
     }
 

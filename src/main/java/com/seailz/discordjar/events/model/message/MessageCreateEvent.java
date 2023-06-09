@@ -45,8 +45,12 @@ public class MessageCreateEvent extends MessageEvent {
      * @return A {@link Guild} object
      */
     @Nullable
-    public Guild getGuild() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public Guild getGuild() {
         if (!getJson().getJSONObject("d").has("guild_id") || getJson().getJSONObject("d").isNull("guild_id")) return null;
-        return getBot().getGuildCache().getById((getJson().getJSONObject("d").getString("guild_id")));
+        try {
+            return getBot().getGuildCache().getById((getJson().getJSONObject("d").getString("guild_id")));
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 }

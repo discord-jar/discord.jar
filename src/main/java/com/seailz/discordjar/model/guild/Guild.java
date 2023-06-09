@@ -1092,11 +1092,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             return new ArrayList<>();
         }
         res.forEach(o -> {
-            try {
-                channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
         });
         return channels;
     }
@@ -1616,12 +1612,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     URLS.GET.GUILDS.GET_ACTIVE_THREADS,
                     RequestMethod.GET
             ).invoke().body().getJSONArray("threads").forEach((thread) -> {
-                try {
-                    Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
-                    threads.add(decompiledThread);
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    throw new RuntimeException(e);
-                }
+                Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
+                threads.add(decompiledThread);
             });
             return threads;
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {

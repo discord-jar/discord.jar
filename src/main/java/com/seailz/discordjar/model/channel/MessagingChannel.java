@@ -24,6 +24,7 @@ import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -67,6 +68,60 @@ public interface MessagingChannel extends GuildChannel, CategoryMember, Typeable
      * The id of the last {@link com.seailz.discordjar.model.message.Message message} sent in this channel
      */
     String lastMessageId();
+
+    /**
+     * Given a set of message ids, this method will bulk delete them.
+     * <br><b>If there are any messages that are older than 2 weeks, this will fail.</b>
+     * That's a Discord limitation, not our fault.
+     *
+     * @param messageIds List of message ids that you want to delete. Must be between 2 and 100 messages.
+     *                   Invalid message ids will count towards this limit.
+     * @param filterMessages If this is true, instead of simply throwing an error, this method will filter all the messages that are older than 2 weeks and delete the rest.
+     * @param reason You can specify a reason for the audit log.
+     * @return {@link Response<Void>}
+     */
+    Response<Void> bulkDeleteMessages(List<String> messageIds, boolean filterMessages, String reason);
+
+    /**
+     * Given a set of message ids, this method will bulk delete them.
+     * <br><b>If there are any messages that are older than 2 weeks, this will filter them and won't delete them.</b>
+     * That's a Discord limitation, not our fault.
+     *
+     * @param messageIds List of message ids that you want to delete. Must be between 2 and 100 messages.
+     *                   Invalid message ids will count towards this limit.
+     * @return {@link Response<Void>}
+     */
+    default Response<Void> bulkDeleteMessages(List<String> messageIds) {
+        return bulkDeleteMessages(messageIds, true, null);
+    }
+
+    /**
+     * Given a set of message ids, this method will bulk delete them.
+     * <br><b>If there are any messages that are older than 2 weeks, this will filter them and won't delete them.</b>
+     * That's a Discord limitation, not our fault.
+     *
+     * @param messageIds List of message ids that you want to delete. Must be between 2 and 100 messages.
+     *                   Invalid message ids will count towards this limit.
+     * @param filterMessages If this is true, instead of simply throwing an error, this method will filter all the messages that are older than 2 weeks and delete the rest.
+     * @return {@link Response<Void>}
+     */
+    default Response<Void> bulkDeleteMessages(List<String> messageIds, boolean filterMessages) {
+        return bulkDeleteMessages(messageIds, filterMessages, null);
+    }
+
+    /**
+     * Given a set of message ids, this method will bulk delete them.
+     * <br><b>If there are any messages that are older than 2 weeks, this will filter them and won't delete them.</b>
+     * That's a Discord limitation, not our fault.
+     *
+     * @param messageIds List of message ids that you want to delete. Must be between 2 and 100 messages.
+     *                   Invalid message ids will count towards this limit.
+     * @param reason You can specify a reason for the audit log.
+     * @return {@link Response<Void>}
+     */
+    default Response<Void> bulkDeleteMessages(List<String> messageIds, String reason) {
+        return bulkDeleteMessages(messageIds, true, reason);
+    }
 
     /**
      * The duration in minutes until when a thread is archived

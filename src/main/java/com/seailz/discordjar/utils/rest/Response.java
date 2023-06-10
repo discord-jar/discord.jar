@@ -96,6 +96,10 @@ public class Response<T> {
             this.errors = errors;
         }
 
+        public Error(DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            this(e.getCode(), e.getMessage(), e.getBody());
+        }
+
         public int getCode() {
             return code;
         }

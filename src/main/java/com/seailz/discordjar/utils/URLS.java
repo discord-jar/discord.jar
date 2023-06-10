@@ -80,6 +80,7 @@ public final class URLS {
             public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
 
             public static class MESSAGES {
+                public static String BULK_DELETE = "/channels/{channel.id}/messages/bulk-delete";
                 public static class THREADS {
                     public static String START_THREAD_FROM_MESSAGE = "/channels/{channel.id}/messages/{message.id}/threads";
                 }

@@ -314,15 +314,13 @@ public record Message(
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
 
         try {
             thread = Thread.decompile(obj.getJSONObject("thread"), discordJar);
         } catch (JSONException e) {
             thread = null;
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
         }
 
         if (obj.has("sticker_items") && !obj.isNull("sticker_items")) {
@@ -424,10 +422,14 @@ public record Message(
                 .put("components", componentsArray);
     }
 
-    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
-                .replace("{channel.id}", channelId).replace("{message.id}", id),
-                discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
+    public void delete() {
+        try {
+            new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
+                    .replace("{channel.id}", channelId).replace("{message.id}", id),
+                    discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -508,29 +510,37 @@ public record Message(
      * Pins the message within the channel.
      * Note that the maximum pinned messages per channel is 50.
      */
-    public void pin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
-                discordJar,
-                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE,
-                RequestMethod.PUT
-        ).invoke();
+    public void pin() {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.CHANNELS.PINS.PIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                    discordJar,
+                    URLS.PUT.CHANNELS.PINS.PIN_MESSAGE,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Unpins the message within the channel.
      */
-    public void unpin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
-                discordJar,
-                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
-                RequestMethod.DELETE
-        ).invoke();
+    public void unpin() {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                    discordJar,
+                    URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -538,7 +548,7 @@ public record Message(
      * @param name The name of the thread.
      * @param archiveAfter The duration which after no activity the thread will be archived.
      */
-    public CompletableFuture<Thread> startThreadFromMessage(String name, Thread.AutoArchiveDuration archiveAfter, int rateLimitPerUser) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public CompletableFuture<Thread> startThreadFromMessage(String name, Thread.AutoArchiveDuration archiveAfter, int rateLimitPerUser) {
         CompletableFuture<Thread> future = new CompletableFuture<>();
         future.completeAsync(() -> {
             JSONObject body = new JSONObject();
@@ -557,14 +567,10 @@ public record Message(
                         RequestMethod.POST
                 ).invoke();
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
+                throw new DiscordRequest.DiscordAPIErrorException(e);
             }
 
-            try {
-                return Thread.decompile(res.body(), discordJar);
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            return Thread.decompile(res.body(), discordJar);
         });
         return future;
     }

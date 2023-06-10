@@ -65,7 +65,7 @@ public interface GuildChannel extends Channel {
      */
     @NotNull
     @Contract("_, _ -> new")
-    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -115,7 +115,7 @@ public interface GuildChannel extends Channel {
         return new CreateChannelInviteAction(discordJv(), id());
     }
 
-    default void editChannelPermissions(PermissionOverwrite ov) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void editChannelPermissions(PermissionOverwrite ov) {
         DiscordRequest req = new DiscordRequest(
                 ov.compile(),
                 new HashMap<>(),
@@ -124,6 +124,10 @@ public interface GuildChannel extends Channel {
                 URLS.PUT.CHANNELS.PERMISSIONS.EDIT_CHANNEL_PERMS,
                 RequestMethod.PUT
         );
-        req.invoke();
+        try {
+            req.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 }

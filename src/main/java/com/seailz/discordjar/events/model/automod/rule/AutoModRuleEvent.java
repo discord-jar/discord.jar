@@ -14,7 +14,7 @@ public class AutoModRuleEvent extends GuildEvent {
     }
 
     @NotNull
-    public AutomodRule getRule() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public AutomodRule getRule() {
         return AutomodRule.decompile(getJson().getJSONObject("d"), getBot());
     }
 }

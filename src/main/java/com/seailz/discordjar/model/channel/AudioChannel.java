@@ -36,7 +36,7 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
      */
     int bitrate();
 
-    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

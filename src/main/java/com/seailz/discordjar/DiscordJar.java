@@ -479,14 +479,15 @@ public class DiscordJar {
      * @return A {@link Channel} object
      */
     @Nullable
-    public Channel getChannelById(String id) throws IllegalArgumentException {
+    public Channel getChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         Cache<Channel> cc = getChannelCache();
         Channel res;
         try {
             res = cc.getById(id);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Couldn't retrieve channel.");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
         return res;
     }
@@ -507,11 +508,7 @@ public class DiscordJar {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        try {
-            return MessagingChannel.decompile(raw, this);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        return MessagingChannel.decompile(raw, this);
     }
 
     /**
@@ -530,11 +527,7 @@ public class DiscordJar {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        try {
-            return com.seailz.discordjar.model.channel.thread.Thread.decompile(raw, this);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        return com.seailz.discordjar.model.channel.thread.Thread.decompile(raw, this);
     }
 
     /**
@@ -572,11 +565,7 @@ public class DiscordJar {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        try {
-            return ForumChannel.decompile(raw, this);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        return ForumChannel.decompile(raw, this);
     }
 
     /**
@@ -595,11 +584,7 @@ public class DiscordJar {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        try {
-            return Category.decompile(raw, this);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        return Category.decompile(raw, this);
     }
 
     /**
@@ -815,23 +800,19 @@ public class DiscordJar {
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
             new Thread(() -> {
-                try {
-                    registerCommand(
-                            new Command(
-                                    name,
-                                    listener.getType(),
-                                    description,
-                                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
-                                    nameLocales,
-                                    descriptionLocales,
-                                    defaultMemberPermissions,
-                                    canUseInDms,
-                                    nsfw
-                            )
-                    );
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    throw new DiscordRequest.DiscordAPIErrorException(e);
-                }
+                registerCommand(
+                        new Command(
+                                name,
+                                listener.getType(),
+                                description,
+                                (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                                nameLocales,
+                                descriptionLocales,
+                                defaultMemberPermissions,
+                                canUseInDms,
+                                nsfw
+                        )
+                );
             }).start();
             commandDispatcher.registerCommand(name, listener);
 
@@ -849,7 +830,7 @@ public class DiscordJar {
         }
     }
 
-    protected void registerCommand(Command command) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    protected void registerCommand(Command command) {
         Checker.check(!(command.name().length() > 1 && command.name().length() < 32), "Command name must be within 1 and 32 characters!");
         Checker.check(!Objects.equals(command.description(), "") && !(command.description().length() > 1 && command.description().length() < 100), "Command description must be within 1 and 100 characters!");
         Checker.check(command.options().size() > 25, "Application commands can only have up to 25 options!");
@@ -874,7 +855,11 @@ public class DiscordJar {
                 this,
                 URLS.BASE_URL,
                 RequestMethod.POST);
-        commandReq.invoke();
+        try {
+            commandReq.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**

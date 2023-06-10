@@ -45,9 +45,10 @@ public class InteractionEvent extends Event {
     public Interaction getInteraction() {
         try {
             return Interaction.decompile(getJson().getJSONObject("d"), getBot());
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException |
-                 DiscordRequest.UnhandledDiscordAPIErrorException e) {
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new RuntimeException(e);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -103,13 +104,13 @@ public class InteractionEvent extends Event {
     }
 
     @NotNull
-    public InteractionHandler defer() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public InteractionHandler defer() {
         getHandler().defer();
         return getHandler();
     }
 
     @NotNull
-    public InteractionHandler defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public InteractionHandler defer(boolean ephemeral) {
         getHandler().defer(ephemeral);
         return getHandler();
     }

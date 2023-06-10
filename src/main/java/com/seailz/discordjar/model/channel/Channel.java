@@ -83,5 +83,5 @@ public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflak
         return null;
     }
 
-    void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    void delete();
 }

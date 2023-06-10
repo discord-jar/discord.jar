@@ -39,7 +39,7 @@ public interface Transcriptable extends MessageRetrievable {
      * Original author: https://github.com/Ryzeon
      * <br>Modified for use in discord.jar by Seailz
      */
-    default InputStream transcript() throws IOException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    default TranscriptResponse transcript() throws IOException, DiscordRequest.UnhandledDiscordAPIErrorException {
         List<String>
                 imageFormats = Arrays.asList("png", "jpg", "jpeg", "gif"),
                 videoFormats = Arrays.asList("mp4", "webm", "mkv", "avi", "mov", "flv", "wmv", "mpg", "mpeg"),
@@ -49,8 +49,15 @@ public interface Transcriptable extends MessageRetrievable {
         File htmlTemplate = new File("template.html");
         if (messages.isEmpty()) {
             // return empty file
-            return new ByteArrayInputStream("".getBytes());
+            return
+                    new TranscriptResponse(
+                            new ByteArrayInputStream("".getBytes()),
+                            new ArrayList<>()
+                    );
         }
+
+        List<Attachment> attachments = new ArrayList<>();
+
         MessagingChannel channel = djv().getTextChannelById(messages.iterator().next().channelId());
         Document document = Jsoup.parse(htmlTemplate, "UTF-8");
         document.outputSettings().indentAmount(0).prettyPrint(true);
@@ -173,6 +180,7 @@ public interface Transcriptable extends MessageRetrievable {
             // messsage attachments
             if (!(message.attachments() == null) && message.attachments().length > 0) {
                 for (Attachment attach : message.attachments()) {
+                    attachments.add(attach);
                     Element attachmentsDiv = document.createElement("div");
                     attachmentsDiv.addClass("chatlog__attachment");
 
@@ -469,7 +477,15 @@ public interface Transcriptable extends MessageRetrievable {
             messageGroup.appendChild(content);
             chatLog.appendChild(messageGroup);
         }
-        return new ByteArrayInputStream(document.outerHtml().getBytes());
+        return new TranscriptResponse(
+                new ByteArrayInputStream(document.outerHtml().getBytes()),
+                attachments
+        );
     }
+
+    record TranscriptResponse(
+            InputStream transcript,
+            List<Attachment> attachments
+    ) {}
 
 }

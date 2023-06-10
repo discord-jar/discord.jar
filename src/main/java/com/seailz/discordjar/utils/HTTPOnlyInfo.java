@@ -1,9 +1,6 @@
 package com.seailz.discordjar.utils;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.utils.version.APIVersion;
-
-import java.util.EnumSet;
 
 /**
  * POJO that contains information for discord.jar about

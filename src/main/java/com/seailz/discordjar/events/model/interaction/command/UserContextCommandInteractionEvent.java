@@ -24,16 +24,21 @@ public class UserContextCommandInteractionEvent extends CommandInteractionEvent 
      * @return {@link User} object containing the user data.
      */
     @Nullable
-    public User getTarget() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public User getTarget() {
         DiscordResponse response =
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.USER.GET_USER.replace("{user_id}", String.valueOf(getCommandData().targetId())),
-                        getBot(),
-                        URLS.GET.USER.GET_USER,
-                        RequestMethod.GET
-                ).invoke();
+                null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.USER.GET_USER.replace("{user_id}", String.valueOf(getCommandData().targetId())),
+                    getBot(),
+                    URLS.GET.USER.GET_USER,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
         return User.decompile(response.body(), getBot());
     }
 

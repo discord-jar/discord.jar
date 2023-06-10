@@ -14,29 +14,29 @@ public interface InteractionHandler {
 
     InteractionFollowupAction followup(String content);
 
-    Message getOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    Message getOriginalResponse();
     // TODO: editing
 
-    void deleteOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    void deleteOriginalResponse();
 
-    Message getFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    Message getFollowup(String id);
 
-    void deleteFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    void deleteFollowup(String id);
 
-    EditInteractionMessageAction editOriginalResponse() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    EditInteractionMessageAction editOriginalResponse();
 
-    EditInteractionMessageAction editFollowup(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    EditInteractionMessageAction editFollowup(String id);
 
-    void defer(boolean ephemeral) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    void defer(boolean ephemeral);
 
-    default void defer() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void defer() {
         defer(false);
     }
 
     /**
      * Only valid for component-based interactions.
      */
-    void deferEdit() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    void deferEdit();
 
 
     String getToken();

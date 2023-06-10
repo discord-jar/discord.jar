@@ -87,7 +87,7 @@ public interface ForumChannel extends GuildChannel {
         return obj;
     }
 
-    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

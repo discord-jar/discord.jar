@@ -15,7 +15,7 @@ public class GuildEvent extends Event {
     }
 
     @Nullable
-    public Guild getGuild() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public Guild getGuild() {
         return getBot().getGuildById(getJson().getJSONObject("d").getString("guild_id"));
     }
 

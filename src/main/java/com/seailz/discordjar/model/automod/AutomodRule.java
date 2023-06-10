@@ -89,7 +89,7 @@ public record AutomodRule(
 
     @NotNull
     @Contract("_, _ -> new")
-    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id;
         Guild guild;
         String name;
@@ -139,7 +139,7 @@ public record AutomodRule(
     }
 
     @NotNull
-    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) {
         List<AutomodRule> rules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             rules.add(decompile(array.getJSONObject(i), discordJar));

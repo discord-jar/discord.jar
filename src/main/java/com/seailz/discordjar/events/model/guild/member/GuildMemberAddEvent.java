@@ -24,7 +24,7 @@ public class GuildMemberAddEvent extends GuildEvent {
     /**
      * Returns the {@link Member} that joined the guild.
      */
-    public Member getMember() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public Member getMember() {
         return Member.decompile(getJson().getJSONObject("d"), getBot(), getJson().getJSONObject("d").getString("guild_id"),
                 getBot().getGuildById(getJson().getJSONObject("d").getString("guild_id")));
     }

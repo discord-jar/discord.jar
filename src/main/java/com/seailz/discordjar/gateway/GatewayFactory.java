@@ -428,6 +428,11 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void sendPayload(JSONObject payload) {
+        if (session == null) {
+            // Session is null, restart gateway
+            discordJar.restartGateway();
+            return;
+        }
         try {
             session.sendMessage(new TextMessage(payload.toString()));
         } catch (Exception e) {

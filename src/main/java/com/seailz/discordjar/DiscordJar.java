@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -328,6 +329,9 @@ public class DiscordJar {
      * @see #killGateway()
      */
     public void restartGateway() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException ignored) {}
         killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);

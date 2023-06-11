@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -99,7 +100,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (!session.isOpen()) {
+                if (session == null || session.isOpen()) {
                     discordJar.restartGateway();
                 }
             }
@@ -107,6 +108,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void connect(String customUrl) throws ExecutionException, InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
         WebSocketClient client = new StandardWebSocketClient();
         this.client = client;
         this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();

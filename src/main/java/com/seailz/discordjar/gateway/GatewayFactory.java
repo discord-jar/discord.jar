@@ -90,6 +90,20 @@ public class GatewayFactory extends TextWebSocketHandler {
             this.gatewayUrl = URLS.GATEWAY.BASE_URL;
         } else this.gatewayUrl = response.body().getString("url");
         connect();
+
+        // Set up a new thread to monitor the gateway connection and force a reconnect if it's not active.
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (!session.isOpen()) {
+                    discordJar.restartGateway();
+                }
+            }
+        }).start();
     }
 
     public void connect(String customUrl) throws ExecutionException, InterruptedException {

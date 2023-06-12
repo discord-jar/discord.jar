@@ -72,6 +72,23 @@ public enum DispatchedEvents {
         arr.forEach(o -> g.getChannelCache().cache(
                 Channel.decompile((JSONObject) o, g)
         ));
+
+        // Cache all members
+        arr = p.getJSONObject("d").getJSONArray("members");
+        arr.forEach(o -> {
+            long start = System.currentTimeMillis();
+            g.insertMemberCache(
+                    guild.id(), Member.decompile(
+                            (JSONObject) o,
+                            g,
+                            guild.id(),
+                            guild
+                    )
+            );
+            long end = System.currentTimeMillis();
+            if (g.isDebug()) Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (end - start) + "ms to cache member");
+        });
+
         return GuildCreateEvent.class;
     }),
 
@@ -240,9 +257,31 @@ public enum DispatchedEvents {
         return null;
     }),
 
-    GUILD_MEMBER_ADD((p, g, d) -> GuildMemberAddEvent.class),
-    GUILD_MEMBER_UPDATE((p, g, d) -> GuildMemberUpdateEvent.class),
-    GUILD_MEMBER_REMOVE((p, g, d) -> GuildMemberRemoveEvent.class),
+    GUILD_MEMBER_ADD((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.insertMemberCache(guildId, Member.decompile(
+                p.getJSONObject("d"),
+                d,
+                guildId,
+                d.getGuildById(guildId)
+        ));
+        return GuildMemberAddEvent.class;
+    }),
+    GUILD_MEMBER_UPDATE((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.insertMemberCache(guildId, Member.decompile(
+                p.getJSONObject("d"),
+                d,
+                guildId,
+                d.getGuildById(guildId)
+        ));
+        return GuildMemberUpdateEvent.class;
+    }),
+    GUILD_MEMBER_REMOVE((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.removeMemberCache(guildId, p.getJSONObject("d").getString("user_id"));
+        return GuildMemberRemoveEvent.class;
+    }),
     /* Unknown */
     UNKNOWN((p, g, d) -> null),
     ;

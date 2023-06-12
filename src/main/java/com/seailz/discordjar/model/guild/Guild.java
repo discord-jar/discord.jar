@@ -927,33 +927,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     public Member getMemberById(String id) {
-        DiscordResponse req = null;
-        try {
-            req = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                            "{guild.id}",
-                            this.id
-                    ).replace(
-                            "{user.id}",
-                            id
-                    ),
-                    discordJar,
-                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                    RequestMethod.GET
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
-
-        if (req.body() == null) return null;
-        return Member.decompile(
-                req.body(),
-                discordJar,
-                this.id,
-                this
-        );
+        return discordJar.getMemberById(this.id, id);
     }
 
     public List<Member> getMembers(int limit, String after) {

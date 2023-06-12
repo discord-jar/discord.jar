@@ -26,6 +26,7 @@ import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.model.emoji.sticker.StickerPack;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.status.Status;
@@ -93,6 +94,11 @@ public class DiscordJar {
      * Used for caching channels in memory
      */
     private final Cache<Channel> channelCache;
+    /**
+     * Used for caching guild members in memory.
+     * This hashmap is a map of guild ids to a cache of members in that guild.
+     */
+    private final Map<String, Cache<Member>> guildMemberCaches;
     /**
      * Manages dispatching events to listeners
      */
@@ -214,6 +220,8 @@ public class DiscordJar {
                         URLS.GET.GUILDS.GET_GUILD,
                         RequestMethod.GET
                 ));
+
+        this.guildMemberCaches = new HashMap<>();
 
         this.userCache = new Cache<>(this, User.class, new DiscordRequest(
                 new JSONObject(),
@@ -758,6 +766,138 @@ public class DiscordJar {
     @NotNull
     public Cache<Channel> getChannelCache() {
         return channelCache;
+    }
+
+    @NotNull
+    public Map<String, Cache<Member>> getMemberGuildCaches() {
+        return guildMemberCaches;
+    }
+
+    @NotNull
+    public List<Member> getMemberCache() {
+        List<Member> members = new ArrayList<>();
+        for (Cache<Member> cache : guildMemberCaches.values()) {
+            members.addAll(cache.getCache());
+        }
+        return members;
+    }
+
+    /**
+     * Inserts a member into their appropriate cache.
+     * This will check if a cache exists for the guild, and if it does, it will insert the member into that cache.
+     * If it doesn't, it will create a new cache and insert the member into that.
+     *
+     * <p> It's done that way because discord.jar uses a cache per guild, and not a cache for all members.
+     *
+     * @param guildId The id of the guild
+     * @param member The member to insert
+     *
+     * @see #getMemberGuildCaches()
+     */
+    public void insertMemberCache(@NotNull String guildId, @NotNull Member member) {
+        // First, we need to check if a cache exists for the guild
+        Cache<Member> cache = new Cache<>(
+                this,
+                Member.class,
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", "%s"),
+                        this,
+                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                        RequestMethod.GET
+                )
+        );
+        if (guildMemberCaches.containsKey(guildId)) cache = guildMemberCaches.get(guildId);
+        cache.cache(member);
+        guildMemberCaches.remove(guildId);
+        guildMemberCaches.put(guildId, cache);
+    }
+
+    public void removeMemberCache(@NotNull String guildId, @NotNull String userId) {
+        if (!guildMemberCaches.containsKey(guildId)) return;
+        Cache<Member> cache = guildMemberCaches.get(guildId);
+        cache.removeById(userId);
+        guildMemberCaches.remove(guildId);
+        guildMemberCaches.put(guildId, cache);
+    }
+
+    /**
+     * Given a guild id and a user id, this will return the member if it can be found.
+     * <br>If one can't be found, you will get the {@link DiscordRequest.DiscordAPIErrorException} exception or null.
+     *
+     * @param guildId The id of the guild
+     * @param userId The id of the user
+     * @return The member if one can be found, or null if one can't be found
+     */
+    @Nullable
+    public Member getMemberById(@NotNull String guildId, @NotNull String userId) {
+        if (!guildMemberCaches.containsKey(guildId)) {
+            // The guild isn't cached, so we'll do a manual request
+            Member mem = getMemberManuallyOrNull(guildId, userId);
+            if (mem != null) insertMemberCache(guildId, mem);
+            return mem;
+        }
+
+        // We can now check the guild's cache.
+        Cache<Member> cache = guildMemberCaches.get(guildId);
+        try {
+            return cache.getById(userId);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    /**
+     * Returns either a member if one can be found, or null if one can't be found.
+     * <br>This method WON'T cache found members and doesn't retrieve them from the cache, so it's private to avoid confusion to developers
+     * using discord.jar. It's only meant to be used internally.
+     *
+     * @param guildId The id of the guild
+     * @param userId The id of the user
+     * @return A member if one can be found, or null if one can't be found
+     */
+    private Member getMemberManuallyOrNull(@NotNull String guildId, @NotNull String userId) {
+        DiscordResponse req = null;
+        try {
+            req = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
+                            "{guild.id}",
+                            guildId
+                    ).replace(
+                            "{user.id}",
+                            userId
+                    ),
+                    this,
+                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            return null;
+        }
+
+        if (req.body() == null) return null;
+        try {
+            return Member.decompile(
+                    req.body(),
+                    this,
+                    guildId,
+                    getGuildById(guildId)
+            );
+        } catch (Exception e) {
+            try {
+                return Member.decompile(
+                        req.body(),
+                        this,
+                        guildId,
+                        null
+                );
+            } catch (Exception ex) {
+                return null;
+            }
+        }
     }
 
     /**

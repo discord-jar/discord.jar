@@ -51,7 +51,6 @@ public class HeartbeatManager {
    private void sendFirst() {
        double jitter = new Random().nextDouble(1);
        double interval = this.interval * jitter;
-
          new Thread(() -> {
               try {
                 Thread.sleep((long) interval);

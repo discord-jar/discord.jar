@@ -38,7 +38,7 @@ public class ReadyEvent extends Event {
 
     /*
     Sharding is not currently supported yet.
-
+    TODO: Add sharding support
     @NotNull
     public String getShard() {
         return getJson().getJSONObject("d").getString("");

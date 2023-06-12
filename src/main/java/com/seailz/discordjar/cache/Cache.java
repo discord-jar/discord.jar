@@ -91,6 +91,10 @@ public class Cache<T> {
         cache.remove(t);
     }
 
+    public void removeById(String id) {
+        remove(getFromCacheByIdOrNull(id));
+    }
+
     /**
      * Returns the entire cache
      */
@@ -164,7 +168,35 @@ public class Cache<T> {
             }
         }
 
-        if (returnObject.get() != null) cache.add((T) returnObject.get());
+        if (returnObject.get() != null) cache((T) returnObject.get());
+        return returnObject.get() == null ? null : (T) returnObject.get();
+    }
+
+    private T getFromCacheByIdOrNull(String id) {
+        AtomicReference<Object> returnObject = new AtomicReference<>();
+        ArrayList<T> cacheCopy = new ArrayList<>(cache);
+        cacheCopy.forEach(t -> {
+            String itemId;
+
+            if (isMember) {
+                itemId = ((Member) t).user().id();
+                if (Objects.equals(itemId, id))
+                    returnObject.set(t);
+            } else {
+                for (Method method : clazz.getMethods()) {
+                    if (method.getName().equals("id")) {
+                        try {
+                            itemId = (String) method.invoke(t);
+                            if (Objects.equals(itemId, id)) {
+                                returnObject.set(t);
+                            }
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
         return returnObject.get() == null ? null : (T) returnObject.get();
     }
 

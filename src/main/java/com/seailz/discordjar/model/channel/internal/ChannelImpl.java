@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,20 +64,25 @@ public class ChannelImpl implements Channel {
     }
 
     @Override
-    public void delete() {
-        DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.CHANNEL.DELETE_CHANNEL.replace("{channel.id}", id()),
-                djv(),
-                URLS.DELETE.CHANNEL.DELETE_CHANNEL,
-                RequestMethod.DELETE
-        );
-        try {
-            req.invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+    public Response<Void> delete() {
+        Response<Void> response = new Response<>();
+        new Thread(() -> {
+            DiscordRequest req = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.CHANNEL.DELETE_CHANNEL.replace("{channel.id}", id()),
+                    djv(),
+                    URLS.DELETE.CHANNEL.DELETE_CHANNEL,
+                    RequestMethod.DELETE
+            );
+            try {
+                req.invoke();
+                response.complete(null);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                response.completeError(new Response.Error(e));
+            }
+        }).start();
+        return response;
     }
 
     @NotNull

@@ -179,7 +179,7 @@ public class Cache<T> {
                         } else throw new IllegalArgumentException(ex);
                     } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e1) {
                         Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
-                        throw new RuntimeException(e1);
+                        return null;
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.seailz.discordjar;
 
 import com.seailz.discordjar.action.guild.GetCurrentUserGuildsAction;
+import com.seailz.discordjar.cache.CacheType;
 import com.seailz.discordjar.command.Command;
 import com.seailz.discordjar.command.CommandChoice;
 import com.seailz.discordjar.command.CommandDispatcher;
@@ -99,6 +100,7 @@ public class DiscordJar {
      * This hashmap is a map of guild ids to a cache of members in that guild.
      */
     private final Map<String, Cache<Member>> guildMemberCaches;
+    private EnumSet<CacheType> cacheTypes;
     /**
      * Manages dispatching events to listeners
      */
@@ -139,7 +141,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE);
+        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL));
     }
 
     /**
@@ -147,7 +149,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE);
+        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL));
     }
 
     /**
@@ -155,7 +157,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL));
     }
 
     /**
@@ -163,7 +165,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL));
     }
 
     /**
@@ -171,7 +173,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL));
     }
 
         /**
@@ -197,11 +199,12 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
+        this.cacheTypes = cacheTypes;
         new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
@@ -219,7 +222,7 @@ public class DiscordJar {
                         this,
                         URLS.GET.GUILDS.GET_GUILD,
                         RequestMethod.GET
-                ));
+                ), CacheType.GUILDS);
 
         this.guildMemberCaches = new HashMap<>();
 
@@ -230,7 +233,7 @@ public class DiscordJar {
                 this,
                 URLS.GET.USER.GET_USER,
                 RequestMethod.GET
-        ));
+        ), CacheType.USERS);
 
         this.channelCache = new Cache<>(this, Channel.class, new DiscordRequest(
                 new JSONObject(),
@@ -239,7 +242,7 @@ public class DiscordJar {
                 this,
                 URLS.GET.CHANNELS.GET_CHANNEL,
                 RequestMethod.GET
-        ));
+        ), CacheType.MEMBERS);
 
         this.eventDispatcher = new EventDispatcher(this);
 
@@ -807,7 +810,8 @@ public class DiscordJar {
                         URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
                         RequestMethod.GET
                 ),
-                this.getGuildById(guildId)
+                this.getGuildById(guildId),
+                CacheType.MEMBERS
         );
         if (guildMemberCaches.containsKey(guildId)) cache = guildMemberCaches.get(guildId);
         cache.cache(member);
@@ -1366,5 +1370,9 @@ public class DiscordJar {
 
     public boolean isDebug() {
         return debug;
+    }
+
+    public EnumSet<CacheType> getCacheTypes() {
+        return cacheTypes;
     }
 }

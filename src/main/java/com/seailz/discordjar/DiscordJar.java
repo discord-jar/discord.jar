@@ -68,6 +68,11 @@ import java.util.logging.Logger;
 public class DiscordJar {
 
     /**
+     * The current version of discord.jar
+     */
+    public static final String VERSION = "b-1.0";
+
+    /**
      * The token of the bot
      */
     private final String token;

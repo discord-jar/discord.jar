@@ -257,6 +257,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 if (!shouldResume) sendIdentify();
                 this.shouldResume = false;
                 readyForMessages = true;
+                discordJar.setGatewayFactory(this);
 
                 if (debug) {
                     logger.info("[DISCORD.JAR - DEBUG] Received HELLO event. Heartbeat cycle has been started. If this isn't a resume, IDENTIFY has been sent.");

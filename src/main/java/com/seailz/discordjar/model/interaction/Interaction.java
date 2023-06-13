@@ -189,7 +189,7 @@ public class Interaction implements Compilerable {
         Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
         InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJar) : null;
-        Guild guild = json.has("guild_id") ? discordJar.getGuildCache().getById(json.getString("guild_id")) : null;
+        Guild guild = json.has("guild_id") ? discordJar.getGuildById(json.getString("guild_id")) : null;
         Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJar) : null;
         Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJar, guild != null ? guild.id() : json.getString("guild_id"), guild) : null;
         User user = json.has("user") ? User.decompile(json.getJSONObject("user"), discordJar) : null;

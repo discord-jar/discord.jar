@@ -95,7 +95,9 @@ public class EventDispatcher {
                     try {
                         method.invoke(listenerMethodPair.listener, event);
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
+                        // If we're unable to invoke the method, we'll just ignore it to avoid any issues.
+                        System.out.println(method.getDeclaringClass().getSimpleName() + "#" + method.getName() + " threw an exception while being invoked.");
+                        e.printStackTrace();
                     }
                 }).start();
             }

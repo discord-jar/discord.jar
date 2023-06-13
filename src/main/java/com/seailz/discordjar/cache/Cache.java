@@ -33,13 +33,15 @@ public class Cache<T> {
     private final DiscordRequest discordRequest;
     private final boolean isMember;
     private final Guild guild;
+    private final CacheType type;
 
-    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request, Guild guild) {
+    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request, Guild guild, CacheType type) {
         this.discordJar = discordJar;
         this.clazz = clazz;
         this.discordRequest = request;
         this.guild = guild;
         isMember = clazz == Member.class;
+        this.type = type;
 
         new Thread(() -> {
             while (true) {
@@ -53,8 +55,8 @@ public class Cache<T> {
         }).start();
     }
 
-    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request) {
-        this(discordJar, clazz, request, null);
+    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request, CacheType type) {
+        this(discordJar, clazz, request, null, type);
     }
 
     /**
@@ -63,6 +65,7 @@ public class Cache<T> {
      * @param t The object to add
      */
     public void cache(@NotNull T t)  {
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
         String id;
         try {
             if (isMember) {
@@ -95,10 +98,12 @@ public class Cache<T> {
      * @param t The item to remove
      */
     public void remove(T t) {
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
         cache.remove(t);
     }
 
     public void removeById(String id) {
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
         remove(getFromCacheByIdOrNull(id));
     }
 
@@ -117,29 +122,31 @@ public class Cache<T> {
      */
     public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
-        ArrayList<T> cacheCopy = new ArrayList<>(cache);
-        cacheCopy.forEach(t -> {
-            String itemId;
+        if (discordJar.getCacheTypes().contains(type) || discordJar.getCacheTypes().contains(CacheType.ALL)) {
+            ArrayList<T> cacheCopy = new ArrayList<>(cache);
+            cacheCopy.forEach(t -> {
+                String itemId;
 
-            if (isMember) {
-                itemId = ((Member) t).user().id();
-                if (Objects.equals(itemId, id))
-                    returnObject.set(t);
-            } else {
-                for (Method method : clazz.getMethods()) {
-                    if (method.getName().equals("id")) {
-                        try {
-                            itemId = (String) method.invoke(t);
-                            if (Objects.equals(itemId, id)) {
-                                returnObject.set(t);
+                if (isMember) {
+                    itemId = ((Member) t).user().id();
+                    if (Objects.equals(itemId, id))
+                        returnObject.set(t);
+                } else {
+                    for (Method method : clazz.getMethods()) {
+                        if (method.getName().equals("id")) {
+                            try {
+                                itemId = (String) method.invoke(t);
+                                if (Objects.equals(itemId, id)) {
+                                    returnObject.set(t);
+                                }
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
                             }
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
 
         if (returnObject.get() == null) {
@@ -190,6 +197,7 @@ public class Cache<T> {
     }
 
     private T getFromCacheByIdOrNull(String id) {
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return null;
         AtomicReference<Object> returnObject = new AtomicReference<>();
         ArrayList<T> cacheCopy = new ArrayList<>(cache);
         cacheCopy.forEach(t -> {

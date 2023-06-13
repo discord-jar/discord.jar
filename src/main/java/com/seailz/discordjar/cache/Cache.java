@@ -65,7 +65,7 @@ public class Cache<T> {
      * @param t The object to add
      */
     public void cache(@NotNull T t)  {
-        if (!discordJar.getCacheTypes().contains(type) && !type.equals(CacheType.ALL)) return;
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
         String id;
         try {
             if (isMember) {
@@ -98,12 +98,12 @@ public class Cache<T> {
      * @param t The item to remove
      */
     public void remove(T t) {
-        if (!discordJar.getCacheTypes().contains(type) && !type.equals(CacheType.ALL)) return;
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
         cache.remove(t);
     }
 
     public void removeById(String id) {
-        if (!discordJar.getCacheTypes().contains(type) && !type.equals(CacheType.ALL)) return;
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
         remove(getFromCacheByIdOrNull(id));
     }
 
@@ -122,7 +122,7 @@ public class Cache<T> {
      */
     public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
-        if (discordJar.getCacheTypes().contains(type) || type.equals(CacheType.ALL)) {
+        if (discordJar.getCacheTypes().contains(type) || discordJar.getCacheTypes().contains(CacheType.ALL)) {
             ArrayList<T> cacheCopy = new ArrayList<>(cache);
             cacheCopy.forEach(t -> {
                 String itemId;
@@ -197,7 +197,7 @@ public class Cache<T> {
     }
 
     private T getFromCacheByIdOrNull(String id) {
-        if (!discordJar.getCacheTypes().contains(type) && !type.equals(CacheType.ALL)) return null;
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return null;
         AtomicReference<Object> returnObject = new AtomicReference<>();
         ArrayList<T> cacheCopy = new ArrayList<>(cache);
         cacheCopy.forEach(t -> {

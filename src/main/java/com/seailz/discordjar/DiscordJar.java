@@ -204,6 +204,7 @@ public class DiscordJar {
         new RequestQueueHandler(this);
         this.token = token;
         this.intents = intents;
+        this.cacheTypes = cacheTypes;
         new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();

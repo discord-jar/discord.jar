@@ -174,10 +174,12 @@ public class Cache<T> {
                     Logger.getLogger("discord.jar").info("Successfully retrieved object from cache!");
                 } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ex) {
                     try {
-                        returnObject.set(decompile.invoke(null, response.body(), discordJar, guild.id(), guild));
+                        if (guild != null) {
+                            returnObject.set(decompile.invoke(null, response.body(), discordJar, guild.id(), guild));
+                        } else throw new IllegalArgumentException(ex);
                     } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e1) {
                         Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
-                        throw new RuntimeException(ex);
+                        throw new RuntimeException(e1);
                     }
                 }
             }

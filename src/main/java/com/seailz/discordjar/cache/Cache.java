@@ -1,6 +1,7 @@
 package com.seailz.discordjar.cache;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -31,11 +32,13 @@ public class Cache<T> {
     private final Class<T> clazz;
     private final DiscordRequest discordRequest;
     private final boolean isMember;
+    private final Guild guild;
 
-    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request) {
+    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request, Guild guild) {
         this.discordJar = discordJar;
         this.clazz = clazz;
         this.discordRequest = request;
+        this.guild = guild;
         isMember = clazz == Member.class;
 
         new Thread(() -> {
@@ -48,6 +51,10 @@ public class Cache<T> {
                 cache.clear();
             }
         }).start();
+    }
+
+    public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request) {
+        this(discordJar, clazz, request, null);
     }
 
     /**
@@ -148,8 +155,12 @@ public class Cache<T> {
                 try {
                     decompile = clazz.getMethod("decompile", JSONObject.class);
                 } catch (NoSuchMethodException ex) {
-                    Logger.getLogger("DiscordJar").severe("Was unable to return user from cache, please report this to discord.jar's github!");
-                    throw new RuntimeException(ex);
+                    try {
+                        decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJar.class, String.class, Guild.class);
+                    } catch (NoSuchMethodException exx) {
+                        Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
+                        throw new RuntimeException(exx);
+                    }
                 }
             }
 
@@ -161,9 +172,13 @@ public class Cache<T> {
                 try {
                     returnObject.set(decompile.invoke(null, response.body()));
                     Logger.getLogger("discord.jar").info("Successfully retrieved object from cache!");
-                } catch (IllegalAccessException | InvocationTargetException ex) {
-                    Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
-                    throw new RuntimeException(ex);
+                } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ex) {
+                    try {
+                        returnObject.set(decompile.invoke(null, response.body(), discordJar, guild.id(), guild));
+                    } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e1) {
+                        Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         }

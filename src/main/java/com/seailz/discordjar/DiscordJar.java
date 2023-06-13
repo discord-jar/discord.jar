@@ -806,7 +806,8 @@ public class DiscordJar {
                         this,
                         URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
                         RequestMethod.GET
-                )
+                ),
+                this.getGuildById(guildId)
         );
         if (guildMemberCaches.containsKey(guildId)) cache = guildMemberCaches.get(guildId);
         cache.cache(member);

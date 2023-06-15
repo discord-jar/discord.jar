@@ -2,7 +2,7 @@
 
 [![seailz - discord.jar](https://img.shields.io/static/v1?label=seailz&message=discord.jar&color=blue&logo=github)](https://github.com/discord-jar/discord.jar "Go to GitHub repo") [![stars - discord.jar](https://img.shields.io/github/stars/discord-jar/discord.jar?style=social)](https://github.com/discord-jar/discord.jar) [![forks - discord.jar](https://img.shields.io/github/forks/discord-jar/discord.jar?style=social)](https://github.com/discord-jar/discord.jar) [![License](https://img.shields.io/badge/License-GNU_General_Public_License_v3.0-blue)](#license) [![issues - discord.jar](https://img.shields.io/github/issues/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar/issues)
 
-# discord.jar - a clean Java wrapper for Discord
+# discord.jar - a Java library for the Discord API
 
 discord.jar [![loc - discord.jar](https://sloc.xyz/github/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar) is
 a **work in progress** Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).

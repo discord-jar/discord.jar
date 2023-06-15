@@ -194,7 +194,7 @@ License info can be found [here](https://github.com/discord-jar/discord.jar/blob
 Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
-## Support me :)
-<a href="https://github.com/sponsors/seailz">
- <img alt="Ghsponsors Singular badge" height="56" href="https://github.com/seailz" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/ghsponsors-singular_vector.svg">
+## Support from
+<a href="https://www.jetbrains.com/">
+ <img width=200 src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_gl=1*1scmtz*_ga*MTkxNDQ3MzI2Ni4xNjgxODg5NDUy*_ga_9J976DJZ68*MTY4NjgyNjEwMS45LjEuMTY4NjgyNjIxNy4zNi4wLjA.&_ga=2.24511546.1880753745.1686826101-1914473266.1681889452">
 </a>

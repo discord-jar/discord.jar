@@ -94,10 +94,9 @@ public class EventDispatcher {
                 new Thread(() -> {
                     try {
                         method.invoke(listenerMethodPair.listener, event);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
+                    } catch (IllegalAccessException | InvocationTargetException | ArrayIndexOutOfBoundsException e) {
                         // If we're unable to invoke the method, we'll just ignore it to avoid any issues.
                         System.out.println(method.getDeclaringClass().getSimpleName() + "#" + method.getName() + " threw an exception while being invoked.");
-                        e.printStackTrace();
                     }
                 }).start();
             }

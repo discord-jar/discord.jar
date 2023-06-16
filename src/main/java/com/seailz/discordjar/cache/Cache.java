@@ -123,29 +123,31 @@ public class Cache<T> {
     public T getById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         AtomicReference<Object> returnObject = new AtomicReference<>();
         if (discordJar.getCacheTypes().contains(type) || discordJar.getCacheTypes().contains(CacheType.ALL)) {
-            ArrayList<T> cacheCopy = new ArrayList<>(cache);
-            cacheCopy.forEach(t -> {
-                String itemId;
+            try {
+                ArrayList<T> cacheCopy = new ArrayList<>(cache);
+                cacheCopy.forEach(t -> {
+                    String itemId;
 
-                if (isMember) {
-                    itemId = ((Member) t).user().id();
-                    if (Objects.equals(itemId, id))
-                        returnObject.set(t);
-                } else {
-                    for (Method method : clazz.getMethods()) {
-                        if (method.getName().equals("id")) {
-                            try {
-                                itemId = (String) method.invoke(t);
-                                if (Objects.equals(itemId, id)) {
-                                    returnObject.set(t);
+                    if (isMember) {
+                        itemId = ((Member) t).user().id();
+                        if (Objects.equals(itemId, id))
+                            returnObject.set(t);
+                    } else {
+                        for (Method method : clazz.getMethods()) {
+                            if (method.getName().equals("id")) {
+                                try {
+                                    itemId = (String) method.invoke(t);
+                                    if (Objects.equals(itemId, id)) {
+                                        returnObject.set(t);
+                                    }
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (IllegalAccessException | InvocationTargetException e) {
-                                e.printStackTrace();
                             }
                         }
                     }
-                }
-            });
+                });
+            } catch (Exception e ) {}
         }
 
 

@@ -120,7 +120,7 @@ public enum DispatchedEvents {
     }),
     GUILD_MEMBER_REMOVE((p, g, d) -> {
         String guildId = p.getJSONObject("d").getString("guild_id");
-        d.removeMemberCache(guildId, p.getJSONObject("d").getString("user_id"));
+        d.removeMemberCache(guildId, p.getJSONObject("d").getJSONObject("user").getString("id"));
         return GuildMemberRemoveEvent.class;
     }),
     /* Sent when a command permission is updated */

@@ -290,7 +290,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    private void handleDispatched(JSONObject payload) {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
@@ -303,14 +303,22 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
-        Event event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
-                .newInstance(discordJar, sequence, payload);
+        new Thread(() -> {
+            Event event = null;
+            try {
+                event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
+                        .newInstance(discordJar, sequence, payload);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
 
-        discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
+            discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
 
-        if (debug) {
-            logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
-        }
+            if (debug) {
+                logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
+            }
+        }).start();
 
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
             case READY:

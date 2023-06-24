@@ -65,30 +65,32 @@ public class Cache<T> {
      * @param t The object to add
      */
     public void cache(@NotNull T t)  {
-        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
-        String id;
         try {
-            if (isMember) {
-                id = ((Member) t).user().id();
-            } else id = (String) t.getClass().getMethod("id").invoke(t);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (T cacheMember : cache) {
-            String cacheId;
+            if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
+            String id;
             try {
                 if (isMember) {
-                    cacheId = ((Member) cacheMember).user().id();
-                } else cacheId = (String) t.getClass().getMethod("id").invoke(t);
+                    id = ((Member) t).user().id();
+                } else id = (String) t.getClass().getMethod("id").invoke(t);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
-            if (cacheId.equals(id)) {
-                cache.remove(cacheMember);
-                break;
+
+            for (T cacheMember : cache) {
+                String cacheId;
+                try {
+                    if (isMember) {
+                        cacheId = ((Member) cacheMember).user().id();
+                    } else cacheId = (String) t.getClass().getMethod("id").invoke(t);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+                if (cacheId.equals(id)) {
+                    cache.remove(cacheMember);
+                    break;
+                }
             }
-        }
+        } catch (Exception e) {}
         cache.add(t);
     }
 

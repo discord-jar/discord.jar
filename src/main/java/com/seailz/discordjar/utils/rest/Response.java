@@ -1,7 +1,10 @@
 package com.seailz.discordjar.utils.rest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -110,6 +113,36 @@ public class Response<T> {
 
         public JSONObject getErrors() {
             return errors;
+        }
+
+        public List<String> getAllErrorMessages() {
+            List<String> messageFields = new ArrayList<>();
+            findMessageFieldsRecursive(getErrors(), messageFields);
+            return messageFields;
+        }
+
+        private void findMessageFieldsRecursive(JSONObject jsonObject, List<String> messageFields) {
+            for (String key : jsonObject.keySet()) {
+                Object value = jsonObject.get(key);
+                if (value instanceof JSONObject) {
+                    findMessageFieldsRecursive((JSONObject) value, messageFields);
+                } else if (value instanceof JSONArray) {
+                    findMessageFieldsInArray((JSONArray) value, messageFields);
+                } else if (key.equals("message")) {
+                    messageFields.add(value.toString());
+                }
+            }
+        }
+
+        private void findMessageFieldsInArray(JSONArray jsonArray, List<String> messageFields) {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                Object value = jsonArray.get(i);
+                if (value instanceof JSONObject) {
+                    findMessageFieldsRecursive((JSONObject) value, messageFields);
+                } else if (value instanceof JSONArray) {
+                    findMessageFieldsInArray((JSONArray) value, messageFields);
+                }
+            }
         }
 
         @Override

@@ -14,7 +14,7 @@ import java.util.List;
  * @see TextChannel
  */
 public class TextChannelImpl extends MessagingChannelImpl implements TextChannel {
-    public TextChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, Category owner, int slowMode, String topic, String lastMessageId, int defaultAutoArchiveDuration, DiscordJar discordJar, JSONObject raw) {
+    public TextChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String owner, int slowMode, String topic, String lastMessageId, int defaultAutoArchiveDuration, DiscordJar discordJar, JSONObject raw) {
         super(id, type, name, guild, position, permissionOverwrites, nsfw, owner, slowMode, topic, lastMessageId, defaultAutoArchiveDuration, discordJar, raw);
     }
 }

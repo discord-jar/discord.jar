@@ -97,8 +97,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         WebSocketClient client = new StandardWebSocketClient();
         this.client = client;
         this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();
-        session.setTextMessageSizeLimit(Integer.MAX_VALUE);
-        session.setBinaryMessageSizeLimit(Integer.MAX_VALUE);
+        session.setTextMessageSizeLimit(1000000);
+        session.setBinaryMessageSizeLimit(1000000);
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
         }

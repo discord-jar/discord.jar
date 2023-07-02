@@ -19,7 +19,8 @@ import java.util.List;
 
 public class MessagingChannelImpl extends GuildChannelImpl implements MessagingChannel {
 
-    private final Category category;
+    private Category category;
+    private final String ownerId;
     private final int slowMode;
     private final String topic;
     private final String lastMessageId;
@@ -27,9 +28,9 @@ public class MessagingChannelImpl extends GuildChannelImpl implements MessagingC
     private final DiscordJar discordJar;
 
 
-    public MessagingChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, Category owner, int slowMode, String topic, String lastMessageId, int defaultAutoArchiveDuration, DiscordJar discordJar, JSONObject raw) {
+    public MessagingChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String ownerId, int slowMode, String topic, String lastMessageId, int defaultAutoArchiveDuration, DiscordJar discordJar, JSONObject raw) {
         super(id, type, name, guild, position, permissionOverwrites, nsfw, raw, discordJar);
-        this.category = owner;
+        this.ownerId = ownerId;
         this.slowMode = slowMode;
         this.topic = topic;
         this.lastMessageId = lastMessageId;
@@ -39,7 +40,13 @@ public class MessagingChannelImpl extends GuildChannelImpl implements MessagingC
 
     @Override
     public Category owner() {
-        return null;
+        if (category == null) category = discordJar.getCategoryById(ownerId);
+        return category;
+    }
+
+    @Override
+    public String parentId() {
+        return ownerId;
     }
 
     @Override

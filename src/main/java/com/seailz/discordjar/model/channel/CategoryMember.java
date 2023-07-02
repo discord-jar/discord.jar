@@ -16,8 +16,10 @@ import org.json.JSONObject;
  */
 public interface CategoryMember {
     Category owner();
+
+    String parentId();
     static CategoryMember decompile(JSONObject obj, DiscordJar discordJar) {
         Category owner = (Category) discordJar.getChannelById(obj.getString("parent_id"));
-        return new CategoryMemberImpl(owner);
+        return new CategoryMemberImpl(owner, obj.getString("parent_id"));
     }
 }

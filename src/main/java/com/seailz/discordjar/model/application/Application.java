@@ -105,6 +105,7 @@ public record Application(
     }
 
     public static Application decompile(JSONObject obj, DiscordJar discordJar) {
+        if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, discordJar);
         String id;
         String name;
         String iconUrl;

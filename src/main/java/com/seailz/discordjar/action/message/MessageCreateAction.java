@@ -352,8 +352,10 @@ public class MessageCreateAction {
                     response = request.invoke();
                 } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
                     future.completeError(new Response.Error(e));
+                    return;
                 }
             }
+
             future.complete(Message.decompile(response.body(), discordJar));
         }).start();
         return future;

@@ -115,34 +115,61 @@ public class Response<T> {
             return errors;
         }
 
-        public List<String> getAllErrorMessages() {
-            List<String> messageFields = new ArrayList<>();
-            findMessageFieldsRecursive(getErrors(), messageFields);
-            return messageFields;
+        public class ErroredResponse {
+            private String message;
+            private int code;
+
+            public ErroredResponse(String message, int code) {
+                this.message = message;
+                this.code = code;
+            }
+
+            public String getMessage() {
+                return message;
+            }
+
+            public int getCode() {
+                return code;
+            }
         }
 
-        private void findMessageFieldsRecursive(JSONObject jsonObject, List<String> messageFields) {
+        public List<ErroredResponse> getAllErrorMessages() {
+            List<ErroredResponse> errorResponses = new ArrayList<>();
+            findErrorResponsesRecursive(getErrors(), errorResponses);
+            return errorResponses;
+        }
+
+        private void findErrorResponsesRecursive(JSONObject jsonObject, List<ErroredResponse> errorResponses) {
             for (String key : jsonObject.keySet()) {
                 Object value = jsonObject.get(key);
                 if (value instanceof JSONObject) {
-                    findMessageFieldsRecursive((JSONObject) value, messageFields);
+                    findErrorResponsesRecursive((JSONObject) value, errorResponses);
                 } else if (value instanceof JSONArray) {
-                    findMessageFieldsInArray((JSONArray) value, messageFields);
+                    findErrorResponsesInArray((JSONArray) value, errorResponses);
                 } else if (key.equals("message")) {
-                    messageFields.add(value.toString());
+                    int code = getCodeFromJSONObject(jsonObject);
+                    errorResponses.add(new ErroredResponse(value.toString(), code));
                 }
             }
         }
 
-        private void findMessageFieldsInArray(JSONArray jsonArray, List<String> messageFields) {
+        private void findErrorResponsesInArray(JSONArray jsonArray, List<ErroredResponse> errorResponses) {
             for (int i = 0; i < jsonArray.length(); i++) {
                 Object value = jsonArray.get(i);
                 if (value instanceof JSONObject) {
-                    findMessageFieldsRecursive((JSONObject) value, messageFields);
+                    findErrorResponsesRecursive((JSONObject) value, errorResponses);
                 } else if (value instanceof JSONArray) {
-                    findMessageFieldsInArray((JSONArray) value, messageFields);
+                    findErrorResponsesInArray((JSONArray) value, errorResponses);
                 }
             }
+        }
+
+        private int getCodeFromJSONObject(JSONObject jsonObject) {
+            int code = -1;
+            if (jsonObject.has("code") && jsonObject.get("code") instanceof Integer) {
+                code = jsonObject.getInt("code");
+            }
+            return code;
         }
 
         @Override

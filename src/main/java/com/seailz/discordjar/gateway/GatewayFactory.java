@@ -308,9 +308,11 @@ public class GatewayFactory extends TextWebSocketHandler {
             try {
                 event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
                         .newInstance(discordJar, sequence, payload);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+            } catch (InstantiationException | IllegalAccessException |
                      NoSuchMethodException e) {
                 throw new RuntimeException(e);
+            } catch (InvocationTargetException ex) {
+
             }
 
             discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);

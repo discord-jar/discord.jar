@@ -1380,4 +1380,28 @@ public class DiscordJar {
     public EnumSet<CacheType> getCacheTypes() {
         return cacheTypes;
     }
+
+    /**
+     * Returns the Gateway's ping history.
+     * <br>This is determined using heartbeats - it waits for the response and then calculates the time the Gateway took to respond.
+     * <br>The time is in milliseconds.
+     */
+    public List<Long> getGatewayPingHistory() {
+        return GatewayFactory.pingHistoryMs;
+    }
+
+    /**
+     * Returns the average Gateway ping in ms.
+     * <br>This is determined using heartbeats - it waits for the response and then calculates the time the Gateway took to respond.
+     */
+     public Long getAverageGatewayPing() {
+         long sum = 0;
+         for (Long l : getGatewayPingHistory()) {
+             sum += l;
+         }
+
+         return sum / getGatewayPingHistory().size();
+     }
+
+
 }

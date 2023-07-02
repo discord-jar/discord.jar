@@ -3,6 +3,7 @@ package com.seailz.discordjar.gateway.heartbeat;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -71,6 +72,8 @@ public class HeartbeatManager {
                     .put("op", 1)
                     .put("d", GatewayFactory.sequence)
         );
+
+        GatewayFactory.lastHeartbeatSent = new Date();
     }
 
     public void deactivate() {

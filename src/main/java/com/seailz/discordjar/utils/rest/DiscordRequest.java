@@ -158,6 +158,7 @@ public class DiscordRequest {
 
             if (responseCode == 404) {
                 Logger.getLogger("DISCORDJAR").warning("Received 404 error from the Discord API. It's likely that you're trying to access a resource that doesn't exist.");
+                System.out.println(sb);
                 return new DiscordResponse(404, null, null, null);
             }
 
@@ -336,6 +337,7 @@ public class DiscordRequest {
 
             if (responseCode == 404) {
                 Logger.getLogger("DISCORDJAR").warning("Received 404 error from the Discord API. It's likely that you're trying to access a resource that doesn't exist.");
+                System.out.println(sb);
                 return new DiscordResponse(404, null, null, null);
             }
 

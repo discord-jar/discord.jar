@@ -232,7 +232,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
         if (discordJar.getGateway() != this) {
-            logger.info("[DISCORD.JAR] Received message from a gateway that isn't the main gateway. This is usually a bug, please report it on discord.jar's GitHub with this log message. Payload: " + payload.toString());
             return;
         }
 
@@ -311,15 +310,15 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
         new Thread(() -> {
-            Event event = null;
+            Event event;
             try {
                 event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
                         .newInstance(discordJar, sequence, payload);
-            } catch (InstantiationException | IllegalAccessException |
-                     NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException ex) {
-
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                logger.warning("[DISCORD.JAR - EVENTS] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
+                e.printStackTrace();
+                return;
             }
 
             discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);

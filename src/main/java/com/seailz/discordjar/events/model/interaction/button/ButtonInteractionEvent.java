@@ -16,10 +16,12 @@ import org.json.JSONObject;
 public class ButtonInteractionEvent extends InteractionEvent implements CustomIdable {
     public ButtonInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
-        // First checks the button registry for any actions that match the custom id.
-        ButtonRegistry.getInstance().getRegistry().stream()
-                .filter(buttonAction -> buttonAction.button().customId().equals(getCustomId()))
-                .forEach(buttonAction -> buttonAction.action().accept(this));
+        // First checks the button registry for any actions that match the custom id. We'll do this in a separate thread in order to not block the gateway thread.
+        new Thread(() -> {
+            ButtonRegistry.getInstance().getRegistry().stream()
+                    .filter(buttonAction -> buttonAction.button().customId().equals(getCustomId()))
+                    .forEach(buttonAction -> buttonAction.action().accept(this));
+        }).start();
     }
 
     /**

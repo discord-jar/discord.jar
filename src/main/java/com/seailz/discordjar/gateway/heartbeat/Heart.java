@@ -7,13 +7,13 @@ import java.util.Date;
 import java.util.Random;
 import java.util.logging.Logger;
 
-public class HeartbeatManager {
+public class Heart {
 
     private int interval;
     private GatewayFactory factory;
     private boolean active = true;
 
-    public HeartbeatManager(int interval, GatewayFactory factory) {
+    public Heart(int interval, GatewayFactory factory) {
         this.interval = interval;
         this.factory = factory;
         begin();

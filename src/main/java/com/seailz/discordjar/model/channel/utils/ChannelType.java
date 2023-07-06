@@ -18,7 +18,8 @@ public enum ChannelType {
     PRIVATE_THREAD(12, "Private Thread", true, true),
     GUILD_STAGE_VOICE(13, "Stage Channel", false, true),
     GUILD_DIRECTORY(14, "Student Hub Directory", false, true),
-    GUILD_FORUM(15, " Forum", false, true),
+    GUILD_FORUM(15, "Forum", false, true),
+    GUILD_MEDIA(16, "Media Channel", false, true),
     ;
     private final int code;
     private final String name;

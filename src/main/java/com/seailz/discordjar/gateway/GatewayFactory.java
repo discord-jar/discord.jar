@@ -313,10 +313,16 @@ public class GatewayFactory extends TextWebSocketHandler {
             try {
                 event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
                         .newInstance(discordJar, sequence, payload);
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
-                     InvocationTargetException e) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 logger.warning("[DISCORD.JAR - EVENTS] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
                 e.printStackTrace();
+                return;
+            } catch (InvocationTargetException e) {
+                logger.warning("[DISCORD.JAR - EVENTS] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
+                // If it's a runtime exception, we want to catch it and print the stack trace.
+                // Also restart the gateway.
+                e.getCause().printStackTrace();
+                discordJar.restartGateway();
                 return;
             }
 

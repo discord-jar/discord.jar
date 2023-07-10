@@ -1096,11 +1096,17 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 RequestMethod.GET
         );
         JSONArray res;
+        DiscordResponse response = null;
         try {
-            res = req.invoke().arr();
+            response = req.invoke();
+               res = response.arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
+        if (res == null) {
+            System.out.println(response.code() + " " + (response.body() == null ? "null" : response.body().toString()));
+        }
+
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
 
         if (roleCache != null) {

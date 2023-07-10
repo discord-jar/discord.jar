@@ -94,6 +94,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final WelcomeScreen welcomeScreen;
     private final List<Sticker> stickers;
     private final boolean premiumProgressBarEnabled;
+    private final String safetyAlertChannelId;
+    private Channel safetyAlertChannel = null;
     private final DiscordJar discordJar;
     private final JsonCache roleCache;
 
@@ -138,6 +140,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             WelcomeScreen welcomeScreen,
             List<Sticker> stickers,
             boolean premiumProgressBarEnabled,
+            String safetyAlertChannelId,
             DiscordJar discordJar,
             JsonCache roleCache
     ) {
@@ -181,6 +184,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         this.welcomeScreen = welcomeScreen;
         this.stickers = stickers;
         this.premiumProgressBarEnabled = premiumProgressBarEnabled;
+        this.safetyAlertChannelId = safetyAlertChannelId;
         this.discordJar = discordJar;
         this.roleCache = roleCache;
     }
@@ -374,7 +378,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 .put("approximate_presence_count", approximatePresenceCount)
                 .put("welcome_screen", welcomeScreen)
                 .put("stickers", stickers)
-                .put("premium_progress_bar_enabled", premiumProgressBarEnabled);
+                .put("premium_progress_bar_enabled", premiumProgressBarEnabled)
+                .put("safety_alerts_channel_id", safetyAlertChannelId);
     }
 
     @NotNull
@@ -418,6 +423,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         WelcomeScreen welcomeScreen;
         List<Sticker> stickers;
         boolean premiumProgressBarEnabled;
+        String safetyAlertsChannelId = null;
 
         try {
             id = obj.getString("id");
@@ -659,6 +665,10 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             premiumProgressBarEnabled = false;
         }
 
+        if (obj.has("safety_alerts_channel_id") && !obj.isNull("safety_alerts_channel_id")) {
+            safetyAlertsChannelId = obj.getString("safety_alerts_channel_id");
+        }
+
         Guild g = new Guild(
                 id,
                 name,
@@ -700,6 +710,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 welcomeScreen,
                 stickers,
                 premiumProgressBarEnabled,
+                safetyAlertsChannelId,
                 discordJar,
                 JsonCache.newc(new DiscordRequest(
                         new JSONObject(),
@@ -733,6 +744,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         if (this.widgetChannel != null) return this.widgetChannel;
         this.widgetChannel = discordJar.getChannelById(widgetChannelId);
         return this.widgetChannel;
+    }
+
+    public Channel safetyAlertsChannel() {
+        if (safetyAlertChannelId == null) return null;
+        if (this.safetyAlertChannel != null) return this.safetyAlertChannel;
+        this.safetyAlertChannel = discordJar.getChannelById(safetyAlertChannelId);
+        return this.safetyAlertChannel;
     }
 
     /**

@@ -98,6 +98,8 @@ public class Cache<T> {
                 // We can ignore this - since the cache isn't critical.
                 // We'll print the stacktrace for debugging purposes.
                 Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - " + e.getMessage());
+                e.printStackTrace();
+                return;
             }
         }
     }

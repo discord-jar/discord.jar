@@ -1005,7 +1005,7 @@ public class DiscordJar {
         DiscordRequest commandReq = new DiscordRequest(
                 command.compile(),
                 new HashMap<>(),
-                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id() == null ? "0" : getSelfInfo().id()),
                 this,
                 URLS.BASE_URL,
                 RequestMethod.POST);

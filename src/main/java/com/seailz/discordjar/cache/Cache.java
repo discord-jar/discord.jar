@@ -93,7 +93,7 @@ public class Cache<T> {
         } catch (Exception e) {}
         synchronized (cache) {
             try {
-                cache.add(t);
+                cache.add(cache.size(), t);
             } catch (Exception e) {
                 // We can ignore this - since the cache isn't critical.
                 // We'll print the stacktrace for debugging purposes.

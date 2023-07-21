@@ -152,18 +152,21 @@ public class Interaction implements Compilerable {
 
     @Override
     public JSONObject compile() {
-        Class<? extends InteractionData> dataClass = data.getClass();
-        Method compileMethod = null;
-        try {
-            compileMethod = dataClass.getMethod("compile");
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
         JSONObject data = null;
-        try {
-            data = (JSONObject) compileMethod.invoke(this.data);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        if (this.data != null) {
+            Class<? extends InteractionData> dataClass = this.data.getClass();
+            Method compileMethod = null;
+            try {
+                compileMethod = dataClass.getMethod("compile");
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                data = (JSONObject) compileMethod.invoke(this.data);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return new JSONObject()

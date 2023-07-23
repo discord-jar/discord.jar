@@ -4,14 +4,12 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.StartThreadForumChannelAction;
 import com.seailz.discordjar.model.channel.forum.DefaultSortOrder;
 import com.seailz.discordjar.model.channel.forum.ForumTag;
-import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ForumChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,13 +64,13 @@ public interface ForumChannel extends GuildChannel {
     }
 
     @Override
-    default JSONObject compile() {
-        JSONArray permissionOverwrites = new JSONArray();
+    default SJSONObject compile() {
+        SJSONArray permissionOverwrites = new SJSONArray();
         permissionOverwrites.forEach(o -> permissionOverwrites.put(((PermissionOverwrite) o).compile()));
 
-        JSONArray tags = new JSONArray();
+        SJSONArray tags = new SJSONArray();
         tags.forEach(o -> tags.put(((ForumTag) o).compile()));
-        JSONObject obj = new JSONObject();
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id());
         obj.put("type", type().getCode());
         obj.put("name", name());
@@ -87,14 +85,14 @@ public interface ForumChannel extends GuildChannel {
         return obj;
     }
 
-    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static ForumChannel decompile(SJSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");
 
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         for (Object overwrite : obj.getJSONArray("permission_overwrites")) {
-            permissionOverwrites.add(PermissionOverwrite.decompile((JSONObject) overwrite));
+            permissionOverwrites.add(PermissionOverwrite.decompile((SJSONObject) overwrite));
         }
 
         boolean nsfw = obj.getBoolean("nsfw");
@@ -105,7 +103,7 @@ public interface ForumChannel extends GuildChannel {
         List<ForumTag> tags = new ArrayList<>();
         if (obj.has("available_tags") && !obj.isNull("available_tags")) {
             for (Object tag : obj.getJSONArray("available_tags")) {
-                tags.add(ForumTag.decompile((JSONObject) tag));
+                tags.add(ForumTag.decompile((SJSONObject) tag));
             }
         }
 

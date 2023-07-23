@@ -9,8 +9,7 @@ import com.seailz.discordjar.model.component.select.entity.ChannelSelectMenu;
 import com.seailz.discordjar.model.component.select.entity.RoleSelectMenu;
 import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
 import com.seailz.discordjar.model.component.text.TextInput;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Component which can be inserted into a {@link DisplayComponent}
@@ -28,9 +27,9 @@ public interface RawComponent extends Component {
         return type().getMaxPerRow();
     }
 
-    JSONObject raw();
+    SJSONObject raw();
 
-    void setRaw(JSONObject raw);
+    void setRaw(SJSONObject raw);
 
     default Button asButton(DiscordJar discordJar) {
         if (!type().equals(ComponentType.BUTTON))
@@ -90,7 +89,7 @@ public interface RawComponent extends Component {
         return type().isModalCompatible();
     }
 
-    static RawComponent unknown(JSONObject obj) {
+    static RawComponent unknown(SJSONObject obj) {
         return UnknownRawComponent.of(obj);
     }
 

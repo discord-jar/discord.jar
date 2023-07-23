@@ -2,8 +2,8 @@ package com.seailz.discordjar.events.model.gateway;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 /**
  * This event fires when the gateway connection resumes.
@@ -14,7 +14,7 @@ import org.json.JSONObject;
  * @since 1.0
  */
 public class GatewayResumedEvent extends Event {
-    public GatewayResumedEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
+    public GatewayResumedEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
         super(bot, sequence, data);
     }
 }

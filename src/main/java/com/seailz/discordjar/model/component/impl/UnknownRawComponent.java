@@ -3,7 +3,7 @@ package com.seailz.discordjar.model.component.impl;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.component.RawComponent;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * This is usually a component that will be returned by a method like {@link DisplayComponent#components()} but is not a known component type,
@@ -17,15 +17,15 @@ import org.json.JSONObject;
 public class UnknownRawComponent implements RawComponent {
 
     private ComponentType type;
-    private JSONObject raw;
+    private SJSONObject raw;
 
-    public UnknownRawComponent(ComponentType type, JSONObject raw) {
+    public UnknownRawComponent(ComponentType type, SJSONObject raw) {
         this.type = type;
         this.raw = raw;
     }
 
     @Override
-    public JSONObject compile() {
+    public SJSONObject compile() {
         return raw;
     }
 
@@ -40,16 +40,16 @@ public class UnknownRawComponent implements RawComponent {
     }
 
     @Override
-    public JSONObject raw() {
+    public SJSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(JSONObject raw) {
+    public void setRaw(SJSONObject raw) {
         this.raw = raw;
     }
 
-    public static UnknownRawComponent of(JSONObject raw) {
+    public static UnknownRawComponent of(SJSONObject raw) {
         ComponentType type = ComponentType.getType(raw.getInt("type"));
         return new UnknownRawComponent(type, raw);
     }

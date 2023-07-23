@@ -3,8 +3,8 @@ package com.seailz.discordjar.model.role;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.utils.Mentionable;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Represents a Discord role in a guild.
@@ -32,7 +32,7 @@ public record Role(
         boolean mentionable,
         RoleTag tags
 ) implements Compilerable, Resolvable, Mentionable {
-    public static Role decompile(JSONObject obj) {
+    public static Role decompile(SJSONObject obj) {
         String id;
         String name;
         int color;
@@ -108,8 +108,8 @@ public record Role(
     }
 
     @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id);
         obj.put("name", name);
         obj.put("color", color);

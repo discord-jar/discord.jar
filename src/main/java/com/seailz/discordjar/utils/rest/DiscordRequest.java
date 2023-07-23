@@ -2,13 +2,12 @@ package com.seailz.discordjar.utils.rest;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
 import okhttp3.Response;
 import okhttp3.*;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
@@ -20,7 +19,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,17 +27,17 @@ import java.util.logging.Logger;
 public class DiscordRequest {
 
 
-    private JSONObject body;
+    private SJSONObject body;
     private final HashMap<String, String> headers;
     private final String url;
     private final DiscordJar djv;
     private final String baseUrl;
     private final RequestMethod requestMethod;
-    private JSONArray aBody;
+    private SJSONArray aBody;
     // HashMap of endpoint to whether or not it can be requested (rate limited)
     private static HashMap<String, Boolean> canRequest = new HashMap<>();
 
-    public DiscordRequest(JSONObject body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
+    public DiscordRequest(SJSONObject body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
         this.body = body;
         this.headers = headers;
         this.url = url;
@@ -47,7 +45,7 @@ public class DiscordRequest {
         this.baseUrl = baseUrl;
         this.requestMethod = requestMethod;
     }
-    public DiscordRequest(JSONArray body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
+    public DiscordRequest(SJSONArray body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
         this.aBody = body;
         this.headers = headers;
         this.url = url;
@@ -125,9 +123,9 @@ public class DiscordRequest {
 
             try {
                 if (sb.startsWith("[")) {
-                    new JSONArray(sb);
+                    new SJSONArray(sb);
                 } else {
-                    new JSONObject(sb);
+                    new SJSONObject(sb);
                 }
             } catch (JSONException err) {
                 System.out.println(sb);
@@ -136,16 +134,16 @@ public class DiscordRequest {
             if (responseCode == 200 || responseCode == 201) {
                 Object body;
                 if (sb.startsWith("[")) {
-                    body = new JSONArray(sb);
+                    body = new SJSONArray(sb);
                 } else {
                     try {
-                        body = new JSONObject(sb);
+                        body = new SJSONObject(sb);
                     } catch (JSONException err) {
                         throw new DiscordUnexpectedError(new RuntimeException("Invalid JSON response from Discord API: " + sb));
                     }
                 }
 
-                return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
+                return new DiscordResponse(responseCode, (body instanceof SJSONObject) ? (SJSONObject) body : null, headers, (body instanceof SJSONArray) ? (SJSONArray) body : null);
             }
             if (responseCode == 204) {
                 return null;
@@ -161,7 +159,7 @@ public class DiscordRequest {
                 return new DiscordResponse(404, null, null, null);
             }
 
-            throw new UnhandledDiscordAPIErrorException(new JSONObject(sb), responseCode);
+            throw new UnhandledDiscordAPIErrorException(new SJSONObject(sb), responseCode);
         } catch (IOException | UnhandledDiscordAPIErrorException e) {
             // attempt gateway reconnect
             throw new DiscordUnexpectedError(e);
@@ -256,9 +254,9 @@ public class DiscordRequest {
             try {
                 String responseBody = sb;
                 if (responseBody.startsWith("[")) {
-                    new JSONArray(responseBody);
+                    new SJSONArray(responseBody);
                 } else {
-                    new JSONObject(responseBody);
+                    new SJSONObject(responseBody);
                 }
             } catch (JSONException err) {
                 System.out.println(sb);
@@ -289,7 +287,7 @@ public class DiscordRequest {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure you are not sending too many requests.");
                 }
 
-                float retryAfter = new JSONObject(sb).getFloat("retry_after");
+                float retryAfter = new SJSONObject(sb).getFloat("retry_after");
                 if (retryAfter == -1) {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Invalid rate limit response (?) - please contact Discord support. " + sb);
                     return new DiscordResponse(429, body, headers, null);
@@ -302,16 +300,16 @@ public class DiscordRequest {
                 Object body;
                 String responseBody = sb;
                 if (responseBody.startsWith("[")) {
-                    body = new JSONArray(responseBody);
+                    body = new SJSONArray(responseBody);
                 } else {
                     try {
-                        body = new JSONObject(responseBody);
+                        body = new SJSONObject(responseBody);
                     } catch (JSONException err) {
                         throw new DiscordUnexpectedError(new RuntimeException("Invalid JSON response from Discord API: " + responseBody));
                     }
                 }
 
-                return new DiscordResponse(responseCode, (body instanceof JSONObject) ? (JSONObject) body : null, headers, (body instanceof JSONArray) ? (JSONArray) body : null);
+                return new DiscordResponse(responseCode, (body instanceof SJSONObject) ? (SJSONObject) body : null, headers, (body instanceof SJSONArray) ? (SJSONArray) body : null);
             }
             if (responseCode == 204) {
                 return null;
@@ -321,8 +319,8 @@ public class DiscordRequest {
                 return new DiscordResponse(401, null, null, null);
             }
 
-            JSONObject error = new JSONObject(sb);
-            JSONArray errorArray;
+            SJSONObject error = new SJSONObject(sb);
+            SJSONArray errorArray;
 
             if (responseCode == 404) {
                 Logger.getLogger("DISCORDJAR").warning("Received 404 error from the Discord API. It's likely that you're trying to access a resource that doesn't exist.");
@@ -330,7 +328,7 @@ public class DiscordRequest {
                 return new DiscordResponse(404, null, null, null);
             }
 
-            throw new UnhandledDiscordAPIErrorException(new JSONObject(sb), responseCode);
+            throw new UnhandledDiscordAPIErrorException(new SJSONObject(sb), responseCode);
         } catch (IOException e) {
             // attempt gateway reconnect
             throw new DiscordUnexpectedError(e);
@@ -347,11 +345,11 @@ public class DiscordRequest {
         }
     }
 
-    public DiscordResponse invoke(JSONObject body) throws UnhandledDiscordAPIErrorException {
+    public DiscordResponse invoke(SJSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
 
-    public DiscordResponse invokeNoAuth(JSONObject body) throws UnhandledDiscordAPIErrorException {
+    public DiscordResponse invokeNoAuth(SJSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, false);
     }
 
@@ -359,7 +357,7 @@ public class DiscordRequest {
         return invoke(contentType, false);
     }
 
-    public DiscordResponse invoke(JSONArray arr) throws UnhandledDiscordAPIErrorException {
+    public DiscordResponse invoke(SJSONArray arr) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
 
@@ -443,17 +441,17 @@ public class DiscordRequest {
                 var bodyResponse = new Object();
 
                 if (response.body().startsWith("[")) {
-                    bodyResponse = new JSONArray(response.body());
+                    bodyResponse = new SJSONArray(response.body());
                 } else {
-                    bodyResponse = new JSONObject(response.body());
+                    bodyResponse = new SJSONObject(response.body());
                 }
 
-                return new DiscordResponse(responseCode, (bodyResponse instanceof JSONObject) ? (JSONObject) bodyResponse : null, headers, (bodyResponse instanceof JSONArray) ? (JSONArray) bodyResponse : null);
+                return new DiscordResponse(responseCode, (bodyResponse instanceof SJSONObject) ? (SJSONObject) bodyResponse : null, headers, (bodyResponse instanceof SJSONArray) ? (SJSONArray) bodyResponse : null);
             }
             if (responseCode == 204) return null;
 
 
-            JSONObject error = new JSONObject(response.body());
+            SJSONObject error = new SJSONObject(response.body());
 
             throw new UnhandledDiscordAPIErrorException(error, responseCode);
         } catch (Exception e) {
@@ -471,10 +469,10 @@ public class DiscordRequest {
 
     public static class UnhandledDiscordAPIErrorException extends Exception {
         private int code;
-        private JSONObject body;
+        private SJSONObject body;
         private String error;
         private int httpCode;
-        public UnhandledDiscordAPIErrorException(JSONObject body, int httpCode) {
+        public UnhandledDiscordAPIErrorException(SJSONObject body, int httpCode) {
             this.body = body.has("errors") ?  body.getJSONObject("errors") : body;
             this.code = body.getInt("code");
             this.error = body.getString("message");
@@ -489,7 +487,7 @@ public class DiscordRequest {
             return httpCode;
         }
 
-        public JSONObject getBody() {
+        public SJSONObject getBody() {
             return body;
         }
 
@@ -498,11 +496,11 @@ public class DiscordRequest {
         }
     }
 
-    public JSONObject body() {
+    public SJSONObject body() {
         return body;
     }
 
-    public JSONArray array() {
+    public SJSONArray array() {
         return aBody;
     }
 

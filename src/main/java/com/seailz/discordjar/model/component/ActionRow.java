@@ -1,11 +1,9 @@
 package com.seailz.discordjar.model.component;
 
-import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.select.SelectMenu;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +17,11 @@ import java.util.List;
 public class ActionRow implements DisplayComponent {
 
     private List<RawComponent> components;
-    private JSONObject raw;
+    private SJSONObject raw;
 
     @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("type", type().getCode());
 
         List<Component> components = new ArrayList<>(components());
@@ -32,7 +30,7 @@ public class ActionRow implements DisplayComponent {
     }
 
     @Override
-    public JSONObject raw() {
+    public SJSONObject raw() {
         return raw;
     }
 
@@ -66,12 +64,12 @@ public class ActionRow implements DisplayComponent {
     }
 
     @NotNull
-    public static ActionRow decompile(JSONObject obj) {
+    public static ActionRow decompile(SJSONObject obj) {
         ActionRow row = new ActionRow();
         List<RawComponent> comp = new ArrayList<>();
 
         obj.getJSONArray("components").forEach(c -> {
-            JSONObject component = (JSONObject) c;
+            SJSONObject component = (SJSONObject) c;
             comp.add(RawComponent.unknown(component));
         });
         row.raw = obj;

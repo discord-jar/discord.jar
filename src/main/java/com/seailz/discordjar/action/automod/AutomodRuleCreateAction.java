@@ -7,9 +7,9 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONArray;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -147,26 +147,26 @@ public class AutomodRuleCreateAction {
     public CompletableFuture<AutomodRule> run() {
         CompletableFuture<AutomodRule> future = new CompletableFuture<>();
         future.completeAsync(() -> {
-            JSONObject payload = new JSONObject();
+            SJSONObject payload = new SJSONObject();
             payload.put("name", name);
             payload.put("event_type", eventType.getCode());
             payload.put("trigger_type", triggerType.getCode());
             if (triggerMetadata != null) payload.put("trigger_metadata", triggerMetadata.compile());
 
-            JSONArray actionsArray = new JSONArray();
+            SJSONArray actionsArray = new SJSONArray();
             actions.stream().map(AutomodRule.Action::compile).forEach(actionsArray::put);
 
             payload.put("actions", actionsArray);
             payload.put("enabled", enabled);
 
             if (exemptChannels != null) {
-                JSONArray exemptChannelsArray = new JSONArray();
+                SJSONArray exemptChannelsArray = new SJSONArray();
                 exemptChannels.stream().map(Channel::id).forEach(exemptChannelsArray::put);
                 payload.put("exempt_channels", exemptChannelsArray);
             }
 
             if (exemptRoles != null) {
-                JSONArray exemptRolesArray = new JSONArray();
+                SJSONArray exemptRolesArray = new SJSONArray();
                 exemptRoles.stream().map(Role::id).forEach(exemptRolesArray::put);
                 payload.put("exempt_roles", exemptRolesArray);
             }

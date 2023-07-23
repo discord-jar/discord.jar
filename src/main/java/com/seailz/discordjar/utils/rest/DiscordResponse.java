@@ -1,14 +1,14 @@
 package com.seailz.discordjar.utils.rest;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.HashMap;
 
 public record DiscordResponse(
         int code,
-        JSONObject body,
+        SJSONObject body,
         HashMap<String, String> headers,
-        JSONArray arr
+        SJSONArray arr
 ) {
 }

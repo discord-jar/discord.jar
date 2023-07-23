@@ -8,13 +8,12 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +49,8 @@ public record AutomodRule(
 
     @NotNull
     @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
 
         obj.put("id", id);
         obj.put("guild_id", guild.id());
@@ -61,7 +60,7 @@ public record AutomodRule(
         obj.put("trigger", trigger.code);
         obj.put("trigger_metadata", triggerMetadata.compile());
 
-        JSONArray actionsArray = new JSONArray();
+        SJSONArray actionsArray = new SJSONArray();
         for (Action action : actions) {
             actionsArray.put(action.compile());
         }
@@ -69,7 +68,7 @@ public record AutomodRule(
         obj.put("actions", actionsArray);
         obj.put("enabled", enabled);
 
-        JSONArray exemptRolesArray = new JSONArray();
+        SJSONArray exemptRolesArray = new SJSONArray();
         Checker.check(exemptChannels.size() > 20, "Exempt roles cannot be more than 20");
         for (Role role : exemptRoles) {
             exemptRolesArray.put(role.id());
@@ -77,7 +76,7 @@ public record AutomodRule(
 
         obj.put("exempt_roles", exemptRolesArray);
 
-        JSONArray exemptChannelsArray = new JSONArray();
+        SJSONArray exemptChannelsArray = new SJSONArray();
         Checker.check(exemptChannels.size() > 50, "Exempt channels cannot be more than 50");
         for (Channel channel : exemptChannels) {
             exemptChannelsArray.put(channel.id());
@@ -89,7 +88,7 @@ public record AutomodRule(
 
     @NotNull
     @Contract("_, _ -> new")
-    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    public static AutomodRule decompile(@NotNull SJSONObject obj, @NotNull DiscordJar discordJar) {
         String id;
         Guild guild;
         String name;
@@ -110,7 +109,7 @@ public record AutomodRule(
         trigger = TriggerType.fromCode(obj.getInt("trigger_type"));
         triggerMetadata = TriggerMetadata.decompile(obj.getJSONObject("trigger_metadata"));
 
-        JSONArray actionsArray = obj.getJSONArray("actions");
+        SJSONArray actionsArray = obj.getJSONArray("actions");
         actions = new ArrayList<>();
         for (int i = 0; i < actionsArray.length(); i++) {
             actions.add(Action.decompile(actionsArray.getJSONObject(i)));
@@ -118,7 +117,7 @@ public record AutomodRule(
 
         enabled = obj.getBoolean("enabled");
 
-        JSONArray exemptRolesArray = obj.getJSONArray("exempt_roles");
+        SJSONArray exemptRolesArray = obj.getJSONArray("exempt_roles");
         exemptRoles = new ArrayList<>();
         for (int i = 0; i < exemptRolesArray.length(); i++) {
             int finalI = i;
@@ -129,7 +128,7 @@ public record AutomodRule(
             });
         }
 
-        JSONArray exemptChannelsArray = obj.getJSONArray("exempt_channels");
+        SJSONArray exemptChannelsArray = obj.getJSONArray("exempt_channels");
         exemptChannels = new ArrayList<>();
         for (int i = 0; i < exemptChannelsArray.length(); i++) {
             exemptChannels.add(discordJar.getChannelById(exemptChannelsArray.getString(i)));
@@ -139,7 +138,7 @@ public record AutomodRule(
     }
 
     @NotNull
-    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) {
+    public static List<AutomodRule> decompileList(@NotNull SJSONArray array, @NotNull DiscordJar discordJar) {
         List<AutomodRule> rules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             rules.add(decompile(array.getJSONObject(i), discordJar));
@@ -224,12 +223,12 @@ public record AutomodRule(
     ) implements Compilerable {
         @NotNull
         @Override
-        public JSONObject compile() {
-            JSONObject obj = new JSONObject();
+        public SJSONObject compile() {
+            SJSONObject obj = new SJSONObject();
 
             if (keywords != null) {
                 Checker.check(keywords.size() > 1000, "keywords list must be less than 1000");
-                JSONArray array = new JSONArray();
+                SJSONArray array = new SJSONArray();
                 for (String keyword : keywords) {
                     array.put(keyword);
                 }
@@ -238,7 +237,7 @@ public record AutomodRule(
 
             if (regexes != null) {
                 Checker.check(regexes.size() > 10, "regexes list must be less than 10");
-                JSONArray array = new JSONArray();
+                SJSONArray array = new SJSONArray();
                 for (String regex : regexes) {
                     array.put(regex);
                 }
@@ -246,7 +245,7 @@ public record AutomodRule(
             }
 
             if (presets != null) {
-                JSONArray array = new JSONArray();
+                SJSONArray array = new SJSONArray();
                 for (KeywordPresetType preset : presets) {
                     array.put(preset.getCode());
                 }
@@ -254,7 +253,7 @@ public record AutomodRule(
             }
 
             if (allowList != null) {
-                JSONArray array = new JSONArray();
+                SJSONArray array = new SJSONArray();
                 for (String allow : allowList) {
                     array.put(allow);
                 }
@@ -274,7 +273,7 @@ public record AutomodRule(
 
         @Contract("_ -> new")
         @NotNull
-        public static TriggerMetadata decompile(@NotNull JSONObject obj) {
+        public static TriggerMetadata decompile(@NotNull SJSONObject obj) {
             List<String> keywords = new ArrayList<>();
             List<String> regexes = new ArrayList<>();
             List<KeywordPresetType> presets = new ArrayList<>();
@@ -283,22 +282,22 @@ public record AutomodRule(
             boolean mentionRaidProtectionEnabled = false;
 
             if (obj.has("keywords")) {
-                JSONArray array = obj.getJSONArray("keywords");
+                SJSONArray array = obj.getJSONArray("keywords");
                 array.toList().forEach(o -> keywords.add((String) o));
             }
 
             if (obj.has("regexes")) {
-                JSONArray array = obj.getJSONArray("regexes");
+                SJSONArray array = obj.getJSONArray("regexes");
                 array.toList().forEach(o -> regexes.add((String) o));
             }
 
             if (obj.has("presets")) {
-                JSONArray array = obj.getJSONArray("presets");
+                SJSONArray array = obj.getJSONArray("presets");
                 array.toList().forEach(o -> presets.add(KeywordPresetType.fromCode((int) o)));
             }
 
             if (obj.has("allow_list")) {
-                JSONArray array = obj.getJSONArray("allow_list");
+                SJSONArray array = obj.getJSONArray("allow_list");
                 array.toList().forEach(o -> allowList.add((String) o));
             }
 
@@ -353,15 +352,15 @@ public record AutomodRule(
     ) implements Compilerable {
         @NotNull
         @Override
-        public JSONObject compile() {
-            JSONObject obj = new JSONObject();
+        public SJSONObject compile() {
+            SJSONObject obj = new SJSONObject();
             obj.put("type", type.getCode());
             obj.put("metadata", metadata.compile());
             return obj;
         }
 
         @NotNull
-        public static Action decompile(@NotNull JSONObject obj) {
+        public static Action decompile(@NotNull SJSONObject obj) {
             ActionType type = ActionType.fromCode(obj.getInt("type"));
             ActionMetadata metadata = ActionMetadata.decompile(obj.getJSONObject("metadata"));
             return new Action(type, metadata);
@@ -404,7 +403,7 @@ public record AutomodRule(
             @Nullable
             @Unmodifiable
             @Contract(pure = true, value = "_ -> new")
-            static ActionMetadata decompile(@NotNull JSONObject obj) {
+            static ActionMetadata decompile(@NotNull SJSONObject obj) {
                 if (obj.has("channel_id"))
                     return SendAlertActionMetadata.decompile(obj);
                 else if (obj.has("duration_seconds"))
@@ -417,8 +416,8 @@ public record AutomodRule(
                 String channelId
         ) implements ActionMetadata {
             @Override
-            public @NotNull JSONObject compile() {
-                JSONObject obj = new JSONObject();
+            public @NotNull SJSONObject compile() {
+                SJSONObject obj = new SJSONObject();
                 Checker.isSnowflake(channelId, "channelId must be a snowflake");
                 obj.put("channel_id", channelId);
                 return obj;
@@ -426,7 +425,7 @@ public record AutomodRule(
 
             @NotNull
             @Contract("_ -> new")
-            public static SendAlertActionMetadata decompile(@NotNull JSONObject obj) {
+            public static SendAlertActionMetadata decompile(@NotNull SJSONObject obj) {
                 String channelId = obj.getString("channel_id");
                 return new SendAlertActionMetadata(channelId);
             }
@@ -436,8 +435,8 @@ public record AutomodRule(
                 int duration
         ) implements ActionMetadata {
             @Override
-            public @NotNull JSONObject compile() {
-                JSONObject obj = new JSONObject();
+            public @NotNull SJSONObject compile() {
+                SJSONObject obj = new SJSONObject();
                 obj.put("duration_seconds", duration);
                 Checker.check(duration < 2419200, "duration must be less than 2419200 (4 weeks)");
                 return obj;
@@ -445,7 +444,7 @@ public record AutomodRule(
 
             @NotNull
             @Contract("_ -> new")
-            public static TimeoutActionMetadata decompile(@NotNull JSONObject obj) {
+            public static TimeoutActionMetadata decompile(@NotNull SJSONObject obj) {
                 int duration = obj.getInt("duration_seconds");
                 return new TimeoutActionMetadata(duration);
             }
@@ -455,15 +454,15 @@ public record AutomodRule(
                 String customMessage
         ) implements ActionMetadata {
             @Override
-            public @NotNull JSONObject compile() {
-                JSONObject obj = new JSONObject();
+            public @NotNull SJSONObject compile() {
+                SJSONObject obj = new SJSONObject();
                 obj.put("custom_message", customMessage);
                 return obj;
             }
 
             @NotNull
             @Contract("_ -> new")
-            public static BlockMessageActionMetadata decompile(@NotNull JSONObject obj) {
+            public static BlockMessageActionMetadata decompile(@NotNull SJSONObject obj) {
                 String customMessage = obj.getString("custom_message");
                 return new BlockMessageActionMetadata(customMessage);
             }

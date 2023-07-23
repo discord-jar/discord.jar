@@ -5,17 +5,15 @@ import com.seailz.discordjar.action.channel.ModifyBaseChannelAction;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.channel.internal.ChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
-import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 /**
  * Represents a Discord channel
@@ -54,7 +52,7 @@ public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflak
 
     @NotNull
     @Contract("_, _ -> new")
-    static Channel decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
+    static Channel decompile(@NotNull SJSONObject obj, DiscordJar discordJar) {
         return new ChannelImpl(
                 obj.getString("id"),
                 ChannelType.fromCode(obj.getInt("type")),
@@ -64,7 +62,7 @@ public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflak
     }
 
     @NotNull
-    JSONObject raw();
+    SJSONObject raw();
 
     default ModifyBaseChannelAction modify() {
         return new ModifyBaseChannelAction(djv(), id());

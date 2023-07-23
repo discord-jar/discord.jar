@@ -2,7 +2,7 @@ package com.seailz.discordjar.events.model.message;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Represents a message event that is fired by the Discord API
@@ -14,7 +14,7 @@ import org.json.JSONObject;
  * @since 1.0
  */
 class MessageEvent extends Event {
-    public MessageEvent(DiscordJar bot, long sequence, JSONObject data) {
+    public MessageEvent(DiscordJar bot, long sequence, SJSONObject data) {
         super(bot, sequence, data);
     }
 

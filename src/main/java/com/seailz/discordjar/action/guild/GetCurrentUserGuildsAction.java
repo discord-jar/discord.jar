@@ -4,9 +4,9 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public class GetCurrentUserGuildsAction {
         DiscordResponse response = null;
         try {
             response = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     url,
                     discordJar,
@@ -105,7 +105,7 @@ public class GetCurrentUserGuildsAction {
         }
 
         List<Guild> returnGuilds = new ArrayList<>();
-        response.arr().forEach(guild -> returnGuilds.add(Guild.decompile((JSONObject) guild, discordJar)));
+        response.arr().forEach(guild -> returnGuilds.add(Guild.decompile((SJSONObject) guild, discordJar)));
 
         returnGuilds.forEach(g -> discordJar.getGuildCache().cache(g));
         return returnGuilds;

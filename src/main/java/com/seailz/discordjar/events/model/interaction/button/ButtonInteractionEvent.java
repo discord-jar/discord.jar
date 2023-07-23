@@ -9,12 +9,12 @@ import com.seailz.discordjar.model.interaction.data.message.MessageComponentInte
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.registry.components.ButtonRegistry;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 public class ButtonInteractionEvent extends InteractionEvent implements CustomIdable {
-    public ButtonInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
+    public ButtonInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
         super(bot, sequence, data);
         // First checks the button registry for any actions that match the custom id. We'll do this in a separate thread in order to not block the gateway thread.
         new Thread(() -> {

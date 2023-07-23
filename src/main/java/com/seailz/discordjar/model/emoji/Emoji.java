@@ -5,7 +5,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ public record Emoji(
         boolean available
 ) implements Compilerable, Snowflake {
     @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id);
         obj.put("name", name);
         obj.put("roles", roles);
@@ -47,7 +47,7 @@ public record Emoji(
     }
 
     @NonNull
-    public static Emoji decompile(JSONObject obj, DiscordJar discordJar) {
+    public static Emoji decompile(SJSONObject obj, DiscordJar discordJar) {
         String id;
         String name;
         Role[] roles;
@@ -72,7 +72,7 @@ public record Emoji(
         try {
             ArrayList<Role> rolesList = new ArrayList<>();
             for (Object o : obj.getJSONArray("roles")) {
-                rolesList.add(Role.decompile((JSONObject) o));
+                rolesList.add(Role.decompile((SJSONObject) o));
             }
             roles = rolesList.toArray(new Role[0]);
         } catch (Exception e) {

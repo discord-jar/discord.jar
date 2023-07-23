@@ -9,10 +9,10 @@ import com.seailz.discordjar.model.channel.internal.DMChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +54,12 @@ public interface DMChannel extends Channel, Typeable, Messageable, MessageRetrie
 
     @NotNull
     @Contract("_, _ -> new")
-    static DMChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar djv) {
-        String lastMessageId = obj.has("last_message_id") && !obj.get("last_message_id").equals(JSONObject.NULL) ? obj.getString("last_message_id") : null;
+    static DMChannel decompile(@NotNull SJSONObject obj, @NotNull DiscordJar djv) {
+        String lastMessageId = obj.has("last_message_id") && !obj.get("last_message_id").equals(SJSONObject.NULL) ? obj.getString("last_message_id") : null;
 
         List<User> recipients = new ArrayList<>();
-        JSONArray recipientsArray = obj.getJSONArray("recipients");
-        recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, djv)));
+        SJSONArray recipientsArray = obj.getJSONArray("recipients");
+        recipientsArray.forEach(o -> recipients.add(User.decompile((SJSONObject) o, djv)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
         return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv, obj);
@@ -69,13 +69,13 @@ public interface DMChannel extends Channel, Typeable, Messageable, MessageRetrie
      * Compiles this object
      */
     @Override
-    default JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    default SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id());
         obj.put("type", type().getCode());
         if (lastMessageId() != null) obj.put("last_message_id", lastMessageId());
 
-        JSONArray array = new JSONArray();
+        SJSONArray array = new SJSONArray();
         for (User user : recipients())
             array.put(user.compile());
 

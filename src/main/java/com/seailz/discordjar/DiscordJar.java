@@ -37,6 +37,8 @@ import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.cache.Cache;
 import com.seailz.discordjar.cache.JsonCache;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.memory.MemoryWatcher;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -46,8 +48,6 @@ import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
 import com.seailz.discordjar.model.api.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
@@ -221,7 +221,7 @@ public class DiscordJar {
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
-                        new JSONObject(),
+                        new SJSONObject(),
                         new HashMap<>(),
                         URLS.GET.GUILDS.GET_GUILD.replace("{guild.id}", "%s"),
                         this,
@@ -232,7 +232,7 @@ public class DiscordJar {
         this.guildMemberCaches = new HashMap<>();
 
         this.userCache = new Cache<>(this, User.class, new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.USER.GET_USER.replace("{user.id}", "%s"),
                 this,
@@ -241,7 +241,7 @@ public class DiscordJar {
         ), CacheType.USERS);
 
         this.channelCache = new Cache<>(this, Channel.class, new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.GET_CHANNEL.replace("{channel.id}", "%s"),
                 this,
@@ -418,7 +418,7 @@ public class DiscordJar {
     public void setStatus(@NotNull Status status) {
         if (gatewayFactory == null)
             throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
-        JSONObject json = new JSONObject();
+        SJSONObject json = new SJSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
         gatewayFactory.queueMessage(json);
@@ -460,7 +460,7 @@ public class DiscordJar {
             return User.decompile(getSelfUserCache.get(), this);
 
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(), new HashMap<>(),
+                new SJSONObject(), new HashMap<>(),
                 URLS.GET.USER.GET_USER.replace("{user.id}", "@me"),
                 this, URLS.GET.USER.GET_USER, RequestMethod.GET
         );
@@ -521,7 +521,7 @@ public class DiscordJar {
     @Nullable
     public MessagingChannel getTextChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        JSONObject raw = null;
+        SJSONObject raw = null;
         try {
             raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -540,7 +540,7 @@ public class DiscordJar {
     @Nullable
     public com.seailz.discordjar.model.channel.thread.Thread getThreadById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        JSONObject raw = null;
+        SJSONObject raw = null;
         try {
             raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -559,7 +559,7 @@ public class DiscordJar {
     @Nullable
     public DMChannel getDmChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        JSONObject raw = null;
+        SJSONObject raw = null;
         try {
             raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -578,7 +578,7 @@ public class DiscordJar {
     @Nullable
     public ForumChannel getForumChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        JSONObject raw = null;
+        SJSONObject raw = null;
         try {
             raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -597,7 +597,7 @@ public class DiscordJar {
     @Nullable
     public Category getCategoryById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        JSONObject raw = null;
+        SJSONObject raw = null;
         try {
             raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -647,7 +647,7 @@ public class DiscordJar {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         try {
             return Sticker.decompile(new DiscordRequest(
-                    new JSONObject(), new HashMap<>(),
+                    new SJSONObject(), new HashMap<>(),
                     URLS.GET.STICKER.GET_STICKER.replace("{sticker.id}", id),
                     this, URLS.GET.STICKER.GET_STICKER, RequestMethod.GET
             ).invoke().body(), this);
@@ -665,7 +665,7 @@ public class DiscordJar {
     public List<StickerPack> getNitroStickerPacks() {
         try {
             return StickerPack.decompileList(new DiscordRequest(
-                    new JSONObject(), new HashMap<>(),
+                    new SJSONObject(), new HashMap<>(),
                     URLS.GET.STICKER.GET_NITRO_STICKER_PACKS,
                     this, URLS.GET.STICKER.GET_NITRO_STICKER_PACKS, RequestMethod.GET
             ).invoke().body(), this);
@@ -717,7 +717,7 @@ public class DiscordJar {
             return Application.decompile(selfUserCache.get(), this);
 
         DiscordRequest request = new DiscordRequest(
-                new JSONObject(), new HashMap<>(),
+                new SJSONObject(), new HashMap<>(),
                 URLS.GET.APPLICATION.APPLICATION_INFORMATION,
                 this, URLS.GET.APPLICATION.APPLICATION_INFORMATION, RequestMethod.GET
         );
@@ -808,7 +808,7 @@ public class DiscordJar {
                 this,
                 Member.class,
                 new DiscordRequest(
-                        new JSONObject(),
+                        new SJSONObject(),
                         new HashMap<>(),
                         URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", "%s"),
                         this,
@@ -871,7 +871,7 @@ public class DiscordJar {
         DiscordResponse req = null;
         try {
             req = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
                             "{guild.id}",
@@ -1021,7 +1021,7 @@ public class DiscordJar {
      */
     public void clearCommands() {
         DiscordRequest cmdDelReq = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
                 this,
@@ -1029,7 +1029,7 @@ public class DiscordJar {
                 RequestMethod.PUT
         );
         try {
-            cmdDelReq.invoke(new JSONArray());
+            cmdDelReq.invoke(new SJSONArray());
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -1043,21 +1043,21 @@ public class DiscordJar {
     @Nullable
     public List<Command> getGlobalCommands(boolean withLocalizations) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMANDS.replace("{application.id}", getSelfInfo().id()) + (withLocalizations ? "?with_localizations=true" : ""),
                 this,
                 URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMANDS,
                 RequestMethod.GET
         );
-        JSONArray res = null;
+        SJSONArray res = null;
         try {
             res = req.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
         List<Command> commands = new ArrayList<>();
-        res.forEach(o -> commands.add(Command.decompile((JSONObject) o)));
+        res.forEach(o -> commands.add(Command.decompile((SJSONObject) o)));
         return commands;
     }
 
@@ -1074,14 +1074,14 @@ public class DiscordJar {
     @Nullable
     public Command getGlobalCommand(String commandId) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{command.id}", commandId),
                 this,
                 URLS.GET.APPLICATION.COMMANDS.GET_GLOBAL_APPLICATION_COMMAND,
                 RequestMethod.GET
         );
-        JSONObject res = null;
+        SJSONObject res = null;
         try {
             res = req.invoke().body();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1106,7 +1106,7 @@ public class DiscordJar {
                 URLS.PATCH.APPLICATIONS.COMMANDS.EDIT_GLOBAL_COMMAND,
                 RequestMethod.PATCH
         );
-        JSONObject res = null;
+        SJSONObject res = null;
         try {
             res = req.invoke().body();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1121,7 +1121,7 @@ public class DiscordJar {
      */
     public void deleteGlobalCommand(String commandId) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.APPLICATION.COMMANDS.DELETE_GLOBAL_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{command.id}", commandId),
                 this,
@@ -1140,7 +1140,7 @@ public class DiscordJar {
      * @param commands The new commands to overwrite with.
      */
     public void bulkOverwriteCommands(@NotNull List<Command> commands) {
-        JSONArray arr = new JSONArray();
+        SJSONArray arr = new SJSONArray();
         commands.forEach(c -> arr.put(c.compile()));
         DiscordRequest req = new DiscordRequest(
                 arr,
@@ -1166,21 +1166,21 @@ public class DiscordJar {
     @Nullable
     public List<Command> getGuildCommands(String guildId, boolean withLocalizations) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMANDS.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId) + (withLocalizations ? "?with_localizations=true" : ""),
                 this,
                 URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMANDS,
                 RequestMethod.GET
         );
-        JSONArray res = null;
+        SJSONArray res = null;
         try {
             res = req.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
         List<Command> commands = new ArrayList<>();
-        res.forEach(o -> commands.add(Command.decompile((JSONObject) o)));
+        res.forEach(o -> commands.add(Command.decompile((SJSONObject) o)));
         return commands;
     }
 
@@ -1198,14 +1198,14 @@ public class DiscordJar {
     @Nullable
     public Command getGuildCommand(String guildId, String commandId) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId).replace("{command.id}", commandId),
                 this,
                 URLS.GET.APPLICATION.COMMANDS.GET_GUILD_APPLICATION_COMMAND,
                 RequestMethod.GET
         );
-        JSONObject res = null;
+        SJSONObject res = null;
         try {
             res = req.invoke().body();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1231,7 +1231,7 @@ public class DiscordJar {
                 URLS.PATCH.APPLICATIONS.COMMANDS.EDIT_GUILD_COMMAND,
                 RequestMethod.PATCH
         );
-        JSONObject res = null;
+        SJSONObject res = null;
         try {
             res = req.invoke().body();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1247,7 +1247,7 @@ public class DiscordJar {
      */
     public void deleteGuildCommand(String guildId, String commandId) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.APPLICATION.COMMANDS.DELETE_GUILD_COMMAND.replace("{application.id}", getSelfInfo().id()).replace("{guild.id}", guildId).replace("{command.id}", commandId),
                 this,
@@ -1267,7 +1267,7 @@ public class DiscordJar {
      * @param guildId The id of the guild.
      */
     public void bulkOverwriteGuildCommands(@NotNull List<Command> commands, String guildId) {
-        JSONArray arr = new JSONArray();
+        SJSONArray arr = new SJSONArray();
         commands.forEach(c -> arr.put(c.compile()));
         DiscordRequest req = new DiscordRequest(
                 arr,
@@ -1311,14 +1311,14 @@ public class DiscordJar {
      */
     public List<VoiceRegion> getVoiceRegions() {
         DiscordRequest request = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.VOICE.REGIONS.GET_VOICE_REGIONS,
                 this,
                 URLS.GET.VOICE.REGIONS.GET_VOICE_REGIONS,
                 RequestMethod.GET
         );
-        JSONArray response = null;
+        SJSONArray response = null;
         try {
             response = request.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1337,7 +1337,7 @@ public class DiscordJar {
     @Nullable
     public Invite getInvite(String code) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.INVITES.GET_INVITE.replace("{invite.code}", code),
                 this,
@@ -1359,7 +1359,7 @@ public class DiscordJar {
      */
     public void deleteInvite(String code) {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.INVITE.DELETE_INVITE.replace("{invite.code}", code),
                 this,

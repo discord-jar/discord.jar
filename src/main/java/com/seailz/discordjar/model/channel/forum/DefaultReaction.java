@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.channel.forum;
 
 import com.seailz.discordjar.core.Compilerable;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.lang.NonNull;
 
 public record DefaultReaction(
@@ -10,14 +10,14 @@ public record DefaultReaction(
 ) implements Compilerable {
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("emoji_id", emojiId)
                 .put("emoji_name", emojiName);
     }
 
     @NonNull
-    public static DefaultReaction decompile(JSONObject obj) {
+    public static DefaultReaction decompile(SJSONObject obj) {
         String emojiId;
         String emojiName;
 

@@ -8,15 +8,15 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.flag.Bitwiseable;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Arrays;
@@ -79,8 +79,8 @@ public record Application(
 ) implements Compilerable, Snowflake {
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("id", id)
                 .put("name", name)
                 .put("icon", iconUrl)
@@ -104,7 +104,7 @@ public record Application(
                 .put("role_connections_verification_url", roleConnectionsVerificationUrl);
     }
 
-    public static Application decompile(JSONObject obj, DiscordJar discordJar) {
+    public static Application decompile(SJSONObject obj, DiscordJar discordJar) {
         if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, discordJar);
         String id;
         String name;
@@ -300,7 +300,7 @@ public record Application(
         DiscordResponse response = null;
         try {
             response = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS
                             .replace("{application.id}", id),
@@ -313,8 +313,8 @@ public record Application(
         }
 
         if (response.code() == 200) {
-            return new JSONArray(response.body()).toList().stream()
-                    .map(o -> ApplicationRoleConnectionMetadata.decompile((JSONObject) o))
+            return new SJSONArray(response.body()).toList().stream()
+                    .map(o -> ApplicationRoleConnectionMetadata.decompile((SJSONObject) o))
                     .toList();
         } else {
             return null;
@@ -333,7 +333,7 @@ public record Application(
     public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) {
         Checker.notNull(roleConnections, "Role connections must not be null");
         Checker.sizeLessThan(roleConnections, 5, "You can only have up to 5 role connections.");
-        JSONArray roleConnectionsArray = new JSONArray();
+        SJSONArray roleConnectionsArray = new SJSONArray();
         roleConnections.stream().map(ApplicationRoleConnectionMetadata::compile).forEach(roleConnectionsArray::put);
 
         try {

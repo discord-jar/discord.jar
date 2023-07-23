@@ -3,8 +3,8 @@ package com.seailz.discordjar.model.permission;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.permission.Permission;
-import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 import java.util.EnumSet;
@@ -21,7 +21,7 @@ public record PermissionOverwrite(
     }
 
     @Override
-    public JSONObject compile() {
+    public SJSONObject compile() {
         int allowInt = 0;
         int denyInt = 0;
 
@@ -33,7 +33,7 @@ public record PermissionOverwrite(
             denyInt += permission.getLeftShiftId();
         }
 
-        JSONObject obj = new JSONObject();
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id);
         obj.put("type", type.getCode());
         obj.put("allow", allowInt);
@@ -42,7 +42,7 @@ public record PermissionOverwrite(
     }
 
     @NonNull
-    public static PermissionOverwrite decompile(JSONObject obj) {
+    public static PermissionOverwrite decompile(SJSONObject obj) {
         String id;
         OverwriteType type;
         int allow;

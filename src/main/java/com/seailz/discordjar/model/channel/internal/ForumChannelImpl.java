@@ -7,7 +7,7 @@ import com.seailz.discordjar.model.channel.forum.ForumTag;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class ForumChannelImpl extends GuildChannelImpl implements ForumChannel {
     private final String lastThreadId;
     private final DefaultForumLayout defaultForumLayout;
 
-    public ForumChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String postGuidelines, List<ForumTag> tags, DefaultSortOrder defaultSortOrder, String lastThreadId, JSONObject raw, DiscordJar discordJar, DefaultForumLayout defaultForumLayout) {
+    public ForumChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String postGuidelines, List<ForumTag> tags, DefaultSortOrder defaultSortOrder, String lastThreadId, SJSONObject raw, DiscordJar discordJar, DefaultForumLayout defaultForumLayout) {
         super(id, type, name, guild, position, permissionOverwrites, nsfw, raw, discordJar);
         this.postGuidelines = postGuidelines;
         this.tags = tags;

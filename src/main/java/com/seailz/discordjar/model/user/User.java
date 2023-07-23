@@ -8,6 +8,7 @@ import com.seailz.discordjar.utils.CDNAble;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.StringFormatter;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.EnumSet;
@@ -72,8 +72,8 @@ public record User(
      * @return a JSONObject consisting of the data in this User object
      */
     @Override
-    public @NotNull JSONObject compile() {
-        JSONObject obj = new JSONObject()
+    public @NotNull SJSONObject compile() {
+        SJSONObject obj = new SJSONObject()
                 .put("id", id)
                 .put("username", username)
                 .put("discriminator", discriminator)
@@ -89,7 +89,7 @@ public record User(
                 .put("global_name", displayName);
 
         if (premiumType == null)
-            obj.put("premium_type", JSONObject.NULL);
+            obj.put("premium_type", SJSONObject.NULL);
         else
             obj.put("premium_type", premiumType.getId());
         return obj;
@@ -102,7 +102,7 @@ public record User(
      * @return a User object consisting of the data in the JSONObject
      */
     @Contract("_, _ -> new")
-    public static @NotNull User decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
+    public static @NotNull User decompile(@NotNull SJSONObject obj, DiscordJar discordJar) {
         String id;
         String username;
         String discriminator;
@@ -219,7 +219,7 @@ public record User(
      */
     @Nullable
     public DMChannel createDM() {
-        JSONObject obj = new JSONObject()
+        SJSONObject obj = new SJSONObject()
                 .put("recipient_id", id);
         DiscordResponse resp = null;
         try {

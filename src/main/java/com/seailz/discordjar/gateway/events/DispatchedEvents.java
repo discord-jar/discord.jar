@@ -41,9 +41,9 @@ import com.seailz.discordjar.model.interaction.InteractionType;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.utils.TriFunction;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -75,9 +75,9 @@ public enum DispatchedEvents {
         Guild guild = Guild.decompile(p.getJSONObject("d"), g);
         g.getGuildCache().cache(guild);
 
-        JSONArray arr = p.getJSONObject("d").getJSONArray("channels");
+        SJSONArray arr = p.getJSONObject("d").getJSONArray("channels");
         arr.forEach(o -> g.getChannelCache().cache(
-                Channel.decompile((JSONObject) o, g)
+                Channel.decompile((SJSONObject) o, g)
         ));
 
         // Cache all members
@@ -86,7 +86,7 @@ public enum DispatchedEvents {
             long start = System.currentTimeMillis();
             g.insertMemberCache(
                     guild.id(), Member.decompile(
-                            (JSONObject) o,
+                            (SJSONObject) o,
                             g,
                             guild.id(),
                             guild
@@ -134,7 +134,7 @@ public enum DispatchedEvents {
 
                 try {
                     new DiscordRequest(
-                            new JSONObject()
+                            new SJSONObject()
                                     .put("type", InteractionCallbackType.PONG.getCode()),
                             new HashMap<>(),
                             URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}",
@@ -254,7 +254,7 @@ public enum DispatchedEvents {
     AUTO_MODERATION_ACTION_EXECUTION((p, g, d) -> AutoModExecutionEvent.class),
 
     GUILD_MEMBERS_CHUNK((p, g, d) -> {
-        JSONObject payload = p.getJSONObject("d");
+        SJSONObject payload = p.getJSONObject("d");
         String nonce = payload.getString("nonce");
 
         if (nonce == null) {
@@ -270,9 +270,9 @@ public enum DispatchedEvents {
             return null;
         }
 
-        JSONArray members = payload.getJSONArray("members");
+        SJSONArray members = payload.getJSONArray("members");
         members.forEach(member -> {
-            wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+            wrapper.addMember(Member.decompile((SJSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
         });
 
         int chunkCount = payload.getInt("chunk_count") - 1;
@@ -288,13 +288,13 @@ public enum DispatchedEvents {
     UNKNOWN((p, g, d) -> null),
     ;
 
-    private final TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> event;
+    private final TriFunction<SJSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> event;
 
-    DispatchedEvents(TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> event) {
+    DispatchedEvents(TriFunction<SJSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> event) {
         this.event = event;
     }
 
-    public TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> getEvent() {
+    public TriFunction<SJSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> getEvent() {
         return event;
     }
 

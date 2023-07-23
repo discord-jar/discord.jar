@@ -12,10 +12,9 @@ import com.seailz.discordjar.model.interaction.data.message.MessageComponentInte
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
-import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ import java.util.List;
  */
 public class ChannelSelectMenuInteractionEvent extends InteractionEvent implements CustomIdable {
 
-    public ChannelSelectMenuInteractionEvent(DiscordJar bot, long sequence, JSONObject data) {
+    public ChannelSelectMenuInteractionEvent(DiscordJar bot, long sequence, SJSONObject data) {
         super(bot, sequence, data);
 
         ChannelSelectRegistry.getInstance().getRegistry().stream()

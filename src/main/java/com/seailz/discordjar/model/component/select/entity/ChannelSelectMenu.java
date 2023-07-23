@@ -1,16 +1,13 @@
 package com.seailz.discordjar.model.component.select.entity;
 
-import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectMenu;
-import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
-import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +29,7 @@ public class ChannelSelectMenu implements SelectMenu {
     private List<ChannelType> channelTypes;
     private boolean disabled;
 
-    private JSONObject raw;
+    private SJSONObject raw;
 
     /**
      * Creates a new channel select menu
@@ -52,7 +49,7 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues    The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled, JSONObject raw) {
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled, SJSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
@@ -71,7 +68,7 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues    The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw, ChannelType... channelTypes) {
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, SJSONObject raw, ChannelType... channelTypes) {
         this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled, raw);
     }
 
@@ -152,13 +149,13 @@ public class ChannelSelectMenu implements SelectMenu {
     }
 
     @Override
-    public JSONObject compile() {
-        JSONArray channelTypes = new JSONArray();
+    public SJSONObject compile() {
+        SJSONArray channelTypes = new SJSONArray();
         this.channelTypes.forEach(channelType -> channelTypes.put(channelType.getCode()));
         if (minValues > maxValues)
             throw new IllegalArgumentException("Min values cannot be greater than max values");
 
-        JSONObject obj = new JSONObject();
+        SJSONObject obj = new SJSONObject();
         obj.put("type", type().getCode());
         obj.put("custom_id", customId);
         if (placeholder != null) obj.put("placeholder", placeholder);
@@ -169,12 +166,12 @@ public class ChannelSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static ChannelSelectMenu decompile(JSONObject json) {
+    public static ChannelSelectMenu decompile(SJSONObject json) {
         String customId = json.has("custom_id") ? json.getString("custom_id") : null;
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
-        JSONArray channelTypes = json.has("channel_types") ? json.getJSONArray("channel_types") : null;
+        SJSONArray channelTypes = json.has("channel_types") ? json.getJSONArray("channel_types") : null;
         boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
         List<ChannelType> channelTypesDecompiled = new ArrayList<>();
@@ -191,12 +188,12 @@ public class ChannelSelectMenu implements SelectMenu {
     }
 
     @Override
-    public JSONObject raw() {
+    public SJSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(JSONObject raw) {
+    public void setRaw(SJSONObject raw) {
         this.raw = raw;
     }
 

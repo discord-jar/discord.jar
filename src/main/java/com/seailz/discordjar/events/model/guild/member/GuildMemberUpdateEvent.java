@@ -3,9 +3,8 @@ package com.seailz.discordjar.events.model.guild.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.guild.Member;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Sent when a guild member is updated.
@@ -13,7 +12,7 @@ import org.json.JSONObject;
  * <br><B>Requires the {@code GUILD_MEMBERS} intent.</B>
  */
 public class GuildMemberUpdateEvent extends GuildEvent {
-    public GuildMemberUpdateEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
+    public GuildMemberUpdateEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
         super(bot, sequence, data);
     }
 

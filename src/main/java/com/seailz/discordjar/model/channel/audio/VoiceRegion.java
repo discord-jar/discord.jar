@@ -4,7 +4,7 @@ import com.seailz.discordjar.model.channel.audio.internal.VoiceRegionImpl;
 import com.seailz.discordjar.utils.Snowflake;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Represents a region for a voice channel.
@@ -44,7 +44,7 @@ public interface VoiceRegion extends Snowflake {
 
     @NotNull
     @Contract("_ -> new")
-    static VoiceRegion decompile(@NotNull JSONObject obj) {
+    static VoiceRegion decompile(@NotNull SJSONObject obj) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         boolean optimal = obj.getBoolean("optimal");

@@ -8,7 +8,7 @@ import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class VoiceChannelImpl extends AudioChannelImpl implements VoiceChannel {
     private final int userLimit;
     private final VideoQualityMode videoQualityMode;
 
-    public VoiceChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String lastMessageId, VoiceRegion region, Category category, int bitrate, int userLimit, VideoQualityMode videoQualityMode, JSONObject raw, DiscordJar discordJar) {
+    public VoiceChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String lastMessageId, VoiceRegion region, Category category, int bitrate, int userLimit, VideoQualityMode videoQualityMode, SJSONObject raw, DiscordJar discordJar) {
         super(id, type, name, guild, position, permissionOverwrites, nsfw, lastMessageId, region, category, bitrate, raw, discordJar);
         this.userLimit = userLimit;
         this.videoQualityMode = videoQualityMode;

@@ -2,18 +2,18 @@ package com.seailz.discordjar.events.model.interaction.command;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.interaction.data.command.ResolvedCommandOption;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SlashCommandInteractionEvent extends CommandInteractionEvent {
 
-    public SlashCommandInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
+    public SlashCommandInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
         super(bot, sequence, data);
     }
 
@@ -25,7 +25,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
     @Nullable
     public List<ResolvedCommandOption> getOptions() {
         if (!getJson().getJSONObject("d").getJSONObject("data").has("options")) return null;
-        JSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
+        SJSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
 
         try {
             options = options.getJSONObject(0).getJSONArray("options");
@@ -33,7 +33,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
 
         List<ResolvedCommandOption> decompiled = new ArrayList<>();
         for (Object option : options) {
-            decompiled.add(ResolvedCommandOption.decompile((JSONObject) option, getCommandData().resolved()));
+            decompiled.add(ResolvedCommandOption.decompile((SJSONObject) option, getCommandData().resolved()));
         }
         return decompiled;
     }
@@ -45,11 +45,11 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
      */
     public List<ResolvedCommandOption> getOptionsInternal() {
         if (!getJson().getJSONObject("d").getJSONObject("data").has("options")) return null;
-        JSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
+        SJSONArray options = getJson().getJSONObject("d").getJSONObject("data").getJSONArray("options");
 
         List<ResolvedCommandOption> decompiled = new ArrayList<>();
         for (Object option : options) {
-            decompiled.add(ResolvedCommandOption.decompile((JSONObject) option, getCommandData().resolved()));
+            decompiled.add(ResolvedCommandOption.decompile((SJSONObject) option, getCommandData().resolved()));
         }
         return decompiled;
     }

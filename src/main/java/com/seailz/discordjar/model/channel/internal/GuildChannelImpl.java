@@ -5,9 +5,9 @@ import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
     private final boolean nsfw;
     private final DiscordJar discordJar;
 
-    public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, JSONObject raw, DiscordJar discordJar) {
+    public GuildChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, SJSONObject raw, DiscordJar discordJar) {
         super(id, type, name, raw, discordJar);
         this.guild = guild;
         this.position = position;

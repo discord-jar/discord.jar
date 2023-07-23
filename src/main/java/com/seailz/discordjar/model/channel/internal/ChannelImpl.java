@@ -4,10 +4,10 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -20,10 +20,10 @@ public class ChannelImpl implements Channel {
     private final String id;
     private final ChannelType type;
     private final String name;
-    private final JSONObject raw;
+    private final SJSONObject raw;
     private final DiscordJar discordJar;
 
-    public ChannelImpl(String id, ChannelType type, String name, JSONObject raw, DiscordJar discordJar) {
+    public ChannelImpl(String id, ChannelType type, String name, SJSONObject raw, DiscordJar discordJar) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -32,8 +32,8 @@ public class ChannelImpl implements Channel {
     }
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("id", id)
                 .put("type", type.getCode())
                 .put("name", name);
@@ -59,7 +59,7 @@ public class ChannelImpl implements Channel {
 
     @NotNull
     @Override
-    public JSONObject raw() {
+    public SJSONObject raw() {
         return raw;
     }
 
@@ -68,7 +68,7 @@ public class ChannelImpl implements Channel {
         Response<Void> response = new Response<>();
         new Thread(() -> {
             DiscordRequest req = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.CHANNEL.DELETE_CHANNEL.replace("{channel.id}", id()),
                     djv(),

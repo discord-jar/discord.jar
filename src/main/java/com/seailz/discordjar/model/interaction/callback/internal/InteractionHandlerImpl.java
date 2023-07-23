@@ -6,9 +6,8 @@ import com.seailz.discordjar.action.interaction.followup.InteractionFollowupActi
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import lombok.SneakyThrows;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -35,7 +34,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
         try {
             return Message.decompile(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.INTERACTIONS.GET_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id()),
                             discordJar,
@@ -52,7 +51,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     public void deleteOriginalResponse() {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.INTERACTION.DELETE_ORIGINAL_INTERACTION_RESPONSE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id()),
                     discordJar,
@@ -69,7 +68,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
         try {
             return Message.decompile(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.INTERACTIONS.GET_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id())
                                     .replace("{message.id}", id),
@@ -87,7 +86,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     public void deleteFollowup(String id) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.INTERACTION.DELETE_FOLLOWUP_MESSAGE.replace("{interaction.token}", token).replace("{application.id}", discordJar.getSelfInfo().id())
                             .replace("{message.id}", id),
@@ -126,7 +125,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     public void defer(boolean ephemeral) {
         try {
             new DiscordRequest(
-                    new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
+                    new SJSONObject().put("type", 5).put("data", new SJSONObject().put("flags", ephemeral ? 64 : 0)),
                     new HashMap<>(),
                     URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
                     discordJar,
@@ -142,7 +141,7 @@ public class InteractionHandlerImpl implements InteractionHandler {
     public void deferEdit() {
         try {
             new DiscordRequest(
-                    new JSONObject().put("type", 6),
+                    new SJSONObject().put("type", 6),
                     new HashMap<>(),
                     URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
                     discordJar,

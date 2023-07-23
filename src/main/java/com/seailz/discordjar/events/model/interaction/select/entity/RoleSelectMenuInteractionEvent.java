@@ -12,8 +12,8 @@ import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class RoleSelectMenuInteractionEvent extends InteractionEvent implements CustomIdable {
 
-    public RoleSelectMenuInteractionEvent(DiscordJar bot, long sequence, JSONObject data) {
+    public RoleSelectMenuInteractionEvent(DiscordJar bot, long sequence, SJSONObject data) {
         super(bot, sequence, data);
     }
 

@@ -5,9 +5,9 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.interaction.InteractionData;
 import com.seailz.discordjar.model.interaction.data.ResolvedData;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
 
 import java.util.List;
 
@@ -44,13 +44,13 @@ public class ApplicationCommandInteractionData extends InteractionData implement
         this.targetId = targetId;
     }
 
-    public ApplicationCommandInteractionData(JSONObject obj, DiscordJar discordJar) {
+    public ApplicationCommandInteractionData(SJSONObject obj, DiscordJar discordJar) {
         id = obj.has("id") ? obj.getString("id") : null;
         name = obj.has("name") ? obj.getString("name") : null;
         resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved"), discordJar) : null;
 
         if (obj.has("options") && this.options != null) {
-            JSONArray optionsArray = obj.getJSONArray("options");
+            SJSONArray optionsArray = obj.getJSONArray("options");
             for (int i = 0; i < optionsArray.length(); i++) {
                 options.add(ResolvedCommandOption.decompile(optionsArray.getJSONObject(i), resolved));
             }
@@ -88,9 +88,9 @@ public class ApplicationCommandInteractionData extends InteractionData implement
         return targetId;
     }
 
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        JSONArray options = new JSONArray();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
+        SJSONArray options = new SJSONArray();
         for (ResolvedCommandOption option : this.options) {
             options.put(option.compile());
         }

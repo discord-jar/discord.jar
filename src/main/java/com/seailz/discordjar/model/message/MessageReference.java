@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.message;
 
 import com.seailz.discordjar.core.Compilerable;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.lang.NonNull;
 
 /**
@@ -20,8 +20,8 @@ public record MessageReference(
 ) implements Compilerable {
 
     @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("message_id", messageId);
         obj.put("channel_id", channelId);
         obj.put("guild_id", guildId);
@@ -30,7 +30,7 @@ public record MessageReference(
     }
 
     @NonNull
-    public static MessageReference decompile(JSONObject obj) {
+    public static MessageReference decompile(SJSONObject obj) {
         String messageId;
         String channelId;
         String guildId;

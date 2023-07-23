@@ -2,7 +2,7 @@ package com.seailz.discordjar.model.embed;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.awt.*;
 
@@ -46,7 +46,7 @@ public interface Embeder {
 
     Embeder author(String name, String url, String iconUrl);
 
-    JSONObject compile();
+    SJSONObject compile();
 
     @Contract(value = " -> new", pure = true)
     static @NotNull Embeder e() {

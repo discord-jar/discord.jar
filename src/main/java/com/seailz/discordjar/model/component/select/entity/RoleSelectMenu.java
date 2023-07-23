@@ -3,7 +3,7 @@ package com.seailz.discordjar.model.component.select.entity;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectMenu;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Represents a role select menu
@@ -20,7 +20,7 @@ public class RoleSelectMenu implements SelectMenu {
     private int maxValues;
     private boolean isDisabled;
 
-    private JSONObject raw;
+    private SJSONObject raw;
 
     /**
      * Creates a new role select menu
@@ -40,7 +40,7 @@ public class RoleSelectMenu implements SelectMenu {
      * @param maxValues   The maximum amount of values that can be selected
      * @param disabled    If the select menu is disabled
      */
-    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw) {
+    public RoleSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, SJSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
@@ -107,11 +107,11 @@ public class RoleSelectMenu implements SelectMenu {
     }
 
     @Override
-    public JSONObject compile() {
+    public SJSONObject compile() {
         if (minValues > maxValues)
             throw new IllegalArgumentException("Min values cannot be greater than max values");
 
-        JSONObject obj = new JSONObject();
+        SJSONObject obj = new SJSONObject();
         obj.put("type", type().getCode());
         obj.put("custom_id", customId);
         if (placeholder != null) obj.put("placeholder", placeholder);
@@ -121,7 +121,7 @@ public class RoleSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static RoleSelectMenu decompile(JSONObject json) {
+    public static RoleSelectMenu decompile(SJSONObject json) {
         String customId = json.has("custom_id") ? json.getString("custom_id") : null;
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
@@ -133,12 +133,12 @@ public class RoleSelectMenu implements SelectMenu {
 
 
     @Override
-    public JSONObject raw() {
+    public SJSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(JSONObject raw) {
+    public void setRaw(SJSONObject raw) {
         this.raw = raw;
     }
 }

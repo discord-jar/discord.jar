@@ -11,10 +11,10 @@ import com.seailz.discordjar.model.channel.forum.ForumTag;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -257,7 +257,7 @@ public class ModifyBaseChannelAction {
     public CompletableFuture<Channel> run() {
         CompletableFuture<Channel> future = new CompletableFuture<>();
         future.completeAsync(() -> {
-            JSONObject body = new JSONObject();
+            SJSONObject body = new SJSONObject();
             if (name != null) body.put("name", name);
             if (type != null) body.put("type", type.getCode());
             if (topic != null) body.put("topic", topic);
@@ -267,7 +267,7 @@ public class ModifyBaseChannelAction {
             if (rateLimitPerUser != -1) body.put("rate_limit_per_user", rateLimitPerUser);
             if (userLimit != -1) body.put("user_limit", userLimit);
             if (permissionOverwrites != null) {
-                JSONArray array = new JSONArray();
+                SJSONArray array = new SJSONArray();
                 for (PermissionOverwrite overwrite : permissionOverwrites) {
                     array.put(overwrite.compile());
                 }
@@ -279,7 +279,7 @@ public class ModifyBaseChannelAction {
             if (defaultAutoArchiveDuration != null) body.put("default_auto_archive_duration", defaultAutoArchiveDuration);
             if (flags != -1) body.put("flags", flags);
             if (availableTags != null) {
-                JSONArray array = new JSONArray();
+                SJSONArray array = new SJSONArray();
                 for (ForumTag tag : availableTags) {
                     array.put(tag.compile());
                 }

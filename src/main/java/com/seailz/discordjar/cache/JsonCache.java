@@ -2,9 +2,9 @@ package com.seailz.discordjar.cache;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.cache.impl.JsonCacheImpl;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 import java.util.Random;
 
@@ -26,14 +26,14 @@ public interface JsonCache {
      * <br>or null if the cache is empty.
      */
     @Nullable
-    JSONObject get();
+    SJSONObject get();
 
     /**
      * Updates the cache.
      *
      * @param object The object to update the cache with
      */
-    void update(JSONObject object);
+    void update(SJSONObject object);
 
     /**
      * Returns the DiscordRequest object that
@@ -124,7 +124,7 @@ public interface JsonCache {
      *
      * @param object The object to store in the cache when initialized.
      */
-    static JsonCache newc(JSONObject object, DiscordRequest howToUpdateFresh) {
+    static JsonCache newc(SJSONObject object, DiscordRequest howToUpdateFresh) {
         return new JsonCacheImpl(object, howToUpdateFresh);
     }
 

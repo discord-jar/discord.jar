@@ -2,8 +2,8 @@ package com.seailz.discordjar.model.channel.interfaces;
 
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public interface Typeable extends Channel {
      */
     default void typing() {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.POST.CHANNELS.TRIGGER_TYPING_INDICATOR.replace("{channel.id}", id()),
                 djv(),

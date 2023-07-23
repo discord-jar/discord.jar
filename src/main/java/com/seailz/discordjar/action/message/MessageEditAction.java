@@ -6,14 +6,13 @@ import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.message.MessageFlag;
-import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
@@ -185,10 +184,10 @@ public class MessageEditAction {
         future.completeAsync(() -> {
             String url = URLS.PATCH.CHANNEL.MESSAGE.EDIT.replace("{channel.id}", channelId).replace("{message.id}", messageId);
 
-            JSONObject payload = new JSONObject();
+            SJSONObject payload = new SJSONObject();
             if (this.text != null) payload.put("content", this.text);
 
-            JSONArray components = new JSONArray();
+            SJSONArray components = new SJSONArray();
             if (this.components != null && !this.components.isEmpty()) {
                 for (DisplayComponent component : this.components) {
                     components.put(component.compile());
@@ -198,7 +197,7 @@ public class MessageEditAction {
             if (this.components != null && !this.components.isEmpty())
                 payload.put("components", components);
 
-            JSONArray embeds = new JSONArray();
+            SJSONArray embeds = new SJSONArray();
             if (this.embeds != null) {
                 for (Embeder embed : this.embeds) {
                     embeds.put(embed.compile());
@@ -209,7 +208,7 @@ public class MessageEditAction {
                 payload.put("embeds", embeds);
 
             if (this.attachments != null) {
-                JSONArray files = new JSONArray();
+                SJSONArray files = new SJSONArray();
                 for (Attachment attachment : this.attachments) {
                     files.put(attachment.compile());
                 }

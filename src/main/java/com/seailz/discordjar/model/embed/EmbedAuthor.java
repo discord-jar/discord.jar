@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.embed;
 
 import com.seailz.discordjar.core.Compilerable;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.lang.NonNull;
 
 public record EmbedAuthor(
@@ -12,8 +12,8 @@ public record EmbedAuthor(
 ) implements Compilerable {
 
     @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("name", name);
         obj.put("url", url);
         obj.put("icon_url", iconUrl);
@@ -22,7 +22,7 @@ public record EmbedAuthor(
     }
 
     @NonNull
-    public static EmbedAuthor decompile(JSONObject obj) {
+    public static EmbedAuthor decompile(SJSONObject obj) {
         String name;
         String url;
         String iconUrl;

@@ -1,7 +1,7 @@
 package com.seailz.discordjar.command;
 
 import com.seailz.discordjar.core.Compilerable;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Represents a choice of a {@link CommandOption}.
@@ -14,13 +14,13 @@ public record CommandChoice(
         String value
 ) implements Compilerable {
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("name", name)
                 .put("value", value);
     }
 
-    public static CommandChoice decompile(JSONObject obj) {
+    public static CommandChoice decompile(SJSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
         String value = obj.has("value") ? obj.getString("value") : null;
 

@@ -6,9 +6,9 @@ import com.seailz.discordjar.model.interaction.data.ResolvedData;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -39,12 +39,12 @@ public class ResolvedCommandOption implements Compilerable {
     }
 
     @Override
-    public JSONObject compile() {
-        JSONArray options = new JSONArray();
+    public SJSONObject compile() {
+        SJSONArray options = new SJSONArray();
         for (ResolvedCommandOption option : this.options)
             options.put(option.compile());
 
-        return new JSONObject()
+        return new SJSONObject()
                 .put("name", name)
                 .put("value", data)
                 .put("type", type.getCode())
@@ -53,10 +53,10 @@ public class ResolvedCommandOption implements Compilerable {
     }
 
     @NotNull
-    public static ResolvedCommandOption decompile(JSONObject obj, ResolvedData resolvedData) {
+    public static ResolvedCommandOption decompile(SJSONObject obj, ResolvedData resolvedData) {
         List<ResolvedCommandOption> options = new ArrayList<>();
         if (obj.has("options")) {
-            JSONArray optionsArray = obj.getJSONArray("options");
+            SJSONArray optionsArray = obj.getJSONArray("options");
             for (int i = 0; i < optionsArray.length(); i++) {
                 options.add(decompile(optionsArray.getJSONObject(i), resolvedData));
             }

@@ -10,9 +10,8 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
      */
     int bitrate();
 
-    static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    static AudioChannel decompile(SJSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");
@@ -46,7 +45,7 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
         discordJar.getVoiceRegions().stream().filter(r -> r.id().equals(obj.getString("region"))).findFirst().ifPresent(region::set);
         int bitrate = obj.getInt("bitrate");
         Category category = Category.fromId(obj.getString("parent_id"), discordJar);
-        JSONArray array = obj.getJSONArray("permission_overwrites");
+        SJSONArray array = obj.getJSONArray("permission_overwrites");
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (array.length() > 0) {
             permissionOverwrites = new ArrayList<>();

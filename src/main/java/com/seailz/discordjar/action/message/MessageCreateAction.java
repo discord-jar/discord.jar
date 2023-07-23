@@ -9,18 +9,17 @@ import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.message.MessageFlag;
 import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Used to create a message and define extra properties
@@ -267,7 +266,7 @@ public class MessageCreateAction {
         new Thread(() -> {
             String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
 
-            JSONObject payload = new JSONObject();
+            SJSONObject payload = new SJSONObject();
             if (this.text != null) payload.put("content", this.text);
             if (this.nonce != null) payload.put("nonce", this.nonce);
             if (this.tts) payload.put("tts", true);
@@ -282,7 +281,7 @@ public class MessageCreateAction {
                 payload.put("duration", this.duration);
             }
 
-            JSONArray components = new JSONArray();
+            SJSONArray components = new SJSONArray();
             if (this.components != null && !this.components.isEmpty()) {
                 for (DisplayComponent component : this.components) {
                     components.put(component.compile());
@@ -292,7 +291,7 @@ public class MessageCreateAction {
             if (this.components != null && !this.components.isEmpty())
                 payload.put("components", components);
 
-            JSONArray embeds = new JSONArray();
+            SJSONArray embeds = new SJSONArray();
             if (this.embeds != null) {
                 for (Embeder embed : this.embeds) {
                     embeds.put(embed.compile());
@@ -302,7 +301,7 @@ public class MessageCreateAction {
             if (this.embeds != null)
                 payload.put("embeds", embeds);
 
-            JSONArray stickerIds = new JSONArray();
+            SJSONArray stickerIds = new SJSONArray();
             if (this.stickerIds != null) {
                 for (String stickerId : this.stickerIds) {
                     stickerIds.put(stickerId);
@@ -313,7 +312,7 @@ public class MessageCreateAction {
                 payload.put("sticker_ids", stickerIds);
 
             if (this.attachments != null) {
-                JSONArray files = new JSONArray();
+                SJSONArray files = new SJSONArray();
                 for (Attachment attachment : this.attachments) {
                     files.put(attachment.compile());
                 }

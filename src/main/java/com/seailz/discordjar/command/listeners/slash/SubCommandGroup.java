@@ -2,8 +2,8 @@ package com.seailz.discordjar.command.listeners.slash;
 
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Checker;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.HashMap;
 
@@ -42,14 +42,14 @@ public class SubCommandGroup implements Compilerable {
         return this;
     }
     @Override
-    public JSONObject compile() {
-        JSONArray subCommandsJson = new JSONArray();
+    public SJSONObject compile() {
+        SJSONArray subCommandsJson = new SJSONArray();
         subCommands.keySet().forEach((subCommand -> subCommandsJson.put(subCommand.compile())));
 
         Checker.notNull(name, "Name cannot be null");
         Checker.notNull(description, "Description cannot be null");
 
-        return new JSONObject()
+        return new SJSONObject()
                 .put("type", 1)
                 .put("description", description)
                 .put("name", name)

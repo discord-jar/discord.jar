@@ -4,7 +4,6 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.MessagingChannel;
-import com.seailz.discordjar.model.channel.TextChannel;
 import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
 import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.interfaces.Transcriptable;
@@ -19,11 +18,11 @@ import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
@@ -110,8 +109,8 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
     String lastMessageId();
 
     @Override
-    default JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    default SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id());
         obj.put("type", type().getCode());
         obj.put("name", name());
@@ -128,7 +127,7 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
 
 
         if (permissionOverwrites() != null) {
-            JSONArray array = new JSONArray();
+            SJSONArray array = new SJSONArray();
             for (PermissionOverwrite overwrite : permissionOverwrites())
                 array.put(overwrite.compile());
         }
@@ -138,16 +137,16 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
     }
 
     /**
-     * Decompile a {@link JSONObject} into a {@link GuildChannel}
+     * Decompile a {@link SJSONObject} into a {@link GuildChannel}
      *
-     * @param obj The {@link JSONObject} to decompile
+     * @param obj The {@link SJSONObject} to decompile
      * @param discordJar The {@link DiscordJar} instance
      *
      * @return The {@link GuildChannel} instance
      */
     @NotNull
     @Contract("_, _ -> new")
-    static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+    static Thread decompile(@NotNull SJSONObject obj, @NotNull DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -167,9 +166,9 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
 
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (obj.has("permission_overwrites")) {
-            JSONArray array = obj.getJSONArray("permission_overwrites");
+            SJSONArray array = obj.getJSONArray("permission_overwrites");
             for (int i = 0; i < array.length(); i++) {
-                JSONObject overwrite = array.getJSONObject(i);
+                SJSONObject overwrite = array.getJSONObject(i);
                 permissionOverwrites.add(PermissionOverwrite.decompile(overwrite));
             }
         }
@@ -197,7 +196,7 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
     default void removeMember(String userId) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.CHANNEL.THREAD_MEMBERS.REMOVE_THREAD_MEMBER
                             .replace("{channel.id}", id())

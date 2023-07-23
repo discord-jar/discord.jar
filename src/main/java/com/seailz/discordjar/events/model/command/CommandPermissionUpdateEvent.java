@@ -4,7 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.command.permissions.ApplicationCommandPermissions;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 /**
  * Sent when the permissions of an application command are updated.
@@ -14,7 +14,7 @@ import org.json.JSONObject;
  * @since 1.0
  */
 public class CommandPermissionUpdateEvent extends Event {
-    public CommandPermissionUpdateEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
+    public CommandPermissionUpdateEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
         super(bot, sequence, data);
     }
 

@@ -1,7 +1,7 @@
 package com.seailz.discordjar.core;
 
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 public interface Compilerable {
-    JSONObject compile();
+    SJSONObject compile();
 }

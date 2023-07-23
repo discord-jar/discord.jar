@@ -3,8 +3,8 @@ package com.seailz.discordjar.command;
 import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,18 +74,18 @@ public record CommandOption(
     }
 
     @Override
-    public JSONObject compile() {
-        JSONArray choicesJson = new JSONArray();
+    public SJSONObject compile() {
+        SJSONArray choicesJson = new SJSONArray();
         if (this.choices != null) {
             choices.forEach((commandChoice -> choicesJson.put(commandChoice.compile())));
         }
 
-        JSONArray subCommandsJson = new JSONArray();
+        SJSONArray subCommandsJson = new SJSONArray();
         if (this.subCommands != null) {
             subCommands.forEach((subCommand -> subCommandsJson.put(subCommand.compile())));
         }
 
-        JSONObject obj = new JSONObject()
+        SJSONObject obj = new SJSONObject()
                 .put("name", name)
                 .put("description", description)
                 .put("type", type.getCode());
@@ -98,13 +98,13 @@ public record CommandOption(
         if (this.subCommands != null && !this.subCommands.isEmpty())
             obj.put("options", subCommandsJson);
         if (this.options != null && !this.options.isEmpty()) {
-            JSONArray optionsJson = new JSONArray();
+            SJSONArray optionsJson = new SJSONArray();
             options.forEach((option) -> optionsJson.put(option.compile()));
             obj.put("options", optionsJson);
         }
 
         if (this.channelTypes != null && !this.channelTypes.isEmpty()) {
-            JSONArray channelTypesJson = new JSONArray();
+            SJSONArray channelTypesJson = new SJSONArray();
             channelTypes.forEach((channelType) -> channelTypesJson.put(channelType.getCode()));
             obj.put("channel_types", channelTypesJson);
         }
@@ -126,7 +126,7 @@ public record CommandOption(
         return obj;
     }
 
-    public static CommandOption decompile(JSONObject obj) {
+    public static CommandOption decompile(SJSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
         String description = obj.has("description") ? obj.getString("description") : null;
         CommandOptionType type = obj.has("type") ? CommandOptionType.fromCode(obj.getInt("type")) : CommandOptionType.STRING;
@@ -142,20 +142,20 @@ public record CommandOption(
 
         if (obj.has("choices")) {
             for (Object v : obj.getJSONArray("choices")) {
-                choices.add(CommandChoice.decompile((JSONObject) v));
+                choices.add(CommandChoice.decompile((SJSONObject) v));
             }
         }
 
         List<SlashSubCommand> subCommands = new ArrayList<>();
         if (obj.has("options") && type == CommandOptionType.SUB_COMMAND_GROUP) {
             for (Object v : obj.getJSONArray("options")) {
-                subCommands.add(SlashSubCommand.decompile((JSONObject) v));
+                subCommands.add(SlashSubCommand.decompile((SJSONObject) v));
             }
         }
 
         if (obj.has("options") && type == CommandOptionType.SUB_COMMAND) {
             for (Object v : obj.getJSONArray("options")) {
-                options.add(CommandOption.decompile((JSONObject) v));
+                options.add(CommandOption.decompile((SJSONObject) v));
             }
         }
 

@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.role;
 
 import com.seailz.discordjar.core.Compilerable;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.lang.NonNull;
 
 public record RoleTag(
@@ -14,15 +14,15 @@ public record RoleTag(
 ) implements Compilerable {
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("bot_id", botId)
                 .put("integration_id", integrationId)
                 .put("is_premium_subscriber", isPremiumSubscriber);
     }
 
     @NonNull
-    public static RoleTag decompile(JSONObject obj) {
+    public static RoleTag decompile(SJSONObject obj) {
         String botId = null;
         String integrationId = null;
         boolean isPremiumSubscriber;

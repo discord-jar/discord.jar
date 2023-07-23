@@ -4,8 +4,8 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.status.Status;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.util.EnumSet;
 
@@ -86,19 +86,19 @@ public class Activity implements Compilerable {
     }
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("name", name)
                 .put("type", type.getCode())
                 .put("url", streamUrl)
                 .put("application_id", applicationId)
-                .put("emoji", emoji == null ? JSONObject.NULL : emoji.compile())
+                .put("emoji", emoji == null ? SJSONObject.NULL : emoji.compile())
                 .put("instance", instance)
-                .put("flags", flags == null ? JSONObject.NULL : new JSONObject().put("flags", flags));
+                .put("flags", flags == null ? SJSONObject.NULL : new SJSONObject().put("flags", flags));
     }
 
     @NotNull
-    public static Activity decompile(JSONObject obj, DiscordJar discordJar) {
+    public static Activity decompile(SJSONObject obj, DiscordJar discordJar) {
         String name;
         ActivityType type;
         String url;

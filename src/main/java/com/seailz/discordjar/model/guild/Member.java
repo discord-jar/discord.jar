@@ -7,13 +7,13 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -55,12 +55,12 @@ public record Member(
 ) implements Compilerable, Resolvable {
 
     @Override
-    public JSONObject compile() {
+    public SJSONObject compile() {
         int permissions = 0;
         for (Permission permission : this.permissions) {
             permissions += permission.getLeftShiftId();
         }
-        JSONObject obj = new JSONObject();
+        SJSONObject obj = new SJSONObject();
         obj.put("user", user.compile());
         obj.put("nick", nick);
         obj.put("avatar", avatar);
@@ -78,7 +78,7 @@ public record Member(
 
     @NonNull
     @Contract("_, _, _, _ -> new")
-    public static Member decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar, String guildId, Guild guild) {
+    public static Member decompile(@NotNull SJSONObject obj, @NotNull DiscordJar discordJar, String guildId, Guild guild) {
         User user = null;
         String nick = null;
         String avatar = null;
@@ -93,9 +93,9 @@ public record Member(
         List<Permission> permissions = null;
         String communicationDisabledUntil = null;
 
-        if (obj.has("user") && obj.get("user") != JSONObject.NULL) user = User.decompile(obj.getJSONObject("user"), discordJar);
-        if (obj.has("nick") && obj.get("nick") != JSONObject.NULL) nick = obj.getString("nick");
-        if (obj.has("avatar") && obj.get("avatar") != JSONObject.NULL) avatar = obj.getString("avatar");
+        if (obj.has("user") && obj.get("user") != SJSONObject.NULL) user = User.decompile(obj.getJSONObject("user"), discordJar);
+        if (obj.has("nick") && obj.get("nick") != SJSONObject.NULL) nick = obj.getString("nick");
+        if (obj.has("avatar") && obj.get("avatar") != SJSONObject.NULL) avatar = obj.getString("avatar");
         if (obj.has("roles")) {
             if (guild != null) {
                 List<Role> rolesList = new ArrayList<>();
@@ -109,11 +109,11 @@ public record Member(
                 roles = rolesList.toArray(new Role[0]);
             }
         }
-        if (obj.has("joined_at") && obj.get("joined_at") != JSONObject.NULL) joinedAt = obj.getString("joined_at");
-        if (obj.has("premium_since") && obj.get("premium_since") != JSONObject.NULL) premiumSince = obj.getString("premium_since");
-        if (obj.has("deaf") && obj.get("deaf") != JSONObject.NULL) deaf = obj.getBoolean("deaf");
-        if (obj.has("mute") && obj.get("mute") != JSONObject.NULL) mute = obj.getBoolean("mute");
-        if (obj.has("pending") && obj.get("pending") != JSONObject.NULL) pending = obj.getBoolean("pending");
+        if (obj.has("joined_at") && obj.get("joined_at") != SJSONObject.NULL) joinedAt = obj.getString("joined_at");
+        if (obj.has("premium_since") && obj.get("premium_since") != SJSONObject.NULL) premiumSince = obj.getString("premium_since");
+        if (obj.has("deaf") && obj.get("deaf") != SJSONObject.NULL) deaf = obj.getBoolean("deaf");
+        if (obj.has("mute") && obj.get("mute") != SJSONObject.NULL) mute = obj.getBoolean("mute");
+        if (obj.has("pending") && obj.get("pending") != SJSONObject.NULL) pending = obj.getBoolean("pending");
 
         try {
             BitwiseUtil<Permission> bitwiseUtil = new BitwiseUtil<>();
@@ -130,7 +130,7 @@ public record Member(
             flags = new ArrayList<>(bitwiseUtil.get(flagsRaw, MemberFlags.class));
         }
 
-        if (obj.has("communication_disabled_until") && obj.get("communication_disabled_until") != JSONObject.NULL)
+        if (obj.has("communication_disabled_until") && obj.get("communication_disabled_until") != SJSONObject.NULL)
             communicationDisabledUntil = obj.getString("communication_disabled_until");
         return new Member(user, nick, avatar, roles, joinedAt, premiumSince, deaf, mute, pending, permissions, communicationDisabledUntil, guildId, flags, flagsRaw, discordJar);
     }
@@ -142,7 +142,7 @@ public record Member(
     public void nickname(String nick) {
         try {
             new DiscordRequest(
-                    new JSONObject().put("nick", nick),
+                    new SJSONObject().put("nick", nick),
                     new HashMap<>(),
                     URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
                     discordJar,
@@ -171,7 +171,7 @@ public record Member(
 
         try {
             new DiscordRequest(
-                    new JSONObject().put("communication_disabled_until", timeout),
+                    new SJSONObject().put("communication_disabled_until", timeout),
                     new HashMap<>(),
                     URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
                     discordJar,
@@ -187,7 +187,7 @@ public record Member(
     public void removeTimeout() {
         try {
             new DiscordRequest(
-                    new JSONObject().put("communication_disabled_until", JSONObject.NULL),
+                    new SJSONObject().put("communication_disabled_until", SJSONObject.NULL),
                     new HashMap<>(),
                     URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
                     discordJar,
@@ -207,7 +207,7 @@ public record Member(
     public void addRole(Role role) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
                     discordJar,
@@ -227,7 +227,7 @@ public record Member(
     public void removeRole(Role role) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
                     discordJar,

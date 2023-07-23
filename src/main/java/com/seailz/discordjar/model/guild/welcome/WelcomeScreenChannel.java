@@ -3,7 +3,7 @@ package com.seailz.discordjar.model.guild.welcome;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.channel.Channel;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.lang.NonNull;
 
 /**
@@ -22,8 +22,8 @@ public record WelcomeScreenChannel(
 ) implements Compilerable {
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("channel_id", channel.id())
                 .put("description", description)
                 .put("emoji_id", emojiId)
@@ -31,7 +31,7 @@ public record WelcomeScreenChannel(
     }
 
     @NonNull
-    public static WelcomeScreenChannel decompile(JSONObject obj, DiscordJar discordJar) {
+    public static WelcomeScreenChannel decompile(SJSONObject obj, DiscordJar discordJar) {
         return new WelcomeScreenChannel(
                 discordJar.getChannelById(obj.getString("channel_id")),
                 obj.getString("description"),

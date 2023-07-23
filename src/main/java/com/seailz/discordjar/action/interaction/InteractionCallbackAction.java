@@ -7,7 +7,7 @@ import com.seailz.discordjar.model.interaction.reply.InteractionReply;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
@@ -47,7 +47,7 @@ public class InteractionCallbackAction {
     }
 
     public Response<InteractionHandler> run() {
-        JSONObject json = new JSONObject();
+        SJSONObject json = new SJSONObject();
         json.put("type", this.type.getCode());
         json.put("data", this.reply.compile());
 

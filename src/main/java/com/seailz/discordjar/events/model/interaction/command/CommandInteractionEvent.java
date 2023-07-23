@@ -8,12 +8,12 @@ import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.data.command.ApplicationCommandInteractionData;
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 public class CommandInteractionEvent extends InteractionEvent {
-    public CommandInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
+    public CommandInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
         super(bot, sequence, data);
     }
 

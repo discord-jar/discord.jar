@@ -5,7 +5,7 @@ import com.seailz.discordjar.model.channel.DMChannel;
 import com.seailz.discordjar.model.channel.UserDM;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.user.User;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class DMChannelImpl extends ChannelImpl implements DMChannel, UserDM {
     private final List<User> recipients;
     private final DiscordJar discordJar;
 
-    public DMChannelImpl(String id, ChannelType type, String name, String lastMessageId, List<User> recipients, DiscordJar discordJar, JSONObject raw) {
+    public DMChannelImpl(String id, ChannelType type, String name, String lastMessageId, List<User> recipients, DiscordJar discordJar, SJSONObject raw) {
         super(id, type, name, raw, discordJar);
         this.lastMessageId = lastMessageId;
         this.recipients = recipients;

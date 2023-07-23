@@ -3,9 +3,9 @@ package com.seailz.discordjar.oauth2;
 import com.seailz.databaseapi.Database;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import org.json.JSONObject;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -110,13 +110,13 @@ public class LinkedRoles {
         }
         if (authToken != null) headers.put("Authorization", "Bearer " + authToken);
 
-        JSONObject metadata = new JSONObject();
+        SJSONObject metadata = new SJSONObject();
         for (String key : values.keySet()) {
             metadata.put(key, values.get(key));
         }
 
         DiscordRequest req = new DiscordRequest(
-                new JSONObject()
+                new SJSONObject()
                         .put("platform_name", platformName)
                         .put("platform_username", platformUsername)
                         .put("metadata", metadata),
@@ -127,7 +127,7 @@ public class LinkedRoles {
                 URLS.OAUTH2.PUT.USERS.APPLICATIONS.ROLE_CONNECTIONS.UPDATE_USER_APPLICATION_ROLE_CONNECTION,
                 RequestMethod.PUT
         );
-        DiscordResponse res = req.invokeNoAuth(new JSONObject());
+        DiscordResponse res = req.invokeNoAuth(new SJSONObject());
         if (res.code() == 401) {
             if (attemptedRefreshToken) {
                 throw new IllegalStateException("Could not updated roles for user - it's likely the user has de-authed the app.");
@@ -156,7 +156,7 @@ public class LinkedRoles {
             if (refreshRes.statusCode() == 401) {
                 throw new IllegalStateException("Could not updated roles for user - it's likely the user has de-authed the app.");
             }
-            JSONObject refreshResponseJson = new JSONObject(refreshRes);
+            SJSONObject refreshResponseJson = new SJSONObject(refreshRes.body());
             updateRoles(null, platformName, platformUsername, values, refreshResponseJson.getString("access_token"), true);
         }
     }

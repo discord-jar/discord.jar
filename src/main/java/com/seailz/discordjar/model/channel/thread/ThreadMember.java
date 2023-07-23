@@ -1,8 +1,8 @@
 package com.seailz.discordjar.model.channel.thread;
 
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 /**
  * Represents a thread member object
@@ -21,8 +21,8 @@ public record ThreadMember(
 
 
     @Override
-    public @NotNull JSONObject compile() {
-        JSONObject obj = new JSONObject();
+    public @NotNull SJSONObject compile() {
+        SJSONObject obj = new SJSONObject();
         obj.put("id", id());
         obj.put("user_id", userId());
         obj.put("join_timestamp", joinTimestamp());
@@ -30,7 +30,7 @@ public record ThreadMember(
         return obj;
     }
 
-    public static ThreadMember decompile(JSONObject obj) {
+    public static ThreadMember decompile(SJSONObject obj) {
         String id;
         String userId;
         String joinTimestamp;

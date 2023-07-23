@@ -5,7 +5,7 @@ import com.seailz.discordjar.model.interaction.data.command.ApplicationCommandIn
 import com.seailz.discordjar.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.discordjar.model.interaction.data.modal.ModalSubmitInteractionData;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class InteractionData {
 
-    public static InteractionData decompile(InteractionType type, JSONObject obj, DiscordJar jv) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static InteractionData decompile(InteractionType type, SJSONObject obj, DiscordJar jv) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
         return switch (type) {
             case APPLICATION_COMMAND, APPLICATION_COMMAND_AUTOCOMPLETE ->
                     new ApplicationCommandInteractionData(obj, jv);

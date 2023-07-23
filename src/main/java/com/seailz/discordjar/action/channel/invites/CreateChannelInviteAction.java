@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import org.json.JSONObject;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -112,7 +112,7 @@ public class CreateChannelInviteAction {
                 throw new IllegalStateException("Target application must be set if target type is set to EMBEDDED_APPLICATION");
 
 
-            JSONObject body = new JSONObject();
+            SJSONObject body = new SJSONObject();
             if (maxAge != -1) body.put("max_age", maxAge);
             if (maxUses != -1) body.put("max_uses", maxUses);
             if (temporary) body.put("temporary", true);

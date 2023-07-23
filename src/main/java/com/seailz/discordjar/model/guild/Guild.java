@@ -7,12 +7,9 @@ import com.seailz.discordjar.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjar.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjar.action.sticker.ModifyStickerAction;
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.automod.AutomodRule;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.GuildChannel;
-import com.seailz.discordjar.model.channel.MessagingChannel;
-import com.seailz.discordjar.model.channel.VoiceChannel;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.emoji.Emoji;
@@ -25,20 +22,19 @@ import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.InviteMetadata;
-import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.invite.internal.InviteMetadataImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.cache.JsonCache;
+import com.seailz.discordjar.utils.json.SJSONArray;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
@@ -339,8 +335,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
 
     @Override
-    public JSONObject compile() {
-        return new JSONObject()
+    public SJSONObject compile() {
+        return new SJSONObject()
                 .put("id", id)
                 .put("name", name)
                 .put("icon", icon)
@@ -383,7 +379,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     @NotNull
-    public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+    public static Guild decompile(SJSONObject obj, DiscordJar discordJar) {
         long nano = System.nanoTime();
         String id;
         String name;
@@ -522,7 +518,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
 
         try {
-            JSONArray rolesArray = obj.getJSONArray("roles");
+            SJSONArray rolesArray = obj.getJSONArray("roles");
             roles = new ArrayList<>();
             for (int i = 0; i < rolesArray.length(); i++) {
                 roles.add(Role.decompile(rolesArray.getJSONObject(i)));
@@ -532,7 +528,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
 
         try {
-            JSONArray emojisArray = obj.getJSONArray("emojis");
+            SJSONArray emojisArray = obj.getJSONArray("emojis");
             emojis = new ArrayList<>();
             for (int i = 0; i < emojisArray.length(); i++) {
                 emojis.add(Emoji.decompile(emojisArray.getJSONObject(i), discordJar));
@@ -650,7 +646,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
 
         try {
-            JSONArray stickersArray = obj.getJSONArray("stickers");
+            SJSONArray stickersArray = obj.getJSONArray("stickers");
             stickers = new ArrayList<>();
             for (int i = 0; i < stickersArray.length(); i++) {
                 stickers.add(Sticker.decompile(stickersArray.getJSONObject(i), discordJar));
@@ -713,7 +709,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 safetyAlertsChannelId,
                 discordJar,
                 JsonCache.newc(new DiscordRequest(
-                        new JSONObject(),
+                        new SJSONObject(),
                         new HashMap<>(),
                         URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
                         discordJar,
@@ -759,7 +755,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void leave() {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.LEAVE_GUILD.replace(
                             "{guild.id}",
@@ -781,7 +777,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             return Sticker.decompileList(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS.replace(
                                     "{guild.id}",
@@ -807,7 +803,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             return Sticker.decompile(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER.replace(
                                     "{guild.id}",
@@ -840,7 +836,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void deleteSticker(String stickerId) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER.replace(
                             "{guild.id}",
@@ -866,7 +862,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             return AutomodRule.decompileList(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES.replace(
                                     "{guild.id}",
@@ -889,7 +885,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             return AutomodRule.decompile(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE.replace(
                                     "{guild.id}",
@@ -922,7 +918,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void deleteAutoModRule(String id) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE.replace(
                             "{guild.id}",
@@ -951,10 +947,10 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public List<Member> getMembers(int limit, String after) {
         Checker.check(limit <= 0, "Limit must be greater than 0");
         Checker.check(limit > 1000, "Limit must be less than or equal to 1000");
-        JSONArray arr = null;
+        SJSONArray arr = null;
         try {
             arr = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
                             "{guild.id}",
@@ -970,7 +966,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         List<Member> members = new ArrayList<>();
         for (Object obj : arr) {
-            members.add(Member.decompile((JSONObject) obj, discordJar, id, this));
+            members.add(Member.decompile((SJSONObject) obj, discordJar, id, this));
         }
 
         return members;
@@ -978,10 +974,10 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
 
     public List<Member> getMembers() {
-        JSONArray arr = null;
+        SJSONArray arr = null;
         try {
             arr = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
                             "{guild.id}",
@@ -997,7 +993,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         List<Member> members = new ArrayList<>();
         for (Object obj : arr) {
-            members.add(Member.decompile((JSONObject) obj, discordJar, id, this));
+            members.add(Member.decompile((SJSONObject) obj, discordJar, id, this));
         }
 
         return members;
@@ -1012,13 +1008,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS.replace("{guild.id}", id),
                     discordJar,
                     URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
                     RequestMethod.GET
-            ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJar)));
+            ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((SJSONObject) object, discordJar)));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -1035,7 +1031,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             return Emoji.decompile(
                     new DiscordRequest(
-                            new JSONObject(),
+                            new SJSONObject(),
                             new HashMap<>(),
                             URLS.GET.GUILDS.EMOJIS.GET_GUILD_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
                             discordJar,
@@ -1068,7 +1064,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         DiscordResponse req = null;
         try {
             req = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
                     discordJar,
@@ -1078,13 +1074,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             return new ArrayList<>();
         }
-        JSONArray res = req.arr();
+        SJSONArray res = req.arr();
         if (res == null) {
             Logger.getLogger("DiscordJar").warning("Failed to get channels for guild " + req.code());
             return new ArrayList<>();
         }
         res.forEach(o -> {
-            channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
+            channels.add(GuildChannel.decompile((SJSONObject) o, discordJar));
         });
         return channels;
     }
@@ -1099,21 +1095,21 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         if (roleCache != null && !roleCache.isEmpty()) {
             List<Role> roles = new ArrayList<>();
             roleCache.get().getJSONArray("data").forEach(
-                    o -> roles.add(Role.decompile((JSONObject) o))
+                    o -> roles.add(Role.decompile((SJSONObject) o))
             );
             return roles;
         }
 
         List<Role> roles = new ArrayList<>();
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
                 discordJar,
                 URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
                 RequestMethod.GET
         );
-        JSONArray res;
+        SJSONArray res;
         DiscordResponse response = null;
         try {
             response = req.invoke();
@@ -1125,10 +1121,10 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             System.out.println(response.code() + " " + (response.body() == null ? "null" : response.body().toString()));
         }
 
-        res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
+        res.forEach(o -> roles.add(Role.decompile((SJSONObject) o)));
 
         if (roleCache != null) {
-            roleCache.update(new JSONObject().put("data", res));
+            roleCache.update(new SJSONObject().put("data", res));
         }
         return roles;
     }
@@ -1188,20 +1184,20 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public List<InviteMetadata> getInvites() {
         List<InviteMetadata> invites = new ArrayList<>();
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.GET_GUILD_INVITES.replace("{guild.id}", id),
                 discordJar,
                 URLS.GET.GUILDS.GET_GUILD_INVITES,
                 RequestMethod.GET
         );
-        JSONArray res;
+        SJSONArray res;
         try {
             res = req.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        res.forEach(o -> invites.add(InviteMetadataImpl.decompile((JSONObject) o, discordJar)));
+        res.forEach(o -> invites.add(InviteMetadataImpl.decompile((SJSONObject) o, discordJar)));
         return invites;
     }
 
@@ -1220,7 +1216,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         DiscordResponse response;
         try {
             response = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.DELETE_GUILD.replace("{guild.id}", id),
                     discordJar,
@@ -1241,7 +1237,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void deleteRole(Role role) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.ROLES.replace("{guild.id}", id).replace("{role.id}", role.id()),
                     discordJar,
@@ -1292,7 +1288,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void modifyMFALevel(MFALevel level) {
         try {
             new DiscordRequest(
-                    new JSONObject("level", String.valueOf(level.getCode())),
+                    new SJSONObject()
+                            .put("code", String.valueOf(level.getCode())),
                     new HashMap<>(),
                     URLS.POST.GUILDS.UPDATE_MFA.replace("{guild.id}", id),
                     discordJar,
@@ -1312,7 +1309,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         DiscordResponse response;
         try {
             response = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.BANS.replace("{guild.id}", id),
                     discordJar,
@@ -1324,7 +1321,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
 
         List<GuildBan> bans = new ArrayList<>();
-        response.arr().forEach((object) -> bans.add(GuildBan.decompile((JSONObject) object, discordJar)));
+        response.arr().forEach((object) -> bans.add(GuildBan.decompile((SJSONObject) object, discordJar)));
 
         return bans;
     }
@@ -1338,7 +1335,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         DiscordResponse response;
         try {
             response = new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.USER_BAN.replace("{guild.id}", id).replace("{user.id}", userId),
                     discordJar,
@@ -1367,7 +1364,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void banUser(String userId) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
                     discordJar,
@@ -1394,7 +1391,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void unbanUser(String userId) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.PUT.GUILD.BAN_USER.replace("{guild.id}", id).replace("{user.id}", userId),
                     discordJar,
@@ -1433,7 +1430,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!"))) return 0;
 
         DiscordRequest req = new DiscordRequest(
-                new JSONObject()
+                new SJSONObject()
                         .put("days", days),
                 new HashMap<>(),
                 URLS.GET.GUILDS.PRUNE.replace("{guild.id}", id),
@@ -1458,7 +1455,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         try {
             DiscordResponse response = new DiscordRequest(
-                    new JSONObject()
+                    new SJSONObject()
                             .put("days", days),
                     new HashMap<>(),
                     URLS.POST.GUILDS.PRUNE.replace("{guild.id}", id),
@@ -1491,12 +1488,12 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
         commaDelimitedSnowflakesString.append("]");
 
-        JSONArray snowflakes = new JSONArray();
+        SJSONArray snowflakes = new SJSONArray();
         roles.forEach(r -> snowflakes.put(r.id()));
 
         try {
             DiscordResponse req = new DiscordRequest(
-                    new JSONObject()
+                    new SJSONObject()
                             .put("days", days)
                             .put("include_roles", commaDelimitedSnowflakesString),
                     new HashMap<>(),
@@ -1529,7 +1526,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         try {
             new DiscordRequest(
-                    new JSONObject()
+                    new SJSONObject()
                             .put("days", days)
                             .put("include_roles", commaDelimitedSnowflakesString),
                     new HashMap<>(),
@@ -1563,13 +1560,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             List<Member> namedMembers = new ArrayList<>();
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.SEARCH_MEMBERS.replace("{guild.id}", id()).replace("{filter}", filter).replace("{limit}", String.valueOf(limit)),
                     discordJar,
                     URLS.GET.GUILDS.SEARCH_MEMBERS,
                     RequestMethod.GET
-            ).invoke().arr().forEach((memberObject) -> namedMembers.add(Member.decompile((JSONObject) memberObject, discordJar, id(), this)));
+            ).invoke().arr().forEach((memberObject) -> namedMembers.add(Member.decompile((SJSONObject) memberObject, discordJar, id(), this)));
             return namedMembers;
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
@@ -1583,7 +1580,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public void kickMember(Member member) {
         try {
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.GUILD.MEMBER.KICK_MEMBER.replace("{guild.id}", id()).replace("{user.id}", member.user().id()),
                     discordJar,
@@ -1603,14 +1600,14 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             List<Thread> threads = new ArrayList<>();
             new DiscordRequest(
-                    new JSONObject(),
+                    new SJSONObject(),
                     new HashMap<>(),
                     URLS.GET.GUILDS.GET_ACTIVE_THREADS.replace("{guild.id}", id()),
                     discordJar,
                     URLS.GET.GUILDS.GET_ACTIVE_THREADS,
                     RequestMethod.GET
             ).invoke().body().getJSONArray("threads").forEach((thread) -> {
-                Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
+                Thread decompiledThread = Thread.decompile((SJSONObject) thread, discordJar);
                 threads.add(decompiledThread);
             });
             return threads;
@@ -1643,7 +1640,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      */
     public @NotNull Onboarding getOnboarding() {
         DiscordRequest req = new DiscordRequest(
-                new JSONObject(),
+                new SJSONObject(),
                 new HashMap<>(),
                 URLS.GET.GUILDS.GET_GUILD_ONBOARDING.replace("{guild.id}", id),
                 discordJar,
@@ -1674,8 +1671,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         @NotNull
         @Override
-        public JSONObject compile() {
-            JSONObject obj = new JSONObject();
+        public SJSONObject compile() {
+            SJSONObject obj = new SJSONObject();
             obj.put("enabled", enabled);
             obj.put("default_channel_ids", defaultChannelIds);
             obj.put("prompts", prompts.stream().map(Prompt::compile).collect(Collectors.toList()));
@@ -1685,10 +1682,10 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         @NotNull
         @Contract("_, _, _ -> new")
-        public static Onboarding decompile(@NotNull JSONObject obj, @NotNull Guild guild, @NotNull DiscordJar djar) {
+        public static Onboarding decompile(@NotNull SJSONObject obj, @NotNull Guild guild, @NotNull DiscordJar djar) {
             return new Onboarding(
                     guild,
-                    obj.getJSONArray("prompts").toList().stream().map(o -> Prompt.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                    obj.getJSONArray("prompts").toList().stream().map(o -> Prompt.decompile((SJSONObject) o, djar)).collect(Collectors.toList()),
                     obj.getJSONArray("default_channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
                     obj.getBoolean("enabled")
             );
@@ -1718,8 +1715,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
             @NotNull
             @Override
-            public JSONObject compile() {
-                JSONObject obj = new JSONObject();
+            public SJSONObject compile() {
+                SJSONObject obj = new SJSONObject();
                 obj.put("id", id);
                 obj.put("type", type.getCode());
                 obj.put("options", options.stream().map(Option::compile).collect(Collectors.toList()));
@@ -1732,11 +1729,11 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
             @NotNull
             @Contract("_, _ -> new")
-            public static Prompt decompile(@NotNull JSONObject obj, @NotNull DiscordJar djar) {
+            public static Prompt decompile(@NotNull SJSONObject obj, @NotNull DiscordJar djar) {
                 return new Prompt(
                         obj.getString("id"),
                         Type.fromCode(obj.getInt("type")),
-                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile((SJSONObject) o, djar)).collect(Collectors.toList()),
                         obj.getString("title"),
                         obj.getBoolean("single_select"),
                         obj.getBoolean("required"),
@@ -1789,8 +1786,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             ) implements Compilerable {
                 @NotNull
                 @Override
-                public JSONObject compile() {
-                    JSONObject obj = new JSONObject();
+                public SJSONObject compile() {
+                    SJSONObject obj = new SJSONObject();
                     obj.put("id", id);
                     obj.put("channel_ids", channelIds);
                     obj.put("role_ids", roleIds);
@@ -1802,7 +1799,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
                 @NotNull
                 @Contract("_, _ -> new")
-                public static Option decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
+                public static Option decompile(@NotNull SJSONObject obj, DiscordJar discordJar) {
                     return new Option(
                             obj.getString("id"),
                             obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),

@@ -7,15 +7,13 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class CreateGuildChannelAction {
 
@@ -102,13 +100,13 @@ public class CreateGuildChannelAction {
             try {
                 GuildChannel chan = GuildChannel.decompile(
                         new DiscordRequest(
-                                new JSONObject()
+                                new SJSONObject()
                                         .put("name", name)
                                         .put("type", type.getCode())
-                                        .put("topic", topic != null ? topic : JSONObject.NULL)
+                                        .put("topic", topic != null ? topic : SJSONObject.NULL)
                                         .put("position", position)
                                         .put("permission_overwrites", permissionOverwrites)
-                                        .put("parent_id", categoryId != null ? categoryId : JSONObject.NULL),
+                                        .put("parent_id", categoryId != null ? categoryId : SJSONObject.NULL),
                                 new HashMap<>(),
                                 URLS.POST.GUILDS.CHANNELS.CREATE.replace("{guild.id}", guild.id()),
                                 discordJar,

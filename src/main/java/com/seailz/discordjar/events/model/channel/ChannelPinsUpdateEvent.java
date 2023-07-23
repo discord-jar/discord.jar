@@ -34,7 +34,7 @@ public class ChannelPinsUpdateEvent extends Event {
         super(bot, sequence, data);
 
         guildId = data.has("guild_id") ? data.getString("guild_id") : null;
-        channelId = data.getString("channel_id");
+        channelId = data.has("channel_id") ? data.getString("channel_id") : null;
         // last_pin_timestamp is a iso8601 timestamp, so we need to get a Date object from it
         if (data.has("last_pin_timestamp")) {
             String timestampString = data.getString("last_pin_timestamp");

@@ -384,15 +384,15 @@ public class DiscordJar {
 
     public Bucket getBucket(String id) {
         for (Bucket bucket : buckets) {
-            if (bucket.getId().equals(id)) return bucket;
+            if (bucket.id().equals(id)) return bucket;
         }
         return null;
     }
 
     public void updateBucket(String id, Bucket bucket) {
         for (int i = 0; i < buckets.size(); i++) {
-            if (buckets.get(i).getId().equals(id)) {
-                buckets.set(i, bucket);
+            if (buckets.get(i).id().equals(id)) {
+                buckets.remove(i);
                 return;
             }
         }

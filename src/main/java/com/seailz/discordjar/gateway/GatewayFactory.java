@@ -95,8 +95,17 @@ public class GatewayFactory extends TextWebSocketHandler {
         WebSocketClient client = new StandardWebSocketClient();
         this.client = client;
         this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();
-        session.setTextMessageSizeLimit(1000000);
-        session.setBinaryMessageSizeLimit(1000000);
+        // Allocate 50% of available memory to the JVM
+        long maxMemory = Runtime.getRuntime().maxMemory();
+        long allocatedMemory = Runtime.getRuntime().totalMemory();
+        long freeMemory = Runtime.getRuntime().freeMemory();
+        long usedMemory = allocatedMemory - freeMemory;
+        int totalFreeMemory = (int) ((freeMemory + (maxMemory - usedMemory)) / 2);
+        if (debug) {
+            logger.info("[DISCORD.JAR - DEBUG] Allocated " + totalFreeMemory + " bytes of memory to the Gateway.");
+        }
+        session.setTextMessageSizeLimit(totalFreeMemory);
+        session.setBinaryMessageSizeLimit(totalFreeMemory);
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
         }
@@ -187,7 +196,8 @@ public class GatewayFactory extends TextWebSocketHandler {
                 break;
             case 1006:
                 logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
-                reconnect();
+                logger.info("CLOSE: 1006 REASON: " + status.getReason());
+                discordJar.restartGateway();
                 break;
             default:
                 logger.warning(

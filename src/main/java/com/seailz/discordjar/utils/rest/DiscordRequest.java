@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -35,6 +36,8 @@ public class DiscordRequest {
     private final String baseUrl;
     private final RequestMethod requestMethod;
     private JSONArray aBody;
+    // HashMap of endpoint to whether or not it can be requested (rate limited)
+    private static HashMap<String, Boolean> canRequest = new HashMap<>();
 
     public DiscordRequest(JSONObject body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
         this.body = body;
@@ -53,27 +56,23 @@ public class DiscordRequest {
         this.requestMethod = requestMethod;
     }
 
-    public void queueRequest(double resetAfter, Bucket bucket) {
+    public DiscordResponse queueRequest(double resetAfter, String endpoint, boolean auth, String contentType) throws UnhandledDiscordAPIErrorException {
+        canRequest.put(endpoint, false);
+        try {
+            Thread.sleep((long) (resetAfter * 1000));
+        } catch (InterruptedException e) {
+                e.printStackTrace();
+        }
+
         new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                // get current epoch time
-                double currentEpoch = Instant.now().toEpochMilli() * 10;
-                if (currentEpoch > resetAfter) {
-                    djv.removeBucket(bucket);
-                    try {
-                        invoke();
-                    } catch (UnhandledDiscordAPIErrorException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                }
+            try {
+                Thread.sleep((long) (resetAfter * 1000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            canRequest.put(endpoint, true);
         }).start();
+        return invoke(contentType, auth);
     }
 
     public DiscordResponse invokeNoDiscordJar(String token) {
@@ -180,20 +179,25 @@ public class DiscordRequest {
     private DiscordResponse invoke(String contentType, boolean auth) throws UnhandledDiscordAPIErrorException {
         try {
             String url = URLS.BASE_URL + this.url;
+            if (canRequest.get(url) != null && !canRequest.get(url)) {
+                // We can't request, so we'll wait our turn.
+                while (!canRequest.get(url)) {
+                    Thread.sleep(1);
+                }
+            }
+            canRequest.put(url, false);
+
+            Bucket requestBucket = djv.getBucketForUrl(url);
+            if (requestBucket != null) {
+                // Bucket exists, lets make sure we wait our turn.
+                requestBucket.waitYourTurn();
+            } else {
+
+            }
+
             OkHttpClient client = new OkHttpClient();
 
             Request.Builder requestBuilder = new Request.Builder().url(url);
-            boolean useBaseUrlForRateLimit = !url.contains("channels") && !url.contains("guilds");
-            Bucket bucket = djv.getBucketForUrl(url);
-            if (bucket != null) {
-                if (bucket.getRemaining() == 0) {
-                    if (djv.isDebug()) {
-                        Logger.getLogger("RATELIMIT").info("[RATE LIMIT] Request has been rate-limited. It has been queued.");
-                    }
-                    queueRequest(bucket.getResetAfter(), bucket);
-                    return new DiscordResponse(429, null, null, null);
-                }
-            }
 
             String s = body != null ? body.toString() : aBody.toString();
             RequestBody requestBody;
@@ -235,6 +239,7 @@ public class DiscordRequest {
 
             Request request = requestBuilder.build();
             Response response = client.newCall(request).execute();
+            canRequest.put(url, true);
 
             int responseCode = response.code();
             String sb = response.body().string();
@@ -248,23 +253,6 @@ public class DiscordRequest {
             }
 
             // check headers for rate-limit
-            if (responseHeaders.get("X-RateLimit-Bucket") != null) {
-                String bucketId = responseHeaders.get("X-RateLimit-Bucket");
-                Bucket buck = djv.getBucket(bucketId);
-
-                List<String> affectedRoutes = buck == null ? new ArrayList<>() : new ArrayList<>(buck.getAffectedRoutes());
-                if (useBaseUrlForRateLimit) {
-                    affectedRoutes.add(baseUrl);
-                } else {
-                    affectedRoutes.add(url);
-                }
-
-                djv.updateBucket(bucketId, new Bucket(
-                        bucketId,
-                        Integer.parseInt(responseHeaders.get("X-RateLimit-Remaining")),
-                        Double.parseDouble(responseHeaders.get("X-RateLimit-Reset"))
-                ).setAffectedRoutes(affectedRoutes));
-            }
             try {
                 String responseBody = sb;
                 if (responseBody.startsWith("[")) {
@@ -276,37 +264,38 @@ public class DiscordRequest {
                 System.out.println(sb);
             }
 
+            // All is said and done, let's get the rate-limit bucket up to date.
+            // If the bucket doesn't exist, it will be created.
+            if (responseHeaders.get("X-RateLimit-Bucket") != null) {
+                String id = responseHeaders.get("X-RateLimit-Bucket");
+                int limit = Integer.parseInt(responseHeaders.get("X-RateLimit-Limit"));
+                int remaining = Integer.parseInt(responseHeaders.get("X-RateLimit-Remaining"));
+                BigDecimal reset = new BigDecimal(responseHeaders.get("X-RateLimit-Reset"));
+                float resetAfter = Float.parseFloat(responseHeaders.get("X-RateLimit-Reset-After"));
+
+                if (djv.isDebug()) {
+                    System.out.println("Updating bucket " + id + " with limit " + limit + ", remaining " + remaining + ", reset " + reset + ", resetAfter " + resetAfter);
+                }
+
+                if (djv.getBucket(id) == null) {
+                    djv.updateBucket(id, new Bucket(id, limit, remaining, (reset.multiply(new BigDecimal(1000)).longValue()), resetAfter));
+                } else {
+                    djv.getBucket(id).update(limit, remaining, (reset.multiply(new BigDecimal(1000)).longValue()), resetAfter).addAffectedRoute(baseUrl);
+                }
+            }
+
             if (responseCode == 429) {
                 if (djv.isDebug()) {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure you are not sending too many requests.");
                 }
 
-                JSONObject body = new JSONObject(sb);
-                if (body.has("retry_after")) {
-                    String finalContentType = contentType;
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep((long) (body.getFloat("retry_after") * 1000));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            invoke(finalContentType, auth);
-                        } catch (UnhandledDiscordAPIErrorException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }).start();
-                } else {
-                    if (responseHeaders.get("X-RateLimit-Bucket") == null || responseHeaders.get("X-RateLimit-Reset") == null) {
-                        return new DiscordResponse(429, null, null, null);
-                    }
-                    Bucket exceededBucket = djv.getBucket(responseHeaders.get("X-RateLimit-Bucket"));
-                    queueRequest(Double.parseDouble(responseHeaders.get("X-RateLimit-Reset")), exceededBucket);
+                float retryAfter = new JSONObject(sb).getFloat("retry_after");
+                if (retryAfter == -1) {
+                    Logger.getLogger("RateLimit").warning("[RATE LIMIT] Invalid rate limit response (?) - please contact Discord support. " + sb);
+                    return new DiscordResponse(429, body, headers, null);
                 }
-                if (body.getBoolean("global")) {
-                    Logger.getLogger("RateLimit").severe("[RATE LIMIT] This seems to be a global rate limit. If you are not sending a huge amount of requests unexpectedly, and your bot is in a lot of servers (100k+), contact Discord developer support.");
-                }
-                return new DiscordResponse(429, null, null, null);
+
+                return queueRequest(retryAfter, url, auth, contentType);
             }
 
             if (responseCode == 200 || responseCode == 201) {
@@ -345,6 +334,8 @@ public class DiscordRequest {
         } catch (IOException e) {
             // attempt gateway reconnect
             throw new DiscordUnexpectedError(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

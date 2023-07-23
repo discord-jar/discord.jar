@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class Cache<T> {
 
-    private final List<T> cache = new ArrayList<>();
+    private List<T> cache = new ArrayList<>();
     private final DiscordJar discordJar;
     private final Class<T> clazz;
     private final DiscordRequest discordRequest;
@@ -93,6 +93,10 @@ public class Cache<T> {
         } catch (Exception e) {}
         synchronized (cache) {
             try {
+                if (cache.size() == -1) {
+                    cache = new ArrayList<>();
+                    return;
+                }; // Also this seems impossible, recent exceptions prove otherwise so I'm leaving it in. Please ignore your IDE.
                 cache.add(0, t);
             } catch (Exception e) {
                 // We can ignore this - since the cache isn't critical.

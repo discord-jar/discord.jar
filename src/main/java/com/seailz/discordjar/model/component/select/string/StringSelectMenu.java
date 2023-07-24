@@ -1,14 +1,16 @@
 package com.seailz.discordjar.model.component.select.string;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
+import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.component.select.SelectOption;
-import com.seailz.discordjar.utils.json.SJSONArray;
 import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +32,7 @@ public class StringSelectMenu implements SelectMenu {
     private SelectOption[] options;
     private boolean disabled;
 
-    private SJSONObject raw;
+    private JSONObject raw;
 
     /**
      * Creates a new string select menu
@@ -52,7 +54,7 @@ public class StringSelectMenu implements SelectMenu {
      * @param maxValues   The maximum amount of values that can be selected
      * @param options     The options of the select menu
      */
-    public StringSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<SelectOption> options, boolean disabled, SJSONObject raw) {
+    public StringSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<SelectOption> options, boolean disabled, JSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
@@ -158,8 +160,8 @@ public class StringSelectMenu implements SelectMenu {
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONArray options = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray options = new JSONArray();
         for (SelectOption option : this.options)
             options.put(option.compile());
 
@@ -175,7 +177,7 @@ public class StringSelectMenu implements SelectMenu {
         if (options.length() > 25)
             throw new IllegalArgumentException("Select menu cannot have more than 25 options");
 
-        SJSONObject obj = new SJSONObject();
+        JSONObject obj = new JSONObject();
         obj.put("type", type().getCode());
         obj.put("custom_id", customId);
         if (placeholder != null) obj.put("placeholder", placeholder);
@@ -186,7 +188,7 @@ public class StringSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static StringSelectMenu decompile(SJSONObject json, DiscordJar discordJar) {
+    public static StringSelectMenu decompile(JSONObject json, DiscordJar discordJar) {
         String customId = json.has("custom_id") ? json.getString("custom_id") : null;
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
@@ -194,7 +196,7 @@ public class StringSelectMenu implements SelectMenu {
         List<SelectOption> options = new ArrayList<>();
 
         if (json.has("options")) {
-            SJSONArray optionsJson = json.getJSONArray("options");
+            JSONArray optionsJson = json.getJSONArray("options");
             for (int i = 0; i < optionsJson.length(); i++)
                 options.add(SelectOption.decompile(optionsJson.getJSONObject(i), discordJar));
         }
@@ -203,12 +205,12 @@ public class StringSelectMenu implements SelectMenu {
     }
 
     @Override
-    public SJSONObject raw() {
+    public JSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(SJSONObject raw) {
+    public void setRaw(JSONObject raw) {
         this.raw = raw;
     }
 

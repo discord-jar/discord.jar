@@ -2,8 +2,8 @@ package com.seailz.discordjar.model.guild.welcome;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,20 +20,20 @@ public record WelcomeScreen(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONArray welcomeChannels = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray welcomeChannels = new JSONArray();
         for (WelcomeScreenChannel channel : welcomeChannels()) {
             welcomeChannels.put(channel.compile());
         }
 
-        return new SJSONObject()
+        return new JSONObject()
                 .put("description", description)
                 .put("welcome_channels", welcomeChannels);
     }
 
-    public static WelcomeScreen decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static WelcomeScreen decompile(JSONObject obj, DiscordJar discordJar) {
         List<WelcomeScreenChannel> welcomeChannels = new ArrayList<>();
-        SJSONArray welcomeChannelsArray = obj.getJSONArray("welcome_channels");
+        JSONArray welcomeChannelsArray = obj.getJSONArray("welcome_channels");
         for (int i = 0; i < welcomeChannelsArray.length(); i++) {
             welcomeChannels.add(WelcomeScreenChannel.decompile(welcomeChannelsArray.getJSONObject(i), discordJar));
         }

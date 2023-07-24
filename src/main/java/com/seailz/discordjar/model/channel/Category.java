@@ -5,8 +5,9 @@ import com.seailz.discordjar.model.channel.internal.CategoryImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +16,14 @@ public interface Category extends GuildChannel {
 
     List<CategoryMember> members();
 
-    static Category decompile(SJSONObject obj, DiscordJar discordJar) {
+    static Category decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
         Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
         int position = obj.getInt("position");
 
-        SJSONArray array = obj.getJSONArray("permission_overwrites");
+        JSONArray array = obj.getJSONArray("permission_overwrites");
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (array.length() > 0) {
             permissionOverwrites = new ArrayList<>();

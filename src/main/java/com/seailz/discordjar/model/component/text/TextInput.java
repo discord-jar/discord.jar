@@ -2,9 +2,9 @@ package com.seailz.discordjar.model.component.text;
 
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.ModalComponent;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
 /**
  * Represents a text input component.
@@ -25,7 +25,7 @@ public class TextInput implements ModalComponent {
     private int maxLength;
     private boolean required;
 
-    private SJSONObject raw;
+    private JSONObject raw;
 
     /**
      * Creates a new text input component
@@ -38,7 +38,7 @@ public class TextInput implements ModalComponent {
      * @param minLength   The minimum length of the input (min 0, max 4000), default 0
      * @param maxLength   The maximum length of the input (min 1, max 4000), default 4000
      */
-    public TextInput(@NotNull String customId, @NotNull TextInputStyle style, @NotNull String label, @Nullable String placeholder, @Nullable String value, int minLength, int maxLength, boolean required, SJSONObject raw) {
+    public TextInput(@NotNull String customId, @NotNull TextInputStyle style, @NotNull String label, @Nullable String placeholder, @Nullable String value, int minLength, int maxLength, boolean required, JSONObject raw) {
         this.customId = customId;
         this.style = style;
         this.label = label;
@@ -55,13 +55,13 @@ public class TextInput implements ModalComponent {
     }
 
     /**
-     * Compiles the component into a {@link SJSONObject}
+     * Compiles the component into a {@link JSONObject}
      *
      * @return The compiled component
      */
     @NotNull
     @Override
-    public SJSONObject compile() {
+    public JSONObject compile() {
         if (maxLength < 1)
             throw new IllegalStateException("Max length must be greater than 1");
 
@@ -83,7 +83,7 @@ public class TextInput implements ModalComponent {
         if (placeholder != null && placeholder.length() > 100)
             throw new IllegalStateException("Placeholder must be less than 100 characters");
 
-        SJSONObject object = new SJSONObject();
+        JSONObject object = new JSONObject();
         object.put("type", type().getCode());
         object.put("custom_id", customId);
         object.put("style", style.code());
@@ -100,7 +100,7 @@ public class TextInput implements ModalComponent {
      * @param json The json to parse
      * @return The parsed {@link TextInput}
      */
-    public static TextInput decompile(@NotNull SJSONObject json) {
+    public static TextInput decompile(@NotNull JSONObject json) {
         String customId = json.getString("custom_id");
         TextInputStyle style = TextInputStyle.fromCode(json.getInt("style"));
         String label = json.getString("label");
@@ -215,12 +215,12 @@ public class TextInput implements ModalComponent {
     }
 
     @Override
-    public SJSONObject raw() {
+    public JSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(SJSONObject raw) {
+    public void setRaw(JSONObject raw) {
         this.raw = raw;
     }
 }

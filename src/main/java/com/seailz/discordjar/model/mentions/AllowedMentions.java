@@ -2,8 +2,8 @@ package com.seailz.discordjar.model.mentions;
 
 import com.seailz.discordjar.core.Compilerable;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,8 +35,8 @@ public record AllowedMentions(
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject json = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
         if (parse == null) {
             throw new IllegalArgumentException("Parse cannot be null");
         }
@@ -49,7 +49,7 @@ public record AllowedMentions(
             throw new IllegalArgumentException("Users cannot be null");
         }
 
-        SJSONArray parseArray = new SJSONArray();
+        JSONArray parseArray = new JSONArray();
         if (parse.contains(Type.EVERYONE_MENTIONS) && !allowEveryone) {
             parse.remove(Type.EVERYONE_MENTIONS);
             Logger.getLogger(AllowedMentions.class.getName()).warning("Cannot parse everyone mentions if allowEveryone is false. Removing from parse list.");
@@ -60,14 +60,14 @@ public record AllowedMentions(
 
         json.put("parse", parseArray);
 
-        SJSONArray rolesArray = new SJSONArray();
+        JSONArray rolesArray = new JSONArray();
         for (String role : roles) {
             rolesArray.put(role);
         }
 
         json.put("roles", rolesArray);
 
-        SJSONArray usersArray = new SJSONArray();
+        JSONArray usersArray = new JSONArray();
         for (String user : users) {
             usersArray.put(user);
         }

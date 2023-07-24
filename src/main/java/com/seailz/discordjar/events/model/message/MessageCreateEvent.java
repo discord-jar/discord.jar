@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * This event will fire when a message is sent/created.
@@ -26,7 +26,7 @@ public class MessageCreateEvent extends MessageEvent {
      * @param sequence The sequence number of the event
      * @param data     The data of the event
      */
-    public MessageCreateEvent(DiscordJar bot, long sequence, SJSONObject data) {
+    public MessageCreateEvent(DiscordJar bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
     }
 

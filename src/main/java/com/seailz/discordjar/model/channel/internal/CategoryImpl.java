@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.channel.CategoryMember;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import java.util.List;
 public class CategoryImpl extends GuildChannelImpl implements Category {
     private final List<CategoryMember> members;
 
-    public CategoryImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, List<CategoryMember> members, SJSONObject raw, DiscordJar discordJar) {
+    public CategoryImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, List<CategoryMember> members, JSONObject raw, DiscordJar discordJar) {
         super(id, type, name, guild, position, permissionOverwrites, false, raw, discordJar);
         this.members = members;
     }

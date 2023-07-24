@@ -3,8 +3,8 @@ package com.seailz.discordjar.model.interaction.data.message;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectOption;
 import com.seailz.discordjar.model.interaction.InteractionData;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class MessageComponentInteractionData extends InteractionData {
         this.snowflakes = snowflakes;
     }
 
-    public MessageComponentInteractionData(SJSONObject obj) {
+    public MessageComponentInteractionData(JSONObject obj) {
         this.customId = obj.getString("custom_id");
         this.componentType = ComponentType.getType(obj.getInt("component_type"));
 
@@ -62,12 +62,12 @@ public class MessageComponentInteractionData extends InteractionData {
         return selectOptions;
     }
 
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("custom_id", customId);
         obj.put("component_type", componentType.toString().toLowerCase());
         if (selectOptions != null && componentType.equals(ComponentType.STRING_SELECT)) {
-            SJSONArray arr = new SJSONArray();
+            JSONArray arr = new JSONArray();
             for (SelectOption.ResolvedSelectOption option : selectOptions) {
 
             }
@@ -76,7 +76,7 @@ public class MessageComponentInteractionData extends InteractionData {
 
         if (snowflakes != null) {
             if (componentType.equals(ComponentType.ROLE_SELECT) || componentType.equals(ComponentType.CHANNEL_SELECT) || componentType.equals(ComponentType.USER_SELECT) || componentType.equals(ComponentType.MENTIONABLE_SELECT)) {
-                SJSONArray arr = new SJSONArray();
+                JSONArray arr = new JSONArray();
                 snowflakes.forEach(arr::put);
                 obj.put("values", arr);
             }

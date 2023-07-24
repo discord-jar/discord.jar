@@ -1,8 +1,8 @@
 package com.seailz.discordjar.model.status.activity;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Represents the secrets of an activity
@@ -20,14 +20,14 @@ public record ActivitySecrets(
         String match
 ) implements Compilerable {
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("join", join)
                 .put("spectate", spectate)
                 .put("match", match);
     }
 
-    public static ActivitySecrets decompile(SJSONObject obj) {
+    public static ActivitySecrets decompile(JSONObject obj) {
         String join;
         String spectate;
         String match;

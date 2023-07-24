@@ -5,10 +5,10 @@ import com.seailz.discordjar.model.channel.internal.GroupDMImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.image.ImageUtils;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONArray;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +30,12 @@ public interface GroupDM extends DMChannel {
 
     @NotNull
     @Contract("_, _ -> new")
-    static GroupDM decompile(@NotNull SJSONObject obj, @NotNull DiscordJar discordJar) {
+    static GroupDM decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
 
         List<User> recipients = new ArrayList<>();
-        SJSONArray recipientsArray = obj.getJSONArray("recipients");
-        recipientsArray.forEach(o -> recipients.add(User.decompile((SJSONObject) o, discordJar)));
+        JSONArray recipientsArray = obj.getJSONArray("recipients");
+        recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, discordJar)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
         User owner = recipients.stream().filter(u -> u.id().equals(obj.getString("owner_id"))).findFirst().orElse(null);

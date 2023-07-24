@@ -9,14 +9,16 @@ import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Represents the data of an interaction
@@ -149,8 +151,8 @@ public class Interaction implements Compilerable {
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject data = null;
+    public JSONObject compile() {
+        JSONObject data = null;
         if (this.data != null) {
             Class<? extends InteractionData> dataClass = this.data.getClass();
             Method compileMethod = null;
@@ -161,13 +163,13 @@ public class Interaction implements Compilerable {
             }
 
             try {
-                data = (SJSONObject) compileMethod.invoke(this.data);
+                data = (JSONObject) compileMethod.invoke(this.data);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return new SJSONObject()
+        return new JSONObject()
                 .put("id", id)
                 .put("application", application.id())
                 .put("type", type.getCode())
@@ -185,7 +187,7 @@ public class Interaction implements Compilerable {
     }
 
     @NotNull
-    public static Interaction decompile(SJSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
         String id = json.has("id") ? json.getString("id") : null;
         Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;

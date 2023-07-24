@@ -2,8 +2,8 @@ package com.seailz.discordjar.model.interaction.reply;
 
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.component.RawComponent;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class InteractionModalResponse implements InteractionReply {
     }
 
     @Override
-    public SJSONObject compile() {
+    public JSONObject compile() {
         if (components.size() < 1)
             throw new IllegalStateException("Modal must have at least 1 component");
 
@@ -104,10 +104,10 @@ public class InteractionModalResponse implements InteractionReply {
             }
         }
 
-        SJSONObject json = new SJSONObject();
+        JSONObject json = new JSONObject();
         json.put("title", title);
 
-        SJSONArray components = new SJSONArray();
+        JSONArray components = new JSONArray();
         for (DisplayComponent component : this.components) {
             components.put(component.compile());
         }

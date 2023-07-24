@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.channel.utils;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 public record ChannelMention(
         String id,
@@ -10,7 +10,7 @@ public record ChannelMention(
         String name
 ) implements Compilerable {
 
-    public static ChannelMention decompile(SJSONObject obj) {
+    public static ChannelMention decompile(JSONObject obj) {
         String id;
         String guildId;
         ChannelType type;
@@ -43,8 +43,8 @@ public record ChannelMention(
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("id", id);
         obj.put("guild_id", guildId);
         obj.put("type", type);

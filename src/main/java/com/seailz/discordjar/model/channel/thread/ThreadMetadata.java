@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.channel.thread;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 /**
@@ -24,8 +24,8 @@ public record ThreadMetadata(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("archived", archived)
                 .put("auto_archive_duration", autoArchiveDuration)
                 .put("archive_timestamp", archiveTimestamp)
@@ -35,7 +35,7 @@ public record ThreadMetadata(
     }
 
     @NonNull
-    public static ThreadMetadata decompile(SJSONObject obj) {
+    public static ThreadMetadata decompile(JSONObject obj) {
         boolean archived;
         int autoArchiveDuration;
         String archiveTimestamp;

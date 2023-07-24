@@ -3,8 +3,8 @@ package com.seailz.discordjar.action.sticker;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
@@ -56,10 +56,10 @@ public class ModifyStickerAction {
             try {
                 return Sticker.decompile(
                         new DiscordRequest(
-                                new SJSONObject()
-                                        .put("name", name != null ? name : SJSONObject.NULL)
-                                        .put("description", description != null ? description : SJSONObject.NULL)
-                                        .put("tags", tags != null ? tags : SJSONObject.NULL),
+                                new JSONObject()
+                                        .put("name", name != null ? name : JSONObject.NULL)
+                                        .put("description", description != null ? description : JSONObject.NULL)
+                                        .put("tags", tags != null ? tags : JSONObject.NULL),
                                 new HashMap<>(),
                                 URLS.PATCH.GUILD.STICKER.MODIFY_GUILD_STICKER.replace(
                                         "{sticker_id}",

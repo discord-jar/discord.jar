@@ -6,7 +6,7 @@ import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.invite.InviteMetadata;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 public class InviteMetadataImpl extends InviteImpl implements InviteMetadata {
 
@@ -50,28 +50,28 @@ public class InviteMetadataImpl extends InviteImpl implements InviteMetadata {
         return createdAt;
     }
 
-    public static InviteMetadataImpl decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static InviteMetadataImpl decompile(JSONObject obj, DiscordJar discordJar) {
         String code = obj.has("code") ? obj.getString("code") : null;
-        Guild guild = obj.has("guild") && obj.get("guild") != SJSONObject.NULL ? Guild.decompile(obj.getJSONObject("guild"), discordJar) : null;
-        Channel channel = obj.has("channel") && obj.get("channel") != SJSONObject.NULL ? Channel.decompile(obj.getJSONObject("channel"), discordJar) : null;
-        User inviter = obj.has("inviter") && obj.get("inviter") != SJSONObject.NULL ? User.decompile(obj.getJSONObject("inviter"), discordJar) : null;
+        Guild guild = obj.has("guild") && obj.get("guild") != JSONObject.NULL ? Guild.decompile(obj.getJSONObject("guild"), discordJar) : null;
+        Channel channel = obj.has("channel") && obj.get("channel") != JSONObject.NULL ? Channel.decompile(obj.getJSONObject("channel"), discordJar) : null;
+        User inviter = obj.has("inviter") && obj.get("inviter") != JSONObject.NULL ? User.decompile(obj.getJSONObject("inviter"), discordJar) : null;
         VoiceInviteTargetType voiceInviteTarget = obj.has("target_type") ? VoiceInviteTargetType.fromCode(obj.getInt("target_type")) : null;
-        User targetUserStream = obj.has("target_user") && obj.get("target_user") == SJSONObject.NULL ? User.decompile(obj.getJSONObject("target_user"), discordJar) : null;
-        Application targetApplication = obj.has("target_application") && obj.get("target_application") == SJSONObject.NULL ? Application.decompile(obj.getJSONObject("target_application"), discordJar) : null;
+        User targetUserStream = obj.has("target_user") && obj.get("target_user") == JSONObject.NULL ? User.decompile(obj.getJSONObject("target_user"), discordJar) : null;
+        Application targetApplication = obj.has("target_application") && obj.get("target_application") == JSONObject.NULL ? Application.decompile(obj.getJSONObject("target_application"), discordJar) : null;
         int approximatePresenceCount = obj.has("approximate_presence_count") ? obj.getInt("approximate_presence_count") : -1;
         int approximateMemberCount = obj.has("approximate_member_count") ? obj.getInt("approximate_member_count") : -1;
-        String expiresAt = obj.has("expires_at") && obj.get("expires_at") != SJSONObject.NULL ? obj.getString("expires_at") : null;
+        String expiresAt = obj.has("expires_at") && obj.get("expires_at") != JSONObject.NULL ? obj.getString("expires_at") : null;
         int uses = obj.has("uses") ? obj.getInt("uses") : -1;
         int maxUses = obj.has("max_uses") ? obj.getInt("max_uses") : -1;
         int maxAge = obj.has("max_age") ? obj.getInt("max_age") : -1;
         boolean temporary = obj.has("temporary") && obj.getBoolean("temporary");
-        String createdAt = obj.has("created_at") && obj.get("created_at") != SJSONObject.NULL ? obj.getString("created_at") : null;
+        String createdAt = obj.has("created_at") && obj.get("created_at") != JSONObject.NULL ? obj.getString("created_at") : null;
         return new InviteMetadataImpl(code, guild, channel, inviter, voiceInviteTarget, targetUserStream, targetApplication, approximatePresenceCount, approximateMemberCount, expiresAt, uses, maxUses, maxAge, temporary, createdAt);
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject json = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
         json.put("code", code());
         json.put("guild", guild().compile());
         json.put("channel", channel().compile());

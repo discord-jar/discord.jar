@@ -12,11 +12,11 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.utils.json.SJSONArray;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -79,7 +79,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         DiscordResponse response = null;
         try {
             response = new DiscordRequest(
-                    new SJSONObject(),
+                    new JSONObject(),
                     new HashMap<>(),
                     "/gateway",
                     discordJar,
@@ -232,7 +232,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         return status;
     }
 
-    public void queueMessage(SJSONObject payload) {
+    public void queueMessage(JSONObject payload) {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Queued message: " + payload.toString());
         }
@@ -248,7 +248,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
-        SJSONObject payload = new SJSONObject(message.getPayload());
+        JSONObject payload = new JSONObject(message.getPayload());
         if (discordJar.getGateway() != this) {
             // Drop connection if we're not the active gateway
             killConnection();
@@ -316,7 +316,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    private void handleDispatched(SJSONObject payload) {
+    private void handleDispatched(JSONObject payload) {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
@@ -332,7 +332,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         new Thread(() -> {
             Event event;
             try {
-                event = eventClass.getConstructor(DiscordJar.class, long.class, SJSONObject.class)
+                event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
                         .newInstance(discordJar, sequence, payload);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 logger.warning("[DISCORD.JAR - EVENTS] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
@@ -361,7 +361,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 readyForMessages = true;
 
                 if (discordJar.getStatus() != null) {
-                    SJSONObject json = new SJSONObject();
+                    JSONObject json = new JSONObject();
                     json.put("d", discordJar.getStatus().compile());
                     json.put("op", 3);
                     queueMessage(json);
@@ -426,7 +426,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         connect(resumeUrl); */
     }
 
-    private void handleHello(SJSONObject payload) {
+    private void handleHello(JSONObject payload) {
         heartbeatManager = new Heart(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
     }
 
@@ -443,21 +443,21 @@ public class GatewayFactory extends TextWebSocketHandler {
             discordJar.getIntents().forEach(intent -> intents.getAndAdd(intent.getLeftShiftId()));
         }
 
-        SJSONObject payload = new SJSONObject();
+        JSONObject payload = new JSONObject();
         payload.put("op", 2);
-        SJSONObject data = new SJSONObject();
+        JSONObject data = new JSONObject();
         data.put("token", discordJar.getToken());
         if (numShards != -1 && shardId != -1) {
-            data.put("shard", new SJSONArray().put(shardId).put(numShards));
+            data.put("shard", new JSONArray().put(shardId).put(numShards));
         }
         String os = System.getProperty("os.name").toLowerCase();
-        data.put("properties", new SJSONObject().put("os", os).put("browser", "discord.jar").put("device", "discord.jar"));
+        data.put("properties", new JSONObject().put("os", os).put("browser", "discord.jar").put("device", "discord.jar"));
         data.put("intents", intents.get());
         payload.put("d", data);
         sendPayload(payload);
     }
 
-    public void sendPayload(SJSONObject payload) {
+    public void sendPayload(JSONObject payload) {
         if (session == null) {
             // Session is null, restart gateway
             discordJar.restartGateway();
@@ -479,8 +479,8 @@ public class GatewayFactory extends TextWebSocketHandler {
             logger.info("[DISCORD.JAR - DEBUG] Requesting guild members...");
         }
 
-        SJSONObject payload = new SJSONObject();
-        SJSONObject dPayload = new SJSONObject();
+        JSONObject payload = new JSONObject();
+        JSONObject dPayload = new JSONObject();
         dPayload.put("guild_id", action.getGuildId());
         if (action.getQuery() != null) {
             dPayload.put("query", action.getQuery());

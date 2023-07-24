@@ -1,8 +1,8 @@
 package com.seailz.discordjar.model.status.activity;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public record ActivityAssets(
         String largeImage,
@@ -13,15 +13,15 @@ public record ActivityAssets(
 
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("large_image", largeImage)
                 .put("large_text", largeText)
                 .put("small_image", smallImage)
                 .put("small_text", smallText);
     }
 
-    public static ActivityAssets decompile(SJSONObject obj) {
+    public static ActivityAssets decompile(JSONObject obj) {
         String largeImage;
         String largeText;
         String smallImage;

@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.status.activity;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Represents the timestamps of an activity
@@ -18,13 +18,13 @@ public record ActivityTimestamp(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("start", start)
                 .put("end", end);
     }
 
-    public static ActivityTimestamp decompile(SJSONObject obj) {
+    public static ActivityTimestamp decompile(JSONObject obj) {
         return new ActivityTimestamp(
                 obj.getInt("start"),
                 obj.getInt("end")

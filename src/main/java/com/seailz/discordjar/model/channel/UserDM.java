@@ -6,8 +6,8 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.user.User;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +35,12 @@ public interface UserDM extends DMChannel {
 
     @NotNull
     @Contract("_, _ -> new")
-    static UserDM decompile(@NotNull SJSONObject obj, @NotNull DiscordJar djv) {
+    static UserDM decompile(@NotNull JSONObject obj, @NotNull DiscordJar djv) {
         String lastMessageId = obj.has("last_message_id") ? obj.getString("last_message_id") : null;
 
         List<User> recipients = new ArrayList<>();
-        SJSONArray recipientsArray = obj.getJSONArray("recipients");
-        recipientsArray.forEach(o -> recipients.add(User.decompile((SJSONObject) o, djv)));
+        JSONArray recipientsArray = obj.getJSONArray("recipients");
+        recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, djv)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
         return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv, obj);

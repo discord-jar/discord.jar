@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.status.activity;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Represents a button in an activity
@@ -15,13 +15,13 @@ public record ActivityButton(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("label", label)
                 .put("url", url);
     }
 
-    public static ActivityButton decompile(SJSONObject obj) {
+    public static ActivityButton decompile(JSONObject obj) {
         return new ActivityButton(
                 obj.getString("label"),
                 obj.getString("url")

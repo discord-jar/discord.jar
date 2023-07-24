@@ -3,9 +3,9 @@ package com.seailz.discordjar.command.permissions;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONArray;
+import org.json.JSONArray;
 import org.json.JSONException;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * This class is used to represent an application command permission.
@@ -26,13 +26,13 @@ public record ApplicationCommandPermissions(
 ) implements Compilerable, Snowflake {
 
     @Override
-    public SJSONObject compile() {
-        SJSONArray permissionsArray = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray permissionsArray = new JSONArray();
         for (ApplicationCommandPermissionsData permission : permissions) {
             permissionsArray.put(permission.compile());
         }
 
-        return new SJSONObject()
+        return new JSONObject()
                 .put("id", id)
                 .put("application_id", applicationId)
                 .put("guild_id", guildId)
@@ -40,7 +40,7 @@ public record ApplicationCommandPermissions(
     }
 
     @NotNull
-    public static ApplicationCommandPermissions decompile(@NotNull SJSONObject obj) {
+    public static ApplicationCommandPermissions decompile(@NotNull JSONObject obj) {
         String id;
         String applicationId;
         String guildId;
@@ -65,7 +65,7 @@ public record ApplicationCommandPermissions(
         }
 
         try {
-            SJSONArray permissionsArray = obj.getJSONArray("permissions");
+            JSONArray permissionsArray = obj.getJSONArray("permissions");
             permissions = new ApplicationCommandPermissionsData[permissionsArray.length()];
             for (int i = 0; i < permissionsArray.length(); i++) {
                 permissions[i] = ApplicationCommandPermissionsData.decompile(permissionsArray.getJSONObject(i));

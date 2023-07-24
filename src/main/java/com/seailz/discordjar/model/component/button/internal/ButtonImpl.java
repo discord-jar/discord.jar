@@ -6,8 +6,8 @@ import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.button.ButtonStyle;
 import com.seailz.discordjar.model.emoji.Emoji;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.registry.components.ButtonRegistry;
+import org.json.JSONObject;
 
 import java.util.function.Consumer;
 
@@ -20,11 +20,11 @@ public class ButtonImpl implements Button {
     private String url;
     private boolean isDisabled;
 
-    private SJSONObject raw;
+    private JSONObject raw;
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject json = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
         json.put("type", ComponentType.BUTTON.getCode());
         json.put("label", label);
         json.put("style", style.code());
@@ -119,7 +119,7 @@ public class ButtonImpl implements Button {
         return url;
     }
 
-    public static Button decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static Button decompile(JSONObject obj, DiscordJar discordJar) {
         ButtonImpl button = new ButtonImpl();
         button.setLabel(obj.getString("label"));
         button.setStyle(ButtonStyle.fromCode(obj.getInt("style")));
@@ -132,12 +132,12 @@ public class ButtonImpl implements Button {
     }
 
     @Override
-    public SJSONObject raw() {
+    public JSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(SJSONObject raw) {
+    public void setRaw(JSONObject raw) {
         this.raw = raw;
     }
 }

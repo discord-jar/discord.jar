@@ -2,8 +2,8 @@ package com.seailz.discordjar.model.interaction.data.modal;
 
 import com.seailz.discordjar.model.component.modal.ResolvedModalComponent;
 import com.seailz.discordjar.model.interaction.InteractionData;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,16 +13,16 @@ public class ModalSubmitInteractionData extends InteractionData {
     private final String customId;
     private final List<ResolvedModalComponent> components;
 
-    public ModalSubmitInteractionData(SJSONObject obj) {
+    public ModalSubmitInteractionData(JSONObject obj) {
         this.customId = obj.has("custom_id") ? obj.getString("custom_id") : null;
 
         List<ResolvedModalComponent> resolvedModalComponents = new ArrayList<>();
-        SJSONArray com = obj.getJSONArray("components");
+        JSONArray com = obj.getJSONArray("components");
         for (Object o : com) {
-            SJSONObject json = (SJSONObject) o;
-            SJSONArray components = json.getJSONArray("components");
+            JSONObject json = (JSONObject) o;
+            JSONArray components = json.getJSONArray("components");
             for (Object comp : components) {
-                SJSONObject jsonComp = (SJSONObject) comp;
+                JSONObject jsonComp = (JSONObject) comp;
                 ResolvedModalComponent decompiled = ResolvedModalComponent.decompile(jsonComp);
                 resolvedModalComponents.add(decompiled);
             }

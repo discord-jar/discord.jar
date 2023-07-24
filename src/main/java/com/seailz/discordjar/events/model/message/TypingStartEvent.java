@@ -8,7 +8,7 @@ import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * This event will fire when a user starts typing.
@@ -30,9 +30,9 @@ public class TypingStartEvent extends Event {
     private final long timestamp;
     private Member member;
 
-    public TypingStartEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public TypingStartEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
-        SJSONObject inner = data.getJSONObject("d");
+        JSONObject inner = data.getJSONObject("d");
         channelId = inner.getString("channel_id");
         guildId = inner.has("guild_id") && !inner.isNull("guild_id") ? inner.getString("guild_id") : null;
         userId = inner.getString("user_id");

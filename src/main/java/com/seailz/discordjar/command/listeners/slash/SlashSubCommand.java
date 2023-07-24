@@ -3,8 +3,8 @@ package com.seailz.discordjar.command.listeners.slash;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.command.CommandOption;
 import com.seailz.discordjar.command.CommandOptionType;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,24 +35,24 @@ public class SlashSubCommand implements Compilerable {
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject json = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
         json.put("type", CommandOptionType.SUB_COMMAND.getCode());
         json.put("name", name);
         json.put("description", description);
-        SJSONArray optionsJson = new SJSONArray();
+        JSONArray optionsJson = new JSONArray();
         options.forEach((option -> optionsJson.put(option.compile())));
         if (options.isEmpty()) json.put("options", optionsJson);
 
         return json;
     }
 
-    public static SlashSubCommand decompile(SJSONObject obj) {
+    public static SlashSubCommand decompile(JSONObject obj) {
         String name = obj.getString("name");
         String description = obj.getString("description");
 
         List<CommandOption> options = new ArrayList<>();
-        SJSONArray optionsJson = obj.getJSONArray("options");
+        JSONArray optionsJson = obj.getJSONArray("options");
         for (int i = 0; i < optionsJson.length(); i++) {
             options.add(CommandOption.decompile(optionsJson.getJSONObject(i)));
         }

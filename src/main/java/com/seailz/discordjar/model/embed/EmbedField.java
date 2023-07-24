@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.embed;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 public record EmbedField(
@@ -11,8 +11,8 @@ public record EmbedField(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("name", name);
         obj.put("value", value);
         obj.put("inline", inline);
@@ -20,7 +20,7 @@ public record EmbedField(
     }
 
     @NonNull
-    public static EmbedField decompile(SJSONObject obj) {
+    public static EmbedField decompile(JSONObject obj) {
         String name;
         String value;
         boolean inline;

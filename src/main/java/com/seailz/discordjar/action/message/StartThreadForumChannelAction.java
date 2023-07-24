@@ -7,10 +7,10 @@ import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.MessageFlag;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
@@ -111,7 +111,7 @@ public class StartThreadForumChannelAction {
     public CompletableFuture<Thread> run() {
         CompletableFuture<Thread> future = new CompletableFuture<>();
         future.completeAsync(() -> {
-            SJSONObject payload = new SJSONObject();
+            JSONObject payload = new JSONObject();
             payload.put("name", name);
             if (autoArchiveDuration != null) {
                 payload.put("auto_archive_duration", autoArchiveDuration.getMinutes());
@@ -122,7 +122,7 @@ public class StartThreadForumChannelAction {
             }
 
             if (!tagIds.isEmpty()) {
-                SJSONArray tagIdsArray = new SJSONArray();
+                JSONArray tagIdsArray = new JSONArray();
                 tagIds.forEach(tagIdsArray::put);
                 payload.put("applied_tags", tagIdsArray);
             }
@@ -323,11 +323,11 @@ public class StartThreadForumChannelAction {
             return silent;
         }
 
-        protected SJSONObject compile() {
-            SJSONObject payload = new SJSONObject();
+        protected JSONObject compile() {
+            JSONObject payload = new JSONObject();
             if (this.text != null) payload.put("content", this.text);
 
-            SJSONArray components = new SJSONArray();
+            JSONArray components = new JSONArray();
             if (this.components != null && !this.components.isEmpty()) {
                 for (DisplayComponent component : this.components) {
                     components.put(component.compile());
@@ -337,7 +337,7 @@ public class StartThreadForumChannelAction {
             if (this.components != null && !this.components.isEmpty())
                 payload.put("components", components);
 
-            SJSONArray embeds = new SJSONArray();
+            JSONArray embeds = new JSONArray();
             if (this.embeds != null) {
                 for (Embeder embed : this.embeds) {
                     embeds.put(embed.compile());
@@ -347,7 +347,7 @@ public class StartThreadForumChannelAction {
             if (this.embeds != null)
                 payload.put("embeds", embeds);
 
-            SJSONArray stickerIds = new SJSONArray();
+            JSONArray stickerIds = new JSONArray();
             if (this.stickerIds != null) {
                 for (String stickerId : this.stickerIds) {
                     stickerIds.put(stickerId);
@@ -358,7 +358,7 @@ public class StartThreadForumChannelAction {
                 payload.put("sticker_ids", stickerIds);
 
             if (this.attachments != null) {
-                SJSONArray files = new SJSONArray();
+                JSONArray files = new JSONArray();
                 for (Attachment attachment : this.attachments) {
                     files.put(attachment.compile());
                 }

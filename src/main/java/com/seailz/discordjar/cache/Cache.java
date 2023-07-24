@@ -3,10 +3,10 @@ package com.seailz.discordjar.cache;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.InvocationTargetException;
@@ -175,13 +175,13 @@ public class Cache<T> {
                 ).invoke();
             Method decompile;
             try {
-                decompile = clazz.getMethod("decompile", SJSONObject.class, DiscordJar.class);
+                decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJar.class);
             } catch (NoSuchMethodException e) {
                 try {
-                    decompile = clazz.getMethod("decompile", SJSONObject.class);
+                    decompile = clazz.getMethod("decompile", JSONObject.class);
                 } catch (NoSuchMethodException ex) {
                     try {
-                        decompile = clazz.getMethod("decompile", SJSONObject.class, DiscordJar.class, String.class, Guild.class);
+                        decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJar.class, String.class, Guild.class);
                     } catch (NoSuchMethodException exx) {
                         Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
                         throw new RuntimeException(exx);
@@ -243,7 +243,7 @@ public class Cache<T> {
         return returnObject.get() == null ? null : (T) returnObject.get();
     }
 
-    public SJSONObject getFresh(String id) {
+    public JSONObject getFresh(String id) {
         DiscordResponse response = null;
         try {
             response = new DiscordRequest(

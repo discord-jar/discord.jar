@@ -17,7 +17,7 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -30,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 1.0
  */
 public class InteractionEvent extends Event {
-    public InteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public InteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 

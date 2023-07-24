@@ -3,8 +3,8 @@ package com.seailz.discordjar.events.model.guild;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.model.guild.Guild;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 /**
  * This event fires when the bot joins a guild.
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0
  */
 public class GuildCreateEvent extends Event {
-    public GuildCreateEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public GuildCreateEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 

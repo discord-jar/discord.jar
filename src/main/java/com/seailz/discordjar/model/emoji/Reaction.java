@@ -2,7 +2,7 @@ package com.seailz.discordjar.model.emoji;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 /**
@@ -19,8 +19,8 @@ public record Reaction(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("count", count);
         obj.put("me", me);
         obj.put("emoji", emoji.compile());
@@ -28,7 +28,7 @@ public record Reaction(
     }
 
     @NonNull
-    public static Reaction decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static Reaction decompile(JSONObject obj, DiscordJar discordJar) {
         int count;
         boolean me;
         Emoji emoji;

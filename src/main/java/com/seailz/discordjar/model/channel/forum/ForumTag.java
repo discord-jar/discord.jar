@@ -2,7 +2,7 @@ package com.seailz.discordjar.model.channel.forum;
 
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 /**
@@ -23,8 +23,8 @@ public record ForumTag(
 ) implements Compilerable, Snowflake {
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("id", id)
                 .put("name", name)
                 .put("moderated", moderated)
@@ -33,7 +33,7 @@ public record ForumTag(
     }
 
     @NonNull
-    public static ForumTag decompile(SJSONObject obj) {
+    public static ForumTag decompile(JSONObject obj) {
         String id;
         String name;
         boolean moderated;

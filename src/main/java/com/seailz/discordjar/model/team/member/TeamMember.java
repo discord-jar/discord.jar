@@ -3,20 +3,20 @@ package com.seailz.discordjar.model.team.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 public record TeamMember(MembershipState membershipState, String permissions, String teamId,
                          User user) implements Compilerable {
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("membership_state", membershipState.getCode())
                 .put("permissions", permissions)
                 .put("team_id", teamId)
                 .put("user", user.compile());
     }
 
-    public static TeamMember decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static TeamMember decompile(JSONObject obj, DiscordJar discordJar) {
         MembershipState membershipState;
         String permissions;
         String teamId;

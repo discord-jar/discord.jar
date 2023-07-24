@@ -8,9 +8,9 @@ import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONArray;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -86,7 +86,7 @@ public record ResolvedData(
     } */
 
     @NotNull
-    public static ResolvedData decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static ResolvedData decompile(JSONObject obj, DiscordJar discordJar) {
         HashMap<String, User> users = new HashMap<>();
         HashMap<String, Member> members = new HashMap<>();
         HashMap<String, Role> roles = new HashMap<>();
@@ -95,7 +95,7 @@ public record ResolvedData(
         HashMap<String, Attachment> attachments = new HashMap<>();
 
         if (obj.has("users") && !obj.isNull("users")) {
-            SJSONObject usersObj = obj.getJSONObject("users");
+            JSONObject usersObj = obj.getJSONObject("users");
             for (String s : usersObj.keySet()) {
                 users.put(s, User.decompile(usersObj.getJSONObject(s), discordJar));
             }
@@ -104,7 +104,7 @@ public record ResolvedData(
         }
 
         if (obj.has("members") && !obj.isNull("members")) {
-            SJSONObject membersObj = obj.getJSONObject("members");
+            JSONObject membersObj = obj.getJSONObject("members");
             for (String s : membersObj.keySet()) {
                 members.put(s, Member.decompile(membersObj.getJSONObject(s), discordJar, null, null));
             }
@@ -113,7 +113,7 @@ public record ResolvedData(
         }
 
         if (obj.has("roles") && !obj.isNull("roles")) {
-            SJSONObject rolesObj = obj.getJSONObject("roles");
+            JSONObject rolesObj = obj.getJSONObject("roles");
             for (String s : rolesObj.keySet()) {
                 roles.put(s, Role.decompile(rolesObj.getJSONObject(s)));
             }
@@ -122,7 +122,7 @@ public record ResolvedData(
         }
 
         if (obj.has("channels") && !obj.isNull("channels")) {
-            SJSONObject channelsObj = obj.getJSONObject("channels");
+            JSONObject channelsObj = obj.getJSONObject("channels");
             for (String s : channelsObj.keySet()) {
                 channels.put(s, Channel.decompile(channelsObj.getJSONObject(s), discordJar));
             }
@@ -131,7 +131,7 @@ public record ResolvedData(
         }
 
         if (obj.has("messages") && !obj.isNull("messages")) {
-            SJSONObject messagesObj = obj.getJSONObject("messages");
+            JSONObject messagesObj = obj.getJSONObject("messages");
             for (String s : messagesObj.keySet()) {
                 messages.put(s, Message.decompile(messagesObj.getJSONObject(s), discordJar));
             }
@@ -140,7 +140,7 @@ public record ResolvedData(
         }
 
         if (obj.has("attachments") && !obj.isNull("attachments")) {
-            SJSONObject attachmentsObj = obj.getJSONObject("attachments");
+            JSONObject attachmentsObj = obj.getJSONObject("attachments");
             for (String s : attachmentsObj.keySet()) {
                 attachments.put(s, Attachment.decompile(attachmentsObj.getJSONObject(s)));
             }
@@ -151,10 +151,10 @@ public record ResolvedData(
         return new ResolvedData(users, members, roles, channels, messages, attachments);
     }
 
-    public static HashMap<String, Resolvable> jsonToMap(SJSONArray arr) {
+    public static HashMap<String, Resolvable> jsonToMap(JSONArray arr) {
         HashMap<String, Resolvable> map = new HashMap<>();
         for (int i = 0; i < arr.length(); i++) {
-            SJSONObject obj = arr.getJSONObject(i);
+            JSONObject obj = arr.getJSONObject(i);
             map.put(obj.keys().next(), (Resolvable) obj.getJSONObject(obj.keys().next()));
         }
         return map;

@@ -3,8 +3,8 @@ package com.seailz.discordjar.model.emoji.sticker;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,11 @@ public record StickerPack(
 
 
     @Override
-    public SJSONObject compile() {
-        SJSONArray stickers = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray stickers = new JSONArray();
         this.stickers.forEach(sticker -> stickers.put(sticker.compile()));
 
-        return new SJSONObject()
+        return new JSONObject()
                 .put("id", id)
                 .put("stickers", stickers)
                 .put("name", name)
@@ -35,9 +35,9 @@ public record StickerPack(
                 .put("banner_id", bannerId);
     }
 
-    public static StickerPack decompile(SJSONObject json, DiscordJar discordJar) {
+    public static StickerPack decompile(JSONObject json, DiscordJar discordJar) {
         List<Sticker> stickers = new ArrayList<>();
-        json.getJSONArray("stickers").forEach(object -> stickers.add(Sticker.decompile((SJSONObject) object, discordJar)));
+        json.getJSONArray("stickers").forEach(object -> stickers.add(Sticker.decompile((JSONObject) object, discordJar)));
 
         return new StickerPack(
                 json.getString("id"),
@@ -50,10 +50,10 @@ public record StickerPack(
         );
     }
 
-    public static List<StickerPack> decompileList(SJSONObject json, DiscordJar discordJar) {
-        SJSONArray arr = json.getJSONArray("sticker_packs");
+    public static List<StickerPack> decompileList(JSONObject json, DiscordJar discordJar) {
+        JSONArray arr = json.getJSONArray("sticker_packs");
         List<StickerPack> packs = new ArrayList<>();
-        arr.forEach(object -> packs.add(decompile((SJSONObject) object, discordJar)));
+        arr.forEach(object -> packs.add(decompile((JSONObject) object, discordJar)));
         return packs;
     }
 }

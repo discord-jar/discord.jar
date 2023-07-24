@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.embed;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 public record EmbedImage(
@@ -12,8 +12,8 @@ public record EmbedImage(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("url", url);
         obj.put("proxy_url", proxyUrl);
         if (height != 0) obj.put("height", height);
@@ -22,7 +22,7 @@ public record EmbedImage(
     }
 
     @NonNull
-    public static EmbedImage decompile(SJSONObject obj) {
+    public static EmbedImage decompile(JSONObject obj) {
         String url;
         String proxyUrl;
         int height;

@@ -2,7 +2,7 @@ package com.seailz.discordjar.events.model;
 
 import com.seailz.discordjar.DiscordJar;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Represents an event that is fired by the Discord API
@@ -19,9 +19,9 @@ public class Event {
 
     private final DiscordJar bot;
     private final long sequence;
-    private final SJSONObject json;
+    private final JSONObject json;
 
-    public Event(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public Event(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         this.bot = bot;
         this.sequence = sequence;
         this.json = data;
@@ -37,7 +37,7 @@ public class Event {
     }
 
     @NotNull
-    public SJSONObject getJson() {
+    public JSONObject getJson() {
         return json;
     }
 

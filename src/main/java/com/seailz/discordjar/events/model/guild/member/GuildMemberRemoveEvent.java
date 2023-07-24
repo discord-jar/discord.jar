@@ -3,8 +3,8 @@ package com.seailz.discordjar.events.model.guild.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 /**
  * Sent when a user is removed from a guild.
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
  * @see    com.seailz.discordjar.model.guild.Member Member
  */
 public class GuildMemberRemoveEvent extends GuildEvent {
-    public GuildMemberRemoveEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public GuildMemberRemoveEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 

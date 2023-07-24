@@ -2,7 +2,7 @@ package com.seailz.discordjar.cache.impl;
 
 import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Implementation of the {@link JsonCache} interface.
@@ -11,7 +11,7 @@ import com.seailz.discordjar.utils.json.SJSONObject;
  */
 public class JsonCacheImpl implements JsonCache {
 
-    private SJSONObject object;
+    private JSONObject object;
     private final DiscordRequest request;
 
     /**
@@ -19,7 +19,7 @@ public class JsonCacheImpl implements JsonCache {
      *
      * @param object The object to store in the cache
      */
-    public JsonCacheImpl(SJSONObject object, DiscordRequest request) {
+    public JsonCacheImpl(JSONObject object, DiscordRequest request) {
         this.object = object;
         this.request = request;
     }
@@ -33,12 +33,12 @@ public class JsonCacheImpl implements JsonCache {
     }
 
     @Override
-    public SJSONObject get() {
+    public JSONObject get() {
         return object;
     }
 
     @Override
-    public void update(SJSONObject object) {
+    public void update(JSONObject object) {
         this.object = object;
     }
 

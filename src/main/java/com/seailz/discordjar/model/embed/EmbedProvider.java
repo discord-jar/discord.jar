@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.embed;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 public record EmbedProvider(
@@ -10,15 +10,15 @@ public record EmbedProvider(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("name", name);
         obj.put("url", url);
         return obj;
     }
 
     @NonNull
-    public static EmbedProvider decompile(SJSONObject obj) {
+    public static EmbedProvider decompile(JSONObject obj) {
         String name;
         String url;
 

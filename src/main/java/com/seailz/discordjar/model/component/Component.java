@@ -4,8 +4,8 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.interaction.modal.Modal;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,7 +21,7 @@ import java.util.List;
  */
 public interface Component extends Compilerable {
 
-    SJSONObject raw();
+    JSONObject raw();
 
     /**
      * The type of the component
@@ -53,12 +53,12 @@ public interface Component extends Compilerable {
     boolean isSelect();
 
     /**
-     * Decompiles a list of {@link Component}s from a {@link SJSONArray}
+     * Decompiles a list of {@link Component}s from a {@link JSONArray}
      *
-     * @param arr The {@link SJSONArray} to decompile
+     * @param arr The {@link JSONArray} to decompile
      * @return A list of {@link Component}s
      */
-    static List<Component> decompileList(SJSONArray arr, DiscordJar discordJar) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    static List<Component> decompileList(JSONArray arr, DiscordJar discordJar) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Component> components = new ArrayList<>();
         for (int i = 0; i < arr.length(); i++) {
             ComponentType type = ComponentType.getType(arr.getJSONObject(i).getInt("type"));
@@ -83,15 +83,15 @@ public interface Component extends Compilerable {
         return components;
     }
 
-    static SJSONArray compileList(List<Component> components) {
-        SJSONArray arr = new SJSONArray();
+    static JSONArray compileList(List<Component> components) {
+        JSONArray arr = new JSONArray();
         for (Component component : components)
             arr.put(component.compile());
         return arr;
     }
 
-    static SJSONArray compileModalList(List<ModalComponent> components) {
-        SJSONArray arr = new SJSONArray();
+    static JSONArray compileModalList(List<ModalComponent> components) {
+        JSONArray arr = new JSONArray();
         for (Component component : components)
             arr.put(component.compile());
         return arr;

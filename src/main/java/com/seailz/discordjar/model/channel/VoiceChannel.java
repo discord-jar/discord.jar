@@ -3,12 +3,14 @@ package com.seailz.discordjar.model.channel;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.audio.VideoQualityMode;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
+import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.internal.VoiceChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,8 @@ public interface VoiceChannel extends AudioChannel {
     VideoQualityMode videoQualityMode();
 
     @Override
-    default SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    default JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("id", id());
         obj.put("type", type());
         obj.put("name", name());
@@ -41,7 +43,7 @@ public interface VoiceChannel extends AudioChannel {
         return obj;
     }
 
-    static VoiceChannel decompile(SJSONObject obj, DiscordJar discordJar) {
+    static VoiceChannel decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");
@@ -51,7 +53,7 @@ public interface VoiceChannel extends AudioChannel {
         discordJar.getVoiceRegions().stream().filter(r -> r.id().equals(obj.getString("region"))).findFirst().ifPresent(region::set);
         int bitrate = obj.getInt("bitrate");
         Category category = Category.fromId(obj.getString("parent_id"), discordJar);
-        SJSONArray array = obj.getJSONArray("permission_overwrites");
+        JSONArray array = obj.getJSONArray("permission_overwrites");
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (array.length() > 0) {
             permissionOverwrites = new ArrayList<>();

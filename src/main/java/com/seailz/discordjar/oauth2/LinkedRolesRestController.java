@@ -10,11 +10,11 @@ import com.seailz.discordjar.oauth2.response.error.CodeNotPresentResponse;
 import com.seailz.discordjar.oauth2.response.error.InvalidEndpointResponse;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -90,14 +90,14 @@ public class LinkedRolesRestController {
 
             // store refresh with user id in database
             String userId = getUser(
-                    new SJSONObject(res.body()).getString("access_token")
+                    new JSONObject(res.body()).getString("access_token")
             ).id();
-            String refreshToken = new SJSONObject(res.body()).getString("refresh_token");
+            String refreshToken = new JSONObject(res.body()).getString("refresh_token");
 
             HashMap<String, String> data = new HashMap<>();
             data.put("refresh_token", refreshToken);
             data.put("user_id", userId);
-            data.put("acc_token", new SJSONObject(res.body()).getString("access_token"));
+            data.put("acc_token", new JSONObject(res.body()).getString("access_token"));
 
             if (database.getConnection() == null)
                 database.connect();
@@ -114,7 +114,7 @@ public class LinkedRolesRestController {
             }
 
 
-            String accessToken = new SJSONObject(res.body()).getString("access_token");
+            String accessToken = new JSONObject(res.body()).getString("access_token");
             if (onCodeReceived != null) onCodeReceived.accept(response, userId, accessToken);
 
 
@@ -158,7 +158,7 @@ public class LinkedRolesRestController {
 
         HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
         return User.decompile(
-                new SJSONObject(res.body()), discordJar
+                new JSONObject(res.body()), discordJar
         );
     }
 }

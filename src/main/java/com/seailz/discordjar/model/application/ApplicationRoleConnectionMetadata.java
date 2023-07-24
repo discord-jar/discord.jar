@@ -1,9 +1,9 @@
 package com.seailz.discordjar.model.application;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -33,27 +33,27 @@ public record ApplicationRoleConnectionMetadata(
         HashMap<String, String> descriptionLocalizations
 ) implements Compilerable {
     @Override
-    public SJSONObject compile() {
-        SJSONObject json = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
         json.put("type", type.getCode());
         json.put("key", key);
         json.put("name", name);
-        if (!nameLocalizations.isEmpty()) json.put("name_localizations", new SJSONObject(nameLocalizations));
+        if (!nameLocalizations.isEmpty()) json.put("name_localizations", new JSONObject(nameLocalizations));
         json.put("description", description);
-        if (!descriptionLocalizations.isEmpty()) json.put("description_localizations", new SJSONObject(descriptionLocalizations));
+        if (!descriptionLocalizations.isEmpty()) json.put("description_localizations", new JSONObject(descriptionLocalizations));
         return json;
     }
 
     @NotNull
     @Contract("_ -> new")
-    public static ApplicationRoleConnectionMetadata decompile(@NotNull SJSONObject json) {
+    public static ApplicationRoleConnectionMetadata decompile(@NotNull JSONObject json) {
         Type type = json.has("type") ? Type.fromCode(json.getInt("type")) : null;
         String key = json.has("key") ? json.getString("key") : null;
         String name = json.has("name") ? json.getString("name") : null;
         HashMap<String, String> nameLocalizations;
 
         if (json.has("name_localizations")) {
-            SJSONObject nameLocalizationsJson = json.getJSONObject("name_localizations");
+            JSONObject nameLocalizationsJson = json.getJSONObject("name_localizations");
             nameLocalizations = new HashMap<>();
             for (String key1 : nameLocalizationsJson.keySet()) {
                 nameLocalizations.put(key1, nameLocalizationsJson.getString(key1));
@@ -66,7 +66,7 @@ public record ApplicationRoleConnectionMetadata(
         HashMap<String, String> descriptionLocalizations;
 
         if (json.has("description_localizations")) {
-            SJSONObject descriptionLocalizationsJson = json.getJSONObject("description_localizations");
+            JSONObject descriptionLocalizationsJson = json.getJSONObject("description_localizations");
             descriptionLocalizations = new HashMap<>();
             for (String key1 : descriptionLocalizationsJson.keySet()) {
                 descriptionLocalizations.put(key1, descriptionLocalizationsJson.getString(key1));

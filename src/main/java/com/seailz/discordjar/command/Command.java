@@ -3,9 +3,9 @@ package com.seailz.discordjar.command;
 import com.seailz.discordjar.command.annotation.Locale;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.permission.Permission;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -34,11 +34,11 @@ public record Command(
         boolean nsfw
 ) implements Compilerable {
     @Override
-    public SJSONObject compile() {
-        SJSONArray optionsJson = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray optionsJson = new JSONArray();
         options.forEach((option) -> optionsJson.put(option.compile()));
 
-        SJSONObject nameLocales = new SJSONObject();
+        JSONObject nameLocales = new JSONObject();
         HashMap<String, String> nameLocalesMap = new HashMap<>();
         for (Locale locale : nameLocalizations) {
             nameLocalesMap.put(locale.locale(), locale.value());
@@ -47,7 +47,7 @@ public record Command(
             nameLocales.put(locale, nameLocalesMap.get(locale));
         }
 
-        SJSONObject descriptionLocales = new SJSONObject();
+        JSONObject descriptionLocales = new JSONObject();
         HashMap<String, String> descriptionLocalesMap = new HashMap<>();
         for (Locale locale : descriptionLocalizations) {
             descriptionLocalesMap.put(locale.locale(), locale.value());
@@ -62,7 +62,7 @@ public record Command(
             permissions |= (1 << permission.code());
         }
 
-        SJSONObject obj = new SJSONObject()
+        JSONObject obj = new JSONObject()
                 .put("name", name)
                 .put("type", type.getCode())
                 .put("description", description)
@@ -78,7 +78,7 @@ public record Command(
         return obj;
     }
 
-    public static Command decompile(SJSONObject obj) {
+    public static Command decompile(JSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
         CommandType type = obj.has("type") ? CommandType.fromCode(obj.getInt("type")) : CommandType.UNKNOWN;
         String description = obj.has("description") ? obj.getString("description") : null;
@@ -90,14 +90,14 @@ public record Command(
         boolean nsfw = false;
 
         if (obj.has("name_localizations")) {
-            SJSONObject nameLocalesJson = obj.getJSONObject("name_localizations");
+            JSONObject nameLocalesJson = obj.getJSONObject("name_localizations");
             for (String locale : nameLocalesJson.keySet()) {
                 nameLocales.put(locale, nameLocalesJson.getString(locale));
             }
         }
 
         if (obj.has("description_localizations")) {
-            SJSONObject descriptionLocalesJson = obj.getJSONObject("description_localizations");
+            JSONObject descriptionLocalesJson = obj.getJSONObject("description_localizations");
             for (String locale : descriptionLocalesJson.keySet()) {
                 descriptionLocales.put(locale, descriptionLocalesJson.getString(locale));
             }
@@ -120,7 +120,7 @@ public record Command(
 
         if (obj.has("options")) {
             for (Object v : obj.getJSONArray("options")) {
-                options.add(CommandOption.decompile((SJSONObject) v));
+                options.add(CommandOption.decompile((JSONObject) v));
             }
         }
 

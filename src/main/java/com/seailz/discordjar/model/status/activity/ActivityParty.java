@@ -2,8 +2,8 @@ package com.seailz.discordjar.model.status.activity;
 
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Represents the party of an activity
@@ -22,14 +22,14 @@ public record ActivityParty(
 ) implements Compilerable, Snowflake {
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("id", id)
                 .put("current_size", currentSize)
                 .put("max_size", maxSize);
     }
 
-    public static ActivityParty decompile(SJSONObject obj) {
+    public static ActivityParty decompile(JSONObject obj) {
         String id;
         int currentSize;
         int maxSize;

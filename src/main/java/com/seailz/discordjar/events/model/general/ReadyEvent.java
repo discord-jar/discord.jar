@@ -5,8 +5,8 @@ import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.guild.UnavailableGuild;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
  * @since 1.0
  */
 public class ReadyEvent extends Event {
-    public ReadyEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public ReadyEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 
@@ -48,7 +48,7 @@ public class ReadyEvent extends Event {
     public List<UnavailableGuild> getGuilds() {
         List<UnavailableGuild> guilds = new ArrayList<>();
         for (Object guild : getJson().getJSONObject("d").getJSONArray("guilds")) {
-            guilds.add(UnavailableGuild.decompile((SJSONObject) guild, getBot()));
+            guilds.add(UnavailableGuild.decompile((JSONObject) guild, getBot()));
         }
         return guilds;
     }

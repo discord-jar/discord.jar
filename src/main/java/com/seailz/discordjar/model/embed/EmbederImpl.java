@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.embed;
 
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.time.Instant;
@@ -172,20 +172,20 @@ public class EmbederImpl implements Embeder {
 
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("title", title);
         obj.put("description", description);
         obj.put("url", url);
         obj.put("timestamp", timestamp);
-        obj.put("color", color != -1 ? color + 0xFFFFFF : SJSONObject.NULL);
-        obj.put("footer", footer != null ? footer.compile() : SJSONObject.NULL);
-        obj.put("image", image != null ? image.compile() : SJSONObject.NULL);
-        obj.put("thumbnail", thumbnail != null ? thumbnail.compile() : SJSONObject.NULL);
-        obj.put("author", author != null ? author.compile() : SJSONObject.NULL);
+        obj.put("color", color != -1 ? color + 0xFFFFFF : JSONObject.NULL);
+        obj.put("footer", footer != null ? footer.compile() : JSONObject.NULL);
+        obj.put("image", image != null ? image.compile() : JSONObject.NULL);
+        obj.put("thumbnail", thumbnail != null ? thumbnail.compile() : JSONObject.NULL);
+        obj.put("author", author != null ? author.compile() : JSONObject.NULL);
 
         // fields
-        SJSONArray fields = new SJSONArray();
+        JSONArray fields = new JSONArray();
         for (EmbedField field : this.fields) {
             fields.put(field.compile());
         }

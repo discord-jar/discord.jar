@@ -3,7 +3,7 @@ package com.seailz.discordjar.model.component.select.entity;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectMenu;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Represents a {@link com.seailz.discordjar.utils.Mentionable} select menu ({@link com.seailz.discordjar.model.role.Role} & {@link com.seailz.discordjar.model.user.User})
@@ -20,7 +20,7 @@ public class MentionableSelectMenu implements SelectMenu {
     private int maxValues;
     private boolean disabled;
 
-    private SJSONObject raw;
+    private JSONObject raw;
 
     /**
      * Creates a new mentionable select menu
@@ -39,7 +39,7 @@ public class MentionableSelectMenu implements SelectMenu {
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
      */
-    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, SJSONObject raw) {
+    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
@@ -102,11 +102,11 @@ public class MentionableSelectMenu implements SelectMenu {
     }
 
     @Override
-    public SJSONObject compile() {
+    public JSONObject compile() {
         if (minValues > maxValues)
             throw new IllegalArgumentException("Min values cannot be greater than max values");
 
-        SJSONObject obj = new SJSONObject();
+        JSONObject obj = new JSONObject();
         obj.put("type", type().getCode());
         obj.put("custom_id", customId);
         if (placeholder != null) obj.put("placeholder", placeholder);
@@ -116,7 +116,7 @@ public class MentionableSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static MentionableSelectMenu decompile(SJSONObject json) {
+    public static MentionableSelectMenu decompile(JSONObject json) {
         String customId = json.has("custom_id") ? json.getString("custom_id") : null;
         String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
         int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
@@ -127,12 +127,12 @@ public class MentionableSelectMenu implements SelectMenu {
     }
 
     @Override
-    public SJSONObject raw() {
+    public JSONObject raw() {
         return raw;
     }
 
     @Override
-    public void setRaw(SJSONObject raw) {
+    public void setRaw(JSONObject raw) {
         this.raw = raw;
     }
 }

@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.message.activity;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 public record MessageActivity(
@@ -10,15 +10,15 @@ public record MessageActivity(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("type", type.getCode());
         obj.put("party_id", partyId);
         return obj;
     }
 
     @NonNull
-    public static MessageActivity decompile(SJSONObject obj) {
+    public static MessageActivity decompile(JSONObject obj) {
         MessageActivityType type;
         String partyId;
 

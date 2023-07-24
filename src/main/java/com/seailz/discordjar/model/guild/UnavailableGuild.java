@@ -5,10 +5,10 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,16 +43,16 @@ public record UnavailableGuild(
 ) implements Compilerable, Snowflake {
 
     @Override
-    public SJSONObject compile() {
-        SJSONArray emojis = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray emojis = new JSONArray();
         this.emojis.forEach(emoji -> emojis.put(emoji.compile()));
 
-        SJSONArray features = new SJSONArray();
+        JSONArray features = new JSONArray();
         this.features.forEach(feature -> features.put(feature.toString()));
 
-        SJSONArray stickers = new SJSONArray();
+        JSONArray stickers = new JSONArray();
         this.stickers.forEach(sticker -> stickers.put(sticker.compile()));
-        return new SJSONObject()
+        return new JSONObject()
                 .put("id", id)
                 .put("name", name)
                 .put("icon", icon)
@@ -67,7 +67,7 @@ public record UnavailableGuild(
     }
 
     @NotNull
-    public static UnavailableGuild decompile(SJSONObject obj, DiscordJar discordjv) {
+    public static UnavailableGuild decompile(JSONObject obj, DiscordJar discordjv) {
         String id;
         String name;
         String icon;
@@ -112,7 +112,7 @@ public record UnavailableGuild(
 
         try {
             List<Emoji> emojiList = new ArrayList<>();
-            SJSONArray emojiArray = obj.getJSONArray("emojis");
+            JSONArray emojiArray = obj.getJSONArray("emojis");
 
             for (int i = 0; i < emojiArray.length(); i++) {
                 emojiList.add(Emoji.decompile(emojiArray.getJSONObject(i), discordjv));
@@ -124,7 +124,7 @@ public record UnavailableGuild(
 
         try {
             List<GuildFeature> featureList = new ArrayList<>();
-            SJSONArray featureArray = obj.getJSONArray("features");
+            JSONArray featureArray = obj.getJSONArray("features");
 
             for (int i = 0; i < featureArray.length(); i++) {
                 featureList.add(GuildFeature.valueOf(featureArray.getString(i)));
@@ -154,7 +154,7 @@ public record UnavailableGuild(
 
         try {
             List<Sticker> stickerList = new ArrayList<>();
-            SJSONArray stickerArray = obj.getJSONArray("stickers");
+            JSONArray stickerArray = obj.getJSONArray("stickers");
 
             for (int i = 0; i < stickerArray.length(); i++) {
                 stickerList.add(Sticker.decompile(stickerArray.getJSONObject(i), discordjv));

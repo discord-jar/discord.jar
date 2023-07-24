@@ -2,7 +2,7 @@ package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.internal.CategoryMemberImpl;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Represents a member of a {@link Category}.
@@ -18,7 +18,7 @@ public interface CategoryMember {
     Category owner();
 
     String parentId();
-    static CategoryMember decompile(SJSONObject obj, DiscordJar discordJar) {
+    static CategoryMember decompile(JSONObject obj, DiscordJar discordJar) {
         Category owner = (Category) discordJar.getChannelById(obj.getString("parent_id"));
         return new CategoryMemberImpl(owner, obj.getString("parent_id"));
     }

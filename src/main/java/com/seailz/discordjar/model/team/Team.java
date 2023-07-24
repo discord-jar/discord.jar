@@ -4,8 +4,8 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.team.member.TeamMember;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONObject;
-import com.seailz.discordjar.utils.json.SJSONArray;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -17,12 +17,12 @@ public record Team(
         String ownerUserId
 ) implements Compilerable, Snowflake {
     @Override
-    public SJSONObject compile() {
-        SJSONArray membersArray = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray membersArray = new JSONArray();
         members.forEach(m -> {
             membersArray.put(m.compile());
         });
-        return new SJSONObject()
+        return new JSONObject()
                 .put("icon", icon)
                 .put("id", id)
                 .put("name", name)
@@ -30,7 +30,7 @@ public record Team(
                 .put("owner_user_id", ownerUserId);
     }
 
-    public static Team decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static Team decompile(JSONObject obj, DiscordJar discordJar) {
         String icon;
         String id;
         String name;
@@ -56,7 +56,7 @@ public record Team(
         }
 
         try {
-            members = obj.getJSONArray("members").toList().stream().map(o -> TeamMember.decompile(new SJSONObject(o.toString()), discordJar)).toList();
+            members = obj.getJSONArray("members").toList().stream().map(o -> TeamMember.decompile(new JSONObject(o.toString()), discordJar)).toList();
         } catch (Exception e) {
             members = null;
         }

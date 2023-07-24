@@ -3,7 +3,7 @@ package com.seailz.discordjar.model.component.select;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.emoji.Emoji;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Represents a select option
@@ -78,8 +78,8 @@ public class SelectOption implements Compilerable {
 
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("label", label);
         obj.put("value", value);
         if (description != null) {
@@ -94,7 +94,7 @@ public class SelectOption implements Compilerable {
         return obj;
     }
 
-    public static SelectOption decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static SelectOption decompile(JSONObject obj, DiscordJar discordJar) {
         SelectOption option = new SelectOption(obj.getString("label"), obj.getString("value"));
         if (obj.has("description")) {
             option.setDescription(obj.getString("description"));

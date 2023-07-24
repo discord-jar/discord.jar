@@ -4,7 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.model.guild.UnavailableGuild;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Sent when the guild becomes or was already unavailable due to an outage, or when the user leaves or is removed from a guild.
@@ -13,7 +13,7 @@ public class GuildDeleteEvent extends Event {
 
     private UnavailableGuild guild;
 
-    public GuildDeleteEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public GuildDeleteEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
         guild = UnavailableGuild.decompile(getJson().getJSONObject("d"), getBot());
     }

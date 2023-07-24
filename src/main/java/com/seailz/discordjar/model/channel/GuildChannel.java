@@ -8,12 +8,12 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
@@ -33,11 +33,11 @@ public interface GuildChannel extends Channel {
 
     boolean nsfw();
 
-    @NotNull SJSONObject raw();
+    @NotNull JSONObject raw();
 
     @Override
-    default SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    default JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("id", id());
         obj.put("type", type().getCode());
         obj.put("name", name());
@@ -46,7 +46,7 @@ public interface GuildChannel extends Channel {
         obj.put("nsfw", nsfw());
 
         if (permissionOverwrites() != null) {
-            SJSONArray array = new SJSONArray();
+            JSONArray array = new JSONArray();
             for (PermissionOverwrite overwrite : permissionOverwrites())
                 array.put(overwrite.compile());
         }
@@ -56,16 +56,16 @@ public interface GuildChannel extends Channel {
     }
 
     /**
-     * Decompile a {@link SJSONObject} into a {@link GuildChannel}
+     * Decompile a {@link JSONObject} into a {@link GuildChannel}
      *
-     * @param obj The {@link SJSONObject} to decompile
+     * @param obj The {@link JSONObject} to decompile
      * @param discordJar The {@link DiscordJar} instance
      *
      * @return The {@link GuildChannel} instance
      */
     @NotNull
     @Contract("_, _ -> new")
-    static GuildChannel decompile(@NotNull SJSONObject obj, @NotNull DiscordJar discordJar) {
+    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -75,9 +75,9 @@ public interface GuildChannel extends Channel {
 
         List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
         if (obj.has("permission_overwrites")) {
-            SJSONArray array = obj.getJSONArray("permission_overwrites");
+            JSONArray array = obj.getJSONArray("permission_overwrites");
             for (int i = 0; i < array.length(); i++) {
-                SJSONObject overwrite = array.getJSONObject(i);
+                JSONObject overwrite = array.getJSONObject(i);
                 permissionOverwrites.add(PermissionOverwrite.decompile(overwrite));
             }
         }

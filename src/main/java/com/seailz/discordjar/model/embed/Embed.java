@@ -1,9 +1,9 @@
 package com.seailz.discordjar.model.embed;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 import java.awt.*;
@@ -27,8 +27,8 @@ public record Embed(
 
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("title", title == null ? null : title)
                 .put("type", type.toString())
                 .put("description", description == null ? null : description)
@@ -41,11 +41,11 @@ public record Embed(
                 .put("video", video == null ? null : video.compile())
                 .put("provider", provider == null ? null : provider.compile())
                 .put("author", author == null ? null : author.compile())
-                .put("fields", fields == null ? null: new SJSONArray(fields));
+                .put("fields", fields == null ? null: new JSONArray(fields));
     }
 
     @NonNull
-    public static Embed decompile(SJSONObject obj) {
+    public static Embed decompile(JSONObject obj) {
         String title;
         EmbedType type;
         String description;
@@ -133,7 +133,7 @@ public record Embed(
         }
 
         try {
-            SJSONArray arr = obj.getJSONArray("fields");
+            JSONArray arr = obj.getJSONArray("fields");
             ArrayList<EmbedField> fields1 = new ArrayList<>();
             for (int i = 0; i < arr.length(); i++) {
                 fields1.add(EmbedField.decompile(arr.getJSONObject(i)));

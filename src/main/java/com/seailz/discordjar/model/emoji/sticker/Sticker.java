@@ -4,10 +4,10 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +43,13 @@ public record Sticker(
 
 
     /**
-     * Creates a {@link SJSONObject} from a {@link Sticker} object
+     * Creates a {@link JSONObject} from a {@link Sticker} object
      *
-     * @return The compiled {@link SJSONObject}
+     * @return The compiled {@link JSONObject}
      */
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("id", id)
                 .put("pack_id", packId)
                 .put("name", name)
@@ -64,13 +64,13 @@ public record Sticker(
     }
 
     /**
-     * Creates a {@link Sticker} object from a {@link SJSONObject}
+     * Creates a {@link Sticker} object from a {@link JSONObject}
      *
-     * @param obj The {@link SJSONObject} to create the {@link Sticker} object from
+     * @param obj The {@link JSONObject} to create the {@link Sticker} object from
      * @return The compiled {@link Sticker} object
      */
     @NotNull
-    public static Sticker decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static Sticker decompile(JSONObject obj, DiscordJar discordJar) {
         String id;
         String packId;
         String name;
@@ -152,7 +152,7 @@ public record Sticker(
         return new Sticker(id, packId, name, description, tags, type, format, available, guildId, user, sortValue);
     }
 
-    public static List<Sticker> decompileList(SJSONArray array, DiscordJar discordJar) {
+    public static List<Sticker> decompileList(JSONArray array, DiscordJar discordJar) {
         List<Sticker> stickers = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             stickers.add(decompile(array.getJSONObject(i), discordJar));

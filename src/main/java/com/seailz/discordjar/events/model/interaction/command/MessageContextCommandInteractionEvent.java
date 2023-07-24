@@ -3,18 +3,18 @@ package com.seailz.discordjar.events.model.interaction.command;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
 
 public class MessageContextCommandInteractionEvent extends CommandInteractionEvent {
 
-    public MessageContextCommandInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public MessageContextCommandInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 
@@ -29,7 +29,7 @@ public class MessageContextCommandInteractionEvent extends CommandInteractionEve
                 null;
         try {
             response = new DiscordRequest(
-                    new SJSONObject(),
+                    new JSONObject(),
                     new HashMap<>(),
                     URLS.GET.CHANNELS.GET_MESSAGE.replace("{channel.id}", getInteraction().channel().id()).replace("{message.id}", String.valueOf(getCommandData().targetId())),
                     getBot(),

@@ -1,10 +1,12 @@
 package com.seailz.discordjar.events.model.guild.member;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 /**
  * Sent when a user joins a guild.
@@ -15,7 +17,7 @@ import com.seailz.discordjar.utils.json.SJSONObject;
  * @see    Member
  */
 public class GuildMemberAddEvent extends GuildEvent {
-    public GuildMemberAddEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public GuildMemberAddEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 

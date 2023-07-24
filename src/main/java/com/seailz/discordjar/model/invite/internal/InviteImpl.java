@@ -8,7 +8,7 @@ import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 public class InviteImpl implements Invite {
 
@@ -36,23 +36,23 @@ public class InviteImpl implements Invite {
         this.expiresAt = expiresAt;
     }
 
-    public static InviteImpl decompile(SJSONObject obj, DiscordJar discordJar) {
+    public static InviteImpl decompile(JSONObject obj, DiscordJar discordJar) {
         String code = obj.has("code") ? obj.getString("code") : null;
-        Guild guild = obj.has("guild") && obj.get("guild") != SJSONObject.NULL ? Guild.decompile(obj.getJSONObject("guild"), discordJar) : null;
-        Channel channel = obj.has("channel") && obj.get("channel") != SJSONObject.NULL ? Channel.decompile(obj.getJSONObject("channel"), discordJar) : null;
-        User inviter = obj.has("inviter") && obj.get("inviter") != SJSONObject.NULL ? User.decompile(obj.getJSONObject("inviter"), discordJar) : null;
+        Guild guild = obj.has("guild") && obj.get("guild") != JSONObject.NULL ? Guild.decompile(obj.getJSONObject("guild"), discordJar) : null;
+        Channel channel = obj.has("channel") && obj.get("channel") != JSONObject.NULL ? Channel.decompile(obj.getJSONObject("channel"), discordJar) : null;
+        User inviter = obj.has("inviter") && obj.get("inviter") != JSONObject.NULL ? User.decompile(obj.getJSONObject("inviter"), discordJar) : null;
         VoiceInviteTargetType voiceInviteTarget = obj.has("target_type") ? VoiceInviteTargetType.fromCode(obj.getInt("target_type")) : null;
-        User targetUserStream = obj.has("target_user") && obj.get("target_user") == SJSONObject.NULL ? User.decompile(obj.getJSONObject("target_user"), discordJar) : null;
-        Application targetApplication = obj.has("target_application") && obj.get("target_application") == SJSONObject.NULL ? Application.decompile(obj.getJSONObject("target_application"), discordJar) : null;
+        User targetUserStream = obj.has("target_user") && obj.get("target_user") == JSONObject.NULL ? User.decompile(obj.getJSONObject("target_user"), discordJar) : null;
+        Application targetApplication = obj.has("target_application") && obj.get("target_application") == JSONObject.NULL ? Application.decompile(obj.getJSONObject("target_application"), discordJar) : null;
         int approximatePresenceCount = obj.has("approximate_presence_count") ? obj.getInt("approximate_presence_count") : -1;
         int approximateMemberCount = obj.has("approximate_member_count") ? obj.getInt("approximate_member_count") : -1;
-        String expiresAt = obj.has("expires_at") && obj.get("expires_at") != SJSONObject.NULL ? obj.getString("expires_at") : null;
+        String expiresAt = obj.has("expires_at") && obj.get("expires_at") != JSONObject.NULL ? obj.getString("expires_at") : null;
         return new InviteImpl(code, guild, channel, inviter, voiceInviteTarget, targetUserStream, targetApplication, approximatePresenceCount, approximateMemberCount, expiresAt);
     }
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject json = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
         json.put("code", code);
         json.put("guild", guild.compile());
         json.put("channel", channel.compile());

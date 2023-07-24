@@ -2,9 +2,9 @@ package com.seailz.discordjar.command.permissions;
 
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * This class is used to represent the data of an application command permission.
@@ -23,15 +23,15 @@ public record ApplicationCommandPermissionsData(
 ) implements Compilerable, Snowflake {
 
     @Override
-    public SJSONObject compile() {
-        return new SJSONObject()
+    public JSONObject compile() {
+        return new JSONObject()
                 .put("id", id)
                 .put("type", type.getCode())
                 .put("permission", permission);
     }
 
     @NotNull
-    public static ApplicationCommandPermissionsData decompile(@NotNull SJSONObject obj) {
+    public static ApplicationCommandPermissionsData decompile(@NotNull JSONObject obj) {
         String id;
         ApplicationCommandPermissionType type;
         boolean permission;

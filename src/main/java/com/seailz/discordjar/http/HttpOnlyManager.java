@@ -15,10 +15,10 @@ import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMe
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.interaction.Interaction;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.DecoderException;
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,7 +69,7 @@ public class HttpOnlyManager {
 
 
         // handle interaction request
-        Interaction interaction = Interaction.decompile(new SJSONObject(body), discordJar);
+        Interaction interaction = Interaction.decompile(new JSONObject(body), discordJar);
         switch (interaction.type()) {
             case PING -> {
                 return ResponseEntity.ok("{\"type\": 1}");
@@ -77,38 +77,38 @@ public class HttpOnlyManager {
             case APPLICATION_COMMAND -> {
                 CommandInteractionEvent event = null;
 
-                switch (CommandType.fromCode(new SJSONObject(interaction.raw()).getJSONObject("data").getInt("type"))) {
+                switch (CommandType.fromCode(new JSONObject(interaction.raw()).getJSONObject("data").getInt("type"))) {
                     case SLASH_COMMAND -> {
-                        event = new SlashCommandInteractionEvent(discordJar, GatewayFactory.sequence, new SJSONObject().put("d", new SJSONObject(body)));
+                        event = new SlashCommandInteractionEvent(discordJar, GatewayFactory.sequence, new JSONObject().put("d", new JSONObject(body)));
                     }
                     case USER ->
-                            event = new UserContextCommandInteractionEvent(discordJar, GatewayFactory.sequence, new SJSONObject().put("d", new SJSONObject(body)));
+                            event = new UserContextCommandInteractionEvent(discordJar, GatewayFactory.sequence, new JSONObject().put("d", new JSONObject(body)));
                     case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(discordJar, GatewayFactory.sequence, new SJSONObject().put("d", new SJSONObject(body)));
+                            event = new MessageContextCommandInteractionEvent(discordJar, GatewayFactory.sequence, new JSONObject().put("d", new JSONObject(body)));
                 }
 
-                discordJar.getCommandDispatcher().dispatch(new SJSONObject(interaction.raw()).getJSONObject("data").getString("name"), event);
+                discordJar.getCommandDispatcher().dispatch(new JSONObject(interaction.raw()).getJSONObject("data").getString("name"), event);
             }
             case MESSAGE_COMPONENT -> {
-                switch (ComponentType.getType(new SJSONObject().put("d", new SJSONObject(body)).getJSONObject("d").getJSONObject("data").getInt("component_type"))) {
+                switch (ComponentType.getType(new JSONObject().put("d", new JSONObject(body)).getJSONObject("d").getJSONObject("data").getInt("component_type"))) {
                     case BUTTON -> {
-                        ButtonInteractionEvent event = new ButtonInteractionEvent(discordJar, 0L, new SJSONObject().put("d", new SJSONObject(body)));
+                        ButtonInteractionEvent event = new ButtonInteractionEvent(discordJar, 0L, new JSONObject().put("d", new JSONObject(body)));
                         discordJar.getEventDispatcher().dispatchEvent(event, ButtonInteractionEvent.class, discordJar);
                     }
                     case STRING_SELECT -> {
-                        StringSelectMenuInteractionEvent event = new StringSelectMenuInteractionEvent(discordJar, 0L, new SJSONObject().put("d", new SJSONObject(body)));
+                        StringSelectMenuInteractionEvent event = new StringSelectMenuInteractionEvent(discordJar, 0L, new JSONObject().put("d", new JSONObject(body)));
                         discordJar.getEventDispatcher().dispatchEvent(event, StringSelectMenuInteractionEvent.class, discordJar);
                     }
                     case ROLE_SELECT -> {
-                        RoleSelectMenuInteractionEvent event = new RoleSelectMenuInteractionEvent(discordJar, 0L, new SJSONObject().put("d", new SJSONObject(body)));
+                        RoleSelectMenuInteractionEvent event = new RoleSelectMenuInteractionEvent(discordJar, 0L, new JSONObject().put("d", new JSONObject(body)));
                         discordJar.getEventDispatcher().dispatchEvent(event, RoleSelectMenuInteractionEvent.class, discordJar);
                     }
                     case USER_SELECT -> {
-                        UserSelectMenuInteractionEvent event = new UserSelectMenuInteractionEvent(discordJar, 0L, new SJSONObject().put("d", new SJSONObject(body)));
+                        UserSelectMenuInteractionEvent event = new UserSelectMenuInteractionEvent(discordJar, 0L, new JSONObject().put("d", new JSONObject(body)));
                         discordJar.getEventDispatcher().dispatchEvent(event, UserSelectMenuInteractionEvent.class, discordJar);
                     }
                     case CHANNEL_SELECT -> {
-                        ChannelSelectMenuInteractionEvent event = new ChannelSelectMenuInteractionEvent(discordJar, 0L, new SJSONObject().put("d", new SJSONObject(body)));
+                        ChannelSelectMenuInteractionEvent event = new ChannelSelectMenuInteractionEvent(discordJar, 0L, new JSONObject().put("d", new JSONObject(body)));
                         discordJar.getEventDispatcher().dispatchEvent(event, ChannelSelectMenuInteractionEvent.class, discordJar);
                     }
 
@@ -118,12 +118,12 @@ public class HttpOnlyManager {
 
             }
             case MODAL_SUBMIT -> {
-                ModalInteractionEvent event = new ModalInteractionEvent(discordJar, 0L, new SJSONObject().put("d", new SJSONObject(body)));
+                ModalInteractionEvent event = new ModalInteractionEvent(discordJar, 0L, new JSONObject().put("d", new JSONObject(body)));
                 discordJar.getEventDispatcher().dispatchEvent(event, ModalInteractionEvent.class, discordJar);
             }
             case UNKNOWN -> {
                 Logger.getLogger("DispatchedEvents").warning(
-                        "[discord.jar] Unknown interaction type: " + new SJSONObject().put("d", new SJSONObject(body)).getJSONObject("d").getInt("type") + ". This is usually because of an outdated framework version. Please update discord.jar");
+                        "[discord.jar] Unknown interaction type: " + new JSONObject().put("d", new JSONObject(body)).getJSONObject("d").getInt("type") + ". This is usually because of an outdated framework version. Please update discord.jar");
                 return null;
             }
         }

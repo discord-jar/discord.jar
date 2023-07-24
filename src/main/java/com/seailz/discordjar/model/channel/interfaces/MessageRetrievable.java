@@ -6,8 +6,8 @@ import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public interface MessageRetrievable extends Channel {
 
     default List<Message> messagesBefore(String before) {
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?before=" + before,
                 djv(),
@@ -27,7 +27,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -37,7 +37,7 @@ public interface MessageRetrievable extends Channel {
     default List<Message> messagesBefore(String before, int limit) {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?before=" + before + "&limit=" + limit,
                 djv(),
@@ -46,7 +46,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -56,7 +56,7 @@ public interface MessageRetrievable extends Channel {
     default List<Message> messagesAfter(String after, int limit) {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?after=" + after + "&limit=" + limit,
                 djv(),
@@ -65,7 +65,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -74,7 +74,7 @@ public interface MessageRetrievable extends Channel {
 
     default List<Message> messagesAfter(String after) {
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?after=" + after,
                 djv(),
@@ -83,7 +83,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -92,7 +92,7 @@ public interface MessageRetrievable extends Channel {
 
     default List<Message> messagesAround(String around) {
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?around=" + around,
                 djv(),
@@ -101,7 +101,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -111,7 +111,7 @@ public interface MessageRetrievable extends Channel {
     default List<Message> messagesAround(String around, int limit) {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?around=" + around + "&limit=" + limit,
                 djv(),
@@ -120,7 +120,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -130,7 +130,7 @@ public interface MessageRetrievable extends Channel {
     default List<Message> messages(int limit) {
         Checker.check(limit > 100 || limit < 1, "Limit must be between 1 and 100");
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()) + "?limit=" + limit,
                 djv(),
@@ -138,7 +138,7 @@ public interface MessageRetrievable extends Channel {
                 RequestMethod.GET
         );
         List<Message> messages = new ArrayList<>();
-        SJSONArray arr = null;
+        JSONArray arr = null;
         try {
             arr = request.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -146,13 +146,13 @@ public interface MessageRetrievable extends Channel {
         }
         if (arr == null) return messages;
 
-        arr.forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+        arr.forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         return messages;
     }
 
     default List<Message> messages() {
         DiscordRequest request = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 djv(),
@@ -161,7 +161,7 @@ public interface MessageRetrievable extends Channel {
         );
         List<Message> messages = new ArrayList<>();
         try {
-            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((SJSONObject) obj, djv())));
+            request.invoke().arr().forEach(obj -> messages.add(Message.decompile((JSONObject) obj, djv())));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -199,7 +199,7 @@ public interface MessageRetrievable extends Channel {
         DiscordResponse response = null;
         try {
             response = new DiscordRequest(
-                    new SJSONObject(),
+                    new JSONObject(),
                     new HashMap<>(),
                     URLS.GET.CHANNELS.MESSAGES.GET_MESSAGE.replace("{channel.id}", id()).replace("{message.id}", id),
                     djv(),

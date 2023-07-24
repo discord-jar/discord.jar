@@ -5,7 +5,7 @@ import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.MessageFlag;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -156,8 +156,8 @@ public class InteractionMessageResponse implements InteractionReply {
      * Compiles this class up to be sent to Discord
      */
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         if (this.tts)
             obj.put("tts", true);
 
@@ -175,7 +175,7 @@ public class InteractionMessageResponse implements InteractionReply {
             flags.add(MessageFlag.SUPPRESS_NOTICICATIONS);
 
         if (this.embeds != null) {
-            List<SJSONObject> embeds = new ArrayList<>();
+            List<JSONObject> embeds = new ArrayList<>();
             for (Embeder embed : this.embeds) {
                 embeds.add(embed.compile());
             }
@@ -191,7 +191,7 @@ public class InteractionMessageResponse implements InteractionReply {
 
 
         if (this.components != null) {
-            List<SJSONObject> components = new ArrayList<>();
+            List<JSONObject> components = new ArrayList<>();
             for (DisplayComponent component : this.components) {
                 components.add(component.compile());
             }
@@ -199,7 +199,7 @@ public class InteractionMessageResponse implements InteractionReply {
         }
 
         if (this.attachments != null) {
-            List<SJSONObject> attachments = new ArrayList<>();
+            List<JSONObject> attachments = new ArrayList<>();
             for (Attachment attachment : this.attachments) {
                 attachments.add(attachment.compile());
             }

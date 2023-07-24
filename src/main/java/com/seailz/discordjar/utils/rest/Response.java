@@ -1,7 +1,7 @@
 package com.seailz.discordjar.utils.rest;
 
-import com.seailz.discordjar.utils.json.SJSONArray;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,9 +91,9 @@ public class Response<T> {
     public static class Error {
         private int code;
         private String message;
-        private SJSONObject errors;
+        private JSONObject errors;
 
-        public Error(int code, String message, SJSONObject errors) {
+        public Error(int code, String message, JSONObject errors) {
             this.code = code;
             this.message = message;
             this.errors = errors;
@@ -111,7 +111,7 @@ public class Response<T> {
             return message;
         }
 
-        public SJSONObject getErrors() {
+        public JSONObject getErrors() {
             return errors;
         }
 
@@ -139,13 +139,13 @@ public class Response<T> {
             return errorResponses;
         }
 
-        private void findErrorResponsesRecursive(SJSONObject jsonObject, List<ErroredResponse> errorResponses) {
+        private void findErrorResponsesRecursive(JSONObject jsonObject, List<ErroredResponse> errorResponses) {
             for (String key : jsonObject.keySet()) {
                 Object value = jsonObject.get(key);
-                if (value instanceof SJSONObject) {
-                    findErrorResponsesRecursive((SJSONObject) value, errorResponses);
-                } else if (value instanceof SJSONArray) {
-                    findErrorResponsesInArray((SJSONArray) value, errorResponses);
+                if (value instanceof JSONObject) {
+                    findErrorResponsesRecursive((JSONObject) value, errorResponses);
+                } else if (value instanceof JSONArray) {
+                    findErrorResponsesInArray((JSONArray) value, errorResponses);
                 } else if (key.equals("message")) {
                     int code = getCodeFromJSONObject(jsonObject);
                     errorResponses.add(new ErroredResponse(value.toString(), code));
@@ -153,18 +153,18 @@ public class Response<T> {
             }
         }
 
-        private void findErrorResponsesInArray(SJSONArray jsonArray, List<ErroredResponse> errorResponses) {
+        private void findErrorResponsesInArray(JSONArray jsonArray, List<ErroredResponse> errorResponses) {
             for (int i = 0; i < jsonArray.length(); i++) {
                 Object value = jsonArray.get(i);
-                if (value instanceof SJSONObject) {
-                    findErrorResponsesRecursive((SJSONObject) value, errorResponses);
-                } else if (value instanceof SJSONArray) {
-                    findErrorResponsesInArray((SJSONArray) value, errorResponses);
+                if (value instanceof JSONObject) {
+                    findErrorResponsesRecursive((JSONObject) value, errorResponses);
+                } else if (value instanceof JSONArray) {
+                    findErrorResponsesInArray((JSONArray) value, errorResponses);
                 }
             }
         }
 
-        private int getCodeFromJSONObject(SJSONObject jsonObject) {
+        private int getCodeFromJSONObject(JSONObject jsonObject) {
             int code = -1;
             if (jsonObject.has("code") && jsonObject.get("code") instanceof Integer) {
                 code = jsonObject.getInt("code");

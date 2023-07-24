@@ -2,7 +2,7 @@ package com.seailz.discordjar.model.message;
 
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.resolve.Resolvable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 import java.io.File;
@@ -36,8 +36,8 @@ public record Attachment(
 
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("id", id);
         obj.put("filename", fileName);
         obj.put("description", description);
@@ -67,7 +67,7 @@ public record Attachment(
     }
 
     @NonNull
-    public static Attachment decompile(SJSONObject obj) {
+    public static Attachment decompile(JSONObject obj) {
         int id;
         String fileName;
         String description;

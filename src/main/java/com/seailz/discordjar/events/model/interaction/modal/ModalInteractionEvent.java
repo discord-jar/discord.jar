@@ -9,7 +9,7 @@ import com.seailz.discordjar.model.interaction.data.modal.ModalSubmitInteraction
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * @since 1.0
  */
 public class ModalInteractionEvent extends InteractionEvent implements CustomIdable {
-    public ModalInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull SJSONObject data) {
+    public ModalInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
 

@@ -3,8 +3,8 @@ package com.seailz.discordjar.model.status;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.status.activity.Activity;
-import com.seailz.discordjar.utils.json.SJSONObject;
-import com.seailz.discordjar.utils.json.SJSONArray;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Represents the status of a user or bot
@@ -25,14 +25,14 @@ public record Status(
 ) implements Compilerable {
 
     @Override
-    public SJSONObject compile() {
-        SJSONArray activities = new SJSONArray();
+    public JSONObject compile() {
+        JSONArray activities = new JSONArray();
         for (Activity activity : this.activities) {
             activities.put(activity.compile());
         }
 
-        return new SJSONObject()
-                .put("since", since == 0 ? SJSONObject.NULL : since)
+        return new JSONObject()
+                .put("since", since == 0 ? JSONObject.NULL : since)
                 .put("activities", activities)
                 .put("status", status.getCode())
                 .put("afk", afk);
@@ -46,7 +46,7 @@ public record Status(
         this(0, new Activity[]{activity}, status, false);
     }
 
-    public static Status decompile(SJSONObject obj, DiscordJar discordjv) {
+    public static Status decompile(JSONObject obj, DiscordJar discordjv) {
         int since;
         Activity[] activities;
         StatusType status;

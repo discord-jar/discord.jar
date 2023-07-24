@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.embed;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 public record EmbedFooter(
@@ -12,8 +12,8 @@ public record EmbedFooter(
 
 
     @Override
-    public SJSONObject compile() {
-        SJSONObject obj = new SJSONObject();
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
         obj.put("text", text);
         obj.put("icon_url", iconUrl);
         obj.put("proxy_icon_url", proxyIconUrl);
@@ -21,7 +21,7 @@ public record EmbedFooter(
     }
 
     @NonNull
-    public static EmbedFooter decompile(SJSONObject obj) {
+    public static EmbedFooter decompile(JSONObject obj) {
         String text;
         String iconUrl;
         String proxyIconUrl;

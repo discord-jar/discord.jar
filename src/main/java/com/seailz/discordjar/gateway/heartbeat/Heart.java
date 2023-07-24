@@ -1,7 +1,7 @@
 package com.seailz.discordjar.gateway.heartbeat;
 
 import com.seailz.discordjar.gateway.GatewayFactory;
-import com.seailz.discordjar.utils.json.SJSONObject;
+import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Random;
@@ -68,7 +68,7 @@ public class Heart {
 
     private void send() {
         factory.sendPayload(
-                new SJSONObject()
+                new JSONObject()
                     .put("op", 1)
                     .put("d", GatewayFactory.sequence)
         );

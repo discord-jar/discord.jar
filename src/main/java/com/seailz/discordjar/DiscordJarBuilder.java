@@ -5,10 +5,10 @@ import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.json.SJSONObject;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.model.api.version.APIVersion;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.EnumSet;
@@ -156,7 +156,7 @@ public class DiscordJarBuilder {
 
     public int getRecommendedShardCount() {
         DiscordRequest req = new DiscordRequest(
-                new SJSONObject(),
+                new JSONObject(),
                 new HashMap<>(),
                 URLS.GET.GATEWAY.GET_GATEWAY_BOT,
                 null,

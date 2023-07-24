@@ -60,17 +60,19 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
+    private final boolean newSystemForMemoryManagement;
     public UUID uuid = UUID.randomUUID();
     private int shardId;
     private int numShards;
     public static List<Long> pingHistoryMs = new ArrayList<>();
     public static Date lastHeartbeatSent = new Date();
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement) throws ExecutionException, InterruptedException {
         this.discordJar = discordJar;
         this.debug = debug;
         this.shardId = shardId;
         this.numShards = numShards;
+        this.newSystemForMemoryManagement = newSystemForMemoryManagement;
 
         discordJar.setGatewayFactory(this);
 
@@ -95,17 +97,24 @@ public class GatewayFactory extends TextWebSocketHandler {
         WebSocketClient client = new StandardWebSocketClient();
         this.client = client;
         this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();
-        // Allocate 50% of available memory to the JVM
-        long maxMemory = Runtime.getRuntime().maxMemory();
-        long allocatedMemory = Runtime.getRuntime().totalMemory();
-        long freeMemory = Runtime.getRuntime().freeMemory();
-        long usedMemory = allocatedMemory - freeMemory;
-        int totalFreeMemory = (int) ((freeMemory + (maxMemory - usedMemory)) / 2);
-        if (debug) {
-            logger.info("[DISCORD.JAR - DEBUG] Allocated " + totalFreeMemory + " bytes of memory to the Gateway.");
+        // Allocate 25% of the bot's total **AVAILABLE** memory to the gateway.
+        if (newSystemForMemoryManagement) {
+            Runtime runtime = Runtime.getRuntime();
+            long allocatedMemory = runtime.totalMemory() - runtime.freeMemory();
+            long presumableFreeMemory = runtime.maxMemory() - allocatedMemory;
+            int totalFreeMemory = (int) (presumableFreeMemory * 0.25);
+
+            if (debug) {
+                logger.info("[DISCORD.JAR - DEBUG] Allocated " + totalFreeMemory + " bytes of memory to the Gateway.");
+            }
+
+            session.setTextMessageSizeLimit(totalFreeMemory);
+            session.setBinaryMessageSizeLimit(totalFreeMemory);
+        } else {
+            session.setTextMessageSizeLimit(100000000);
+            session.setBinaryMessageSizeLimit(100000000);
         }
-        session.setTextMessageSizeLimit(totalFreeMemory);
-        session.setBinaryMessageSizeLimit(totalFreeMemory);
+
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
         }

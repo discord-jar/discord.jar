@@ -33,6 +33,7 @@ public class DiscordJarBuilder {
     private boolean debug;
     private int shardId = -1;
     private int numShards = 1;
+    private boolean newSystemForGatewayMemoryManagement = false;
 
     public DiscordJarBuilder(String token) {
         this.token = token;
@@ -46,6 +47,10 @@ public class DiscordJarBuilder {
     public DiscordJarBuilder setCacheTypes(EnumSet<CacheType> cacheTypes) {
         this.cacheTypes = cacheTypes;
         return this;
+    }
+
+    public void setIsNewSystemForGatewayMemoryManagement(boolean newSystemForGatewayMemoryManagement) {
+        this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
     }
 
     /**
@@ -172,7 +177,7 @@ public class DiscordJarBuilder {
         if (cacheTypes == null) defaultCacheTypes();
         if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
         try {
-            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes);
+            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes, newSystemForGatewayMemoryManagement);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

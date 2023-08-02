@@ -510,6 +510,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return res;
     }
@@ -529,6 +531,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return MessagingChannel.decompile(raw, this);
     }
@@ -548,6 +552,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return com.seailz.discordjar.model.channel.thread.Thread.decompile(raw, this);
     }
@@ -567,6 +573,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return DMChannel.decompile(raw, this);
     }
@@ -586,6 +594,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return ForumChannel.decompile(raw, this);
     }
@@ -605,6 +615,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return Category.decompile(raw, this);
     }

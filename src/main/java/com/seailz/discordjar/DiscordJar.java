@@ -601,6 +601,25 @@ public class DiscordJar {
     }
 
     /**
+     * Returns info about a {@link MediaChannel}
+     *
+     * @param id The id of the channel
+     * @return A {@link MediaChannel} object
+     */
+    @Nullable
+    public MediaChannel getMediaChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        JSONObject raw = null;
+        try {
+            raw = getChannelCache().getById(id).raw();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+        return MediaChannel.decompile(raw, this);
+    }
+
+    /**
      * Returns info about a {@link Category}
      *
      * @param id The id of the category
@@ -620,6 +639,26 @@ public class DiscordJar {
         }
         return Category.decompile(raw, this);
     }
+
+    /**
+     * Returns info about a {@link VoiceChannel}
+     *
+     * @param id The id of the channel
+     * @return A {@link VoiceChannel} object
+     */
+    @Nullable
+    public VoiceChannel getVoiceChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        JSONObject raw = null;
+        try {
+            raw = getChannelCache().getById(id).raw();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+        return VoiceChannel.decompile(raw, this);
+    }
+
 
     /**
      * Returns info about a {@link Guild}

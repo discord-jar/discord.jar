@@ -144,7 +144,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public boolean attemptReconnect(WebSocketSession session, CloseStatus status) {
         // connection closed
-        logger.severe("[Gateway] Connection closed. [" + status.getCode() + "] " + status.getReason() + " - Diagnosing...");
+        logger.info("[Gateway] Connection closed. [" + status.getCode() + "] " + status.getReason());
         if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
 
@@ -154,55 +154,55 @@ public class GatewayFactory extends TextWebSocketHandler {
             case 1011, 1015:
                 return false;
             case 4000:
-                logger.info("[Gateway] Connection was closed due to an unknown error. Will attempt reconnect.");
+                if (debug) logger.info("[Gateway] Connection was closed due to an unknown error. Will attempt reconnect.");
                 return true;
             case 4001:
-                logger.warning("[Gateway] Connection was closed due to an unknown opcode. Will attempt reconnect. This is usually a discord.jar bug.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to an unknown opcode. Will attempt reconnect. This is usually a discord.jar bug.");
                 return true;
             case 4002:
-                logger.warning("[Gateway] Connection was closed due to a decode error. Will attempt reconnect.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to a decode error. Will attempt reconnect.");
                 return true;
             case 4003:
-                logger.warning("[Gateway] Connection was closed due to not being authenticated. Will attempt reconnect.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to not being authenticated. Will attempt reconnect.");
                 return true;
             case 4004:
-                logger.warning("[Gateway] Connection was closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
+                if (debug) logger.warning("[Gateway] Connection was closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
                 return false;
             case 4005:
-                logger.warning("[Gateway] Connection was closed due to an already authenticated connection. Will attempt reconnect.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to an already authenticated connection. Will attempt reconnect.");
                 return true;
             case 4007:
-                logger.info("[Gateway] Connection was closed due to an invalid sequence. Will attempt reconnect.");
+                if (debug) logger.info("[Gateway] Connection was closed due to an invalid sequence. Will attempt reconnect.");
                 return true;
             case 4008:
-                logger.warning("[Gateway] Connection was closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
+                if (debug) logger.warning("[Gateway] Connection was closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
                 return true;
             case 4009:
-                logger.info("[Gateway] Connection was closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
+                if (debug) logger.info("[Gateway] Connection was closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
                 return true;
             case 4010:
-                logger.warning("[Gateway] Connection was closed due to an invalid shard. Will not attempt reconnect.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to an invalid shard. Will not attempt reconnect.");
                 return false;
             case 4011:
-                logger.warning("[Gateway] Connection was closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
                 return false;
             case 4012:
-                logger.warning("[Gateway] Connection was closed due to an invalid API version. Will not attempt reconnect.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to an invalid API version. Will not attempt reconnect.");
                 return false;
             case 4013:
-                logger.warning("[Gateway] Connection was closed due to an invalid intent. Will not attempt reconnect.");
+                if (debug) logger.warning("[Gateway] Connection was closed due to an invalid intent. Will not attempt reconnect.");
                 return false;
             case 4014:
-                logger.warning("[Gateway] Connection was closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
+                if (debug)  logger.warning("[Gateway] Connection was closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
                 return false;
             case 1000:
-                logger.info("[Gateway] Connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
+                if (debug) logger.info("[Gateway] Connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
                 return true;
             case 1001:
-                logger.info("[Gateway] Gateway requested a reconnect (close code 1001), reconnecting...");
+                if (debug) logger.info("[Gateway] Gateway requested a reconnect (close code 1001), reconnecting...");
                 return true;
             case 1006:
-                logger.info("[Gateway] Connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
+                if (debug) logger.info("[Gateway] Connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
                 discordJar.restartGateway();
                 return false;
             default:

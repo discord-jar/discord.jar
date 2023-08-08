@@ -208,6 +208,7 @@ public class DiscordJar {
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, boolean newSystemForGatewayMemoryManagement) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         new RequestQueueHandler(this);
+        this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
         this.intents = intents;
         this.cacheTypes = cacheTypes;
@@ -216,9 +217,6 @@ public class DiscordJar {
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
-        if (!httpOnly) {
-            this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement);
-        }
         this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
@@ -251,8 +249,6 @@ public class DiscordJar {
                 RequestMethod.GET
         ), CacheType.MEMBERS);
 
-        this.eventDispatcher = new EventDispatcher(this);
-
         if (httpOnly) {
             if (httpOnlyInfo == null)
                 throw new IllegalArgumentException("httpOnlyInfo cannot be null if httpOnly is true!");
@@ -261,22 +257,12 @@ public class DiscordJar {
 
         initiateNoShutdown();
         initiateShutdownHooks();
-
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (gatewayFactory == null || (gatewayFactory.getSession() != null && !gatewayFactory.getSession().isOpen())) {
-                    restartGateway();
-                }
-            }
-        }).start();
         this.shardId = shardId;
         this.numShards = numShards;
+
+            if (!httpOnly) {
+                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement);
+            }
 
         new MemoryWatcher(this).start();
     }

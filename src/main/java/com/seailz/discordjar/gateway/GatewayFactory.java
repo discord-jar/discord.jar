@@ -14,6 +14,9 @@ import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.ws.ExponentialBackoffLogic;
+import com.seailz.discordjar.ws.HeartLogic;
+import com.seailz.discordjar.ws.WebSocket;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,16 +49,13 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     private final DiscordJar discordJar;
     private final Logger logger = Logger.getLogger(GatewayFactory.class.getName().toUpperCase());
-
-    private WebSocketSession session;
-    private WebSocketClient client;
     public static int sequence;
 
     private Status status;
-    private final String gatewayUrl;
+    private String gatewayUrl = null;
     private String sessionId;
     private String resumeUrl;
-    private Heart heartbeatManager;
+    private HeartLogic heartbeatManager;
     private boolean shouldResume = false;
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
@@ -67,6 +67,8 @@ public class GatewayFactory extends TextWebSocketHandler {
     public static List<Long> pingHistoryMs = new ArrayList<>();
     public static Date lastHeartbeatSent = new Date();
 
+    private WebSocket socket;
+
     public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement) throws ExecutionException, InterruptedException {
         this.discordJar = discordJar;
         this.debug = debug;
@@ -76,145 +78,139 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         discordJar.setGatewayFactory(this);
 
-        DiscordResponse response = null;
         try {
-            response = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    "/gateway",
-                    discordJar,
-                    "/gateway", RequestMethod.GET
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
-        if (response == null || response.body() == null || !response.body().has("url")) {
-            // In case the request fails, we can attempt to use the backup gateway URL instead.
-            this.gatewayUrl = URLS.GATEWAY.BASE_URL;
-        } else this.gatewayUrl = response.body().getString("url");
-        connect();
-    }
+            DiscordResponse response = null;
+            try {
+                response = new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        "/gateway",
+                        discordJar,
+                        "/gateway", RequestMethod.GET
+                ).invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
+            if (response == null || response.body() == null || !response.body().has("url")) {
+                // In case the request fails, we can attempt to use the backup gateway URL instead.
+                this.gatewayUrl = URLS.GATEWAY.BASE_URL;
+            } else this.gatewayUrl = response.body().getString("url");
+        } catch (Exception e) {
+            logger.warning("[DISCORD.JAR] Failed to get gateway URL. Restarting gateway after 5 seconds.");
+            Thread.sleep(5000);
+            discordJar.restartGateway();
+            return;
+        }
 
-    public void connect(String customUrl) throws ExecutionException, InterruptedException {
-        WebSocketClient client = new StandardWebSocketClient();
-        this.client = client;
-        this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl + "?v=" + URLS.version.getCode())).get();
-        // Allocate 25% of the bot's total **AVAILABLE** memory to the gateway.
-        if (newSystemForMemoryManagement) {
-            Runtime runtime = Runtime.getRuntime();
-            long allocatedMemory = runtime.totalMemory() - runtime.freeMemory();
-            long presumableFreeMemory = runtime.maxMemory() - allocatedMemory;
-            int totalFreeMemory = (int) (presumableFreeMemory * 0.25);
+        socket = new WebSocket(gatewayUrl, newSystemForMemoryManagement, debug);
 
-            if (debug) {
-                logger.info("[DISCORD.JAR - DEBUG] Allocated " + totalFreeMemory + " bytes of memory to the Gateway.");
+        ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
+        socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
+        backoffReconnectLogic.setAttemptReconnect((c) -> {
+            if (shouldResume) return false;
+            return true;
+        });
+
+        socket.addMessageConsumer((tm) -> {
+            try {
+                handleTextMessage(socket.getSession(), tm);
+            } catch (Exception e) {
+                logger.warning("[Gateway] Failed to handle text message: " + e.getMessage());
             }
+        });
 
-            session.setTextMessageSizeLimit(totalFreeMemory);
-            session.setBinaryMessageSizeLimit(totalFreeMemory);
-        } else {
-            session.setTextMessageSizeLimit(100000000);
-            session.setBinaryMessageSizeLimit(100000000);
-        }
+        socket.connect().onSuccess(this::onConnect).onFailed((e) -> {
+            logger.severe("[Gateway] Failed to establish connection: " + e.getThrowable().getMessage() + " - Will attempt to reconnect after 5 seconds.");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+            discordJar.restartGateway();
+        });
 
-        if (debug) {
-            logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
-        }
-        discordJar.setGatewayFactory(this);
+        socket.addOnConnect(() -> {
+            onConnect(null);
+        });
+
+        socket.addOnDisconnectConsumer((cs) -> {
+            this.heartbeatManager = null;
+            readyForMessages = false;
+            attemptReconnect(socket.getSession(), cs);
+        });
     }
 
-    public void connect() throws ExecutionException, InterruptedException {
-        connect(gatewayUrl);
-
+    private void onConnect(Void vd) {
+        logger.info("[Gateway] Connection established successfully.");
     }
 
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException, ExecutionException, InterruptedException {
+    public boolean attemptReconnect(WebSocketSession session, CloseStatus status) {
         // connection closed
-        logger.info("[DISCORD.JAR] Gateway connection closed. Close code " + status.getCode() + ". Identifying issue...");
-        if (this.heartbeatManager != null) heartbeatManager.deactivate();
+        logger.severe("[Gateway] Connection closed. [" + status.getCode() + "] " + status.getReason() + " - Diagnosing...");
+        if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
-        logger.info("[DISCORD.JAR] Heartbeat manager deactivated.");
 
-        if (debug) {
-            logger.info("[DISCORD.JAR - DEBUG] Gateway connection closed. Status: " + status.getReason() + " (" + status.getCode() + ")");
-        }
         switch (status.getCode()) {
             case 1012:
-                reconnect();
-                break;
+                return true;
             case 1011, 1015:
-                break;
+                return false;
             case 4000:
-                logger.info("[DISCORD.JAR] Gateway connection closed due to an unknown error. It's possible this could be a discord.jar bug, but is unlikely. Will attempt reconnect.");
-                reconnect();
-                break;
+                logger.info("[Gateway] Connection was closed due to an unknown error. Will attempt reconnect.");
+                return true;
             case 4001:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to an unknown opcode. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                reconnect();
-                break;
+                logger.warning("[Gateway] Connection was closed due to an unknown opcode. Will attempt reconnect. This is usually a discord.jar bug.");
+                return true;
             case 4002:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to a decode error. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                reconnect();
-                break;
+                logger.warning("[Gateway] Connection was closed due to a decode error. Will attempt reconnect.");
+                return true;
             case 4003:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to not being authenticated. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                reconnect();
-                break;
+                logger.warning("[Gateway] Connection was closed due to not being authenticated. Will attempt reconnect.");
+                return true;
             case 4004:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
-                break;
+                logger.warning("[Gateway] Connection was closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
+                return false;
             case 4005:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to an already authenticated connection. Will attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                reconnect();
-                break;
+                logger.warning("[Gateway] Connection was closed due to an already authenticated connection. Will attempt reconnect.");
+                return true;
             case 4007:
-                logger.info("[DISCORD.JAR] Gateway connection closed due to an invalid sequence. Will attempt reconnect.");
-                reconnect();
-                break;
+                logger.info("[Gateway] Connection was closed due to an invalid sequence. Will attempt reconnect.");
+                return true;
             case 4008:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
-                reconnect();
-                break;
+                logger.warning("[Gateway] Connection was closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
+                return true;
             case 4009:
-                logger.info("[DISCORD.JAR] Gateway connection closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
-                reconnect();
-                break;
+                logger.info("[Gateway] Connection was closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
+                return true;
             case 4010:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to an invalid shard. Will not attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                break;
+                logger.warning("[Gateway] Connection was closed due to an invalid shard. Will not attempt reconnect.");
+                return false;
             case 4011:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
-                break;
+                logger.warning("[Gateway] Connection was closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
+                return false;
             case 4012:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to an invalid API version. Will not attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                break;
+                logger.warning("[Gateway] Connection was closed due to an invalid API version. Will not attempt reconnect.");
+                return false;
             case 4013:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to an invalid intent. Will not attempt reconnect. This is usually a bug, please report it on discord.jar's GitHub.");
-                break;
+                logger.warning("[Gateway] Connection was closed due to an invalid intent. Will not attempt reconnect.");
+                return false;
             case 4014:
-                logger.warning("[DISCORD.JAR] Gateway connection closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
-                break;
+                logger.warning("[Gateway] Connection was closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
+                return false;
             case 1000:
-                if (!session.isOpen()) {
-                    logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
-                    reconnect();
-                }
-                break;
+                logger.info("[Gateway] Connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
+                return true;
             case 1001:
-                logger.info("[discord.jar] Gateway requested a reconnect (close code 1001), reconnecting...");
-                reconnect();
-                break;
+                logger.info("[Gateway] Gateway requested a reconnect (close code 1001), reconnecting...");
+                return true;
             case 1006:
-                logger.info("[DISCORD.JAR] Gateway connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
-                logger.info("CLOSE: 1006 REASON: " + status.getReason());
+                logger.info("[Gateway] Connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
                 discordJar.restartGateway();
-                break;
+                return false;
             default:
                 logger.warning(
-                        "[DISCORD.JAR] Gateway connection was closed with an unknown status code. This is usually a bug, please report it on discord.jar's GitHub with this log message. Status code: "
+                        "[Gateway] Connection was closed with an unknown status code. Status code: "
                                 + status.getCode() + ". Reason: " + status.getReason() + ". Will attempt reconnect."
                 );
-                reconnect();
-                break;
+                return true;
         }
     }
 
@@ -249,11 +245,6 @@ public class GatewayFactory extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
-        if (discordJar.getGateway() != this) {
-            // Drop connection if we're not the active gateway
-            killConnection();
-            return;
-        }
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Received message: " + payload.toString());
@@ -275,12 +266,10 @@ public class GatewayFactory extends TextWebSocketHandler {
                 if (!shouldResume) sendIdentify();
                 this.shouldResume = false;
                 readyForMessages = true;
-                discordJar.setGatewayFactory(this);
 
                 if (debug) {
                     logger.info("[DISCORD.JAR - DEBUG] Received HELLO event. Heartbeat cycle has been started. If this isn't a resume, IDENTIFY has been sent.");
                 }
-
                 break;
             case HEARTBEAT_REQUEST:
                 heartbeatManager.forceHeartbeat();
@@ -378,11 +367,11 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public void killConnectionNicely() throws IOException {
         // disable heartbeat
-        if (heartbeatManager != null) heartbeatManager.deactivate();
+        if (heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        session.close(CloseStatus.GOING_AWAY);
+        getSocket().getSession().close(CloseStatus.GOING_AWAY);
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed nicely.");
         }
@@ -390,11 +379,11 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public void killConnection() throws IOException {
         // disable heartbeat
-        if (this.heartbeatManager != null) heartbeatManager.deactivate();
+        if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        if (session != null) session.close(CloseStatus.TLS_HANDSHAKE_FAILURE);
+        if (getSocket().getSession() != null) getSocket().getSession().close(CloseStatus.TLS_HANDSHAKE_FAILURE);
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed.");
@@ -405,29 +394,31 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Attempting resume...");
         }
-        if (session.isOpen())
-            session.close(CloseStatus.SERVER_ERROR);
+        shouldResume = true;
+        if (getSocket().getSession().isOpen())
+            getSocket().getSession().close(CloseStatus.SERVER_ERROR);
 
-        if (this.heartbeatManager != null) this.heartbeatManager.deactivate();
+        if (this.heartbeatManager != null) this.heartbeatManager.stop();
         this.heartbeatManager = null;
         readyForMessages = false;
+        discordJar.restartGateway();
 
-        // Invalidate this class
-        this.discordJar.restartGateway();
-
-        /*JSONObject resumePayload = new JSONObject();
-        resumePayload.put("op", 6);
-        JSONObject resumeData = new JSONObject();
-        resumeData.put("token", discordJar.getToken());
-        resumeData.put("session_id", sessionId);
-        resumeData.put("seq", sequence);
-        resumePayload.put("d", resumeData);
-        shouldResume = true;
-        connect(resumeUrl); */
+//        socket.connect();
+//        onConnect(null);
+//
+//        JSONObject resumePayload = new JSONObject();
+//        resumePayload.put("op", 6);
+//        JSONObject resumeData = new JSONObject();
+//        resumeData.put("token", discordJar.getToken());
+//        resumeData.put("session_id", sessionId);
+//        resumeData.put("seq", sequence);
+//        resumePayload.put("d", resumeData);
+        //queueMessage(resumePayload);
     }
 
     private void handleHello(JSONObject payload) {
-        heartbeatManager = new Heart(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
+        heartbeatManager = new HeartLogic(socket, payload.getJSONObject("d").getInt("heartbeat_interval"));
+        heartbeatManager.start();
     }
 
     private void sendIdentify() {
@@ -458,16 +449,15 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void sendPayload(JSONObject payload) {
-        if (session == null) {
-            // Session is null, restart gateway
-            discordJar.restartGateway();
-            return;
-        }
         try {
-            session.sendMessage(new TextMessage(payload.toString()));
+            getSocket().send(payload.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public WebSocket getSocket() {
+        return socket;
     }
 
     public void requestGuildMembers(RequestGuildMembersAction action, CompletableFuture<List<Member>> future) {
@@ -513,7 +503,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
 
     public WebSocketSession getSession() {
-        return session;
+        return getSocket().getSession();
     }
 
     public boolean isDebug() {

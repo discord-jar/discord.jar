@@ -31,6 +31,13 @@ public record Status(
             activities.put(activity.compile());
         }
 
+        System.out.println(
+                new JSONObject()
+                        .put("since", since == 0 ? JSONObject.NULL : since)
+                        .put("activities", activities)
+                        .put("status", status.getCode())
+                        .put("afk", afk).toString(4)
+        );
         return new JSONObject()
                 .put("since", since == 0 ? JSONObject.NULL : since)
                 .put("activities", activities)

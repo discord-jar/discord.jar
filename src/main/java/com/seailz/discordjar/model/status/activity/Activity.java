@@ -20,6 +20,7 @@ public class Activity implements Compilerable {
 
     private final String name;
     private final ActivityType type;
+    private String state;
 
     private String streamUrl;
     private String applicationId;
@@ -32,6 +33,24 @@ public class Activity implements Compilerable {
         this.type = type;
     }
 
+    /**
+     * Allows a bot to define a custom status.
+     * Please note: Emojis are not supported in custom statuses for bots.
+     */
+    public Activity(String customStatus) {
+        this(customStatus, ActivityType.CUSTOM);
+        setState(customStatus);
+    }
+
+    /**
+     * If you've selected an Activity Type that's not 4 (custom), you can set the state as extra info to your activity.
+     *  User's current party status.
+     */
+    public Activity setState(String state) {
+        this.state = state;
+        return this;
+    }
+
     public Activity setStreamUrl(String url) {
         this.streamUrl = url;
         return this;
@@ -39,11 +58,6 @@ public class Activity implements Compilerable {
 
     public Activity setApplicationId(String applicationId) {
         this.applicationId = applicationId;
-        return this;
-    }
-
-    public Activity setEmoji(Emoji emoji) {
-        this.emoji = emoji;
         return this;
     }
 
@@ -57,6 +71,11 @@ public class Activity implements Compilerable {
         return this;
     }
 
+    public Activity setEmoji(Emoji emoji) {
+        this.emoji = emoji;
+        return this;
+    }
+
     public String name() {
         return name;
     }
@@ -64,6 +83,7 @@ public class Activity implements Compilerable {
     public ActivityType type() {
         return type;
     }
+    public String state() { return state; }
 
     public String streamUrl() {
         return streamUrl;
@@ -94,7 +114,7 @@ public class Activity implements Compilerable {
                 .put("application_id", applicationId)
                 .put("emoji", emoji == null ? JSONObject.NULL : emoji.compile())
                 .put("instance", instance)
-                .put("flags", flags == null ? JSONObject.NULL : new JSONObject().put("flags", flags));
+                .put("state", state);
     }
 
     @NotNull
@@ -103,6 +123,7 @@ public class Activity implements Compilerable {
         ActivityType type;
         String url;
         String applicationId;
+        String state;
         Emoji emoji;
         boolean instance;
         EnumSet<ActivityFlags> flags;
@@ -127,6 +148,10 @@ public class Activity implements Compilerable {
 
         if (obj.has("flags")) flags = ActivityFlags.fromInt(obj.getInt("flags"));
         else flags = null;
+
+        if (obj.has("state")) state = obj.getString("state");
+        else state = null;
+
 
         return new Activity(name, type)
                 .setStreamUrl(url)

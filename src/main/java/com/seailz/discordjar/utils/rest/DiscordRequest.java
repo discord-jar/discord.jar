@@ -339,11 +339,9 @@ public class DiscordRequest {
         }
     }
 
-    public class DiscordUnexpectedError extends RuntimeException {
+    public static class DiscordUnexpectedError extends RuntimeException {
         public DiscordUnexpectedError(Throwable throwable) {
             super(throwable);
-            // attempt gateway reconnect
-            djv.restartGateway();
         }
     }
 

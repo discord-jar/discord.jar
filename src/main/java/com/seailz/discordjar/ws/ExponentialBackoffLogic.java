@@ -32,7 +32,7 @@ public class ExponentialBackoffLogic {
             if (!attemptReconnect.apply(closeStatus)) {
                 return false;
             }
-            if (Duration.between(lastCallTime, Instant.now()).getSeconds() <= 60) {
+            if (Duration.between(lastCallTime, Instant.now()).getSeconds() <= 400) {
                 if (interval < maxInterval)
                     interval = Math.min(interval * 2, maxInterval);
             } else {

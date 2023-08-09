@@ -144,7 +144,6 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public boolean attemptReconnect(WebSocketSession session, CloseStatus status) {
         // connection closed
-        logger.info("[Gateway] Connection closed. [" + status.getCode() + "] " + status.getReason());
         if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
 

@@ -95,7 +95,6 @@ public class WebSocket extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        System.out.println("Closed: " + status);
         new Thread(() -> {
             onDisconnectConsumers.forEach(consumer -> consumer.accept(status));
         }).start();

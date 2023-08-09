@@ -18,7 +18,7 @@ public class ExponentialBackoffLogic {
     private Function<CloseStatus, Boolean> attemptReconnect = (e) -> true;
     // If this interval is reached, the reconnect will be attempted at the same interval until it succeeds.
     private final int maxInterval = 60000;
-    private int interval = 500;
+    private int interval = 3000;
     private int attempts = 0;
 
     private Instant lastCallTime = Instant.now();

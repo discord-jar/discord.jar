@@ -54,7 +54,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private Status status;
     private String gatewayUrl = null;
     private String sessionId;
-    private String resumeUrl;
+    private static String resumeUrl;
     private HeartLogic heartbeatManager;
     private boolean shouldResume = false;
     private boolean readyForMessages = false;
@@ -78,35 +78,36 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         discordJar.setGatewayFactory(this);
 
-        try {
-            DiscordResponse response = null;
+        if (resumeUrl == null) {
             try {
-                response = new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        "/gateway",
-                        discordJar,
-                        "/gateway", RequestMethod.GET
-                ).invoke();
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
-            if (response == null || response.body() == null || !response.body().has("url")) {
-                // In case the request fails, we can attempt to use the backup gateway URL instead.
-                this.gatewayUrl = URLS.GATEWAY.BASE_URL;
-            } else this.gatewayUrl = response.body().getString("url");
-        } catch (Exception e) {
-            logger.warning("[DISCORD.JAR] Failed to get gateway URL. Restarting gateway after 5 seconds.");
-            Thread.sleep(5000);
-            discordJar.restartGateway();
-            return;
-        }
+                DiscordResponse response = null;
+                try {
+                    response = new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            "/gateway",
+                            discordJar,
+                            "/gateway", RequestMethod.GET
+                    ).invoke();
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
+                if (response == null || response.body() == null || !response.body().has("url")) {
+                    // In case the request fails, we can attempt to use the backup gateway URL instead.
+                    this.gatewayUrl = URLS.GATEWAY.BASE_URL;
+                } else this.gatewayUrl = response.body().getString("url");
+            } catch (Exception e) {
+                logger.warning("[DISCORD.JAR] Failed to get gateway URL. Restarting gateway after 5 seconds.");
+                Thread.sleep(5000);
+                discordJar.restartGateway();
+                return;
+            }
+        } else gatewayUrl = resumeUrl;
 
         socket = new WebSocket(gatewayUrl, newSystemForMemoryManagement, debug);
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
         backoffReconnectLogic.setAttemptReconnect((c) -> {
-            if (shouldResume) return false;
-            return true;
+            return !shouldResume;
         });
 
         socket.addMessageConsumer((tm) -> {
@@ -283,11 +284,13 @@ public class GatewayFactory extends TextWebSocketHandler {
                 }
                 break;
             case RECONNECT:
-                logger.info("[discord.jar] Gateway requested a reconnect, reconnecting...");
+                logger.info("[discord.jar] Gateway requested a reconnect, reconnecting after 5 seconds...");
+                Thread.sleep(5000);
                 reconnect();
                 break;
             case INVALID_SESSION:
-                logger.info("[discord.jar] Gateway requested a reconnect (invalid session), reconnecting...");
+                logger.info("[discord.jar] Gateway requested a reconnect (invalid session), reconnecting after 5 seconds...");
+                Thread.sleep(5000);
                 reconnect();
                 break;
             case HEARTBEAT_ACK:
@@ -345,7 +348,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
             case READY:
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
-                this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
+                resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
                 readyForMessages = true;
 
                 if (discordJar.getStatus() != null) {

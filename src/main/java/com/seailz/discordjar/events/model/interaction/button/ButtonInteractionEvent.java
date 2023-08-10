@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
+import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.discordjar.model.interaction.modal.Modal;
@@ -18,9 +19,13 @@ public class ButtonInteractionEvent extends InteractionEvent implements CustomId
         super(bot, sequence, data);
         // First checks the button registry for any actions that match the custom id. We'll do this in a separate thread in order to not block the gateway thread.
         new Thread(() -> {
-            ButtonRegistry.getInstance().getRegistry().stream()
-                    .filter(buttonAction -> buttonAction.button().customId().equals(getCustomId()))
-                    .forEach(buttonAction -> buttonAction.action().accept(this));
+            for (Button.ButtonAction buttonAction : ButtonRegistry.getInstance().getRegistry()) {
+                new Thread(() -> {
+                    if (buttonAction.button().customId().equals(getCustomId())) {
+                        buttonAction.action().accept(this);
+                    }
+                }).start();
+            }
         }).start();
     }
 

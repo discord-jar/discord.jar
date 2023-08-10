@@ -340,25 +340,17 @@ public class GatewayFactory extends TextWebSocketHandler {
             }
         }).start();
 
-        switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
-            case READY:
-                this.sessionId = payload.getJSONObject("d").getString("session_id");
-                resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
-                readyForMessages = true;
+        if (Objects.requireNonNull(DispatchedEvents.getEventByName(payload.getString("t"))) == DispatchedEvents.READY) {
+            this.sessionId = payload.getJSONObject("d").getString("session_id");
+            this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
+            readyForMessages = true;
 
-                if (discordJar.getStatus() != null) {
-                    JSONObject json = new JSONObject();
-                    json.put("d", discordJar.getStatus().compile());
-                    json.put("op", 3);
-                    queueMessage(json);
-                }
-                break;
-            case GUILD_CREATE:
-                discordJar.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJar));
-                break;
-            case RESUMED:
-                logger.info("[discord.jar] Gateway session has been resumed, confirmed by Discord.");
-                break;
+            if (discordJar.getStatus() != null) {
+                JSONObject json = new JSONObject();
+                json.put("d", discordJar.getStatus().compile());
+                json.put("op", 3);
+                queueMessage(json);
+            }
         }
     }
 

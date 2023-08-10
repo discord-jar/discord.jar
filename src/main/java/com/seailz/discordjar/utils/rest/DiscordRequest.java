@@ -252,18 +252,6 @@ public class DiscordRequest {
                 headers.put(name, responseHeaders.get(name));
             }
 
-            // check headers for rate-limit
-            try {
-                String responseBody = sb;
-                if (responseBody.startsWith("[")) {
-                    new JSONArray(responseBody);
-                } else {
-                    new JSONObject(responseBody);
-                }
-            } catch (JSONException err) {
-                System.out.println(sb);
-            }
-
             // All is said and done, let's get the rate-limit bucket up to date.
             // If the bucket doesn't exist, it will be created.
             if (responseHeaders.get("X-RateLimit-Bucket") != null) {
@@ -321,12 +309,17 @@ public class DiscordRequest {
                 return new DiscordResponse(401, null, null, null);
             }
 
-            JSONObject error = new JSONObject(sb);
-            JSONArray errorArray;
-
             if (responseCode == 404) {
-                Logger.getLogger("DISCORDJAR").warning("Received 404 error from the Discord API. It's likely that you're trying to access a resource that doesn't exist.");
-                System.out.println(sb);
+                String message = null;
+                try {
+                    JSONObject json = new JSONObject(sb);
+                    if (json.has("message")) {
+                        message = json.getString("message");
+                    }
+                } catch (JSONException ignored) {
+                }
+                Logger.getLogger("DiscordJar")
+                        .warning("[REST] 404: " + message);
                 return new DiscordResponse(404, null, null, null);
             }
 

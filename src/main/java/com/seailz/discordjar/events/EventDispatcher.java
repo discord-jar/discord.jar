@@ -105,7 +105,6 @@ public class EventDispatcher {
                     }
                 }).start();
             }
-            System.out.println("Event " + event.getClass().getSimpleName() + " took " + (System.currentTimeMillis() - start) + "ms to dispatch.");
         }, "EventDispatcher").start();
     }
 }

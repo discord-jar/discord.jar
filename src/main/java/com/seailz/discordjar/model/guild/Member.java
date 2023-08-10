@@ -48,7 +48,6 @@ public class Member implements Compilerable, Resolvable {
         this.nick = nick;
         this.avatar = avatar;
         this.roleIds = roles;
-        this.roles = new Role[roles.size()];
         this.joinedAt = joinedAt;
         this.premiumSince = premiumSince;
         this.deaf = deaf;

@@ -23,36 +23,44 @@ import java.util.*;
 
 /**
  * Represents a member of a guild
- *
- * @param user                       the user this guild member represents
- * @param nick                       this user's guild nickname
- * @param avatar                     the member's guild avatar hash //TODO: sort out avatars and images
- * @param roles                      The user's roles
- * @param joinedAt                   when the user joined the guild
- * @param premiumSince               when the user started boosting the guild
- * @param deaf                       whether the user is deafened in voice channels
- * @param mute                       whether the user is muted in voice channels
- * @param pending                    whether the user has not yet passed the guild's Membership Screening requirements
- * @param permissions                total permissions of the member in the channel, including overwrites, returned when in the interaction object //TODO: sort out permissions
- * @param communicationDisabledUntil when the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out
  */
-public record Member(
-        User user,
-        String nick,
-        String avatar,
-        Role[] roles,
-        String joinedAt,
-        String premiumSince,
-        boolean deaf,
-        boolean mute,
-        boolean pending,
-        List<Permission> permissions,
-        String communicationDisabledUntil,
-        String guildId,
-        List<MemberFlags> flags,
-        int flagsRaw,
-        DiscordJar discordJar
-) implements Compilerable, Resolvable {
+public class Member implements Compilerable, Resolvable {
+
+    private User user;
+    private String nick;
+    private String avatar;
+    private Role[] roles;
+    private List<String> roleIds;
+    private String joinedAt;
+    private String premiumSince;
+    private boolean deaf;
+    private boolean mute;
+    private boolean pending;
+    private List<Permission> permissions;
+    private String communicationDisabledUntil;
+    private String guildId;
+    private List<MemberFlags> flags;
+    private int flagsRaw;
+    private DiscordJar discordJar;
+
+    public Member(User user, String nick, String avatar, List<String> roles, String joinedAt, String premiumSince, boolean deaf, boolean mute, boolean pending, List<Permission> permissions, String communicationDisabledUntil, String guildId, List<MemberFlags> flags, int flagsRaw, DiscordJar discordJar) {
+        this.user = user;
+        this.nick = nick;
+        this.avatar = avatar;
+        this.roleIds = roles;
+        this.roles = new Role[roles.size()];
+        this.joinedAt = joinedAt;
+        this.premiumSince = premiumSince;
+        this.deaf = deaf;
+        this.mute = mute;
+        this.pending = pending;
+        this.permissions = permissions;
+        this.communicationDisabledUntil = communicationDisabledUntil;
+        this.guildId = guildId;
+        this.flags = flags;
+        this.flagsRaw = flagsRaw;
+        this.discordJar = discordJar;
+    }
 
     @Override
     public JSONObject compile() {
@@ -64,7 +72,7 @@ public record Member(
         obj.put("user", user.compile());
         obj.put("nick", nick);
         obj.put("avatar", avatar);
-        obj.put("roles", roles);
+        obj.put("roles", roleIds);
         obj.put("joined_at", joinedAt);
         obj.put("premium_since", premiumSince);
         obj.put("deaf", deaf);
@@ -82,7 +90,7 @@ public record Member(
         User user = null;
         String nick = null;
         String avatar = null;
-        Role[] roles = new Role[0];
+        List<String> roles = null;
         String joinedAt = null;
         String premiumSince = null;
         boolean deaf = false;
@@ -98,15 +106,11 @@ public record Member(
         if (obj.has("avatar") && obj.get("avatar") != JSONObject.NULL) avatar = obj.getString("avatar");
         if (obj.has("roles")) {
             if (guild != null) {
-                List<Role> rolesList = new ArrayList<>();
-                List<Role> guildRoles = guild.roles();
+                List<String> rolesList = new ArrayList<>();
                 for (Object o : obj.getJSONArray("roles")) {
-                    guildRoles.stream()
-                            .filter(role -> role.id().equals(o.toString()))
-                            .findFirst()
-                            .ifPresent(rolesList::add);
+                    rolesList.add((String) o);
                 }
-                roles = rolesList.toArray(new Role[0]);
+                roles = rolesList;
             }
         }
         if (obj.has("joined_at") && obj.get("joined_at") != JSONObject.NULL) joinedAt = obj.getString("joined_at");
@@ -133,6 +137,13 @@ public record Member(
         if (obj.has("communication_disabled_until") && obj.get("communication_disabled_until") != JSONObject.NULL)
             communicationDisabledUntil = obj.getString("communication_disabled_until");
         return new Member(user, nick, avatar, roles, joinedAt, premiumSince, deaf, mute, pending, permissions, communicationDisabledUntil, guildId, flags, flagsRaw, discordJar);
+    }
+
+    public Role[] roles() {
+        if (this.roles != null) return this.roles;
+        Role[] roles = discordJar.getGuildById(guildId).roles().stream().filter(role -> roleIds.contains(role.id())).toArray(Role[]::new);
+        this.roles = roles;
+        return roles;
     }
 
     /**
@@ -241,5 +252,49 @@ public record Member(
 
     public boolean hasPermission(Permission perm) {
         return permissions.contains(perm);
+    }
+
+    public String guildId() {
+        return guildId;
+    }
+
+    public DiscordJar discordJar() {
+        return discordJar;
+    }
+
+    public int flagsRaw() {
+        return flagsRaw;
+    }
+
+    public List<MemberFlags> flags() {
+        return flags;
+    }
+
+    public List<Permission> permissions() {
+        return permissions;
+    }
+
+    public String avatar() {
+        return avatar;
+    }
+
+    public String communicationDisabledUntil() {
+        return communicationDisabledUntil;
+    }
+
+    public String joinedAt() {
+        return joinedAt;
+    }
+
+    public String nick() {
+        return nick;
+    }
+
+    public String premiumSince() {
+        return premiumSince;
+    }
+
+    public User user() {
+        return user;
     }
 }

@@ -1,5 +1,8 @@
-package com.seailz.discordjar.ws;
+package com.seailz.discordjar.gateway.heartbeat;
 
+import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.ws.WSPayloads;
+import com.seailz.discordjar.ws.WebSocket;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -62,6 +65,7 @@ public class HeartLogic {
                     socket.send(
                         WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
                     );
+                    GatewayFactory.lastHeartbeatSent = new Date();
                     Thread.sleep(interval);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

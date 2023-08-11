@@ -65,7 +65,9 @@ import java.util.logging.Logger;
 public enum DispatchedEvents {
 
     /* Sent when bot is ready to receive events */
-    READY((p, g, d) -> ReadyEvent.class),
+    READY((p, g, d) -> {
+        return ReadyEvent.class;
+    }),
     /* Sent when a guild is created */
     GUILD_CREATE((p, d, g) -> {
         // cache guild

@@ -36,7 +36,7 @@ public class ExponentialBackoffLogic {
                 if (interval < maxInterval)
                     interval = Math.min(interval * 2, maxInterval);
             } else {
-                interval = 1000;
+                interval = 3000;
                 attempts = 0;
             }
 

@@ -101,9 +101,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
-        backoffReconnectLogic.setAttemptReconnect((c) -> {
-            return !shouldResume;
-        });
+        backoffReconnectLogic.setAttemptReconnect((c) -> !shouldResume);
 
         socket.addMessageConsumer((tm) -> {
             try {

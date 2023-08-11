@@ -8,6 +8,7 @@ import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,11 @@ public class WebSocket extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        // Force session disconnect in case it failed to disconnect
+        try {
+            session.close();
+        } catch (Exception e) {
+        }
         new Thread(() -> {
             onDisconnectConsumers.forEach(consumer -> consumer.accept(status));
         }).start();

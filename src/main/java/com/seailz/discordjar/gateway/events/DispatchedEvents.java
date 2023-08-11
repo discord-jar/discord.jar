@@ -66,6 +66,8 @@ public enum DispatchedEvents {
 
     /* Sent when bot is ready to receive events */
     READY((p, g, d) -> {
+        Logger.getLogger("Gateway")
+                .info("[Gateway] Ready to receive events");
         return ReadyEvent.class;
     }),
     /* Sent when a guild is created */

@@ -134,6 +134,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private void onConnect(Void vd) {
+        if (ifNotSelf()) return;
         logger.info("[Gateway] Connection established successfully.");
     }
 
@@ -237,6 +238,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        if (ifNotSelf()) return;
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
 
@@ -299,6 +301,20 @@ public class GatewayFactory extends TextWebSocketHandler {
                 }
                 break;
         }
+    }
+
+    private boolean ifNotSelf() {
+        if (!discordJar.getGateway().equals(this)) {
+            logger.warning("[Gateway] Not the current gateway instance. Shutting down.");
+            shouldResume = true; // Stop reconnecting
+            try {
+                socket.getSession().close(CloseStatus.SERVER_ERROR);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return true;
+        }
+        return false;
     }
 
     private void handleDispatched(JSONObject payload) {

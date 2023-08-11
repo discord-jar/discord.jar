@@ -43,7 +43,8 @@ public class Interaction implements Compilerable {
     // The channel it was sent from
     private final Channel channel;
     // Guild member data for the invoking user, including permissions
-    private final Member member;
+    private Member member;
+    private final JSONObject memberJson;
     // User object for the invoking user, if invoked in a DM
     private final User user;
     // A continuation token for responding to the interaction
@@ -63,14 +64,14 @@ public class Interaction implements Compilerable {
     @Deprecated
     private final String channelId;
 
-    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, Member member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId, DiscordJar discordJar) {
+    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, JSONObject member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId, DiscordJar discordJar) {
         this.id = id;
         this.application = application;
         this.type = type;
         this.data = data;
         this.guildId = guild;
         this.channel = channel;
-        this.member = member;
+        this.memberJson = member;
         this.user = user;
         this.token = token;
         this.version = version;
@@ -121,6 +122,10 @@ public class Interaction implements Compilerable {
     }
 
     public Member member() {
+        if (memberJson == null) return null;
+        if (member == null) {
+            member = Member.decompile(memberJson, djar, guildId, guild());
+        }
         return member;
     }
 
@@ -210,7 +215,7 @@ public class Interaction implements Compilerable {
         String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
         String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
 
-        return new Interaction(id, application, type, data, guildId, channel, member, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId, discordJar);
+        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId, discordJar);
     }
 
 

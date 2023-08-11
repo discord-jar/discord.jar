@@ -104,13 +104,11 @@ public class Member implements Compilerable, Resolvable {
         if (obj.has("nick") && obj.get("nick") != JSONObject.NULL) nick = obj.getString("nick");
         if (obj.has("avatar") && obj.get("avatar") != JSONObject.NULL) avatar = obj.getString("avatar");
         if (obj.has("roles")) {
-            if (guild != null) {
                 List<String> rolesList = new ArrayList<>();
                 for (Object o : obj.getJSONArray("roles")) {
                     rolesList.add((String) o);
                 }
                 roles = rolesList;
-            }
         }
         if (obj.has("joined_at") && obj.get("joined_at") != JSONObject.NULL) joinedAt = obj.getString("joined_at");
         if (obj.has("premium_since") && obj.get("premium_since") != JSONObject.NULL) premiumSince = obj.getString("premium_since");
@@ -139,6 +137,9 @@ public class Member implements Compilerable, Resolvable {
     }
 
     public Role[] roles() {
+        if (this.roleIds == null) {
+
+        }
         if (this.roles != null) return this.roles;
         Role[] roles = discordJar.getGuildById(guildId).roles().stream().filter(role -> roleIds.contains(role.id())).toArray(Role[]::new);
         this.roles = roles;

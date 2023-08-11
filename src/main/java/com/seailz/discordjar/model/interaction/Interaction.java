@@ -38,7 +38,8 @@ public class Interaction implements Compilerable {
     // Interaction data payload
     private final InteractionData data;
     // The guild it was sent from
-    private final Guild guild;
+    private Guild guild;
+    private final String guildId;
     // The channel it was sent from
     private final Channel channel;
     // Guild member data for the invoking user, including permissions
@@ -58,15 +59,16 @@ public class Interaction implements Compilerable {
     // Guild's preferred locale, if invoked in a guild
     private final String guildLocale;
     private final String raw;
+    private final DiscordJar djar;
     @Deprecated
     private final String channelId;
 
-    public Interaction(String id, Application application, InteractionType type, InteractionData data, Guild guild, Channel channel, Member member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId) {
+    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, Member member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId, DiscordJar discordJar) {
         this.id = id;
         this.application = application;
         this.type = type;
         this.data = data;
-        this.guild = guild;
+        this.guildId = guild;
         this.channel = channel;
         this.member = member;
         this.user = user;
@@ -83,6 +85,7 @@ public class Interaction implements Compilerable {
         this.guildLocale = guildLocale;
         this.raw = raw;
         this.channelId = channelId;
+        this.djar = discordJar;
     }
 
     @Deprecated
@@ -107,6 +110,9 @@ public class Interaction implements Compilerable {
     }
 
     public Guild guild() {
+        if (guild == null) {
+            guild = djar.getGuildById(guildId);
+        }
         return guild;
     }
 
@@ -174,7 +180,7 @@ public class Interaction implements Compilerable {
                 .put("application", application.id())
                 .put("type", type.getCode())
                 .put("data", data)
-                .put("guild", guild.id())
+                .put("guild", guildId)
                 .put("channel", channel.compile())
                 .put("member", member.compile())
                 .put("token", token)
@@ -182,7 +188,7 @@ public class Interaction implements Compilerable {
                 .put("message", message.compile())
                 .put("app_permissions", appPermissions)
                 .put("locale", locale)
-                .put("guildLocale", guildLocale)
+                .put("guild_locale", guildLocale)
                 .put("channel_id", channelId);
     }
 
@@ -192,9 +198,9 @@ public class Interaction implements Compilerable {
         Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
         InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
         InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJar) : null;
-        Guild guild = json.has("guild_id") ? discordJar.getGuildById(json.getString("guild_id")) : null;
+        String guildId = json.has("guild_id") ? json.getString("guild_id") : null;
         Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJar) : null;
-        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJar, guild != null ? guild.id() : json.getString("guild_id"), guild) : null;
+        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJar, guildId, null) : null;
         User user = json.has("user") ? User.decompile(json.getJSONObject("user"), discordJar) : null;
         String token = json.has("token") ? json.getString("token") : null;
         int version = json.has("version") ? json.getInt("version") : 0;
@@ -204,7 +210,7 @@ public class Interaction implements Compilerable {
         String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
         String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
 
-        return new Interaction(id, application, type, data, guild, channel, member, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId);
+        return new Interaction(id, application, type, data, guildId, channel, member, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId, discordJar);
     }
 
 

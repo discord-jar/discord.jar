@@ -67,7 +67,7 @@ public class Heart {
    }
 
     private void send() {
-        factory.sendPayload(
+        factory.queueMessage(
                 new JSONObject()
                     .put("op", 1)
                     .put("d", GatewayFactory.sequence)

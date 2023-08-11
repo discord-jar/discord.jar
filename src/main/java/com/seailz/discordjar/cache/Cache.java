@@ -194,10 +194,8 @@ public class Cache<T> {
                 if (response == null) return null;
                 returnObject.set(decompile.invoke(null, response.body(), discordJar));
             } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-                Logger.getLogger("DiscordJar").warning("Was unable to return object from cache, attempting to remove discord.jar instance...");
                 try {
                     returnObject.set(decompile.invoke(null, response.body()));
-                    Logger.getLogger("discord.jar").info("Successfully retrieved object from cache!");
                 } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ex) {
                     try {
                         if (guild != null) {

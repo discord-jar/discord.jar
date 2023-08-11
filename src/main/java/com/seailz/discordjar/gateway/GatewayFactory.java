@@ -65,6 +65,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private WebSocket socket;
 
     public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement) throws ExecutionException, InterruptedException {
+        logger.info("[Gateway] New instance created");
         this.discordJar = discordJar;
         this.debug = debug;
         this.shardId = shardId;
@@ -325,9 +326,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             } catch (InvocationTargetException e) {
                 logger.warning("[DISCORD.JAR - EVENTS] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
                 // If it's a runtime exception, we want to catch it and print the stack trace.
-                // Also restart the gateway.
                 e.getCause().printStackTrace();
-                discordJar.restartGateway();
                 return;
             }
 
@@ -381,14 +380,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Attempting resume...");
         }
-        shouldResume = true;
         if (getSocket().getSession().isOpen())
             getSocket().getSession().close(CloseStatus.SERVER_ERROR);
-
-        if (this.heartbeatManager != null) this.heartbeatManager.stop();
-        this.heartbeatManager = null;
-        readyForMessages = false;
-        discordJar.restartGateway();
 
 //        socket.connect();
 //        onConnect(null);

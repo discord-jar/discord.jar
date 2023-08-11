@@ -2,6 +2,7 @@ package com.seailz.discordjar.utils.rest;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.rest.errors.ErrorTreeReader;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
 import okhttp3.Response;
 import okhttp3.*;
@@ -470,6 +471,8 @@ public class DiscordRequest {
             this.code = body.getInt("code");
             this.error = body.getString("message");
             this.httpCode = httpCode;
+            Logger.getLogger("discord.jar")
+                    .warning(ErrorTreeReader.readErrorTree(body, httpCode));
         }
 
         public int getCode() {

@@ -135,7 +135,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     private void onConnect(Void vd) {
         if (ifNotSelf()) return;
-        logger.info("[Gateway] Connection established successfully.");
+        logger.info("[Gateway] Connection established successfully. ⚡");
     }
 
     public boolean attemptReconnect(WebSocketSession session, CloseStatus status) {

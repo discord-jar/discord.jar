@@ -22,6 +22,7 @@ public class ImageUtils {
         DEFAULT_USER_AVATAR("embed/avatars/%h"),
         USER_AVATAR("avatars/%s/%h"),
         GUILD_MEMBER_AVATAR("guilds/%s/users/%s/avatars/%h"),
+        USER_AVATAR_DECORATION("avatar-decorations/%s/%h"),
         APPLICATION_ICON("app-icons/%s/%h"),
         APPLICATION_COVER("app-icons/%s/%h"),
         APPLICATION_ASSET("app-assets/%s/%h"),

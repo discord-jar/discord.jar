@@ -8,6 +8,7 @@ import com.seailz.discordjar.utils.CDNAble;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.StringFormatter;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
@@ -52,6 +53,7 @@ import java.util.HashMap;
  * @param premiumType    the type of Nitro subscription on a user's account
  * @param publicFlags    the public flags on a user's account
  * @param publicFlagsRaw the raw public flags on a user's account
+ * @param avatarDecoration the user's avatar decoration hash
  * @param discordJar      the discordJar instance
  * @author Seailz
  * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object">User Object</a>
@@ -61,7 +63,7 @@ import java.util.HashMap;
 public record User(
         String id, String username, String discriminator, String avatarHash, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
-        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags,
+        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, String avatarDecoration,
         int publicFlagsRaw, String displayName,
         DiscordJar discordJar
 ) implements Compilerable, Resolvable, Mentionable, CDNAble {
@@ -265,6 +267,10 @@ public record User(
      */
     public boolean isUsingPomelo() {
         return discriminator.equals("0");
+    }
+
+    public String getAvatarDecorationUrl() {
+        return ImageUtils.getUrl(avatarHash, ImageUtils.ImageType.USER_AVATAR_DECORATION, id);
     }
 
 

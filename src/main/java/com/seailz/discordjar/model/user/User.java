@@ -88,7 +88,8 @@ public record User(
                 .put("email", email)
                 .put("flags", flags)
                 .put("public_flags", publicFlags)
-                .put("global_name", displayName);
+                .put("global_name", displayName)
+                .put("avatar_decoration", avatarDecoration);
 
         if (premiumType == null)
             obj.put("premium_type", JSONObject.NULL);
@@ -121,6 +122,7 @@ public record User(
         int publicFlagsRaw = 0;
         int flagsRaw = 0;
         String displayName;
+        String avatarDecoration;
 
         try {
             id = obj.getString("id");
@@ -207,7 +209,12 @@ public record User(
         else
             displayName = null;
 
-        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, publicFlagsRaw, displayName, discordJar);
+        if (obj.has("avatar_decoration") && !obj.isNull("avatar_decoration"))
+            avatarDecoration = obj.getString("avatar_decoration");
+        else
+            avatarDecoration = null;
+
+        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, avatarDecoration, publicFlagsRaw, displayName, discordJar);
     }
 
     /**

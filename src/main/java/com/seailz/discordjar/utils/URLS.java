@@ -128,7 +128,7 @@ public final class URLS {
              * Requests info about the current application from the API
              * Returns the bot's application object
              */
-            public static String APPLICATION_INFORMATION = "/oauth2/applications/@me";
+            public static String APPLICATION_INFORMATION = "/applications/@me";
 
             public static class COMMANDS {
                 public static String GET_GLOBAL_APPLICATION_COMMANDS = "/applications/{application.id}/commands";

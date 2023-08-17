@@ -2,6 +2,7 @@ package com.seailz.discordjar.model.application;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.scopes.InstallParams;
 import com.seailz.discordjar.model.team.Team;
 import com.seailz.discordjar.model.user.User;
@@ -66,6 +67,7 @@ public record Application(
         String verifyKey,
         Team team,
         String guildId,
+        Guild guild,
         String primary_sku_id,
         String slug,
         String coverImage,
@@ -75,6 +77,7 @@ public record Application(
         String customInstallUrl,
         InstallParams installParams,
         String roleConnectionsVerificationUrl,
+        int approximateGuildCount,
         DiscordJar discordJar
 ) implements Compilerable, Snowflake {
 
@@ -101,11 +104,13 @@ public record Application(
                 .put("flags", flagsRaw)
                 .put("tags", tags)
                 .put("custom_install_url", customInstallUrl)
-                .put("role_connections_verification_url", roleConnectionsVerificationUrl);
+                .put("role_connections_verification_url", roleConnectionsVerificationUrl)
+                .put("approximate_guild_count", approximateGuildCount)
+                .put("guild", guild.compile());
     }
 
     public static Application decompile(JSONObject obj, DiscordJar discordJar) {
-        if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, discordJar);
+        if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, null, 0, null,  null, null, null, 0, discordJar);
         String id;
         String name;
         String iconUrl;
@@ -120,6 +125,7 @@ public record Application(
         String verifyKey;
         Team team;
         String guildId;
+        Guild guild;
         String primary_sku_id;
         String slug;
         String coverImage;
@@ -129,6 +135,7 @@ public record Application(
         String customInstallUrl;
         InstallParams installParams;
         String roleConnectionsVerificationUrl;
+        int approximateGuildCount;
 
         try {
             id = obj.getString("id");
@@ -263,6 +270,18 @@ public record Application(
             roleConnectionsVerificationUrl = null;
         }
 
+        try {
+            approximateGuildCount = obj.getInt("approximate_guild_count");
+        } catch (JSONException e) {
+            approximateGuildCount = 0;
+        }
+
+        try {
+            guild = Guild.decompile(obj.getJSONObject("guild"), discordJar);
+        } catch (JSONException e) {
+            guild = null;
+        }
+
         return new Application(
                 id,
                 name,
@@ -278,6 +297,7 @@ public record Application(
                 verifyKey,
                 team,
                 guildId,
+                guild,
                 primary_sku_id,
                 slug,
                 coverImage,
@@ -287,6 +307,7 @@ public record Application(
                 customInstallUrl,
                 installParams,
                 roleConnectionsVerificationUrl,
+                approximateGuildCount,
                 discordJar
         );
     }

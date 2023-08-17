@@ -26,6 +26,7 @@ public class GetCurrentUserGuildsAction {
     private String before;
     private String after;
     private int limit;
+    private boolean withCounts;
     private final DiscordJar discordJar;
 
     public GetCurrentUserGuildsAction(DiscordJar discordJar) {
@@ -52,6 +53,10 @@ public class GetCurrentUserGuildsAction {
         Checker.check(limit > 0, "Limit must be greater than 0");
         this.limit = limit;
         return this;
+    }
+
+    public void setWithCounts(boolean withCounts) {
+        this.withCounts = withCounts;
     }
 
     public String before() {
@@ -88,6 +93,8 @@ public class GetCurrentUserGuildsAction {
                 url += "after=" + after + "&";
             if (limit != 0)
                 url += "limit=" + limit + "&";
+            if (withCounts)
+                url += "with_counts=true&";
         }
 
         DiscordResponse response = null;

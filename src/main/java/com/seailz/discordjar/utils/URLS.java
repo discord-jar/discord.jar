@@ -498,6 +498,8 @@ public final class URLS {
              */
             public static final String BAN_USER = "/guilds/{guild.id}/bans/{user.id}";
 
+            public static final String MODIFY_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
+
             public static class MEMBERS {
                 public static class ROLES {
                     /**

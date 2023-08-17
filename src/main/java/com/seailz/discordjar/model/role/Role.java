@@ -1,10 +1,16 @@
 package com.seailz.discordjar.model.role;
 
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.utils.Mentionable;
+import com.seailz.discordjar.utils.flag.BitwiseUtil;
+import com.seailz.discordjar.utils.flag.Bitwiseable;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Represents a Discord role in a guild.
@@ -30,7 +36,9 @@ public record Role(
         int permissions,
         boolean managed,
         boolean mentionable,
-        RoleTag tags
+        RoleTag tags,
+        EnumSet<Flag> flags,
+        int flagsRaw
 ) implements Compilerable, Resolvable, Mentionable {
     public static Role decompile(JSONObject obj) {
         String id;
@@ -43,6 +51,8 @@ public record Role(
         boolean managed;
         boolean mentionable;
         RoleTag tags;
+        EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
+        int flagsRaw;
 
         try {
             id = obj.getString("id");
@@ -104,7 +114,14 @@ public record Role(
             tags = null;
         }
 
-        return new Role(id, name, color, hoist, icon, position, permissions, managed, mentionable, tags);
+        try {
+            flagsRaw = obj.getInt("flags");
+            flags = new BitwiseUtil<Role.Flag>().get(flagsRaw, Role.Flag.class);
+        } catch (JSONException e) {
+            flagsRaw = 0;
+        }
+
+        return new Role(id, name, color, hoist, icon, position, permissions, managed, mentionable, tags, flags, flagsRaw);
     }
 
     @Override
@@ -120,11 +137,46 @@ public record Role(
         obj.put("managed", managed);
         obj.put("mentionable", mentionable);
         obj.put("tags", tags.compile());
+        obj.put("flags", flags);
         return obj;
     }
 
     @Override
     public String getMentionablePrefix() {
         return "@&";
+    }
+
+    /**
+     * Represents a flag on a role.
+     * @author Seailz
+     */
+    public enum Flag implements Bitwiseable {
+
+        IN_PROMPT(0),
+        UNKNOWN(-1)
+        ;
+
+        private int value;
+
+        Flag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getLeftShiftId() {
+            return 1 << value;
+        }
+
+        @Override
+        public int id() {
+            return value;
+        }
+
+        public static Flag fromValue(int value) {
+            for (Flag flag : values()) {
+                if (flag.id() == value) return flag;
+            }
+            return UNKNOWN;
+        }
     }
 }

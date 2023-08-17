@@ -457,7 +457,7 @@ public class DiscordRequest {
 
     public static class DiscordAPIErrorException extends RuntimeException {
         public DiscordAPIErrorException(UnhandledDiscordAPIErrorException e) {
-            super("Discord API Error: " + e.getError() + " (" + e.getCode() + ") " + e.getBody());
+            super(ErrorTreeReader.readErrorTree(e.getBody(), e.code));
         }
     }
 

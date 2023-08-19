@@ -992,21 +992,19 @@ public class DiscordJar {
             Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
-            new Thread(() -> {
-                registerCommand(
-                        new Command(
-                                name,
-                                listener.getType(),
-                                description,
-                                (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
-                                nameLocales,
-                                descriptionLocales,
-                                defaultMemberPermissions,
-                                canUseInDms,
-                                nsfw
-                        )
-                );
-            }).start();
+                    registerCommand(
+                            new Command(
+                                    name,
+                                    listener.getType(),
+                                    description,
+                                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                                    nameLocales,
+                                    descriptionLocales,
+                                    defaultMemberPermissions,
+                                    canUseInDms,
+                                    nsfw
+                            )
+                    );
             commandDispatcher.registerCommand(name, listener);
 
             if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;
@@ -1046,7 +1044,7 @@ public class DiscordJar {
                 new HashMap<>(),
                 URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id() == null ? "0" : getSelfInfo().id()),
                 this,
-                URLS.BASE_URL,
+                URLS.POST.COMMANDS.GLOBAL_COMMANDS,
                 RequestMethod.POST);
         try {
             commandReq.invoke();

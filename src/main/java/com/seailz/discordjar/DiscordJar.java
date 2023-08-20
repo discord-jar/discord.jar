@@ -392,6 +392,7 @@ public class DiscordJar {
     }
 
     public Bucket getBucketForUrl(String url) {
+        final List<Bucket> buckets = new ArrayList<>(this.buckets);
         for (Bucket bucket : buckets) {
             if (bucket.getAffectedRoutes().contains(url)) return bucket;
         }

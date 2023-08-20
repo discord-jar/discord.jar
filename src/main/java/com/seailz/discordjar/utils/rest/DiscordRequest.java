@@ -9,7 +9,6 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
@@ -21,10 +20,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 public class DiscordRequest {
@@ -189,11 +189,21 @@ public class DiscordRequest {
             canRequest.put(url, false);
 
             Bucket requestBucket = djv.getBucketForUrl(url);
+            String uuid = "";
             if (requestBucket != null) {
                 // Bucket exists, lets make sure we wait our turn.
-                requestBucket.waitYourTurn();
+                if (djv.isDebug()) {
+                    System.out.println("Waiting for request clearance...");
+                }
+                uuid = String.valueOf(requestBucket.awaitClearance());
             } else {
+                if (djv.isDebug()) {
+                    System.out.println("No bucket found for " + url);
+                }
+            }
 
+            if (djv.isDebug()) {
+                System.out.println("Cleared for launch");
             }
 
             OkHttpClient client = new OkHttpClient();
@@ -245,7 +255,7 @@ public class DiscordRequest {
             int responseCode = response.code();
             String sb = response.body().string();
             if (djv.isDebug()) {
-                System.out.println(request.method() + " " + request.url() + " with " + body + " returned " + responseCode + " with " + sb);
+                System.out.println(uuid + " " + request.method() + " " + request.url() + " with " + body + " returned " + responseCode + " with " + sb);
             }
             HashMap<String, String> headers = new HashMap<>();
             Headers responseHeaders = response.headers();
@@ -267,9 +277,19 @@ public class DiscordRequest {
                 }
 
                 if (djv.getBucket(id) == null) {
-                    djv.updateBucket(id, new Bucket(id, limit, remaining, (reset.multiply(new BigDecimal(1000)).longValue()), resetAfter));
+                    if (djv.isDebug()) {
+                        System.out.println("Creating new bucket " + id + " with limit " + limit + ", remaining " + remaining + ", reset " + reset + ", resetAfter " + resetAfter);
+                        System.out.println("COMMANDS: " + url.contains("commands"));
+                    }
+                    djv.updateBucket(id, new Bucket(id, limit, remaining, (reset.multiply(new BigDecimal(1000)).longValue()), resetAfter, djv.isDebug()));
                 } else {
-                    djv.getBucket(id).update(limit, remaining, (reset.multiply(new BigDecimal(1000)).longValue()), resetAfter).addAffectedRoute(baseUrl);
+                    Bucket bucket = djv.getBucket(id);
+                    bucket.setLimit(limit);
+                    bucket.setResetAfter((long) (resetAfter * 1000));
+                    bucket.setReset(reset.multiply(new BigDecimal(1000)).longValue());
+                    bucket.setRemaining(remaining);
+                    djv.removeBucket(djv.getBucket(id));
+                    djv.updateBucket(id, bucket.addAffectedRoute(url));
                 }
             }
 
@@ -278,10 +298,23 @@ public class DiscordRequest {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Rate limit has been exceeded. Please make sure you are not sending too many requests.");
                 }
 
-                float retryAfter = new JSONObject(sb).getFloat("retry_after");
+                JSONObject body = new JSONObject(sb);
+                if (!body.has("retry_after")) {
+                    Logger.getLogger("RateLimit")
+                            .severe("[Ratelimiting] It's likely that you've hit a Cloudflare rate limit.");
+                    System.out.println(body);
+                    return new DiscordResponse(429, body, headers, null);
+                }
+
+                float retryAfter = body.getFloat("retry_after");
                 if (retryAfter == -1) {
                     Logger.getLogger("RateLimit").warning("[RATE LIMIT] Invalid rate limit response (?) - please contact Discord support. " + sb);
                     return new DiscordResponse(429, body, headers, null);
+                }
+
+                Bucket bucket = djv.getBucketForUrl(url);
+                if (bucket != null) {
+                    bucket.await((long) (retryAfter * 1000));
                 }
 
                 return queueRequest(retryAfter, url, auth, contentType);
@@ -473,6 +506,8 @@ public class DiscordRequest {
             this.httpCode = httpCode;
             Logger.getLogger("discord.jar")
                     .warning(ErrorTreeReader.readErrorTree(body, httpCode));
+
+            printStackTrace();
         }
 
         public int getCode() {

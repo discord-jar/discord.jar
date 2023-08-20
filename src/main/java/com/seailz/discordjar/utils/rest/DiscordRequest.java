@@ -506,6 +506,8 @@ public class DiscordRequest {
             this.httpCode = httpCode;
             Logger.getLogger("discord.jar")
                     .warning(ErrorTreeReader.readErrorTree(body, httpCode));
+
+            printStackTrace();
         }
 
         public int getCode() {

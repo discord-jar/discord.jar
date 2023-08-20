@@ -1007,6 +1007,7 @@ public class DiscordJar {
                         )
                 );
             }).start();
+
             commandDispatcher.registerCommand(name, listener);
 
             if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;
@@ -1041,18 +1042,20 @@ public class DiscordJar {
             }
         }
 
-        DiscordRequest commandReq = new DiscordRequest(
-                command.compile(),
-                new HashMap<>(),
-                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id() == null ? "0" : getSelfInfo().id()),
-                this,
-                URLS.BASE_URL,
-                RequestMethod.POST);
-        try {
-            commandReq.invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        new Thread(() -> {
+            DiscordRequest commandReq = new DiscordRequest(
+                    command.compile(),
+                    new HashMap<>(),
+                    URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id() == null ? "0" : getSelfInfo().id()),
+                    this,
+                    URLS.BASE_URL,
+                    RequestMethod.POST);
+            try {
+                commandReq.invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new DiscordRequest.DiscordAPIErrorException(e);
+            }
+        }).start();
     }
 
     /**

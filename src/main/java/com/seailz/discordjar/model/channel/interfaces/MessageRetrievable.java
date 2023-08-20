@@ -154,9 +154,9 @@ public interface MessageRetrievable extends Channel {
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
-                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
-                djv(),
                 URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES.replace("{channel.id}", id()),
+                djv(),
+                URLS.GET.CHANNELS.MESSAGES.GET_MESSAGES,
                 RequestMethod.GET
         );
         List<Message> messages = new ArrayList<>();

@@ -1214,6 +1214,7 @@ public class DiscordJar {
     public void bulkOverwriteCommands(@NotNull List<Command> commands) {
         JSONArray arr = new JSONArray();
         commands.forEach(c -> arr.put(c.compile()));
+        if (debug) System.out.println("Overwriting commands with " + arr);
         DiscordRequest req = new DiscordRequest(
                 arr,
                 new HashMap<>(),

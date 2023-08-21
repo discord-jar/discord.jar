@@ -117,7 +117,8 @@ public class Bucket {
             if (resetAfterFinal != resetAfter.get()) {
                 if (debug) System.out.println("ResetAfter changed from " + resetAfterFinal + " to " + resetAfter);
                 // Wait the difference
-                Thread.sleep(resetAfter.get() - resetAfterFinal);
+                long diff = resetAfter.get() - resetAfterFinal;
+                if (diff > 0) Thread.sleep(resetAfter.get() - resetAfterFinal);
             }
             atomicRemaining.set(limit - 1);
             if (debug) System.out.println("Clearing launch again: WR:" + waitingRequests + " AR:" + atomicRemaining.get());

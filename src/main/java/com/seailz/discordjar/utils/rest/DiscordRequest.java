@@ -255,7 +255,7 @@ public class DiscordRequest {
             int responseCode = response.code();
             String sb = response.body().string();
             if (djv.isDebug()) {
-                System.out.println(uuid + " " + request.method() + " " + request.url() + " with " + body + " returned " + responseCode + " with " + sb);
+                System.out.println(uuid + " " + request.method() + " " + request.url() + " with " + (this.body == null ? this.aBody : this.body) + " returned " + responseCode + " with " + sb);
             }
             HashMap<String, String> headers = new HashMap<>();
             Headers responseHeaders = response.headers();

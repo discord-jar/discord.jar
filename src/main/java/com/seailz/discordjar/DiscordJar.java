@@ -56,6 +56,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * The main class of the discord.jar wrapper for the Discord API. It is <b>HIGHLY</b> recommended that you use
@@ -958,7 +959,11 @@ public class DiscordJar {
     }
 
     public void registerCommands(CommandListener... listeners) {
-        registerCommands(true, listeners);
+        registerCommands(true, false, listeners);
+    }
+
+    public void registerCommands(boolean pushToDiscord, CommandListener... listeners) {
+        registerCommands(pushToDiscord, false, listeners);
     }
 
     /**
@@ -984,7 +989,8 @@ public class DiscordJar {
      *
      *                                  <li>If a command option choice value is less than 1 character or more than 100 characters</li></ul>
      */
-    public void registerCommands(boolean push, CommandListener... listeners) {
+    public void registerCommands(boolean push, boolean overwrite, CommandListener... listeners) {
+        List<Command> list = new ArrayList<>();
         for (CommandListener listener : listeners) {
             Checker.check((listener instanceof SlashCommandListener) && !listener.getClass().isAnnotationPresent(SlashCommandInfo.class), "SlashCommandListener must have @SlashCommandInfo annotation");
             Checker.check((listener instanceof MessageContextCommandListener || listener instanceof UserContextCommandListener)
@@ -999,21 +1005,34 @@ public class DiscordJar {
             Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
-            new Thread(() -> {
-                registerCommand(
-                        new Command(
-                                name,
-                                listener.getType(),
-                                description,
-                                (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
-                                nameLocales,
-                                descriptionLocales,
-                                defaultMemberPermissions,
-                                canUseInDms,
-                                nsfw
-                        )
-                );
-            }).start();
+            if (overwrite) list.add(new Command(
+                    name,
+                    listener.getType(),
+                    description,
+                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                    nameLocales,
+                    descriptionLocales,
+                    defaultMemberPermissions,
+                    canUseInDms,
+                    nsfw
+            ));
+            else {
+                new Thread(() -> {
+                    registerCommand(
+                            new Command(
+                                    name,
+                                    listener.getType(),
+                                    description,
+                                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                                    nameLocales,
+                                    descriptionLocales,
+                                    defaultMemberPermissions,
+                                    canUseInDms,
+                                    nsfw
+                            )
+                    );
+                }).start();
+            }
 
             commandDispatcher.registerCommand(name, listener);
 
@@ -1028,6 +1047,10 @@ public class DiscordJar {
                         );
                 commandDispatcher.registerSubCommand(slashCommandListener, subCommand, subListener);
             }
+        }
+
+        if (overwrite) {
+            bulkOverwriteCommands(list);
         }
     }
 

@@ -957,10 +957,16 @@ public class DiscordJar {
         intents.add(intent);
     }
 
+    public void registerCommands(CommandListener... listeners) {
+        registerCommands(true, listeners);
+    }
+
     /**
      * Registers command(s) with Discord.
      *
      * @param listeners The listeners/commands to register
+     * @param push You still need to register commands to discord.jar each time you start up your app, but you can skip registering to Discord (if you've already registered your commands
+     *             with Discord, as they are persistent throughout restarts) by setting this to false.
      * @throws IllegalArgumentException <ul>
      *                                  <li>If the command name is less than 1 character or more than 32 characters</li>
      *
@@ -978,7 +984,7 @@ public class DiscordJar {
      *
      *                                  <li>If a command option choice value is less than 1 character or more than 100 characters</li></ul>
      */
-    public void registerCommands(CommandListener... listeners) {
+    public void registerCommands(boolean push, CommandListener... listeners) {
         for (CommandListener listener : listeners) {
             Checker.check((listener instanceof SlashCommandListener) && !listener.getClass().isAnnotationPresent(SlashCommandInfo.class), "SlashCommandListener must have @SlashCommandInfo annotation");
             Checker.check((listener instanceof MessageContextCommandListener || listener instanceof UserContextCommandListener)

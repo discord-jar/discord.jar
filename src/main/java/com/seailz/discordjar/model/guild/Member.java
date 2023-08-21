@@ -83,6 +83,10 @@ public class Member implements Compilerable, Resolvable {
         return obj;
     }
 
+    public List<String> getRoleIds() {
+        return roleIds;
+    }
+
     @NonNull
     @Contract("_, _, _, _ -> new")
     public static Member decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar, String guildId, Guild guild) {

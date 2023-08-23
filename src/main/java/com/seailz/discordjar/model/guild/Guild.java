@@ -973,7 +973,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         return members;
     }
 
-
     public List<Member> getMembers() {
         JSONArray arr = null;
         try {

@@ -142,6 +142,7 @@ public class DiscordJar {
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
     private boolean newSystemForGatewayMemoryManagement = false;
+    private int nsfgmmPercentOfTotalMemory;
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
@@ -219,6 +220,7 @@ public class DiscordJar {
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
         this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
+        this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
@@ -339,7 +341,7 @@ public class DiscordJar {
         } catch (InterruptedException ignored) {}
         killGateway();
         try {
-            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement);
+            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

@@ -301,4 +301,8 @@ public class Member implements Compilerable, Resolvable {
     public User user() {
         return user;
     }
+
+    public String getEffectiveName() {
+        return nick == null ? user.getEffectiveName() : nick;
+    }
 }

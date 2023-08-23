@@ -151,17 +151,18 @@ public class WebSocket extends TextWebSocketHandler {
         // Allocate 25% of the bot's total **AVAILABLE** memory to the gateway.
         if (newSystemForMemoryManagement) {
             Runtime runtime = Runtime.getRuntime();
-            long allocatedMemory = runtime.totalMemory() - runtime.freeMemory();
-            long presumableFreeMemory = runtime.maxMemory() - allocatedMemory;
-            int totalFreeMemory = (int) (presumableFreeMemory * (nsfgmmPercentOfTotalMemory / 100.0));
+            long totalFreeMemory = runtime.totalMemory();
+            long maxMemory = runtime.maxMemory();
+
+            totalFreeMemory = maxMemory * (nsfgmmPercentOfTotalMemory / 100);
 
             if (debug) {
                 Logger.getLogger("WS")
-                        .info("[WS] " + "Allocated memory: " + allocatedMemory + " bytes (" + (allocatedMemory / 1000000) + " MB) / " + runtime.totalMemory() + " bytes (" + (runtime.totalMemory() / 1000000) + " MB)");
+                        .info("[WS] " + "Allocated memory: " + totalFreeMemory + " bytes (" + (totalFreeMemory / 1000000) + " MB) / " + runtime.maxMemory() + " bytes (" + (runtime.maxMemory() / 1000000) + " MB)");
             }
 
-            session.setTextMessageSizeLimit(totalFreeMemory);
-            session.setBinaryMessageSizeLimit(totalFreeMemory);
+            session.setTextMessageSizeLimit((int) totalFreeMemory);
+            session.setBinaryMessageSizeLimit((int) totalFreeMemory);
         } else {
             session.setTextMessageSizeLimit(100000000);
             session.setBinaryMessageSizeLimit(100000000);

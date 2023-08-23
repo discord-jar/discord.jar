@@ -142,7 +142,8 @@ public class DiscordJar {
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
     private boolean newSystemForGatewayMemoryManagement = false;
-    private int nsfgmmPercentOfTotalMemory;
+    private final int nsfgmmPercentOfTotalMemory;
+    private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
@@ -399,6 +400,15 @@ public class DiscordJar {
             if (bucket.getAffectedRoutes().contains(url)) return bucket;
         }
         return null;
+    }
+
+    /**
+     * Allows one to disable member caching for a particular guild. This will remove all members from the cache for that guild - and then prevent them from being cached again.
+     * @param guildId The id of the guild to disable member caching for
+     */
+    public void disableMemberCachingForGuild(String guildId) {
+        memberCachingDisabledGuilds.add(guildId);
+        guildMemberCaches.remove(guildId);
     }
 
     /**
@@ -845,6 +855,7 @@ public class DiscordJar {
      * @see #getMemberGuildCaches()
      */
     public void insertMemberCache(@NotNull String guildId, @NotNull Member member) {
+        if (memberCachingDisabledGuilds.contains(guildId)) return;
         // First, we need to check if a cache exists for the guild
         Cache<Member> cache = new Cache<>(
                 this,

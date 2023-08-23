@@ -32,7 +32,7 @@ public class WebSocket extends TextWebSocketHandler {
     private List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
     private List<Runnable> onConnectConsumers = new ArrayList<>();
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
-    private int nsfgmmPercentOfTotalMemory;
+    private double nsfgmmPercentOfTotalMemory;
 
     public WebSocket(String url, boolean newSystemForMemoryManagement, boolean debug, int nsfgmmPercentOfTotalMemory) {
         this.url = url;
@@ -156,8 +156,10 @@ public class WebSocket extends TextWebSocketHandler {
             if (debug) {
                 Logger.getLogger("WS")
                         .info("[WS] NSGFMM POTM:" + nsfgmmPercentOfTotalMemory + "%");
+                Logger.getLogger("WS")
+                        .info("[WS] " + "As NSGFMMPOTM is " + nsfgmmPercentOfTotalMemory + "%, the allocated memory will be " + (maxMemory * (nsfgmmPercentOfTotalMemory / 100)) + " bytes (" + ((maxMemory * (nsfgmmPercentOfTotalMemory / 100)) / 1000000) + " MB" + " NSGFM / 100 =" + (nsfgmmPercentOfTotalMemory / 100));
             }
-            maxMemory = maxMemory * (nsfgmmPercentOfTotalMemory / 100);
+            maxMemory = (long) (maxMemory * (nsfgmmPercentOfTotalMemory / 100));
 
             if (debug) {
                 Logger.getLogger("WS")

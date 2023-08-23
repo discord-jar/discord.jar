@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * Abstracts the Spring Websocket implementation to make it easier to use, understand, and maintain.
@@ -151,6 +152,11 @@ public class WebSocket extends TextWebSocketHandler {
             long allocatedMemory = runtime.totalMemory() - runtime.freeMemory();
             long presumableFreeMemory = runtime.maxMemory() - allocatedMemory;
             int totalFreeMemory = (int) (presumableFreeMemory * 0.25);
+
+            if (debug) {
+                Logger.getLogger("WS")
+                        .info("[WS] " + "Allocated memory: " + allocatedMemory + " bytes (" + (allocatedMemory / 1000000) + " MB) / " + runtime.totalMemory() + " bytes (" + (runtime.totalMemory() / 1000000) + " MB)");
+            }
 
             session.setTextMessageSizeLimit(totalFreeMemory);
             session.setBinaryMessageSizeLimit(totalFreeMemory);

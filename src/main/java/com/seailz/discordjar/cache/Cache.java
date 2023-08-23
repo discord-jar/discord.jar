@@ -87,22 +87,20 @@ public class Cache<T> {
                 }
                 if (cacheId.equals(id)) {
                     cache.remove(cacheMember);
-                    break;
                 }
             }
         } catch (Exception e) {}
         synchronized (cache) {
             try {
                 if (cache.size() == -1) {
-                    cache = new ArrayList<>();
+                    Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - cache size is -1");
                     return;
-                }; // Also this seems impossible, recent exceptions prove otherwise so I'm leaving it in. Please ignore your IDE.
+                }; // Also this seems impossible, recent exceptions prove otherwise, so I'm leaving it in. Please ignore your IDE.
                 cache.add(0, t);
             } catch (Exception e) {
                 // We can ignore this - since the cache isn't critical.
                 // We'll print the stacktrace for debugging purposes.
                 Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - " + e.getMessage());
-                cache = new ArrayList<>();
                 return;
             }
         }

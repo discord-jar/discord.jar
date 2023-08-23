@@ -267,7 +267,6 @@ public class DiscordJar {
                 this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory);
             }
 
-        new MemoryWatcher(this).start();
     }
 
     /**

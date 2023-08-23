@@ -64,7 +64,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     private WebSocket socket;
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement) throws ExecutionException, InterruptedException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement, int nsfgmmPercentOfTotalMemory) throws ExecutionException, InterruptedException {
         logger.info("[Gateway] New instance created");
         this.discordJar = discordJar;
         this.debug = debug;
@@ -98,7 +98,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             }
         } else gatewayUrl = resumeUrl;
 
-        socket = new WebSocket(gatewayUrl, newSystemForMemoryManagement, debug);
+        socket = new WebSocket(gatewayUrl, newSystemForMemoryManagement, debug, nsfgmmPercentOfTotalMemory);
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());

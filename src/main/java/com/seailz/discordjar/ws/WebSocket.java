@@ -32,11 +32,13 @@ public class WebSocket extends TextWebSocketHandler {
     private List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
     private List<Runnable> onConnectConsumers = new ArrayList<>();
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
+    private int nsfgmmPercentOfTotalMemory;
 
-    public WebSocket(String url, boolean newSystemForMemoryManagement, boolean debug) {
+    public WebSocket(String url, boolean newSystemForMemoryManagement, boolean debug, int nsfgmmPercentOfTotalMemory) {
         this.url = url;
         this.newSystemForMemoryManagement = newSystemForMemoryManagement;
         this.debug = debug;
+        this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
     }
 
     public WebSocketSession getSession() {
@@ -151,7 +153,7 @@ public class WebSocket extends TextWebSocketHandler {
             Runtime runtime = Runtime.getRuntime();
             long allocatedMemory = runtime.totalMemory() - runtime.freeMemory();
             long presumableFreeMemory = runtime.maxMemory() - allocatedMemory;
-            int totalFreeMemory = (int) (presumableFreeMemory * 0.25);
+            int totalFreeMemory = (int) (presumableFreeMemory * (nsfgmmPercentOfTotalMemory / 100.0));
 
             if (debug) {
                 Logger.getLogger("WS")

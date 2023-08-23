@@ -42,17 +42,6 @@ public class Cache<T> {
         this.guild = guild;
         isMember = clazz == Member.class;
         this.type = type;
-
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(300000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                cache.clear();
-            }
-        }).start();
     }
 
     public Cache(DiscordJar discordJar, Class<T> clazz, DiscordRequest request, CacheType type) {

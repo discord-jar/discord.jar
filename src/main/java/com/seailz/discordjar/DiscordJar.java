@@ -862,7 +862,6 @@ public class DiscordJar {
         );
         if (guildMemberCaches.containsKey(guildId)) cache = guildMemberCaches.get(guildId);
         cache.cache(member);
-        guildMemberCaches.remove(guildId);
         guildMemberCaches.put(guildId, cache);
     }
 
@@ -870,7 +869,6 @@ public class DiscordJar {
         if (!guildMemberCaches.containsKey(guildId)) return;
         Cache<Member> cache = guildMemberCaches.get(guildId);
         cache.removeById(userId);
-        guildMemberCaches.remove(guildId);
         guildMemberCaches.put(guildId, cache);
     }
 

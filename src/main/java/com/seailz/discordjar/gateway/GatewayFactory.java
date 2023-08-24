@@ -102,7 +102,10 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
-        backoffReconnectLogic.setAttemptReconnect((c) -> !shouldResume && attemptReconnect(socket.getSession(), c));
+        backoffReconnectLogic.setAttemptReconnect((c) -> {
+            new Thread(discordJar::clearMemberCaches).start();
+            return !shouldResume && attemptReconnect(socket.getSession(), c);
+        });
 
         socket.addMessageConsumer((tm) -> {
             try {

@@ -129,8 +129,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         socket.addOnDisconnectConsumer((cs) -> {
             this.heartbeatManager = null;
             readyForMessages = false;
-            discordJar.clearMemberCaches();
             attemptReconnect(socket.getSession(), cs);
+            discordJar.clearMemberCaches();
         });
     }
 

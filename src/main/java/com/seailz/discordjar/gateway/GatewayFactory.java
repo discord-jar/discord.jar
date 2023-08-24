@@ -310,16 +310,16 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private boolean ifNotSelf() {
-        if (!discordJar.getGateway().equals(this)) {
-            logger.warning("[Gateway] Not the current gateway instance. Shutting down.");
-            shouldResume = true; // Stop reconnecting
-            try {
-                socket.getSession().close(CloseStatus.SERVER_ERROR);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            return true;
-        }
+//        if (!discordJar.getGateway().equals(this)) {
+//            logger.warning("[Gateway] Not the current gateway instance. Shutting down.");
+//            shouldResume = true; // Stop reconnecting
+//            try {
+//                socket.getSession().close(CloseStatus.SERVER_ERROR);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//            return true;
+//        }
         return false;
     }
 

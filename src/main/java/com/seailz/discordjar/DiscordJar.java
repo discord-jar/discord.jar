@@ -843,6 +843,14 @@ public class DiscordJar {
     }
 
     /**
+     * Clears all member caches.
+     */
+    public void clearMemberCaches() {
+        guildMemberCaches.clear();
+        System.gc();
+    }
+
+    /**
      * Inserts a member into their appropriate cache.
      * This will check if a cache exists for the guild, and if it does, it will insert the member into that cache.
      * If it doesn't, it will create a new cache and insert the member into that.

@@ -102,7 +102,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
-        backoffReconnectLogic.setAttemptReconnect((c) -> !shouldResume);
+        backoffReconnectLogic.setAttemptReconnect((c) -> !shouldResume && attemptReconnect(socket.getSession(), c));
 
         socket.addMessageConsumer((tm) -> {
             try {
@@ -129,6 +129,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         socket.addOnDisconnectConsumer((cs) -> {
             this.heartbeatManager = null;
             readyForMessages = false;
+            discordJar.clearMemberCaches();
             attemptReconnect(socket.getSession(), cs);
         });
     }

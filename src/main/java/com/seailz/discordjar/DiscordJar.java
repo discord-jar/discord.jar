@@ -847,7 +847,11 @@ public class DiscordJar {
      */
     public void clearMemberCaches() {
         guildMemberCaches.clear();
+        Logger.getLogger("DiscordJar")
+                        .info("[discord.jar] All member caches cleared. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
         System.gc();
+        Logger.getLogger("DiscordJar")
+                        .info("[discord.jar] Garbage collection ran. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
     }
 
     /**

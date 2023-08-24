@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class Cache<T> {
 
-    private List<T> cache = new ArrayList<>();
+    private final List<T> cache = new ArrayList<>();
     private final DiscordJar discordJar;
     private final Class<T> clazz;
     private final DiscordRequest discordRequest;

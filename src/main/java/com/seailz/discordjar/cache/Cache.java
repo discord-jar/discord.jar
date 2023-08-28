@@ -54,6 +54,7 @@ public class Cache<T> {
      * @param t The object to add
      */
     public void cache(@NotNull T t)  {
+        if (t == null) return;
         try {
             if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
             String id;

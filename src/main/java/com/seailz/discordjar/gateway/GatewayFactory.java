@@ -267,7 +267,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 handleHello(payload);
                 if (!shouldResume) sendIdentify();
                 this.shouldResume = false;
-                readyForMessages = false;
+                readyForMessages = true;
 
                 if (debug) {
                     logger.info("[DISCORD.JAR - DEBUG] Received HELLO event. Heartbeat cycle has been started. If this isn't a resume, IDENTIFY has been sent.");

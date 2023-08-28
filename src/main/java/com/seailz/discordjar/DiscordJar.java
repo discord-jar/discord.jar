@@ -210,7 +210,6 @@ public class DiscordJar {
         @Deprecated
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, boolean newSystemForGatewayMemoryManagement, int nsfgmmPercentOfTotalMemory) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-        new RequestQueueHandler(this);
         this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
         this.intents = intents;

@@ -90,11 +90,9 @@ public class WebSocket extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        new Thread(() -> {
-            messageConsumers.forEach(consumer -> {
-                consumer.accept(message);
-            });
-        }).start();
+        messageConsumers.forEach(consumer -> {
+            consumer.accept(message);
+        });
     }
 
     @Override

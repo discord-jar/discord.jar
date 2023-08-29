@@ -109,7 +109,7 @@ public class WebSocket extends TextWebSocketHandler {
     protected synchronized void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
         long start = System.currentTimeMillis();
         byte[] msg = message.getPayload().array();
-        if (buffer ==null) buffer = new byte[0];
+        if (buffer ==null) buffer = new byte[]{};
         byte[] extendedBuffer = new byte[buffer.length + msg.length];
         System.arraycopy(buffer, 0, extendedBuffer, 0, buffer.length);
         System.arraycopy(msg, 0, extendedBuffer, buffer.length, msg.length);

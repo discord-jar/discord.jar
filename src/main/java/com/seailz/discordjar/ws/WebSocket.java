@@ -145,7 +145,9 @@ public class WebSocket extends TextWebSocketHandler {
             Logger.getLogger("WS")
                     .info("[Decompressor] Inflated " + msg.length + " bytes to " + result.length + " bytes in " + (System.currentTimeMillis() - start) + "ms");
         }
-        handleTextMessage(session, new TextMessage(fullMessage));
+        new Thread(() -> {
+            handleTextMessage(session, new TextMessage(fullMessage));
+        }).start();
     }
 
     @Override

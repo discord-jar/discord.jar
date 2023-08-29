@@ -1,6 +1,7 @@
 package com.seailz.discordjar;
 
 import com.seailz.discordjar.cache.CacheType;
+import com.seailz.discordjar.gateway.GatewayTransportCompressionType;
 import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
@@ -35,9 +36,14 @@ public class DiscordJarBuilder {
     private int numShards = 1;
     private boolean newSystemForGatewayMemoryManagement = false;
     private int nsfgmmPercentOfTotalMemory = 25;
+    private GatewayTransportCompressionType gwCompressionType = GatewayTransportCompressionType.ZLIB_STREAM;
 
     public DiscordJarBuilder(String token) {
         this.token = token;
+    }
+
+    public void setGatewayCompressionType(GatewayTransportCompressionType gwCompressionType) {
+        this.gwCompressionType = gwCompressionType;
     }
 
     public DiscordJarBuilder setNsfgmmPercentOfTotalMemory(int nsfgmmPercentOfTotalMemory) {
@@ -183,7 +189,7 @@ public class DiscordJarBuilder {
         if (cacheTypes == null) defaultCacheTypes();
         if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
         try {
-            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory);
+            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gwCompressionType);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

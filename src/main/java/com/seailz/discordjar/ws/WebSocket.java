@@ -147,12 +147,6 @@ public class WebSocket extends TextWebSocketHandler {
         handleTextMessage(session, new TextMessage(fullMessage));
     }
 
-    private byte[] getByteArray(ByteBuffer bb) {
-        byte[] ba = new byte[bb.limit()];
-        bb.get(ba);
-        return ba;
-    }
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         // Force session disconnect in case it failed to disconnect

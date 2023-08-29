@@ -6,6 +6,7 @@ import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.gateway.events.DispatchedEvents;
 import com.seailz.discordjar.gateway.events.GatewayEvents;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
@@ -20,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -27,6 +29,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -59,18 +62,20 @@ public class GatewayFactory extends TextWebSocketHandler {
     public UUID uuid = UUID.randomUUID();
     private int shardId;
     private int numShards;
+    private GatewayTransportCompressionType transportCompressionType;
     public static List<Long> pingHistoryMs = new ArrayList<>();
     public static Date lastHeartbeatSent = new Date();
 
     private WebSocket socket;
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement, int nsfgmmPercentOfTotalMemory) throws ExecutionException, InterruptedException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement, int nsfgmmPercentOfTotalMemory, GatewayTransportCompressionType compressionType) throws ExecutionException, InterruptedException {
         logger.info("[Gateway] New instance created");
         this.discordJar = discordJar;
         this.debug = debug;
         this.shardId = shardId;
         this.numShards = numShards;
         this.newSystemForMemoryManagement = newSystemForMemoryManagement;
+        this.transportCompressionType = compressionType;
 
         discordJar.setGatewayFactory(this);
 
@@ -89,7 +94,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 if (response == null || response.body() == null || !response.body().has("url")) {
                     // In case the request fails, we can attempt to use the backup gateway URL instead.
                     this.gatewayUrl = URLS.GATEWAY.BASE_URL;
-                } else this.gatewayUrl = response.body().getString("url");
+                } else this.gatewayUrl = response.body().getString("url") + "/";
             } catch (Exception e) {
                 logger.warning("[DISCORD.JAR] Failed to get gateway URL. Restarting gateway after 5 seconds.");
                 Thread.sleep(5000);
@@ -98,7 +103,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             }
         } else gatewayUrl = resumeUrl;
 
-        socket = new WebSocket(gatewayUrl, newSystemForMemoryManagement, debug, nsfgmmPercentOfTotalMemory);
+        socket = new WebSocket(appendGatewayQueryParams(gatewayUrl), newSystemForMemoryManagement, debug, nsfgmmPercentOfTotalMemory);
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
@@ -135,6 +140,17 @@ public class GatewayFactory extends TextWebSocketHandler {
             attemptReconnect(socket.getSession(), cs);
             discordJar.clearMemberCaches();
         });
+    }
+
+    /**
+     * Applies the needed query string params for the Gateway URL.
+     * @param url Input URL
+     * @return Output URL with query springs applied.
+     */
+    private String appendGatewayQueryParams(String url) {
+        url = url + "?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
+        if (transportCompressionType != GatewayTransportCompressionType.NONE) url = url + "&compress=" + transportCompressionType.getValue();
+        return url;
     }
 
     private void onConnect(Void vd) {
@@ -249,7 +265,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         JSONObject payload = new JSONObject(message.getPayload());
 
         if (debug) {
-            logger.info("[DISCORD.JAR - DEBUG] Received message: " + payload.toString());
+            logger.info("[Gateway - DEBUG] Received message: " + payload.toString());
+            logger.info("[Gateway - DEBUG] Message size: " + payload.toString().getBytes(StandardCharsets.UTF_8).length + "b");
         }
         try {
             sequence = payload.getInt("s");

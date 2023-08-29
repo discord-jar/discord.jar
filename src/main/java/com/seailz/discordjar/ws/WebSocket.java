@@ -1,22 +1,29 @@
 package com.seailz.discordjar.ws;
 
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketHttpHeaders;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Abstracts the Spring Websocket implementation to make it easier to use, understand, and maintain.
@@ -33,6 +40,9 @@ public class WebSocket extends TextWebSocketHandler {
     private List<Runnable> onConnectConsumers = new ArrayList<>();
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
     private double nsfgmmPercentOfTotalMemory;
+    private static final byte[] ZLIB_SUFFIX = new byte[] { 0, 0, (byte) 0xff, (byte) 0xff };
+    private static byte[] buffer = {};
+    private static Inflater inflator = new Inflater();
 
     public WebSocket(String url, boolean newSystemForMemoryManagement, boolean debug, int nsfgmmPercentOfTotalMemory) {
         this.url = url;
@@ -96,8 +106,51 @@ public class WebSocket extends TextWebSocketHandler {
     }
 
     @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+        long start = System.currentTimeMillis();
+        byte[] msg = message.getPayload().array();
+        byte[] extendedBuffer = new byte[buffer.length + msg.length];
+        System.arraycopy(buffer, 0, extendedBuffer, 0, buffer.length);
+        System.arraycopy(msg, 0, extendedBuffer, buffer.length, msg.length);
+        buffer = extendedBuffer;
+
+        // Check if the last four bytes are equal to ZLIB_SUFFIX
+        if (msg.length < 4 || !Arrays.equals(Arrays.copyOfRange(msg, msg.length - 4, msg.length), ZLIB_SUFFIX)) {
+            return;
+        }
+
+        // Inflate the data
+        inflator.setInput(buffer);
+
+        byte[] result = new byte[0];
+        byte[] tmp = new byte[1024];
+        int count;
+        while (true) {
+            try {
+                if ((count = inflator.inflate(tmp, 0, tmp.length)) == 0) break;
+            } catch (DataFormatException e) {
+                throw new RuntimeException(e);
+            }
+            result = Arrays.copyOf(result, result.length + count);
+            System.arraycopy(tmp, 0, result, result.length - count, count);
+        }
+
+        CharBuffer charBuffer = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(result));
+        String fullMessage = charBuffer.toString();
+
+        // reset buffer to empty
+        buffer = new byte[0];
+        if (debug) {
+            Logger.getLogger("WS")
+                    .info("[Decompressor] Inflated " + msg.length + " bytes to " + result.length + " bytes in " + (System.currentTimeMillis() - start) + "ms");
+        }
+        handleTextMessage(session, new TextMessage(fullMessage));
+    }
+
+    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         // Force session disconnect in case it failed to disconnect
+        buffer = null;
         try {
             session.close();
         } catch (Exception e) {

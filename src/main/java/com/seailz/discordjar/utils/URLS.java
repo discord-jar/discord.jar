@@ -547,7 +547,7 @@ public final class URLS {
     }
 
     public static class GATEWAY {
-        public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
+        public static String BASE_URL = "wss://gateway.discord.gg/";
     }
 
     public static class CDN {

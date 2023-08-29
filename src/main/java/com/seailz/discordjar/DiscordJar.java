@@ -18,6 +18,7 @@ import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjar.events.DiscordListener;
 import com.seailz.discordjar.events.EventDispatcher;
 import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.GatewayTransportCompressionType;
 import com.seailz.discordjar.http.HttpOnlyApplication;
 import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Application;
@@ -144,13 +145,14 @@ public class DiscordJar {
     private boolean newSystemForGatewayMemoryManagement = false;
     private final int nsfgmmPercentOfTotalMemory;
     private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
+    private final GatewayTransportCompressionType gatewayTransportCompressionType;
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25);
+        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -158,7 +160,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25);
+        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -166,7 +168,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -174,7 +176,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -182,7 +184,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
         /**
@@ -208,7 +210,7 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, boolean newSystemForGatewayMemoryManagement, int nsfgmmPercentOfTotalMemory) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, boolean newSystemForGatewayMemoryManagement, int nsfgmmPercentOfTotalMemory, GatewayTransportCompressionType gwCompressionType) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
@@ -221,6 +223,7 @@ public class DiscordJar {
         this.buckets = new ArrayList<>();
         this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
         this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
+        this.gatewayTransportCompressionType = gwCompressionType;
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
@@ -264,7 +267,7 @@ public class DiscordJar {
         this.numShards = numShards;
 
             if (!httpOnly) {
-                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory);
+                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gwCompressionType);
             }
 
     }
@@ -340,7 +343,7 @@ public class DiscordJar {
         } catch (InterruptedException ignored) {}
         killGateway();
         try {
-            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory);
+            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gatewayTransportCompressionType);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

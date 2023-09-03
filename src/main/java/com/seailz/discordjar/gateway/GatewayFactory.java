@@ -114,7 +114,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         socket.addMessageConsumer((tm) -> {
             try {
-                handleTextMessage(socket.getSession(), tm);
+                handleTextMessage(tm);
             } catch (Exception e) {
                 logger.warning("[Gateway] Failed to handle text message: " + e.getMessage());
             }
@@ -258,11 +258,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(String message) throws Exception {
         if (ifNotSelf()) return;
-        super.handleTextMessage(session, message);
-        JSONObject payload = new JSONObject(message.getPayload());
+        JSONObject payload = new JSONObject(message);
 
         if (debug) {
             logger.info("[Gateway - DEBUG] Received message: " + payload.toString());

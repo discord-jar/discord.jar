@@ -46,7 +46,7 @@ public class StatusRotor {
                 index++;
                 if (index >= statuses.size()) index = 0;
             }
-        }, "Status Rotor").start();
+        }, "djar--Status Rotor").start();
     }
 
     /**

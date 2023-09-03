@@ -72,7 +72,7 @@ public class DiscordRequest {
                 e.printStackTrace();
             }
             canRequest.put(endpoint, true);
-        }).start();
+        }, "djar--request-delay-reset-request").start();
         return invoke(contentType, auth);
     }
 

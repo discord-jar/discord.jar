@@ -71,7 +71,7 @@ public class HeartLogic {
                     e.printStackTrace();
                 }
             }
-        });
+        }, "djar--heart-cycle");
         thread.start();
     }
 

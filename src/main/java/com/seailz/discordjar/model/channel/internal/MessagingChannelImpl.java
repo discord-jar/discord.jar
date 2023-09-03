@@ -90,7 +90,7 @@ public class MessagingChannelImpl extends GuildChannelImpl implements MessagingC
                 );
             }
 
-        }).start();
+        }, "djar--msg-channel-impl").start();
         return response;
     }
 

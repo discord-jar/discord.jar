@@ -133,7 +133,7 @@ public class CreateGuildChannelAction {
                         e.getBody()
                 ));
             }
-        }).start();
+        }, "djar--new-channel-req").start();
         return res;
     }
 

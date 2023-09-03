@@ -46,7 +46,7 @@ public class Heart {
                 }
                 if (active) send();
             }
-        }).start();
+        }, "djar--heart-cycle").start();
     }
 
    private void sendFirst() {
@@ -59,7 +59,7 @@ public class Heart {
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
-         }).start();
+         }, "djar--first-heart").start();
    }
 
    public void forceHeartbeat() {

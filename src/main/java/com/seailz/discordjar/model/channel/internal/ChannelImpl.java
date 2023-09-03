@@ -81,7 +81,7 @@ public class ChannelImpl implements Channel {
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
                 response.completeError(new Response.Error(e));
             }
-        }).start();
+        }, "djar--channel-delete").start();
         return response;
     }
 

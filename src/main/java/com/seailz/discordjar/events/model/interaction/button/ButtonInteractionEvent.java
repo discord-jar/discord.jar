@@ -24,9 +24,9 @@ public class ButtonInteractionEvent extends InteractionEvent implements CustomId
                     if (buttonAction.button().customId().equals(getCustomId())) {
                         buttonAction.action().accept(this);
                     }
-                }).start();
+                }, "djar--button-dispatching-nested").start();
             }
-        }).start();
+        }, "djar--button-dispatching").start();
     }
 
     /**

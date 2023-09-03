@@ -180,7 +180,7 @@ public class EditInteractionMessageAction {
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
                 future.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));
             }
-        }).start();
+        }, "djar--message-edit-interaction").start();
         return future;
     }
 

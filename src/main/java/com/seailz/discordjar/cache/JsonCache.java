@@ -72,7 +72,7 @@ public interface JsonCache {
                 }
                 invalidate();
             }
-        }, "CacheInvalidate" + new Random().nextInt(999)).start();
+        }, "djar--CacheInvalidate" + new Random().nextInt(999)).start();
     }
 
     /**

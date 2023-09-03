@@ -108,7 +108,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
         backoffReconnectLogic.setAttemptReconnect((c) -> {
-            new Thread(discordJar::clearMemberCaches).start();
+            new Thread(discordJar::clearMemberCaches, "djar--clearing-member-caches").start();
             return !shouldResume;
         });
 
@@ -374,7 +374,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             if (debug) {
                 logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
             }
-        }).start();
+        }, "djar--event-dispatch-gw").start();
 
         if (Objects.requireNonNull(DispatchedEvents.getEventByName(payload.getString("t"))) == DispatchedEvents.READY) {
             this.sessionId = payload.getJSONObject("d").getString("session_id");

@@ -53,7 +53,7 @@ public class Bucket {
                     reset(); // Reset the bucket only if the currentReset is still the same as the one we fetched above.
                 }
             }
-        }).start();
+        }, "djar--bucket-reset").start();
     }
 
     public synchronized  Bucket update(int limit, int remaining, double reset, float resetAfter) {
@@ -93,7 +93,7 @@ public class Bucket {
                 e.printStackTrace();
             }
             waiting = false;
-        }).start();
+        }, "djar--bucket-await").start();
     }
 
     public synchronized UUID awaitClearance() throws InterruptedException {

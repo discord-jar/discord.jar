@@ -112,7 +112,15 @@ public class WebSocket extends TextWebSocketHandler {
         if (buffer ==null) buffer = new byte[]{};
         byte[] extendedBuffer = new byte[buffer.length + msg.length];
         System.arraycopy(buffer, 0, extendedBuffer, 0, buffer.length);
-        System.arraycopy(msg, 0, extendedBuffer, buffer.length, msg.length);
+        try {
+            System.arraycopy(msg, 0, extendedBuffer, buffer.length, msg.length);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Reset buffer and try again
+            e.printStackTrace();
+            buffer = new byte[]{};
+            handleBinaryMessage(session, message);
+            return;
+        }
         buffer = extendedBuffer;
 
         // Check if the last four bytes are equal to ZLIB_SUFFIX
@@ -130,7 +138,11 @@ public class WebSocket extends TextWebSocketHandler {
             try {
                 if ((count = inflator.inflate(tmp, 0, tmp.length)) == 0) break;
             } catch (DataFormatException e) {
-                throw new RuntimeException(e);
+                // Reset inflation and try again
+                e.printStackTrace();
+                inflator.reset();
+                inflator.setInput(buffer);
+                continue;
             }
             result = Arrays.copyOf(result, result.length + count);
             System.arraycopy(tmp, 0, result, result.length - count, count);
@@ -141,13 +153,13 @@ public class WebSocket extends TextWebSocketHandler {
 
         // reset buffer to empty
         buffer = new byte[0];
-        if (debug) {
+        if (true) {
             Logger.getLogger("WS")
-                    .info("[Decompressor] Inflated " + msg.length + " bytes to " + result.length + " bytes in " + (System.currentTimeMillis() - start) + "ms");
+                    .info("[Decompressor] Inflated " + msg.length + " bytes to " + result.length + " bytes in " + (System.currentTimeMillis() - start) + "ms: " + fullMessage);
         }
         new Thread(() -> {
             handleTextMessage(session, new TextMessage(fullMessage));
-        }).start();
+        }, "djar--handle-text-msg").start();
     }
 
     @Override
@@ -160,7 +172,7 @@ public class WebSocket extends TextWebSocketHandler {
         }
         new Thread(() -> {
             onDisconnectConsumers.forEach(consumer -> consumer.accept(status));
-        }).start();
+        }, "djar--ws-disconnect-consumers").start();
 
         if (reEstablishConnection.apply(status)) {
             try {

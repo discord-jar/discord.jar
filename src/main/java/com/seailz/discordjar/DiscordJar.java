@@ -53,6 +53,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -261,6 +264,35 @@ public class DiscordJar {
             HttpOnlyApplication.init(this, httpOnlyInfo.endpoint(), httpOnlyInfo.applicationPublicKey());
         }
 
+        if (debug) {
+            new Thread(() -> {
+                // Print cpu usage every 5 seconds
+                while (true) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+
+                    List<ThreadInfo> djarThreads = new ArrayList<>();
+                    List<ThreadInfo> globalThreads = new ArrayList<>();
+                    for(Long threadID : threadMXBean.getAllThreadIds()) {
+                        ThreadInfo info = threadMXBean.getThreadInfo(threadID);
+                        if (info.getThreadName().startsWith("djar--")) djarThreads.add(info);
+                        globalThreads.add(info);
+                    }
+
+                    System.out.println("djar-thread-count: " + djarThreads.size());
+                    for (ThreadInfo djarThread : djarThreads) {
+                        System.out.println("djar-thread: " + djarThread.getThreadName());
+                    }
+                    System.out.println("global-thread-count: " + globalThreads.size());
+
+                }
+            }, "djar--debug-thread-watcher").start();
+        }
+
         initiateNoShutdown();
         initiateShutdownHooks();
         this.shardId = shardId;
@@ -309,7 +341,7 @@ public class DiscordJar {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }, "djar-shutdown-prevention").start();
     }
 
     public GatewayFactory getGateway() {
@@ -364,7 +396,7 @@ public class DiscordJar {
                     throw new RuntimeException(e);
                 }
             }
-        }));
+        }, "djar--shutdown-hook"));
     }
 
     public void setGatewayFactory(GatewayFactory gatewayFactory) {
@@ -1055,7 +1087,7 @@ public class DiscordJar {
                                     nsfw
                             )
                     );
-                }).start();
+                }, "djar--command-register").start();
             }
 
             commandDispatcher.registerCommand(name, listener);
@@ -1109,7 +1141,7 @@ public class DiscordJar {
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
                 throw new DiscordRequest.DiscordAPIErrorException(e);
             }
-        }).start();
+        }, "djar--command-req").start();
     }
 
     /**

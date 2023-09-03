@@ -105,6 +105,6 @@ public class EventDispatcher {
                     }
                 }).start();
             }
-        }, "EventDispatcher").start();
+        }, "djar--EventDispatcher").start();
     }
 }

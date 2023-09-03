@@ -129,7 +129,7 @@ public class WebSocket extends WebSocketListener {
 
         // reset buffer to empty
         buffer = new byte[0];
-        if (true) {
+        if (debug) {
             Logger.getLogger("WS")
                     .info("[Decompressor] Inflated " + msg.length + " bytes to " + result.length + " bytes in " + (System.currentTimeMillis() - start) + "ms: " + fullMessage);
         }

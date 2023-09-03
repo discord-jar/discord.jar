@@ -86,19 +86,19 @@ public enum DispatchedEvents {
 
         // Cache all members
         arr = p.getJSONObject("d").getJSONArray("members");
+        long start = System.currentTimeMillis();
         arr.forEach(o -> {
-            long start = System.currentTimeMillis();
             g.insertMemberCache(
                     guild.id(), Member.decompile(
                             (JSONObject) o,
                             g,
                             guild.id(),
                             guild
-                    )
+                    ),
+                    guild
             );
-            long end = System.currentTimeMillis();
-            if (g.isDebug()) Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (end - start) + "ms to cache member");
         });
+        if (g.isDebug()) Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (System.currentTimeMillis() - start) + "ms to cache all members");
 
         return GuildCreateEvent.class;
     }),
@@ -109,7 +109,7 @@ public enum DispatchedEvents {
                 d,
                 guildId,
                 d.getGuildById(guildId)
-        ));
+        ), d.getGuildById(guildId));
         return GuildMemberAddEvent.class;
     }),
     GUILD_MEMBER_UPDATE((p, g, d) -> {
@@ -119,7 +119,7 @@ public enum DispatchedEvents {
                 d,
                 guildId,
                 d.getGuildById(guildId)
-        ));
+        ), d.getGuildById(guildId));
         return GuildMemberUpdateEvent.class;
     }),
     GUILD_MEMBER_REMOVE((p, g, d) -> {

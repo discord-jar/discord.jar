@@ -900,7 +900,7 @@ public class DiscordJar {
      *
      * @see #getMemberGuildCaches()
      */
-    public void insertMemberCache(@NotNull String guildId, @NotNull Member member) {
+    public void insertMemberCache(@NotNull String guildId, @NotNull Member member, @Nullable Guild guild) {
         if (memberCachingDisabledGuilds.contains(guildId)) return;
         // First, we need to check if a cache exists for the guild
         Cache<Member> cache = new Cache<>(
@@ -914,7 +914,7 @@ public class DiscordJar {
                         URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
                         RequestMethod.GET
                 ),
-                this.getGuildById(guildId),
+                guild == null ? this.getGuildById(guildId) : guild,
                 CacheType.MEMBERS
         );
         if (guildMemberCaches.containsKey(guildId)) cache = guildMemberCaches.get(guildId);
@@ -942,7 +942,7 @@ public class DiscordJar {
         if (!guildMemberCaches.containsKey(guildId)) {
             // The guild isn't cached, so we'll do a manual request
             Member mem = getMemberManuallyOrNull(guildId, userId);
-            if (mem != null) insertMemberCache(guildId, mem);
+            if (mem != null) insertMemberCache(guildId, mem, null);
             return mem;
         }
 

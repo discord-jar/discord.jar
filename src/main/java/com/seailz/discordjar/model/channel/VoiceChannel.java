@@ -43,7 +43,7 @@ public interface VoiceChannel extends AudioChannel {
         return obj;
     }
 
-    static VoiceChannel decompile(JSONObject obj, DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static VoiceChannel decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
         int position = obj.getInt("position");

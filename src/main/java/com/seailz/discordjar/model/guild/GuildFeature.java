@@ -60,6 +60,8 @@ public enum GuildFeature {
     WELCOME_SCREEN_ENABLED,
     // has perms v2
     APPLICATION_COMMAND_PERMISSIONS_V2,
+    // guild has disabled alerts for join raids in the configured safety alerts channel
+    RAID_ALERTS_DISABLED,
 
     UNKNOWN;
 

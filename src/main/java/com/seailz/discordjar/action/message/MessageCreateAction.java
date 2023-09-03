@@ -11,6 +11,7 @@ import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -261,9 +262,9 @@ public class MessageCreateAction {
         return silent;
     }
 
-    public CompletableFuture<Message> run() {
-        CompletableFuture<Message> future = new CompletableFuture<>();
-        future.completeAsync(() -> {
+    public Response<Message> run() {
+        Response<Message> future = new Response<>();
+        new Thread(() -> {
             String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
 
             JSONObject payload = new JSONObject();
@@ -350,12 +351,13 @@ public class MessageCreateAction {
                 try {
                     response = request.invoke();
                 } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    future.completeExceptionally(e);
-                    return null;
+                    future.completeError(new Response.Error(e));
+                    return;
                 }
             }
-            return Message.decompile(response.body(), discordJar);
-        });
+
+            future.complete(Message.decompile(response.body(), discordJar));
+        }, "djar--msg-create-action").start();
         return future;
     }
 

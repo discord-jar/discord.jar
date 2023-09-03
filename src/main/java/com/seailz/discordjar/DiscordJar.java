@@ -1,6 +1,7 @@
 package com.seailz.discordjar;
 
 import com.seailz.discordjar.action.guild.GetCurrentUserGuildsAction;
+import com.seailz.discordjar.cache.CacheType;
 import com.seailz.discordjar.command.Command;
 import com.seailz.discordjar.command.CommandChoice;
 import com.seailz.discordjar.command.CommandDispatcher;
@@ -17,7 +18,9 @@ import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjar.events.DiscordListener;
 import com.seailz.discordjar.events.EventDispatcher;
 import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.GatewayTransportCompressionType;
 import com.seailz.discordjar.http.HttpOnlyApplication;
+import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.channel.*;
@@ -25,6 +28,7 @@ import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.model.emoji.sticker.StickerPack;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.status.Status;
@@ -39,9 +43,8 @@ import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.RequestQueueHandler;
 import com.seailz.discordjar.utils.permission.Permission;
-import com.seailz.discordjar.utils.rest.Response;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
-import com.seailz.discordjar.utils.version.APIVersion;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -50,9 +53,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * The main class of the discord.jar wrapper for the Discord API. It is <b>HIGHLY</b> recommended that you use
@@ -63,6 +71,11 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public class DiscordJar {
+
+    /**
+     * The current version of discord.jar
+     */
+    public static final String VERSION = "b-1.0";
 
     /**
      * The token of the bot
@@ -92,6 +105,12 @@ public class DiscordJar {
      * Used for caching channels in memory
      */
     private final Cache<Channel> channelCache;
+    /**
+     * Used for caching guild members in memory.
+     * This hashmap is a map of guild ids to a cache of members in that guild.
+     */
+    private final Map<String, Cache<Member>> guildMemberCaches;
+    private EnumSet<CacheType> cacheTypes;
     /**
      * Manages dispatching events to listeners
      */
@@ -126,13 +145,17 @@ public class DiscordJar {
 
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
+    private boolean newSystemForGatewayMemoryManagement = false;
+    private final int nsfgmmPercentOfTotalMemory;
+    private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
+    private final GatewayTransportCompressionType gatewayTransportCompressionType;
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false, -1, -1);
+        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -140,7 +163,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug, -1, -1);
+        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -148,7 +171,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -156,7 +179,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -164,7 +187,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
         /**
@@ -190,19 +213,20 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, boolean newSystemForGatewayMemoryManagement, int nsfgmmPercentOfTotalMemory, GatewayTransportCompressionType gwCompressionType) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-        new RequestQueueHandler(this);
+        this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
         this.intents = intents;
-        new URLS(version);
+        this.cacheTypes = cacheTypes;
+        new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
-        if (!httpOnly) {
-            this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);
-        }
+        this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
+        this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
+        this.gatewayTransportCompressionType = gwCompressionType;
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
                 new DiscordRequest(
@@ -212,7 +236,9 @@ public class DiscordJar {
                         this,
                         URLS.GET.GUILDS.GET_GUILD,
                         RequestMethod.GET
-                ));
+                ), CacheType.GUILDS);
+
+        this.guildMemberCaches = new HashMap<>();
 
         this.userCache = new Cache<>(this, User.class, new DiscordRequest(
                 new JSONObject(),
@@ -221,7 +247,7 @@ public class DiscordJar {
                 this,
                 URLS.GET.USER.GET_USER,
                 RequestMethod.GET
-        ));
+        ), CacheType.USERS);
 
         this.channelCache = new Cache<>(this, Channel.class, new DiscordRequest(
                 new JSONObject(),
@@ -230,9 +256,7 @@ public class DiscordJar {
                 this,
                 URLS.GET.CHANNELS.GET_CHANNEL,
                 RequestMethod.GET
-        ));
-
-        this.eventDispatcher = new EventDispatcher(this);
+        ), CacheType.MEMBERS);
 
         if (httpOnly) {
             if (httpOnlyInfo == null)
@@ -240,26 +264,44 @@ public class DiscordJar {
             HttpOnlyApplication.init(this, httpOnlyInfo.endpoint(), httpOnlyInfo.applicationPublicKey());
         }
 
+        if (debug) {
+            new Thread(() -> {
+                // Print cpu usage every 5 seconds
+                while (true) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+
+                    List<ThreadInfo> djarThreads = new ArrayList<>();
+                    List<ThreadInfo> globalThreads = new ArrayList<>();
+                    for(Long threadID : threadMXBean.getAllThreadIds()) {
+                        ThreadInfo info = threadMXBean.getThreadInfo(threadID);
+                        if (info.getThreadName().startsWith("djar--")) djarThreads.add(info);
+                        globalThreads.add(info);
+                    }
+
+                    System.out.println("djar-thread-count: " + djarThreads.size());
+                    for (ThreadInfo djarThread : djarThreads) {
+                        System.out.println("djar-thread: " + djarThread.getThreadName());
+                    }
+                    System.out.println("global-thread-count: " + globalThreads.size());
+
+                }
+            }, "djar--debug-thread-watcher").start();
+        }
+
         initiateNoShutdown();
         initiateShutdownHooks();
-
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (gatewayFactory == null || (gatewayFactory.getSession() != null && !gatewayFactory.getSession().isOpen())) {
-                    restartGateway();
-                }
-            }
-        }).start();
         this.shardId = shardId;
         this.numShards = numShards;
 
-        new MemoryWatcher(this).start();
+            if (!httpOnly) {
+                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gwCompressionType);
+            }
+
     }
 
     /**
@@ -299,7 +341,7 @@ public class DiscordJar {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }, "djar-shutdown-prevention").start();
     }
 
     public GatewayFactory getGateway() {
@@ -328,9 +370,12 @@ public class DiscordJar {
      * @see #killGateway()
      */
     public void restartGateway() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException ignored) {}
         killGateway();
         try {
-            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards);
+            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gatewayTransportCompressionType);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -351,7 +396,7 @@ public class DiscordJar {
                     throw new RuntimeException(e);
                 }
             }
-        }));
+        }, "djar--shutdown-hook"));
     }
 
     public void setGatewayFactory(GatewayFactory gatewayFactory) {
@@ -364,15 +409,15 @@ public class DiscordJar {
 
     public Bucket getBucket(String id) {
         for (Bucket bucket : buckets) {
-            if (bucket.getId().equals(id)) return bucket;
+            if (bucket.id().equals(id)) return bucket;
         }
         return null;
     }
 
     public void updateBucket(String id, Bucket bucket) {
         for (int i = 0; i < buckets.size(); i++) {
-            if (buckets.get(i).getId().equals(id)) {
-                buckets.set(i, bucket);
+            if (buckets.get(i).id().equals(id)) {
+                buckets.remove(i);
                 return;
             }
         }
@@ -384,10 +429,20 @@ public class DiscordJar {
     }
 
     public Bucket getBucketForUrl(String url) {
+        final List<Bucket> buckets = new ArrayList<>(this.buckets);
         for (Bucket bucket : buckets) {
             if (bucket.getAffectedRoutes().contains(url)) return bucket;
         }
         return null;
+    }
+
+    /**
+     * Allows one to disable member caching for a particular guild. This will remove all members from the cache for that guild - and then prevent them from being cached again.
+     * @param guildId The id of the guild to disable member caching for
+     */
+    public void disableMemberCachingForGuild(String guildId) {
+        memberCachingDisabledGuilds.add(guildId);
+        guildMemberCaches.remove(guildId);
     }
 
     /**
@@ -479,14 +534,17 @@ public class DiscordJar {
      * @return A {@link Channel} object
      */
     @Nullable
-    public Channel getChannelById(String id) throws IllegalArgumentException {
+    public Channel getChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         Cache<Channel> cc = getChannelCache();
         Channel res;
         try {
             res = cc.getById(id);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Couldn't retrieve channel.");
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return res;
     }
@@ -506,12 +564,10 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
-        try {
-            return MessagingChannel.decompile(raw, this);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        return MessagingChannel.decompile(raw, this);
     }
 
     /**
@@ -529,12 +585,10 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
-        try {
-            return com.seailz.discordjar.model.channel.thread.Thread.decompile(raw, this);
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+        return com.seailz.discordjar.model.channel.thread.Thread.decompile(raw, this);
     }
 
     /**
@@ -552,6 +606,8 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
         return DMChannel.decompile(raw, this);
     }
@@ -571,12 +627,29 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
+        return ForumChannel.decompile(raw, this);
+    }
+
+    /**
+     * Returns info about a {@link MediaChannel}
+     *
+     * @param id The id of the channel
+     * @return A {@link MediaChannel} object
+     */
+    @Nullable
+    public MediaChannel getMediaChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        JSONObject raw = null;
         try {
-            return ForumChannel.decompile(raw, this);
+            raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
+        return MediaChannel.decompile(raw, this);
     }
 
     /**
@@ -594,13 +667,31 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
         }
+        return Category.decompile(raw, this);
+    }
+
+    /**
+     * Returns info about a {@link VoiceChannel}
+     *
+     * @param id The id of the channel
+     * @return A {@link VoiceChannel} object
+     */
+    @Nullable
+    public VoiceChannel getVoiceChannelById(String id) {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        JSONObject raw = null;
         try {
-            return Category.decompile(raw, this);
+            raw = getChannelCache().getById(id).raw();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
+        return VoiceChannel.decompile(raw, this);
     }
+
 
     /**
      * Returns info about a {@link Guild}
@@ -771,6 +862,151 @@ public class DiscordJar {
         return channelCache;
     }
 
+    @NotNull
+    public Map<String, Cache<Member>> getMemberGuildCaches() {
+        return guildMemberCaches;
+    }
+
+    @NotNull
+    public List<Member> getMemberCache() {
+        List<Member> members = new ArrayList<>();
+        for (Cache<Member> cache : guildMemberCaches.values()) {
+            members.addAll(cache.getCache());
+        }
+        return members;
+    }
+
+    /**
+     * Clears all member caches.
+     */
+    public void clearMemberCaches() {
+        guildMemberCaches.clear();
+        if (debug) Logger.getLogger("DiscordJar")
+                        .info("[discord.jar] All member caches cleared. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
+        System.gc();
+        if (debug) Logger.getLogger("DiscordJar")
+                        .info("[discord.jar] Garbage collection ran. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
+    }
+
+    /**
+     * Inserts a member into their appropriate cache.
+     * This will check if a cache exists for the guild, and if it does, it will insert the member into that cache.
+     * If it doesn't, it will create a new cache and insert the member into that.
+     *
+     * <p> It's done that way because discord.jar uses a cache per guild, and not a cache for all members.
+     *
+     * @param guildId The id of the guild
+     * @param member The member to insert
+     *
+     * @see #getMemberGuildCaches()
+     */
+    public void insertMemberCache(@NotNull String guildId, @NotNull Member member, @Nullable Guild guild) {
+        if (memberCachingDisabledGuilds.contains(guildId)) return;
+        // First, we need to check if a cache exists for the guild
+        Cache<Member> cache = new Cache<>(
+                this,
+                Member.class,
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", "%s"),
+                        this,
+                        URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                        RequestMethod.GET
+                ),
+                guild == null ? this.getGuildById(guildId) : guild,
+                CacheType.MEMBERS
+        );
+        if (guildMemberCaches.containsKey(guildId)) cache = guildMemberCaches.get(guildId);
+        cache.cache(member);
+        guildMemberCaches.put(guildId, cache);
+    }
+
+    public void removeMemberCache(@NotNull String guildId, @NotNull String userId) {
+        if (!guildMemberCaches.containsKey(guildId)) return;
+        Cache<Member> cache = guildMemberCaches.get(guildId);
+        cache.removeById(userId);
+        guildMemberCaches.put(guildId, cache);
+    }
+
+    /**
+     * Given a guild id and a user id, this will return the member if it can be found.
+     * <br>If one can't be found, you will get the {@link DiscordRequest.DiscordAPIErrorException} exception or null.
+     *
+     * @param guildId The id of the guild
+     * @param userId The id of the user
+     * @return The member if one can be found, or null if one can't be found
+     */
+    @Nullable
+    public Member getMemberById(@NotNull String guildId, @NotNull String userId) {
+        if (!guildMemberCaches.containsKey(guildId)) {
+            // The guild isn't cached, so we'll do a manual request
+            Member mem = getMemberManuallyOrNull(guildId, userId);
+            if (mem != null) insertMemberCache(guildId, mem, null);
+            return mem;
+        }
+
+        // We can now check the guild's cache.
+        Cache<Member> cache = guildMemberCaches.get(guildId);
+        try {
+            return cache.getById(userId);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    /**
+     * Returns either a member if one can be found, or null if one can't be found.
+     * <br>This method WON'T cache found members and doesn't retrieve them from the cache, so it's private to avoid confusion to developers
+     * using discord.jar. It's only meant to be used internally.
+     *
+     * @param guildId The id of the guild
+     * @param userId The id of the user
+     * @return A member if one can be found, or null if one can't be found
+     */
+    private Member getMemberManuallyOrNull(@NotNull String guildId, @NotNull String userId) {
+        DiscordResponse req = null;
+        try {
+            req = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
+                            "{guild.id}",
+                            guildId
+                    ).replace(
+                            "{user.id}",
+                            userId
+                    ),
+                    this,
+                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            return null;
+        }
+
+        if (req.body() == null) return null;
+        try {
+            return Member.decompile(
+                    req.body(),
+                    this,
+                    guildId,
+                    getGuildById(guildId)
+            );
+        } catch (Exception e) {
+            try {
+                return Member.decompile(
+                        req.body(),
+                        this,
+                        guildId,
+                        null
+                );
+            } catch (Exception ex) {
+                return null;
+            }
+        }
+    }
+
     /**
      * Adds an intent
      */
@@ -778,10 +1014,20 @@ public class DiscordJar {
         intents.add(intent);
     }
 
+    public void registerCommands(CommandListener... listeners) {
+        registerCommands(true, false, listeners);
+    }
+
+    public void registerCommands(boolean pushToDiscord, CommandListener... listeners) {
+        registerCommands(pushToDiscord, false, listeners);
+    }
+
     /**
      * Registers command(s) with Discord.
      *
      * @param listeners The listeners/commands to register
+     * @param push You still need to register commands to discord.jar each time you start up your app, but you can skip registering to Discord (if you've already registered your commands
+     *             with Discord, as they are persistent throughout restarts) by setting this to false.
      * @throws IllegalArgumentException <ul>
      *                                  <li>If the command name is less than 1 character or more than 32 characters</li>
      *
@@ -799,7 +1045,8 @@ public class DiscordJar {
      *
      *                                  <li>If a command option choice value is less than 1 character or more than 100 characters</li></ul>
      */
-    public void registerCommands(CommandListener... listeners) {
+    public void registerCommands(boolean push, boolean overwrite, CommandListener... listeners) {
+        List<Command> list = new ArrayList<>();
         for (CommandListener listener : listeners) {
             Checker.check((listener instanceof SlashCommandListener) && !listener.getClass().isAnnotationPresent(SlashCommandInfo.class), "SlashCommandListener must have @SlashCommandInfo annotation");
             Checker.check((listener instanceof MessageContextCommandListener || listener instanceof UserContextCommandListener)
@@ -814,8 +1061,19 @@ public class DiscordJar {
             Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
-            new Thread(() -> {
-                try {
+            if (overwrite) list.add(new Command(
+                    name,
+                    listener.getType(),
+                    description,
+                    (listener instanceof SlashCommandListener) ? ((SlashCommandListener) listener).getOptions() : new ArrayList<>(),
+                    nameLocales,
+                    descriptionLocales,
+                    defaultMemberPermissions,
+                    canUseInDms,
+                    nsfw
+            ));
+            else {
+                new Thread(() -> {
                     registerCommand(
                             new Command(
                                     name,
@@ -829,10 +1087,9 @@ public class DiscordJar {
                                     nsfw
                             )
                     );
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    throw new DiscordRequest.DiscordAPIErrorException(e);
-                }
-            }).start();
+                }, "djar--command-register").start();
+            }
+
             commandDispatcher.registerCommand(name, listener);
 
             if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;
@@ -847,9 +1104,13 @@ public class DiscordJar {
                 commandDispatcher.registerSubCommand(slashCommandListener, subCommand, subListener);
             }
         }
+
+        if (overwrite) {
+            bulkOverwriteCommands(list);
+        }
     }
 
-    protected void registerCommand(Command command) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    protected void registerCommand(Command command) {
         Checker.check(!(command.name().length() > 1 && command.name().length() < 32), "Command name must be within 1 and 32 characters!");
         Checker.check(!Objects.equals(command.description(), "") && !(command.description().length() > 1 && command.description().length() < 100), "Command description must be within 1 and 100 characters!");
         Checker.check(command.options().size() > 25, "Application commands can only have up to 25 options!");
@@ -867,14 +1128,20 @@ public class DiscordJar {
             }
         }
 
-        DiscordRequest commandReq = new DiscordRequest(
-                command.compile(),
-                new HashMap<>(),
-                URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id()),
-                this,
-                URLS.BASE_URL,
-                RequestMethod.POST);
-        commandReq.invoke();
+        new Thread(() -> {
+            DiscordRequest commandReq = new DiscordRequest(
+                    command.compile(),
+                    new HashMap<>(),
+                    URLS.POST.COMMANDS.GLOBAL_COMMANDS.replace("{application.id}", getSelfInfo().id() == null ? "0" : getSelfInfo().id()),
+                    this,
+                    URLS.BASE_URL,
+                    RequestMethod.POST);
+            try {
+                commandReq.invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                throw new DiscordRequest.DiscordAPIErrorException(e);
+            }
+        }, "djar--command-req").start();
     }
 
     /**
@@ -1003,6 +1270,7 @@ public class DiscordJar {
     public void bulkOverwriteCommands(@NotNull List<Command> commands) {
         JSONArray arr = new JSONArray();
         commands.forEach(c -> arr.put(c.compile()));
+        if (debug) System.out.println("Overwriting commands with " + arr);
         DiscordRequest req = new DiscordRequest(
                 arr,
                 new HashMap<>(),
@@ -1237,4 +1505,32 @@ public class DiscordJar {
     public boolean isDebug() {
         return debug;
     }
+
+    public EnumSet<CacheType> getCacheTypes() {
+        return cacheTypes;
+    }
+
+    /**
+     * Returns the Gateway's ping history.
+     * <br>This is determined using heartbeats - it waits for the response and then calculates the time the Gateway took to respond.
+     * <br>The time is in milliseconds.
+     */
+    public List<Long> getGatewayPingHistory() {
+        return GatewayFactory.pingHistoryMs;
+    }
+
+    /**
+     * Returns the average Gateway ping in ms.
+     * <br>This is determined using heartbeats - it waits for the response and then calculates the time the Gateway took to respond.
+     */
+     public Long getAverageGatewayPing() {
+         long sum = 0;
+         for (Long l : getGatewayPingHistory()) {
+             sum += l;
+         }
+
+         return sum / getGatewayPingHistory().size();
+     }
+
+
 }

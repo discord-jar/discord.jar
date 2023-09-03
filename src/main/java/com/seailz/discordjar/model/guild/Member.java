@@ -23,36 +23,43 @@ import java.util.*;
 
 /**
  * Represents a member of a guild
- *
- * @param user                       the user this guild member represents
- * @param nick                       this user's guild nickname
- * @param avatar                     the member's guild avatar hash //TODO: sort out avatars and images
- * @param roles                      The user's roles
- * @param joinedAt                   when the user joined the guild
- * @param premiumSince               when the user started boosting the guild
- * @param deaf                       whether the user is deafened in voice channels
- * @param mute                       whether the user is muted in voice channels
- * @param pending                    whether the user has not yet passed the guild's Membership Screening requirements
- * @param permissions                total permissions of the member in the channel, including overwrites, returned when in the interaction object //TODO: sort out permissions
- * @param communicationDisabledUntil when the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out
  */
-public record Member(
-        User user,
-        String nick,
-        String avatar,
-        Role[] roles,
-        String joinedAt,
-        String premiumSince,
-        boolean deaf,
-        boolean mute,
-        boolean pending,
-        List<Permission> permissions,
-        String communicationDisabledUntil,
-        String guildId,
-        List<MemberFlags> flags,
-        int flagsRaw,
-        DiscordJar discordJar
-) implements Compilerable, Resolvable {
+public class Member implements Compilerable, Resolvable {
+
+    private User user;
+    private String nick;
+    private String avatar;
+    private Role[] roles;
+    private List<String> roleIds;
+    private String joinedAt;
+    private String premiumSince;
+    private boolean deaf;
+    private boolean mute;
+    private boolean pending;
+    private List<Permission> permissions;
+    private String communicationDisabledUntil;
+    private String guildId;
+    private List<MemberFlags> flags;
+    private int flagsRaw;
+    private DiscordJar discordJar;
+
+    public Member(User user, String nick, String avatar, List<String> roles, String joinedAt, String premiumSince, boolean deaf, boolean mute, boolean pending, List<Permission> permissions, String communicationDisabledUntil, String guildId, List<MemberFlags> flags, int flagsRaw, DiscordJar discordJar) {
+        this.user = user;
+        this.nick = nick;
+        this.avatar = avatar;
+        this.roleIds = roles;
+        this.joinedAt = joinedAt;
+        this.premiumSince = premiumSince;
+        this.deaf = deaf;
+        this.mute = mute;
+        this.pending = pending;
+        this.permissions = permissions;
+        this.communicationDisabledUntil = communicationDisabledUntil;
+        this.guildId = guildId;
+        this.flags = flags;
+        this.flagsRaw = flagsRaw;
+        this.discordJar = discordJar;
+    }
 
     @Override
     public JSONObject compile() {
@@ -64,7 +71,7 @@ public record Member(
         obj.put("user", user.compile());
         obj.put("nick", nick);
         obj.put("avatar", avatar);
-        obj.put("roles", roles);
+        obj.put("roles", roleIds);
         obj.put("joined_at", joinedAt);
         obj.put("premium_since", premiumSince);
         obj.put("deaf", deaf);
@@ -76,13 +83,17 @@ public record Member(
         return obj;
     }
 
+    public List<String> getRoleIds() {
+        return roleIds;
+    }
+
     @NonNull
     @Contract("_, _, _, _ -> new")
     public static Member decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar, String guildId, Guild guild) {
         User user = null;
         String nick = null;
         String avatar = null;
-        Role[] roles = new Role[0];
+        List<String> roles = null;
         String joinedAt = null;
         String premiumSince = null;
         boolean deaf = false;
@@ -97,17 +108,11 @@ public record Member(
         if (obj.has("nick") && obj.get("nick") != JSONObject.NULL) nick = obj.getString("nick");
         if (obj.has("avatar") && obj.get("avatar") != JSONObject.NULL) avatar = obj.getString("avatar");
         if (obj.has("roles")) {
-            if (guild != null) {
-                List<Role> rolesList = new ArrayList<>();
-                List<Role> guildRoles = guild.roles();
+                List<String> rolesList = new ArrayList<>();
                 for (Object o : obj.getJSONArray("roles")) {
-                    guildRoles.stream()
-                            .filter(role -> role.id().equals(o.toString()))
-                            .findFirst()
-                            .ifPresent(rolesList::add);
+                    rolesList.add((String) o);
                 }
-                roles = rolesList.toArray(new Role[0]);
-            }
+                roles = rolesList;
         }
         if (obj.has("joined_at") && obj.get("joined_at") != JSONObject.NULL) joinedAt = obj.getString("joined_at");
         if (obj.has("premium_since") && obj.get("premium_since") != JSONObject.NULL) premiumSince = obj.getString("premium_since");
@@ -135,26 +140,40 @@ public record Member(
         return new Member(user, nick, avatar, roles, joinedAt, premiumSince, deaf, mute, pending, permissions, communicationDisabledUntil, guildId, flags, flagsRaw, discordJar);
     }
 
+    public Role[] roles() {
+        if (this.roleIds == null) {
+
+        }
+        if (this.roles != null) return this.roles;
+        Role[] roles = discordJar.getGuildById(guildId).roles().stream().filter(role -> roleIds.contains(role.id())).toArray(Role[]::new);
+        this.roles = roles;
+        return roles;
+    }
+
     /**
      * Nickname the member
      * @param nick the nickname to set
      */
-    public void nickname(String nick) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject().put("nick", nick),
-                new HashMap<>(),
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
-                discordJar,
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
-                RequestMethod.PATCH
-        ).invoke();
+    public void nickname(String nick) {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("nick", nick),
+                    new HashMap<>(),
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                    discordJar,
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                    RequestMethod.PATCH
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * 	Will throw a 403 error if the user has the ADMINISTRATOR permission or is the owner of the guild
      * @param seconds the amount of seconds to add to the timeout
      */
-    public void timeout(int seconds) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void timeout(int seconds) {
         Checker.check(seconds > 2419200, "Timeout must be less than 28 days");
         Checker.check(seconds < 0, "Timeout must be greater than 0. To remove a timeout, use removeTimeout()");
 
@@ -165,26 +184,34 @@ public record Member(
         String timeout = dateFormat.format(date);
 
 
-        new DiscordRequest(
-                new JSONObject().put("communication_disabled_until", timeout),
-                new HashMap<>(),
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
-                discordJar,
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
-                RequestMethod.PATCH
-        ).invoke();
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("communication_disabled_until", timeout),
+                    new HashMap<>(),
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                    discordJar,
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                    RequestMethod.PATCH
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
     }
 
-    public void removeTimeout() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject().put("communication_disabled_until", JSONObject.NULL),
-                new HashMap<>(),
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
-                discordJar,
-                URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
-                RequestMethod.PATCH
-        ).invoke();
+    public void removeTimeout() {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("communication_disabled_until", JSONObject.NULL),
+                    new HashMap<>(),
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER.replace("{guild.id}", guildId).replace("{user.id}", user.id()),
+                    discordJar,
+                    URLS.PATCH.GUILD.MEMBER.MODIFY_GUILD_MEMBER,
+                    RequestMethod.PATCH
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -192,15 +219,19 @@ public record Member(
      * Requires `MANAGE_ROLES` permission.
      * @param role the role to add
      */
-    public void addRole(Role role) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
-                discordJar,
-                URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
-                RequestMethod.PUT
-        ).invoke();
+    public void addRole(Role role) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                    discordJar,
+                    URLS.PUT.GUILD.MEMBERS.ROLES.ADD_GUILD_MEMBER_ROLE,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -208,18 +239,70 @@ public record Member(
      * Requires `MANAGE_ROLES` permission.
      * @param role the role to remove
      */
-    public void removeRole(Role role) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
-                discordJar,
-                URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE,
-                RequestMethod.DELETE
-        ).invoke();
+    public void removeRole(Role role) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE.replace("{guild.id}", guildId).replace("{user.id}", user.id()).replace("{role.id}", role.id()),
+                    discordJar,
+                    URLS.DELETE.GUILD.MEMBER.REMOVE_GUILD_MEMBER_ROLE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     public boolean hasPermission(Permission perm) {
         return permissions.contains(perm);
+    }
+
+    public String guildId() {
+        return guildId;
+    }
+
+    public DiscordJar discordJar() {
+        return discordJar;
+    }
+
+    public int flagsRaw() {
+        return flagsRaw;
+    }
+
+    public List<MemberFlags> flags() {
+        return flags;
+    }
+
+    public List<Permission> permissions() {
+        return permissions;
+    }
+
+    public String avatar() {
+        return avatar;
+    }
+
+    public String communicationDisabledUntil() {
+        return communicationDisabledUntil;
+    }
+
+    public String joinedAt() {
+        return joinedAt;
+    }
+
+    public String nick() {
+        return nick;
+    }
+
+    public String premiumSince() {
+        return premiumSince;
+    }
+
+    public User user() {
+        return user;
+    }
+
+    public String getEffectiveName() {
+        return nick == null ? user.getEffectiveName() : nick;
     }
 }

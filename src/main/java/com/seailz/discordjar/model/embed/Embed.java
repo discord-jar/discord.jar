@@ -29,19 +29,19 @@ public record Embed(
     @Override
     public JSONObject compile() {
         return new JSONObject()
-                .put("title", title)
+                .put("title", title == null ? null : title)
                 .put("type", type.toString())
-                .put("description", description)
-                .put("url", url)
-                .put("timestamp", timestamp)
+                .put("description", description == null ? null : description)
+                .put("url", url == null ? null : url)
+                .put("timestamp", timestamp == null ? null : timestamp)
                 .put("color", color)
-                .put("footer", footer.compile())
-                .put("image", image.compile())
-                .put("thumbnail", thumbnail.compile())
-                .put("video", video.compile())
-                .put("provider", provider.compile())
-                .put("author", author.compile())
-                .put("fields", fields);
+                .put("footer", footer == null ? null : footer.compile())
+                .put("image", image == null ? null : image.compile())
+                .put("thumbnail", thumbnail == null ? null : thumbnail.compile())
+                .put("video", video == null ? null : video.compile())
+                .put("provider", provider == null ? null : provider.compile())
+                .put("author", author == null ? null : author.compile())
+                .put("fields", fields == null ? null: new JSONArray(fields));
     }
 
     @NonNull

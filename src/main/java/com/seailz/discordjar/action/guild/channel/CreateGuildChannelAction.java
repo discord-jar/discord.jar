@@ -2,6 +2,7 @@ package com.seailz.discordjar.action.guild.channel;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.Category;
+import com.seailz.discordjar.model.channel.ForumChannel;
 import com.seailz.discordjar.model.channel.GuildChannel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
@@ -26,6 +27,7 @@ public class CreateGuildChannelAction {
     private List<PermissionOverwrite> permissionOverwrites;
     private Category category;
     private String categoryId;
+    private ForumChannel.DefaultForumLayout defaultForumLayout;
     private final Guild guild;
     private final DiscordJar discordJar;
 
@@ -48,6 +50,11 @@ public class CreateGuildChannelAction {
 
     public CreateGuildChannelAction setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
         this.permissionOverwrites = permissionOverwrites;
+        return this;
+    }
+
+    public CreateGuildChannelAction setDefaultForumLayout(ForumChannel.DefaultForumLayout defaultForumLayout) {
+        this.defaultForumLayout = defaultForumLayout;
         return this;
     }
 
@@ -108,7 +115,8 @@ public class CreateGuildChannelAction {
                                         .put("topic", topic != null ? topic : JSONObject.NULL)
                                         .put("position", position)
                                         .put("permission_overwrites", permissionOverwrites)
-                                        .put("parent_id", categoryId != null ? categoryId : JSONObject.NULL),
+                                        .put("parent_id", categoryId != null ? categoryId : JSONObject.NULL)
+                                        .put("default_forum_layout", defaultForumLayout != null ? defaultForumLayout.getCode() : JSONObject.NULL),
                                 new HashMap<>(),
                                 URLS.POST.GUILDS.CHANNELS.CREATE.replace("{guild.id}", guild.id()),
                                 discordJar,
@@ -125,7 +133,7 @@ public class CreateGuildChannelAction {
                         e.getBody()
                 ));
             }
-        }).start();
+        }, "djar--new-channel-req").start();
         return res;
     }
 

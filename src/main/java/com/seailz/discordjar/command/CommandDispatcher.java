@@ -56,7 +56,7 @@ public class CommandDispatcher {
                                             .get(subListeners.values().stream().toList().indexOf(detailsList));
 
                                     if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                        new Thread(() -> details.listener().onCommand(event)).start();
+                                        new Thread(() -> details.listener().onCommand(event), "djar--command-dispatch").start();
                                     }
                                     return;
                             /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
@@ -79,7 +79,7 @@ public class CommandDispatcher {
                                                 .get(subListeners.values().stream().toList().indexOf(detailsList));
 
                                         if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                            new Thread(() -> details.listener().onCommand(event)).start();
+                                            new Thread(() -> details.listener().onCommand(event), "djar--command-dispatch").start();
                                         }
                                     }
                                 }
@@ -88,8 +88,8 @@ public class CommandDispatcher {
                     }
                 }
             }
-            new Thread(() -> listeners.get(name).onCommand(event)).start();
-        }, "Command Dispatcher (discord.jar)").start();
+            new Thread(() -> listeners.get(name).onCommand(event), "djar--command-dispatch").start();
+        }, "djar--Command Dispatcher (discord.jar)").start();
     }
 
     record SlashSubCommandDetails(

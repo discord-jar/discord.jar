@@ -89,7 +89,7 @@ public record AutomodRule(
 
     @NotNull
     @Contract("_, _ -> new")
-    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id;
         Guild guild;
         String name;
@@ -139,7 +139,7 @@ public record AutomodRule(
     }
 
     @NotNull
-    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) {
         List<AutomodRule> rules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             rules.add(decompile(array.getJSONObject(i), discordJar));
@@ -219,7 +219,8 @@ public record AutomodRule(
             List<String> regexes,
             List<KeywordPresetType> presets,
             List<String> allowList,
-            int mentionTotalLimit
+            int mentionTotalLimit,
+            boolean mentionRaidProtectionEnabled
     ) implements Compilerable {
         @NotNull
         @Override
@@ -264,6 +265,10 @@ public record AutomodRule(
                 Checker.check(mentionTotalLimit > 50, "mentionTotalLimit must be less than 50");
                 obj.put("mention_total_limit", mentionTotalLimit);
             }
+
+            if (mentionRaidProtectionEnabled) {
+                obj.put("mention_raid_protection_enabled", true);
+            }
             return obj;
         }
 
@@ -275,6 +280,7 @@ public record AutomodRule(
             List<KeywordPresetType> presets = new ArrayList<>();
             List<String> allowList = new ArrayList<>();
             int mentionTotalLimit = -1;
+            boolean mentionRaidProtectionEnabled = false;
 
             if (obj.has("keywords")) {
                 JSONArray array = obj.getJSONArray("keywords");
@@ -300,7 +306,11 @@ public record AutomodRule(
                 mentionTotalLimit = obj.getInt("mention_total_limit");
             }
 
-            return new TriggerMetadata(keywords, regexes, presets, allowList, mentionTotalLimit);
+            if (obj.has("mention_raid_protection_enabled")) {
+                mentionRaidProtectionEnabled = obj.getBoolean("mention_raid_protection_enabled");
+            }
+
+            return new TriggerMetadata(keywords, regexes, presets, allowList, mentionTotalLimit, mentionRaidProtectionEnabled);
         }
 
         public enum KeywordPresetType {

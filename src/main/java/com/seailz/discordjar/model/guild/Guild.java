@@ -7,14 +7,13 @@ import com.seailz.discordjar.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjar.action.guild.members.RequestGuildMembersAction;
 import com.seailz.discordjar.action.guild.scheduledevents.CreateScheduledEventAction;
 import com.seailz.discordjar.action.guild.scheduledevents.ModifyScheduledEventAction;
+import com.seailz.discordjar.action.guild.onboarding.ModifyOnboardingGuild;
 import com.seailz.discordjar.action.sticker.ModifyStickerAction;
+import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.automod.AutomodRule;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.GuildChannel;
-import com.seailz.discordjar.model.channel.MessagingChannel;
-import com.seailz.discordjar.model.channel.VoiceChannel;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.emoji.Emoji;
@@ -28,12 +27,10 @@ import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.InviteMetadata;
-import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.invite.internal.InviteMetadataImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
-import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
@@ -99,6 +96,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final WelcomeScreen welcomeScreen;
     private final List<Sticker> stickers;
     private final boolean premiumProgressBarEnabled;
+    private final String safetyAlertChannelId;
+    private Channel safetyAlertChannel = null;
     private final DiscordJar discordJar;
     private final JsonCache roleCache;
 
@@ -143,6 +142,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             WelcomeScreen welcomeScreen,
             List<Sticker> stickers,
             boolean premiumProgressBarEnabled,
+            String safetyAlertChannelId,
             DiscordJar discordJar,
             JsonCache roleCache
     ) {
@@ -186,6 +186,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         this.welcomeScreen = welcomeScreen;
         this.stickers = stickers;
         this.premiumProgressBarEnabled = premiumProgressBarEnabled;
+        this.safetyAlertChannelId = safetyAlertChannelId;
         this.discordJar = discordJar;
         this.roleCache = roleCache;
     }
@@ -379,7 +380,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 .put("approximate_presence_count", approximatePresenceCount)
                 .put("welcome_screen", welcomeScreen)
                 .put("stickers", stickers)
-                .put("premium_progress_bar_enabled", premiumProgressBarEnabled);
+                .put("premium_progress_bar_enabled", premiumProgressBarEnabled)
+                .put("safety_alerts_channel_id", safetyAlertChannelId);
     }
 
     @NotNull
@@ -423,6 +425,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         WelcomeScreen welcomeScreen;
         List<Sticker> stickers;
         boolean premiumProgressBarEnabled;
+        String safetyAlertsChannelId = null;
 
         try {
             id = obj.getString("id");
@@ -664,6 +667,10 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             premiumProgressBarEnabled = false;
         }
 
+        if (obj.has("safety_alerts_channel_id") && !obj.isNull("safety_alerts_channel_id")) {
+            safetyAlertsChannelId = obj.getString("safety_alerts_channel_id");
+        }
+
         Guild g = new Guild(
                 id,
                 name,
@@ -705,6 +712,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 welcomeScreen,
                 stickers,
                 premiumProgressBarEnabled,
+                safetyAlertsChannelId,
                 discordJar,
                 JsonCache.newc(new DiscordRequest(
                         new JSONObject(),
@@ -738,6 +746,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         if (this.widgetChannel != null) return this.widgetChannel;
         this.widgetChannel = discordJar.getChannelById(widgetChannelId);
         return this.widgetChannel;
+    }
+
+    public Channel safetyAlertsChannel() {
+        if (safetyAlertChannelId == null) return null;
+        if (this.safetyAlertChannel != null) return this.safetyAlertChannel;
+        this.safetyAlertChannel = discordJar.getChannelById(safetyAlertChannelId);
+        return this.safetyAlertChannel;
     }
 
     /**
@@ -932,33 +947,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     public Member getMemberById(String id) {
-        DiscordResponse req = null;
-        try {
-            req = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                            "{guild.id}",
-                            this.id
-                    ).replace(
-                            "{user.id}",
-                            id
-                    ),
-                    discordJar,
-                    URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                    RequestMethod.GET
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
-
-        if (req.body() == null) return null;
-        return Member.decompile(
-                req.body(),
-                discordJar,
-                this.id,
-                this
-        );
+        return discordJar.getMemberById(this.id, id);
     }
 
     public List<Member> getMembers(int limit, String after) {
@@ -988,7 +977,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         return members;
     }
-
 
     public List<Member> getMembers() {
         JSONArray arr = null;
@@ -1097,11 +1085,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             return new ArrayList<>();
         }
         res.forEach(o -> {
-            try {
-                channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
         });
         return channels;
     }
@@ -1131,11 +1115,17 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 RequestMethod.GET
         );
         JSONArray res;
+        DiscordResponse response = null;
         try {
-            res = req.invoke().arr();
+            response = req.invoke();
+               res = response.arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
+        if (res == null) {
+            System.out.println(response.code() + " " + (response.body() == null ? "null" : response.body().toString()));
+        }
+
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
 
         if (roleCache != null) {
@@ -1621,12 +1611,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     URLS.GET.GUILDS.GET_ACTIVE_THREADS,
                     RequestMethod.GET
             ).invoke().body().getJSONArray("threads").forEach((thread) -> {
-                try {
-                    Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
-                    threads.add(decompiledThread);
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    throw new RuntimeException(e);
-                }
+                Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
+                threads.add(decompiledThread);
             });
             return threads;
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1749,6 +1735,9 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     // TODO: implement https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users
+    public ModifyOnboardingGuild modifyOnboarding() {
+        return new ModifyOnboardingGuild(this, discordJar);
+    }
 
     /**
      * Represents the <a href="https://support.discord.com/hc/en-us/articles/11074987197975-Community-Onboarding-FAQ">onboarding</a> flow for a guild.
@@ -1761,8 +1750,33 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             Guild guild,
             List<Prompt> prompts,
             List<String> defaultChannelIds,
-            boolean enabled
+            boolean enabled,
+            Mode mode
     ) implements Compilerable {
+
+        public enum Mode {
+            ONBOARDING_DEFAULT(0),
+            ONBOARDING_ADVANCED(1),
+            UNKNOWN(-1)
+            ;
+
+            private int value;
+
+            Mode(int value) {
+                this.value = value;
+            }
+
+            public int value() {
+                return value;
+            }
+
+            public static Mode fromValue(int value) {
+                for (Mode mode : values()) {
+                    if (mode.value == value) return mode;
+                }
+                return UNKNOWN;
+            }
+        }
 
         @NotNull
         @Override
@@ -1772,6 +1786,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             obj.put("default_channel_ids", defaultChannelIds);
             obj.put("prompts", prompts.stream().map(Prompt::compile).collect(Collectors.toList()));
             obj.put("guild_id", guild.id());
+            obj.put("mode", mode.value());
             return obj;
         }
 
@@ -1780,33 +1795,70 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         public static Onboarding decompile(@NotNull JSONObject obj, @NotNull Guild guild, @NotNull DiscordJar djar) {
             return new Onboarding(
                     guild,
-                    obj.getJSONArray("prompts").toList().stream().map(o -> Prompt.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                    obj.getJSONArray("prompts").toList().stream().map(o -> {
+                        HashMap<String, Object> map = (HashMap<String, Object>) o;
+                        JSONObject promptObj = new JSONObject(map);
+                        return Prompt.decompile(promptObj, djar);
+                    }).collect(Collectors.toList()),
                     obj.getJSONArray("default_channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
-                    obj.getBoolean("enabled")
+                    obj.getBoolean("enabled"),
+                    Mode.fromValue(obj.getInt("mode"))
             );
         }
 
         /**
          * Represents a prompt shown during onboarding and in customize community.
-         *
-         * @param id           ID of the prompt
-         * @param type         Type of prompt
-         * @param options      Options available within the prompt
-         * @param title        Title of the prompt
-         * @param singleSelect Indicates whether users are limited to selecting one option for the prompt
-         * @param required     Indicates whether the prompt is required before a user completes the onboarding flow
-         * @param inOnboarding Indicates whether the prompt is present in the onboarding flow. If `false`, the prompt will only appear
-         *                     in the Channels & Roles tab.
          */
-        public record Prompt(
-                String id,
-                Type type,
-                List<Option> options,
-                String title,
-                boolean singleSelect,
-                boolean required,
-                boolean inOnboarding
-        ) implements Compilerable {
+        public static class Prompt implements Compilerable {
+            private String id;
+            private Type type;
+            private List<Option> options;
+            private String title;
+            private boolean singleSelect;
+            private boolean required;
+            private boolean inOnboarding;
+
+            private Prompt(String id, Type type, List<Option> options, String title, boolean singleSelect, boolean required, boolean inOnboarding) {
+                this.id = id;
+                this.type = type;
+                this.options = options;
+                this.title = title;
+                this.singleSelect = singleSelect;
+                this.required = required;
+                this.inOnboarding = inOnboarding;
+            }
+
+            public Prompt(String id, Type type, List<Option> options, String title) {
+                this(id, type, options, title, false, false, false);
+            }
+
+            public Prompt(String id, Type type, List<Option> options, String title, boolean inOnboarding) {
+                this(id, type, options, title, false, false, inOnboarding);
+            }
+
+            public void setInOnboarding(boolean inOnboarding) {
+                this.inOnboarding = inOnboarding;
+            }
+
+            public void setType(Type type) {
+                this.type = type;
+            }
+
+            public void setTitle(String title) {
+                this.title = title;
+            }
+
+            public void setSingleSelect(boolean singleSelect) {
+                this.singleSelect = singleSelect;
+            }
+
+            public void setOptions(List<Option> options) {
+                this.options = options;
+            }
+
+            public void setRequired(boolean required) {
+                this.required = required;
+            }
 
             @NotNull
             @Override
@@ -1814,7 +1866,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 JSONObject obj = new JSONObject();
                 obj.put("id", id);
                 obj.put("type", type.getCode());
-                obj.put("options", options.stream().map(Option::compile).collect(Collectors.toList()));
+                JSONArray options = new JSONArray();
+                if (this.options != null) {
+                    for (Option option : this.options) {
+                        options.put(option.compile());
+                    }
+                }
+                obj.put("options", options);
                 obj.put("title", title);
                 obj.put("single_select", singleSelect);
                 obj.put("required", required);
@@ -1828,7 +1886,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 return new Prompt(
                         obj.getString("id"),
                         Type.fromCode(obj.getInt("type")),
-                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile((JSONObject) o, djar)).collect(Collectors.toList()),
+                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile(new JSONObject((HashMap<String, Object>) o), djar)).collect(Collectors.toList()),
                         obj.getString("title"),
                         obj.getBoolean("single_select"),
                         obj.getBoolean("required"),
@@ -1863,22 +1921,53 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
             /**
              * Represents an option available within a prompt.
-             *
-             * @param id          ID of the option
-             * @param channelIds  IDs for channels a member is added to when the option is selected
-             * @param roleIds     IDs for roles assigned to a member when the option is selected
-             * @param emoji       Emoji for the option
-             * @param title       Title of the option
-             * @param description Description of the option. This may be null or an empty string.
              */
-            public record Option(
-                    String id,
-                    List<String> channelIds,
-                    List<String> roleIds,
-                    Emoji emoji,
-                    String title,
-                    String description
-            ) implements Compilerable {
+            public static class Option implements Compilerable {
+                private String id;
+                private List<String> channelIds;
+                private List<String> roleIds;
+                private Emoji emoji;
+                private String title;
+                private String description;
+
+                protected Option(String id, List<String> channelIds, List<String> roleIds, Emoji emoji, String title, String description) {
+                    this.id = id;
+                    this.channelIds = channelIds;
+                    this.roleIds = roleIds;
+                    this.emoji = emoji;
+                    this.title = title;
+                    this.description = description;
+                }
+
+                public Option(List<String> channelIds, List<String> roleIds, Emoji emoji, String title, String description) {
+                    this(null, channelIds, roleIds, emoji, title, description);
+                }
+
+                public Option(List<String> channelIds, List<String> roleIds, Emoji emoji, String title) {
+                    this(null, channelIds, roleIds, emoji, title, null);
+                }
+
+
+                public void setChannelIds(List<String> channelIds) {
+                    this.channelIds = channelIds;
+                }
+
+                public void setDescription(String description) {
+                    this.description = description;
+                }
+
+                public void setEmoji(Emoji emoji) {
+                    this.emoji = emoji;
+                }
+
+                public void setRoleIds(List<String> roleIds) {
+                    this.roleIds = roleIds;
+                }
+
+                public void setTitle(String title) {
+                    this.title = title;
+                }
+
                 @NotNull
                 @Override
                 public JSONObject compile() {
@@ -1896,7 +1985,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 @Contract("_, _ -> new")
                 public static Option decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
                     return new Option(
-                            obj.getString("id"),
+                            obj.has("id") ? obj.getString("id") : null,
                             obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
                             obj.getJSONArray("role_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
                             Emoji.decompile(obj.getJSONObject("emoji"), discordJar),

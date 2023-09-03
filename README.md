@@ -2,7 +2,7 @@
 
 [![seailz - discord.jar](https://img.shields.io/static/v1?label=seailz&message=discord.jar&color=blue&logo=github)](https://github.com/discord-jar/discord.jar "Go to GitHub repo") [![stars - discord.jar](https://img.shields.io/github/stars/discord-jar/discord.jar?style=social)](https://github.com/discord-jar/discord.jar) [![forks - discord.jar](https://img.shields.io/github/forks/discord-jar/discord.jar?style=social)](https://github.com/discord-jar/discord.jar) [![License](https://img.shields.io/badge/License-GNU_General_Public_License_v3.0-blue)](#license) [![issues - discord.jar](https://img.shields.io/github/issues/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar/issues)
 
-# discord.jar - a clean Java wrapper for Discord
+# discord.jar - a Java library for the Discord API
 
 discord.jar [![loc - discord.jar](https://sloc.xyz/github/discord-jar/discord.jar)](https://github.com/discord-jar/discord.jar) is
 a **work in progress** Java wrapper for the [Discord API](https://discord.com/developers/docs/intro).
@@ -19,6 +19,8 @@ Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
 ## Getting Started
+
+Before we start - please note that discord.jar is still a work in progress and there are some risks of deploying it in a production enviroment.
 
 ### Prerequisites
 
@@ -192,7 +194,7 @@ License info can be found [here](https://github.com/discord-jar/discord.jar/blob
 Our official Discord server:
 https://discord.gg/tmvS8A57J4
 
-## Support me :)
-<a href="https://github.com/sponsors/seailz">
- <img alt="Ghsponsors Singular badge" height="56" href="https://github.com/seailz" src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/donate/ghsponsors-singular_vector.svg">
+## Support from
+<a href="https://www.jetbrains.com/">
+ <img width=200 src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_gl=1*1scmtz*_ga*MTkxNDQ3MzI2Ni4xNjgxODg5NDUy*_ga_9J976DJZ68*MTY4NjgyNjEwMS45LjEuMTY4NjgyNjIxNy4zNi4wLjA.&_ga=2.24511546.1880753745.1686826101-1914473266.1681889452">
 </a>

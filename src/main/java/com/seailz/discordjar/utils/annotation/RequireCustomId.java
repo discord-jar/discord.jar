@@ -5,7 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * If you annotate a method with this and that method is a interaction event listener method,
+ * If you annotate a method with this and that method is an interaction event listener method,
  * <br>then the event will only run if the customid of the event == the value of this annotation.
  * <br>Example:
  * <br>

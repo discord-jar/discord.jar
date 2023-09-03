@@ -69,6 +69,7 @@ public class EventDispatcher {
      * @since 1.0
      */
     public void dispatchEvent(Event event, Class<? extends Event> type, DiscordJar djv) {
+        if (event == null) return;
         new Thread(() -> {
             long start = System.currentTimeMillis();
             List<ListenerMethodPair> listenersForEventType = listenersByEventType.get(type);
@@ -94,12 +95,16 @@ public class EventDispatcher {
                 new Thread(() -> {
                     try {
                         method.invoke(listenerMethodPair.listener, event);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException | ArrayIndexOutOfBoundsException e) {
+                        // If we're unable to invoke the method, we'll just ignore it to avoid any issues.
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        // Method threw an exception. We'll print the stack trace and continue.
+                        System.out.println(method.getDeclaringClass().getSimpleName() + "#" + method.getName() + " threw an exception while being invoked.");
+                        e.getCause().printStackTrace();
                     }
                 }).start();
             }
-            System.out.println("Event " + event.getClass().getSimpleName() + " took " + (System.currentTimeMillis() - start) + "ms to dispatch.");
-        }, "EventDispatcher").start();
+        }, "djar--EventDispatcher").start();
     }
 }

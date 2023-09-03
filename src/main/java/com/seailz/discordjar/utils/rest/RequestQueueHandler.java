@@ -12,9 +12,6 @@ import com.seailz.discordjar.DiscordJar;
 public class RequestQueueHandler {
 
     public RequestQueueHandler(DiscordJar jv) {
-        new Thread(() -> {
-
-        }).start();
     }
 
 }

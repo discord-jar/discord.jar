@@ -6,10 +6,16 @@ import com.seailz.discordjar.events.model.automod.AutoModExecutionEvent;
 import com.seailz.discordjar.events.model.automod.rule.AutoModRuleCreateEvent;
 import com.seailz.discordjar.events.model.automod.rule.AutoModRuleDeleteEvent;
 import com.seailz.discordjar.events.model.automod.rule.AutoModRuleUpdateEvent;
+import com.seailz.discordjar.events.model.channel.ChannelPinsUpdateEvent;
+import com.seailz.discordjar.events.model.channel.edit.ChannelCreateEvent;
+import com.seailz.discordjar.events.model.channel.edit.ChannelDeleteEvent;
+import com.seailz.discordjar.events.model.channel.edit.ChannelUpdateEvent;
 import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
 import com.seailz.discordjar.events.model.gateway.GatewayResumedEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
+import com.seailz.discordjar.events.model.guild.GuildDeleteEvent;
+import com.seailz.discordjar.events.model.guild.GuildUpdateEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberRemoveEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberUpdateEvent;
@@ -24,6 +30,7 @@ import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelec
 import com.seailz.discordjar.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.events.model.message.TypingStartEvent;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.model.channel.Channel;
@@ -58,7 +65,11 @@ import java.util.logging.Logger;
 public enum DispatchedEvents {
 
     /* Sent when bot is ready to receive events */
-    READY((p, g, d) -> ReadyEvent.class),
+    READY((p, g, d) -> {
+        Logger.getLogger("Gateway")
+                .info("[Gateway] Ready to receive events");
+        return ReadyEvent.class;
+    }),
     /* Sent when a guild is created */
     GUILD_CREATE((p, d, g) -> {
         // cache guild
@@ -72,67 +83,52 @@ public enum DispatchedEvents {
         arr.forEach(o -> g.getChannelCache().cache(
                 Channel.decompile((JSONObject) o, g)
         ));
+
+        // Cache all members
+        arr = p.getJSONObject("d").getJSONArray("members");
+        long start = System.currentTimeMillis();
+        arr.forEach(o -> {
+            g.insertMemberCache(
+                    guild.id(), Member.decompile(
+                            (JSONObject) o,
+                            g,
+                            guild.id(),
+                            guild
+                    ),
+                    guild
+            );
+        });
+        if (g.isDebug()) Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (System.currentTimeMillis() - start) + "ms to cache all members");
+
         return GuildCreateEvent.class;
     }),
-
-    CHANNEL_CREATE((p, g, d) -> {
-        // cache
-        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
-        d.getChannelCache().cache(channel);
-
-        // TODO: Create a ChannelCreateEvent
-        return null;
+    GUILD_MEMBER_ADD((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.insertMemberCache(guildId, Member.decompile(
+                p.getJSONObject("d"),
+                d,
+                guildId,
+                d.getGuildById(guildId)
+        ), d.getGuildById(guildId));
+        return GuildMemberAddEvent.class;
     }),
-
-    CHANNEL_UPDATE((p, g, d) -> {
-        // modify cached channel, if it exists
-        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
-        d.getChannelCache().cache(channel);
-
-       // TODO: Create a ChannelUpdateEvent
-        return null;
+    GUILD_MEMBER_UPDATE((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.insertMemberCache(guildId, Member.decompile(
+                p.getJSONObject("d"),
+                d,
+                guildId,
+                d.getGuildById(guildId)
+        ), d.getGuildById(guildId));
+        return GuildMemberUpdateEvent.class;
     }),
-
-    CHANNEL_DELETE((p, g, d) -> {
-        // remove cached channel, if it exists
-        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
-        d.getChannelCache().remove(channel);
-
-        // TODO: Create a ChannelDeleteEvent
-        return null;
+    GUILD_MEMBER_REMOVE((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.removeMemberCache(guildId, p.getJSONObject("d").getJSONObject("user").getString("id"));
+        return GuildMemberRemoveEvent.class;
     }),
-
-    GUILD_UPDATE((p, g, d) -> {
-        // modify cached guild, if it exists
-        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
-        d.getGuildCache().cache(guild);
-
-        // TODO: Create a GuildUpdateEvent
-        return null;
-    }),
-
-    GUILD_DELETE((p, g, d) -> {
-        // remove cached guild, if it exists
-        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
-        d.getGuildCache().remove(guild);
-
-        // TODO: Create a GuildDeleteEvent
-        return null;
-    }),
-
-    /* Sent when a gateway connection is resumed */
-    RESUMED((p, d, g) -> GatewayResumedEvent.class),
-    /* Sent when a message is created */
-    MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
     /* Sent when a command permission is updated */
     APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, g, d) -> CommandPermissionUpdateEvent.class),
-
-    /* AUTOMOD */
-    AUTO_MODERATION_RULE_CREATE((p, g, d) -> AutoModRuleCreateEvent.class),
-    AUTO_MODERATION_RULE_UPDATE((p, g, d) -> AutoModRuleUpdateEvent.class),
-    AUTO_MODERATION_RULE_DELETE((p, g, d) -> AutoModRuleDeleteEvent.class),
-    AUTO_MODERATION_ACTION_EXECUTION((p, g, d) -> AutoModExecutionEvent.class),
-
     /* Sent when an interaction is created */
     INTERACTION_CREATE((p, g, d) -> {
         switch (InteractionType.getType(p.getJSONObject("d").getInt("type"))) {
@@ -140,19 +136,23 @@ public enum DispatchedEvents {
                 Logger.getLogger("EventDispatcher")
                         .log(Level.WARNING, "[discord.jar] Ping request received. This is unusual, will ACK anyway.");
 
-                new DiscordRequest(
-                        new JSONObject()
-                                .put("type", InteractionCallbackType.PONG.getCode()),
-                        new HashMap<>(),
-                        URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}",
-                                p.getJSONObject("d").getString("id").replace(
-                                        "{interaction.token}", p.getJSONObject("d")
-                                                .getString("token")
-                                )),
-                        d,
-                        URLS.POST.INTERACTIONS.CALLBACK,
-                        RequestMethod.POST
-                ).invoke();
+                try {
+                    new DiscordRequest(
+                            new JSONObject()
+                                    .put("type", InteractionCallbackType.PONG.getCode()),
+                            new HashMap<>(),
+                            URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}",
+                                    p.getJSONObject("d").getString("id").replace(
+                                            "{interaction.token}", p.getJSONObject("d")
+                                                    .getString("token")
+                                    )),
+                            d,
+                            URLS.POST.INTERACTIONS.CALLBACK,
+                            RequestMethod.POST
+                    ).invoke();
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    throw new DiscordRequest.DiscordAPIErrorException(e);
+                }
             }
             case APPLICATION_COMMAND -> {
                 CommandInteractionEvent event = null;
@@ -203,6 +203,59 @@ public enum DispatchedEvents {
         }
         return null;
     }),
+    /* Sent when a message is created */
+    MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
+    CHANNEL_CREATE((p, g, d) -> {
+        // cache
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().cache(channel);
+
+        return ChannelCreateEvent.class;
+    }),
+
+    CHANNEL_UPDATE((p, g, d) -> {
+        // modify cached channel, if it exists
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().cache(channel);
+
+       return ChannelUpdateEvent.class;
+    }),
+
+    CHANNEL_DELETE((p, g, d) -> {
+        // remove cached channel, if it exists
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().remove(channel);
+
+        return ChannelDeleteEvent.class;
+    }),
+
+    CHANNEL_PINS_UPDATE((p, g, d) -> ChannelPinsUpdateEvent.class),
+
+    GUILD_UPDATE((p, g, d) -> {
+        // modify cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().cache(guild);
+
+        return GuildUpdateEvent.class;
+    }),
+
+    GUILD_DELETE((p, g, d) -> {
+        // remove cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().remove(guild);
+
+        return GuildDeleteEvent.class;
+    }),
+    /* Sent when a user starts typing in a channel */
+    TYPING_START((p, d, g) -> TypingStartEvent.class),
+    /* Sent when a gateway connection is resumed */
+    RESUMED((p, d, g) -> GatewayResumedEvent.class),
+
+    /* AUTOMOD */
+    AUTO_MODERATION_RULE_CREATE((p, g, d) -> AutoModRuleCreateEvent.class),
+    AUTO_MODERATION_RULE_UPDATE((p, g, d) -> AutoModRuleUpdateEvent.class),
+    AUTO_MODERATION_RULE_DELETE((p, g, d) -> AutoModRuleDeleteEvent.class),
+    AUTO_MODERATION_ACTION_EXECUTION((p, g, d) -> AutoModExecutionEvent.class),
 
     GUILD_MEMBERS_CHUNK((p, g, d) -> {
         JSONObject payload = p.getJSONObject("d");
@@ -235,10 +288,6 @@ public enum DispatchedEvents {
         }
         return null;
     }),
-
-    GUILD_MEMBER_ADD((p, g, d) -> GuildMemberAddEvent.class),
-    GUILD_MEMBER_UPDATE((p, g, d) -> GuildMemberUpdateEvent.class),
-    GUILD_MEMBER_REMOVE((p, g, d) -> GuildMemberRemoveEvent.class),
     /* Unknown */
     UNKNOWN((p, g, d) -> null),
     ;

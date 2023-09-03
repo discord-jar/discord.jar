@@ -75,6 +75,10 @@ public final class URLS {
                  */
                 public static final String CREATE = "/guilds/{guild.id}/channels";
             }
+
+            public static class SCHEDULED_EVENTS {
+                public static final String CREATE_GUILD_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events";
+            }
         }
 
         public static class CHANNELS {
@@ -253,6 +257,11 @@ public final class URLS {
                 public static String GET_GUILD_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
             }
 
+            public static class SCHEDULED_EVENTS {
+                public static String GET_SCHEDULED_EVENTS = "/guilds/{guild.id}/scheduled-events";
+                public static String GET_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
+            }
+
             public static class STICKERS {
                 /**
                  * Returns a list of guild stickers
@@ -360,6 +369,10 @@ public final class URLS {
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
 
+            public static class SCHEDULED_EVENTS {
+                public static String DELETE_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
+            }
+
             public static class MEMBER {
                 /**
                  * Kicks a member from a Guild.
@@ -432,6 +445,9 @@ public final class URLS {
 
     public static class PATCH {
         public static class GUILD {
+            public static class SCHEDULED_EVENTS {
+                public static String MODIFY_GUILD_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
+            }
             public static class MEMBER {
                 /**
                  * Modifies a guild member

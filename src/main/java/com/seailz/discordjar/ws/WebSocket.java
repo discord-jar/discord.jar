@@ -5,18 +5,13 @@ import okhttp3.Request;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +23,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
@@ -39,31 +33,18 @@ public class WebSocket extends WebSocketListener {
     private final String url;
     private okhttp3.WebSocket ws;
     private final boolean debug;
-    private final boolean newSystemForMemoryManagement;
-    private WebSocketClient client;
-    private WebSocketSession session;
-    private List<Consumer<String>> messageConsumers = new ArrayList<>();
-    private List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
-    private List<Runnable> onConnectConsumers = new ArrayList<>();
+    private final List<Consumer<String>> messageConsumers = new ArrayList<>();
+    private final List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
+    private final List<Runnable> onConnectConsumers = new ArrayList<>();
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
-    private double nsfgmmPercentOfTotalMemory;
     private static final byte[] ZLIB_SUFFIX = new byte[] { 0, 0, (byte) 0xff, (byte) 0xff };
     private static byte[] buffer = {};
-    private static Inflater inflator = new Inflater();
+    private static final Inflater inflator = new Inflater();
+    private boolean open = false;
 
-    public WebSocket(String url, boolean newSystemForMemoryManagement, boolean debug, int nsfgmmPercentOfTotalMemory) {
+    public WebSocket(String url, boolean debug) {
         this.url = url;
-        this.newSystemForMemoryManagement = newSystemForMemoryManagement;
         this.debug = debug;
-        this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
-    }
-
-    public WebSocketSession getSession() {
-        return session;
-    }
-
-    public WebSocketClient getClient() {
-        return client;
     }
 
     public WebsocketAction<Void> connect() {
@@ -81,16 +62,8 @@ public class WebSocket extends WebSocketListener {
         return action;
     }
 
-    public WebsocketAction<Void> disconnect() {
-        WebsocketAction<Void> action = new WebsocketAction<>();
-        try {
-            session.close();
-        } catch (Exception e) {
-            action.fail(new WebsocketExceptionError(e));
-            return action;
-        }
-        action.complete(null);
-        return action;
+    public void disconnect() {
+        ws.close(1000, "Disconnecting");
     }
 
     public void send(String message) {
@@ -102,6 +75,10 @@ public class WebSocket extends WebSocketListener {
         messageConsumers.forEach(consumer -> {
             consumer.accept(text);
         });
+    }
+
+    public okhttp3.WebSocket getWs() {
+        return ws;
     }
 
     @Override
@@ -163,11 +140,8 @@ public class WebSocket extends WebSocketListener {
     @Override
     public void onClosed(@NotNull okhttp3.WebSocket webSocket, int code, @NotNull String reason) {
         // Force session disconnect in case it failed to disconnect
+        open = false;
         buffer = null;
-        try {
-            session.close();
-        } catch (Exception e) {
-        }
         new Thread(() -> {
             onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(code, reason)));
         }, "djar--ws-disconnect-consumers").start();
@@ -218,6 +192,7 @@ public class WebSocket extends WebSocketListener {
                 .build();
         this.ws = client.newWebSocket(request, this);
 
+        open = true;
         // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.
         client.dispatcher().executorService().shutdown();
 
@@ -325,4 +300,7 @@ public class WebSocket extends WebSocketListener {
         }
     }
 
+    public boolean isOpen() {
+        return open;
+    }
 }

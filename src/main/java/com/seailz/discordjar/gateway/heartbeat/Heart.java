@@ -40,7 +40,7 @@ public class Heart {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                if (!factory.getSession().isOpen()) {
+                if (!factory.getSocket().isOpen()) {
                     deactivate();
                     break;
                 }

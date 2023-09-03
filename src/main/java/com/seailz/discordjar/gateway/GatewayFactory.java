@@ -58,7 +58,6 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
-    private final boolean newSystemForMemoryManagement;
     public UUID uuid = UUID.randomUUID();
     private int shardId;
     private int numShards;
@@ -68,13 +67,12 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     private WebSocket socket;
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, boolean newSystemForMemoryManagement, int nsfgmmPercentOfTotalMemory, GatewayTransportCompressionType compressionType) throws ExecutionException, InterruptedException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, GatewayTransportCompressionType compressionType) throws ExecutionException, InterruptedException {
         logger.info("[Gateway] New instance created");
         this.discordJar = discordJar;
         this.debug = debug;
         this.shardId = shardId;
         this.numShards = numShards;
-        this.newSystemForMemoryManagement = newSystemForMemoryManagement;
         this.transportCompressionType = compressionType;
 
         discordJar.setGatewayFactory(this);
@@ -103,7 +101,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             }
         } else gatewayUrl = resumeUrl;
 
-        socket = new WebSocket(appendGatewayQueryParams(gatewayUrl), newSystemForMemoryManagement, debug, nsfgmmPercentOfTotalMemory);
+        socket = new WebSocket(appendGatewayQueryParams(gatewayUrl), debug);
 
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
@@ -114,7 +112,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         socket.addMessageConsumer((tm) -> {
             try {
-                handleTextMessage(socket.getSession(), tm);
+                handleTextMessage(tm);
             } catch (Exception e) {
                 logger.warning("[Gateway] Failed to handle text message: " + e.getMessage());
             }
@@ -137,7 +135,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         socket.addOnDisconnectConsumer((cs) -> {
             this.heartbeatManager = null;
             readyForMessages = false;
-            attemptReconnect(socket.getSession(), cs);
+            attemptReconnect(cs);
             discordJar.clearMemberCaches();
         });
     }
@@ -158,7 +156,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         logger.info("[Gateway] Connection established successfully. ⚡");
     }
 
-    public boolean attemptReconnect(WebSocketSession session, CloseStatus status) {
+    public boolean attemptReconnect(CloseStatus status) {
         // connection closed
         if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
@@ -258,11 +256,9 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(String message) throws Exception {
         if (ifNotSelf()) return;
-        super.handleTextMessage(session, message);
-        JSONObject payload = new JSONObject(message.getPayload());
+        JSONObject payload = new JSONObject(message);
 
         if (debug) {
             logger.info("[Gateway - DEBUG] Received message: " + payload.toString());
@@ -396,7 +392,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        getSocket().getSession().close(CloseStatus.GOING_AWAY);
+        getSocket().getWs().close(1000, "Going away");
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed nicely.");
         }
@@ -408,7 +404,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        if (getSocket() != null && getSocket().getSession() != null) getSocket().getSession().close(CloseStatus.TLS_HANDSHAKE_FAILURE);
+        if (getSocket() != null && getSocket().getWs() != null) getSocket().getWs().close(1105, "Going away");
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed.");
@@ -419,8 +415,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Attempting resume...");
         }
-        if (getSocket().getSession().isOpen())
-            getSocket().getSession().close(CloseStatus.SERVER_ERROR);
+        if (getSocket().isOpen())
+            getSocket().getWs().close(1011, "Reconnecting");
 
 //        socket.connect();
 //        onConnect(null);
@@ -520,10 +516,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
-
-    public WebSocketSession getSession() {
-        return getSocket().getSession();
-    }
 
     public boolean isDebug() {
         return debug;

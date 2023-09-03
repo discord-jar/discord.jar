@@ -1,62 +1,50 @@
 package com.seailz.discordjar.ws;
 
-import org.springframework.web.socket.*;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
  * Abstracts the Spring Websocket implementation to make it easier to use, understand, and maintain.
  */
-public class WebSocket extends TextWebSocketHandler {
+public class WebSocket extends WebSocketListener {
 
     private final String url;
+    private okhttp3.WebSocket ws;
     private final boolean debug;
-    private final boolean newSystemForMemoryManagement;
-    private WebSocketClient client;
-    private WebSocketSession session;
-    private List<Consumer<TextMessage>> messageConsumers = new ArrayList<>();
-    private List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
-    private List<Runnable> onConnectConsumers = new ArrayList<>();
+    private final List<Consumer<String>> messageConsumers = new ArrayList<>();
+    private final List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
+    private final List<Runnable> onConnectConsumers = new ArrayList<>();
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
-    private double nsfgmmPercentOfTotalMemory;
     private static final byte[] ZLIB_SUFFIX = new byte[] { 0, 0, (byte) 0xff, (byte) 0xff };
     private static byte[] buffer = {};
-    private static Inflater inflator = new Inflater();
+    private static final Inflater inflator = new Inflater();
+    private boolean open = false;
 
-    public WebSocket(String url, boolean newSystemForMemoryManagement, boolean debug, int nsfgmmPercentOfTotalMemory) {
+    public WebSocket(String url, boolean debug) {
         this.url = url;
-        this.newSystemForMemoryManagement = newSystemForMemoryManagement;
         this.debug = debug;
-        this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
-    }
-
-    public WebSocketSession getSession() {
-        return session;
-    }
-
-    public WebSocketClient getClient() {
-        return client;
     }
 
     public WebsocketAction<Void> connect() {
@@ -74,41 +62,29 @@ public class WebSocket extends TextWebSocketHandler {
         return action;
     }
 
-    public WebsocketAction<Void> disconnect() {
-        WebsocketAction<Void> action = new WebsocketAction<>();
-        try {
-            session.close();
-        } catch (Exception e) {
-            action.fail(new WebsocketExceptionError(e));
-            return action;
-        }
-        action.complete(null);
-        return action;
+    public void disconnect() {
+        ws.close(1000, "Disconnecting");
     }
 
-    public WebsocketAction<Void> send(String message) {
-        WebsocketAction<Void> action = new WebsocketAction<>();
-        try {
-            session.sendMessage(new TextMessage(message));
-        } catch (Exception e) {
-            action.fail(new WebsocketExceptionError(e));
-            return action;
-        }
-        action.complete(null);
-        return action;
+    public void send(String message) {
+        ws.send(message);
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    public void onMessage(@NotNull okhttp3.WebSocket webSocket, @NotNull String text) {
         messageConsumers.forEach(consumer -> {
-            consumer.accept(message);
+            consumer.accept(text);
         });
     }
 
+    public okhttp3.WebSocket getWs() {
+        return ws;
+    }
+
     @Override
-    protected synchronized void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+    public void onMessage(@NotNull okhttp3.WebSocket webSocket, @NotNull ByteString text) {
         long start = System.currentTimeMillis();
-        byte[] msg = message.getPayload().array();
+        byte[] msg = text.toByteArray();
         if (buffer ==null) buffer = new byte[]{};
         byte[] extendedBuffer = new byte[buffer.length + msg.length];
         System.arraycopy(buffer, 0, extendedBuffer, 0, buffer.length);
@@ -118,7 +94,7 @@ public class WebSocket extends TextWebSocketHandler {
             // Reset buffer and try again
             e.printStackTrace();
             buffer = new byte[]{};
-            handleBinaryMessage(session, message);
+            onMessage(webSocket, text);
             return;
         }
         buffer = extendedBuffer;
@@ -153,28 +129,24 @@ public class WebSocket extends TextWebSocketHandler {
 
         // reset buffer to empty
         buffer = new byte[0];
-        if (true) {
+        if (debug) {
             Logger.getLogger("WS")
                     .info("[Decompressor] Inflated " + msg.length + " bytes to " + result.length + " bytes in " + (System.currentTimeMillis() - start) + "ms: " + fullMessage);
         }
         new Thread(() -> {
-            handleTextMessage(session, new TextMessage(fullMessage));
+            onMessage(webSocket, fullMessage);
         }, "djar--handle-text-msg").start();
     }
-
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    public void onClosed(@NotNull okhttp3.WebSocket webSocket, int code, @NotNull String reason) {
         // Force session disconnect in case it failed to disconnect
+        open = false;
         buffer = null;
-        try {
-            session.close();
-        } catch (Exception e) {
-        }
         new Thread(() -> {
-            onDisconnectConsumers.forEach(consumer -> consumer.accept(status));
+            onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(code, reason)));
         }, "djar--ws-disconnect-consumers").start();
 
-        if (reEstablishConnection.apply(status)) {
+        if (reEstablishConnection.apply(new CloseStatus(code, reason))) {
             try {
                 connect(url);
             } catch (Exception e) {
@@ -190,7 +162,7 @@ public class WebSocket extends TextWebSocketHandler {
         this.reEstablishConnection = reEstablishConnection;
     }
 
-    public void addMessageConsumer(Consumer<TextMessage> consumer) {
+    public void addMessageConsumer(Consumer<String> consumer) {
         messageConsumers.add(consumer);
     }
 
@@ -211,33 +183,46 @@ public class WebSocket extends TextWebSocketHandler {
     }
 
     private void connect(String customUrl) throws ExecutionException, InterruptedException {
-        WebSocketClient client = new StandardWebSocketClient();
-        this.client = client;
-        this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl)).get();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .readTimeout(0,  TimeUnit.MILLISECONDS)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(customUrl)
+                .build();
+        this.ws = client.newWebSocket(request, this);
+
+        open = true;
+        // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.
+        client.dispatcher().executorService().shutdown();
+
+//        WebSocketClient client = new StandardWebSocketClient();
+//        this.client = client;
+//        this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(customUrl)).get();
         // Allocate 25% of the bot's total **AVAILABLE** memory to the gateway.
-        if (newSystemForMemoryManagement) {
-            Runtime runtime = Runtime.getRuntime();
-            long maxMemory = runtime.maxMemory();
-
-            if (debug) {
-                Logger.getLogger("WS")
-                        .info("[WS] NSGFMM POTM:" + nsfgmmPercentOfTotalMemory + "%");
-                Logger.getLogger("WS")
-                        .info("[WS] " + "As NSGFMMPOTM is " + nsfgmmPercentOfTotalMemory + "%, the allocated memory will be " + (maxMemory * (nsfgmmPercentOfTotalMemory / 100)) + " bytes (" + ((maxMemory * (nsfgmmPercentOfTotalMemory / 100)) / 1000000) + " MB" + " NSGFM / 100 =" + (nsfgmmPercentOfTotalMemory / 100));
-            }
-            maxMemory = (long) (maxMemory * (nsfgmmPercentOfTotalMemory / 100));
-
-            if (debug) {
-                Logger.getLogger("WS")
-                        .info("[WS] " + "Allocated memory: " + maxMemory + " bytes (" + (maxMemory / 1000000) + " MB) / " + runtime.maxMemory() + " bytes (" + (runtime.maxMemory() / 1000000) + " MB)");
-            }
-
-            session.setTextMessageSizeLimit((int) maxMemory);
-            session.setBinaryMessageSizeLimit((int) maxMemory);
-        } else {
-            session.setTextMessageSizeLimit(100000000);
-            session.setBinaryMessageSizeLimit(100000000);
-        }
+//        if (newSystemForMemoryManagement) {
+//            Runtime runtime = Runtime.getRuntime();
+//            long maxMemory = runtime.maxMemory();
+//
+//            if (debug) {
+//                Logger.getLogger("WS")
+//                        .info("[WS] NSGFMM POTM:" + nsfgmmPercentOfTotalMemory + "%");
+//                Logger.getLogger("WS")
+//                        .info("[WS] " + "As NSGFMMPOTM is " + nsfgmmPercentOfTotalMemory + "%, the allocated memory will be " + (maxMemory * (nsfgmmPercentOfTotalMemory / 100)) + " bytes (" + ((maxMemory * (nsfgmmPercentOfTotalMemory / 100)) / 1000000) + " MB" + " NSGFM / 100 =" + (nsfgmmPercentOfTotalMemory / 100));
+//            }
+//            maxMemory = (long) (maxMemory * (nsfgmmPercentOfTotalMemory / 100));
+//
+//            if (debug) {
+//                Logger.getLogger("WS")
+//                        .info("[WS] " + "Allocated memory: " + maxMemory + " bytes (" + (maxMemory / 1000000) + " MB) / " + runtime.maxMemory() + " bytes (" + (runtime.maxMemory() / 1000000) + " MB)");
+//            }
+//
+//            session.setTextMessageSizeLimit((int) maxMemory);
+//            session.setBinaryMessageSizeLimit((int) maxMemory);
+//        } else {
+//            session.setTextMessageSizeLimit(100000000);
+//            session.setBinaryMessageSizeLimit(100000000);
+//        }
     }
 
 
@@ -315,4 +300,7 @@ public class WebSocket extends TextWebSocketHandler {
         }
     }
 
+    public boolean isOpen() {
+        return open;
+    }
 }

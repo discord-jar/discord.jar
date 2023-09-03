@@ -1,5 +1,6 @@
 package com.seailz.discordjar.model.guild.scheduledevents;
 
+import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.CDNAble;
@@ -49,6 +50,26 @@ public record ScheduledEvent(
         return obj;
     }
 
+    public static ScheduledEvent decompile(JSONObject obj, DiscordJar jar) {
+        String id = obj.getString("id");
+        String guildId = obj.getString("guild_id");
+        String channelId = obj.has("channel_id") && !obj.isNull("channel_id") ? obj.getString("channel_id") : null;
+        String creatorId = obj.has("creator_id") && !obj.isNull("creator_id") ? obj.getString("creator_id") : null;
+        String name = obj.has("name") && !obj.isNull("name") ? obj.getString("name") : null;
+        String description = obj.has("description") && !obj.isNull("description") ? obj.getString("description") : null;
+        DateTime scheduledStart = obj.has("scheduled_start_time") && !obj.isNull("scheduled_start_time") ? DateTime.parse(obj.getString("scheduled_start_time")) : null;
+        DateTime scheduledEnd = obj.has("scheduled_end_time") && !obj.isNull("scheduled_end_time") ? DateTime.parse(obj.getString("scheduled_end_time")) : null;
+        PrivacyLevel privacyLevel = PrivacyLevel.fromValue(obj.getInt("privacy_level"));
+        EventStatus eventStatus = EventStatus.fromValue(obj.getInt("status"));
+        EntityType entityType = EntityType.fromValue(obj.getInt("entity_type"));
+        String entityId = obj.has("entity_id") && !obj.isNull("entity_id") ? obj.getString("entity_id") : null;
+        EntityMetadata entityMetadata = obj.has("entity_metadata") && !obj.isNull("entity_metadata") ? EntityMetadata.decompile(obj.getJSONObject("entity_metadata")) : null;
+        User creator = obj.has("creator") && !obj.isNull("creator") ? User.decompile(obj.getJSONObject("creator"), jar) : null;
+        int userCount = obj.has("user_count") && !obj.isNull("user_count") ? obj.getInt("user_count") : 0;
+        String coverHash = obj.has("cover_image_hash") && !obj.isNull("cover_image_hash") ? obj.getString("cover_image_hash") : null;
+        return new ScheduledEvent(id, guildId, channelId, creatorId, name, description, scheduledStart, scheduledEnd, privacyLevel, eventStatus, entityType, entityId, entityMetadata, creator, userCount, coverHash);
+    }
+
     @Override
     public StringFormatter formatter() {
         return new StringFormatter("guild-events", this.id, this.coverHash);
@@ -59,7 +80,7 @@ public record ScheduledEvent(
         return this.coverHash;
     }
 
-    public class EntityMetadata implements Compilerable {
+    public static class EntityMetadata implements Compilerable {
 
         // Location of the event (1-100 characters)
         private String location;
@@ -76,6 +97,10 @@ public record ScheduledEvent(
         public JSONObject compile() {
             return new JSONObject()
                     .put("location", this.location);
+        }
+
+        public static EntityMetadata decompile(JSONObject obj) {
+            return new EntityMetadata(obj.getString("location"));
         }
     }
 

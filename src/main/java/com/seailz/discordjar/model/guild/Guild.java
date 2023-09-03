@@ -5,6 +5,8 @@ import com.seailz.discordjar.action.automod.AutomodRuleCreateAction;
 import com.seailz.discordjar.action.automod.AutomodRuleModifyAction;
 import com.seailz.discordjar.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjar.action.guild.members.RequestGuildMembersAction;
+import com.seailz.discordjar.action.guild.scheduledevents.CreateScheduledEventAction;
+import com.seailz.discordjar.action.guild.scheduledevents.ModifyScheduledEventAction;
 import com.seailz.discordjar.action.sticker.ModifyStickerAction;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.application.Intent;
@@ -21,6 +23,7 @@ import com.seailz.discordjar.model.guild.filter.ExplicitContentFilterLevel;
 import com.seailz.discordjar.model.guild.mfa.MFALevel;
 import com.seailz.discordjar.model.guild.notification.DefaultMessageNotificationLevel;
 import com.seailz.discordjar.model.guild.premium.PremiumTier;
+import com.seailz.discordjar.model.guild.scheduledevents.ScheduledEvent;
 import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjar.model.invite.Invite;
@@ -33,9 +36,11 @@ import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1667,6 +1672,83 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
     }
 
+    public @NotNull List<ScheduledEvent> getScheduledEvents(boolean withUserCount) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.SCHEDULED_EVENTS.GET_SCHEDULED_EVENTS.replace("{guild.id}", id) + "?with_user_count=" + withUserCount,
+                discordJar,
+                URLS.GET.GUILDS.SCHEDULED_EVENTS.GET_SCHEDULED_EVENTS,
+                RequestMethod.GET
+        );
+
+        try {
+            List<ScheduledEvent> events = new ArrayList<>();
+            req.invoke().arr().forEach((event) -> events.add(ScheduledEvent.decompile((JSONObject) event, discordJar)));
+            return events;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    public @NotNull CreateScheduledEventAction createScheduledEvent(String name, ScheduledEvent.PrivacyLevel privacyLevel, DateTime scheduledStartTime, ScheduledEvent.EntityType entityType) {
+        return new CreateScheduledEventAction(name, privacyLevel, scheduledStartTime, entityType, id, discordJar);
+    }
+
+    public @NotNull List<ScheduledEvent> getScheduledEvents() {
+        return getScheduledEvents(false);
+    }
+
+    public @Nullable ScheduledEvent getScheduledEvent(String id, boolean withUserCount) {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.SCHEDULED_EVENTS.GET_SCHEDULED_EVENT.replace("{guild.id}", id).replace("{guild_scheduled_event.id", id) + "?with_user_count=" + withUserCount,
+                discordJar,
+                URLS.GET.GUILDS.SCHEDULED_EVENTS.GET_SCHEDULED_EVENT,
+                RequestMethod.GET
+        );
+
+        try {
+            return ScheduledEvent.decompile(req.invoke().body(), discordJar);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    public @Nullable ScheduledEvent getScheduledEvent(String id) {
+        return getScheduledEvent(id, false);
+    }
+
+    public Response<Void> deleteScheduledEvent(String id) {
+        Response<Void> res = new Response<>();
+        new java.lang.Thread(() -> {
+            try {
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.DELETE.GUILD.SCHEDULED_EVENTS.DELETE_SCHEDULED_EVENT.replace("{guild.id}", this.id).replace("{event.id}", id),
+                        discordJar,
+                        URLS.DELETE.GUILD.SCHEDULED_EVENTS.DELETE_SCHEDULED_EVENT,
+                        RequestMethod.DELETE
+                ).invoke();
+                res.complete(null);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                res.completeError(new Response.Error(
+                        e.getCode(),
+                        e.getMessage(),
+                        e.getBody()
+                ));
+            }
+        }).start();
+        return res;
+    }
+
+    public @NotNull ModifyScheduledEventAction modifyScheduledEvent(String id) {
+        return new ModifyScheduledEventAction(discordJar, this.id, id);
+    }
+
+    // TODO: implement https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users
 
     /**
      * Represents the <a href="https://support.discord.com/hc/en-us/articles/11074987197975-Community-Onboarding-FAQ">onboarding</a> flow for a guild.

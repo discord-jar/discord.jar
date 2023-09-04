@@ -64,7 +64,7 @@ public class VoiceUDP {
             while (sending) {
                 if (!provider.canProvide()) {
                     try {
-                        Thread.sleep(15);
+                        Thread.sleep(20);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }

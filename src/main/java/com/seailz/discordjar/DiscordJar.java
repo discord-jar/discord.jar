@@ -1,7 +1,9 @@
 package com.seailz.discordjar;
 
 import com.seailz.discordjar.action.guild.GetCurrentUserGuildsAction;
+import com.seailz.discordjar.cache.Cache;
 import com.seailz.discordjar.cache.CacheType;
+import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.command.Command;
 import com.seailz.discordjar.command.CommandChoice;
 import com.seailz.discordjar.command.CommandDispatcher;
@@ -21,6 +23,7 @@ import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.gateway.GatewayTransportCompressionType;
 import com.seailz.discordjar.http.HttpOnlyApplication;
 import com.seailz.discordjar.model.api.APIRelease;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.channel.*;
@@ -36,15 +39,10 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.cache.Cache;
-import com.seailz.discordjar.cache.JsonCache;
-import com.seailz.discordjar.utils.memory.MemoryWatcher;
+import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.utils.rest.RequestQueueHandler;
-import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
-import com.seailz.discordjar.model.api.version.APIVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -60,7 +58,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * The main class of the discord.jar wrapper for the Discord API. It is <b>HIGHLY</b> recommended that you use
@@ -145,8 +142,6 @@ public class DiscordJar {
 
     public int gatewayConnections = 0;
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
-    private boolean newSystemForGatewayMemoryManagement = false;
-    private final int nsfgmmPercentOfTotalMemory;
     private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
     private final GatewayTransportCompressionType gatewayTransportCompressionType;
 
@@ -155,7 +150,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
+        this(token, intents, version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -163,7 +158,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean debug) throws ExecutionException, InterruptedException {
-        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
+        this(token, intents, version, false, null, debug, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -171,7 +166,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
+        this(token, EnumSet.of(Intent.ALL), version, false, null, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -179,7 +174,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
+        this(token, EnumSet.noneOf(Intent.class), version, httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
     /**
@@ -187,7 +182,7 @@ public class DiscordJar {
      */
     @Deprecated(forRemoval = true)
     public DiscordJar(String token, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo) throws ExecutionException, InterruptedException {
-        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), false, 25, GatewayTransportCompressionType.ZLIB_STREAM);
+        this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
         /**
@@ -213,7 +208,7 @@ public class DiscordJar {
          * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
          */
         @Deprecated
-    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, boolean newSystemForGatewayMemoryManagement, int nsfgmmPercentOfTotalMemory, GatewayTransportCompressionType gwCompressionType) throws ExecutionException, InterruptedException {
+    public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, GatewayTransportCompressionType gwCompressionType) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
@@ -224,8 +219,6 @@ public class DiscordJar {
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
-        this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
-        this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
         this.gatewayTransportCompressionType = gwCompressionType;
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
@@ -299,7 +292,7 @@ public class DiscordJar {
         this.numShards = numShards;
 
             if (!httpOnly) {
-                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gwCompressionType);
+                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gwCompressionType);
             }
 
     }
@@ -375,7 +368,7 @@ public class DiscordJar {
         } catch (InterruptedException ignored) {}
         killGateway();
         try {
-            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gatewayTransportCompressionType);
+            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gatewayTransportCompressionType);
             gatewayFactories.add(gatewayFactory);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

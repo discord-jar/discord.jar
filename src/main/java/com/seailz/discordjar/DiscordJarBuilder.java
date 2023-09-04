@@ -34,7 +34,15 @@ public class DiscordJarBuilder {
     private boolean debug;
     private int shardId = -1;
     private int numShards = 1;
+    /**
+     * @deprecated Manual Gateway memory management is no longer supported. This value isn't used.
+     */
+    @Deprecated(since = "1.0.0")
     private boolean newSystemForGatewayMemoryManagement = false;
+    /**
+     * @deprecated Manual Gateway memory management is no longer supported. This value isn't used.
+     */
+    @Deprecated(since = "1.0.0")
     private int nsfgmmPercentOfTotalMemory = 25;
     private GatewayTransportCompressionType gwCompressionType = GatewayTransportCompressionType.ZLIB_STREAM;
 
@@ -46,6 +54,10 @@ public class DiscordJarBuilder {
         this.gwCompressionType = gwCompressionType;
     }
 
+    /**
+     * @deprecated Manual Gateway memory management is no longer supported. This value isn't used.
+     */
+    @Deprecated(since = "1.0.0")
     public DiscordJarBuilder setNsfgmmPercentOfTotalMemory(int nsfgmmPercentOfTotalMemory) {
         this.nsfgmmPercentOfTotalMemory = nsfgmmPercentOfTotalMemory;
         return this;
@@ -61,6 +73,10 @@ public class DiscordJarBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Manual Gateway memory management is no longer supported. This value isn't used.
+     */
+    @Deprecated(since = "1.0.0")
     public void setIsNewSystemForGatewayMemoryManagement(boolean newSystemForGatewayMemoryManagement) {
         this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
     }
@@ -189,7 +205,7 @@ public class DiscordJarBuilder {
         if (cacheTypes == null) defaultCacheTypes();
         if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
         try {
-            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes, newSystemForGatewayMemoryManagement, nsfgmmPercentOfTotalMemory, gwCompressionType);
+            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes, gwCompressionType);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

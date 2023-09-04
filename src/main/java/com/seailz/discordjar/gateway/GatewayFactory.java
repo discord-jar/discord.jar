@@ -8,12 +8,15 @@ import com.seailz.discordjar.gateway.events.DispatchedEvents;
 import com.seailz.discordjar.gateway.events.GatewayEvents;
 import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Intent;
+import com.seailz.discordjar.model.channel.VoiceChannel;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.voice.model.VoiceServerUpdate;
+import com.seailz.discordjar.voice.model.VoiceStateUpdate;
 import com.seailz.discordjar.ws.ExponentialBackoffLogic;
 import com.seailz.discordjar.gateway.heartbeat.HeartLogic;
 import com.seailz.discordjar.ws.WebSocket;
@@ -34,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -58,6 +62,8 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
+    private List<Consumer<VoiceStateUpdate>> onVoiceStateUpdateListeners;
+    private List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners;
     public UUID uuid = UUID.randomUUID();
     private int shardId;
     private int numShards;
@@ -71,6 +77,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         logger.info("[Gateway] New instance created");
         this.discordJar = discordJar;
         this.debug = debug;
+        this.onVoiceStateUpdateListeners = new ArrayList<>();
+        this.onVoiceServerUpdateListeners = new ArrayList<>();
         this.shardId = shardId;
         this.numShards = numShards;
         this.transportCompressionType = compressionType;
@@ -504,6 +512,34 @@ public class GatewayFactory extends TextWebSocketHandler {
         queueMessage(payload);
 
         memberRequestChunks.put(action.getNonce(), new GatewayFactory.MemberChunkStorageWrapper(new ArrayList<>(), future));
+    }
+
+    public void sendVoicePayload(String guildId, String channelId, boolean selfMute, boolean selfDeaf) {
+        JSONObject payload = new JSONObject();
+        JSONObject dPayload = new JSONObject();
+        dPayload.put("guild_id", guildId);
+        dPayload.put("channel_id", channelId);
+        dPayload.put("self_mute", selfMute);
+        dPayload.put("self_deaf", selfDeaf);
+        payload.put("op", 4);
+        payload.put("d", dPayload);
+        sendPayload(payload);
+    }
+
+    public void onVoiceStateUpdate(Consumer<VoiceStateUpdate> consumer) {
+        onVoiceStateUpdateListeners.add(consumer);
+    }
+
+    public void onVoiceServerUpdate(Consumer<VoiceServerUpdate> consumer) {
+        onVoiceServerUpdateListeners.add(consumer);
+    }
+
+    public List<Consumer<VoiceStateUpdate>> getOnVoiceStateUpdateListeners() {
+        return onVoiceStateUpdateListeners;
+    }
+
+    public List<Consumer<VoiceServerUpdate>> getOnVoiceServerUpdateListeners() {
+        return onVoiceServerUpdateListeners;
     }
 
     public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {

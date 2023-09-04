@@ -564,6 +564,19 @@ public class DiscordJar {
     }
 
     /**
+     * Returns info about am {@link AudioChannel}
+     *
+     * @param id The id of the channel
+     * @return An {@link AudioChannel} object
+     */
+    @Nullable
+    public AudioChannel getAudioChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        Checker.isSnowflake(id, "Given id is not a snowflake");
+        JSONObject raw = getChannelCache().getById(id).raw();
+        return AudioChannel.decompile(raw, this);
+    }
+
+    /**
      * Returns info about a {@link com.seailz.discordjar.model.channel.thread.Thread Thread}
      *
      * @param id The id of the channel

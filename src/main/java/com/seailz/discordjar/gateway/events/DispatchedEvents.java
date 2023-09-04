@@ -64,13 +64,50 @@ import java.util.logging.Logger;
  */
 public enum DispatchedEvents {
 
-    /* Sent when bot is ready to receive events */
+    /* GATEWAY */
     READY((p, g, d) -> {
         Logger.getLogger("Gateway")
                 .info("[Gateway] Ready to receive events");
         return ReadyEvent.class;
     }),
-    /* Sent when a guild is created */
+    RESUMED((p, d, g) -> GatewayResumedEvent.class),
+
+    /* COMMANDS */
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, g, d) -> CommandPermissionUpdateEvent.class),
+
+    /* AUTOMOD */
+    AUTO_MODERATION_RULE_CREATE((p, g, d) -> AutoModRuleCreateEvent.class),
+    AUTO_MODERATION_RULE_UPDATE((p, g, d) -> AutoModRuleUpdateEvent.class),
+    AUTO_MODERATION_RULE_DELETE((p, g, d) -> AutoModRuleDeleteEvent.class),
+    AUTO_MODERATION_ACTION_EXECUTION((p, g, d) -> AutoModExecutionEvent.class),
+
+    /* CHANNELS */
+    CHANNEL_CREATE((p, g, d) -> {
+        // cache
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().cache(channel);
+
+        return ChannelCreateEvent.class;
+    }),
+    CHANNEL_UPDATE((p, g, d) -> {
+        // modify cached channel, if it exists
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().cache(channel);
+
+        return ChannelUpdateEvent.class;
+    }),
+    CHANNEL_DELETE((p, g, d) -> {
+        // remove cached channel, if it exists
+        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
+        d.getChannelCache().remove(channel);
+
+        return ChannelDeleteEvent.class;
+    }),
+    CHANNEL_PINS_UPDATE((p, g, d) -> ChannelPinsUpdateEvent.class),
+
+    //TODO: threads
+
+    /* GUILDS */
     GUILD_CREATE((p, d, g) -> {
         // cache guild
         if (p.getJSONObject("d").has("unavailable") && p.getJSONObject("d").getBoolean("unavailable"))
@@ -102,6 +139,21 @@ public enum DispatchedEvents {
 
         return GuildCreateEvent.class;
     }),
+    GUILD_UPDATE((p, g, d) -> {
+        // modify cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().cache(guild);
+
+        return GuildUpdateEvent.class;
+    }),
+    GUILD_DELETE((p, g, d) -> {
+        // remove cached guild, if it exists
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        d.getGuildCache().remove(guild);
+
+        return GuildDeleteEvent.class;
+    }),
+    // TODO: other guild events
     GUILD_MEMBER_ADD((p, g, d) -> {
         String guildId = p.getJSONObject("d").getString("guild_id");
         d.insertMemberCache(guildId, Member.decompile(
@@ -111,6 +163,11 @@ public enum DispatchedEvents {
                 d.getGuildById(guildId)
         ), d.getGuildById(guildId));
         return GuildMemberAddEvent.class;
+    }),
+    GUILD_MEMBER_REMOVE((p, g, d) -> {
+        String guildId = p.getJSONObject("d").getString("guild_id");
+        d.removeMemberCache(guildId, p.getJSONObject("d").getJSONObject("user").getString("id"));
+        return GuildMemberRemoveEvent.class;
     }),
     GUILD_MEMBER_UPDATE((p, g, d) -> {
         String guildId = p.getJSONObject("d").getString("guild_id");
@@ -122,14 +179,40 @@ public enum DispatchedEvents {
         ), d.getGuildById(guildId));
         return GuildMemberUpdateEvent.class;
     }),
-    GUILD_MEMBER_REMOVE((p, g, d) -> {
-        String guildId = p.getJSONObject("d").getString("guild_id");
-        d.removeMemberCache(guildId, p.getJSONObject("d").getJSONObject("user").getString("id"));
-        return GuildMemberRemoveEvent.class;
+    GUILD_MEMBERS_CHUNK((p, g, d) -> {
+        JSONObject payload = p.getJSONObject("d");
+        String nonce = payload.getString("nonce");
+
+        if (nonce == null) {
+            Logger.getLogger("DispatchedEvents").warning(
+                    "[discord.jar] Received a GUILD_MEMBER_CHUNK event with no nonce. This is extremely unusual - please report this " +
+                            "on our GitHub page.");
+            return null;
+        }
+
+        GatewayFactory.MemberChunkStorageWrapper wrapper = g.memberRequestChunks.get(nonce);
+        if (wrapper == null) {
+            Logger.getLogger("DispatchedEvents").warning("[discord.jar] Received member chunk with unknown nonce: " + nonce);
+            return null;
+        }
+
+        JSONArray members = payload.getJSONArray("members");
+        members.forEach(member -> {
+            wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
+        });
+
+        int chunkCount = payload.getInt("chunk_count") - 1;
+        int chunkIndex = payload.getInt("chunk_index");
+
+        if (chunkCount == chunkIndex) {
+            g.memberRequestChunks.get(nonce).complete();
+            g.memberRequestChunks.remove(nonce);
+        }
+        return null;
     }),
-    /* Sent when a command permission is updated */
-    APPLICATION_COMMAND_PERMISSIONS_UPDATE((p, g, d) -> CommandPermissionUpdateEvent.class),
-    /* Sent when an interaction is created */
+    // TODO: other guild events
+
+    /* INTERACTIONS */
     INTERACTION_CREATE((p, g, d) -> {
         switch (InteractionType.getType(p.getJSONObject("d").getInt("type"))) {
             case PING -> {
@@ -203,91 +286,28 @@ public enum DispatchedEvents {
         }
         return null;
     }),
-    /* Sent when a message is created */
+
+    // TODO: integrations
+
+    // TODO: invites
+
+    /* MESSAGES */
     MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
-    CHANNEL_CREATE((p, g, d) -> {
-        // cache
-        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
-        d.getChannelCache().cache(channel);
+    // TODO: other message events
 
-        return ChannelCreateEvent.class;
-    }),
+    // TODO: Presence update
 
-    CHANNEL_UPDATE((p, g, d) -> {
-        // modify cached channel, if it exists
-        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
-        d.getChannelCache().cache(channel);
+    // TODO: stage instance
 
-       return ChannelUpdateEvent.class;
-    }),
-
-    CHANNEL_DELETE((p, g, d) -> {
-        // remove cached channel, if it exists
-        Channel channel = Channel.decompile(p.getJSONObject("d"), d);
-        d.getChannelCache().remove(channel);
-
-        return ChannelDeleteEvent.class;
-    }),
-
-    CHANNEL_PINS_UPDATE((p, g, d) -> ChannelPinsUpdateEvent.class),
-
-    GUILD_UPDATE((p, g, d) -> {
-        // modify cached guild, if it exists
-        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
-        d.getGuildCache().cache(guild);
-
-        return GuildUpdateEvent.class;
-    }),
-
-    GUILD_DELETE((p, g, d) -> {
-        // remove cached guild, if it exists
-        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
-        d.getGuildCache().remove(guild);
-
-        return GuildDeleteEvent.class;
-    }),
-    /* Sent when a user starts typing in a channel */
+    /* TYPING */
     TYPING_START((p, d, g) -> TypingStartEvent.class),
-    /* Sent when a gateway connection is resumed */
-    RESUMED((p, d, g) -> GatewayResumedEvent.class),
 
-    /* AUTOMOD */
-    AUTO_MODERATION_RULE_CREATE((p, g, d) -> AutoModRuleCreateEvent.class),
-    AUTO_MODERATION_RULE_UPDATE((p, g, d) -> AutoModRuleUpdateEvent.class),
-    AUTO_MODERATION_RULE_DELETE((p, g, d) -> AutoModRuleDeleteEvent.class),
-    AUTO_MODERATION_ACTION_EXECUTION((p, g, d) -> AutoModExecutionEvent.class),
+    // TODO: User update
 
-    GUILD_MEMBERS_CHUNK((p, g, d) -> {
-        JSONObject payload = p.getJSONObject("d");
-        String nonce = payload.getString("nonce");
+    // TODO: Voice events
 
-        if (nonce == null) {
-            Logger.getLogger("DispatchedEvents").warning(
-                    "[discord.jar] Received a GUILD_MEMBER_CHUNK event with no nonce. This is extremely unusual - please report this " +
-                            "on our GitHub page.");
-            return null;
-        }
+    // TODO: Webhooks
 
-        GatewayFactory.MemberChunkStorageWrapper wrapper = g.memberRequestChunks.get(nonce);
-        if (wrapper == null) {
-            Logger.getLogger("DispatchedEvents").warning("[discord.jar] Received member chunk with unknown nonce: " + nonce);
-            return null;
-        }
-
-        JSONArray members = payload.getJSONArray("members");
-        members.forEach(member -> {
-            wrapper.addMember(Member.decompile((JSONObject) member, d, payload.getString("guild_id"), d.getGuildById(payload.getString("guild_id"))));
-        });
-
-        int chunkCount = payload.getInt("chunk_count") - 1;
-        int chunkIndex = payload.getInt("chunk_index");
-
-        if (chunkCount == chunkIndex) {
-            g.memberRequestChunks.get(nonce).complete();
-            g.memberRequestChunks.remove(nonce);
-        }
-        return null;
-    }),
     /* Unknown */
     UNKNOWN((p, g, d) -> null),
     ;

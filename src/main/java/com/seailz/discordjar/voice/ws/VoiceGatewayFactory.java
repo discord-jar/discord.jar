@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+// TODO: at some point this should be converted to use the WebSocket class
 public class VoiceGatewayFactory extends TextWebSocketHandler {
 
     private final String serverId;
@@ -49,7 +50,6 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
         this.token = token;
         this.provider = prov;
         connect(endpoint);
-        System.out.println("Connected to voice gateway");
     }
 
     public void connect(String endpoint) throws ExecutionException, InterruptedException {
@@ -59,12 +59,6 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
         this.session = client.execute(this, new WebSocketHttpHeaders(), URI.create(endpoint)).get();
         session.setTextMessageSizeLimit(1000000);
         session.setBinaryMessageSizeLimit(1000000);
-        System.out.println("Established connection to " + endpoint);
-    }
-
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        System.out.println("Closed: " + status.getCode() + " : " + status.getReason());
     }
 
     @Override
@@ -78,7 +72,6 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 VoiceUDP udp = null;
                 ssrc = finalPayload.getInt("ssrc");
                 try {
-                    System.out.println("IP:" + finalPayload.getString("ip") + " PORT:" + finalPayload.getInt("port") + " SSRC:" + finalPayload.getInt("ssrc") + " MODES:" + finalPayload.getJSONArray("modes"));
                     udp = new VoiceUDP(new InetSocketAddress(InetAddress.getByName(finalPayload.getString("ip")), finalPayload.getInt("port")), provider, finalPayload.getInt("ssrc"), this);
                 } catch (SocketException | UnknownHostException e) {
                     throw new RuntimeException(e);
@@ -148,13 +141,9 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
 
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode packet = mapper.readTree(payload.toString());
-                System.out.println(payload);
 
                 JsonNode data = packet.get("d");
                 byte[] secretKey = new ObjectMapper().convertValue(data.get("secret_key"), byte[].class);
-                System.out.println("Secret key: " + Arrays.toString(secretKey));
-                System.out.println("Secret key: " + payload.getJSONObject("d").get("secret_key"));
-
                 socket.setSecretKey(secretKey);
                 socket.start();
                 break;
@@ -176,8 +165,6 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 .put("port", address.getPort())
                 .put("mode", "xsalsa20_poly1305"));
         selectProtocol.put("d", data);
-        System.out.println("Sending select protocol");
-        System.out.println(selectProtocol.toString());
         session.sendMessage(new TextMessage(selectProtocol.toString()));
     }
 

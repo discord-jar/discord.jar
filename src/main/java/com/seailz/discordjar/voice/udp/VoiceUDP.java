@@ -51,7 +51,6 @@ public class VoiceUDP {
         String ip = new String(buffer, 8, buffer.length - 10).trim();
         int port = ByteBuffer.wrap(new byte[] {buffer[buffer.length - 1], buffer[buffer.length - 2]}).getShort() & 0xffff;
         address = new InetSocketAddress(ip, port);
-        System.out.println("Discovered address: " + address.getHostName() + ":" + address.getPort());
         return address;
     }
 
@@ -64,7 +63,6 @@ public class VoiceUDP {
             long nextFrameTimestamp = System.nanoTime();
             while (sending) {
                 if (!provider.canProvide()) {
-                    System.out.println("Cannot provide!");
                     try {
                         Thread.sleep(15);
                     } catch (InterruptedException e) {
@@ -94,7 +92,6 @@ public class VoiceUDP {
                     packet.encrypt(secretKey);
                 }
                 if (socket.isClosed()) {
-                    System.out.println("Socket was closed!");
                     continue;
                 }
 

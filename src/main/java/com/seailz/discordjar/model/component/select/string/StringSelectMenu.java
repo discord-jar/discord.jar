@@ -1,15 +1,20 @@
 package com.seailz.discordjar.model.component.select.string;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
+import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
+import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.component.select.SelectOption;
+import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Represents a string select menu
@@ -144,6 +149,16 @@ public class StringSelectMenu implements SelectMenu {
         return true;
     }
 
+    /**
+     * Sets the action of the select.
+     *
+     * @param action The action you want to set.
+     */
+    public StringSelectMenu setAction(Consumer<StringSelectMenuInteractionEvent> action) {
+        StringSelectRegistry.getInstance().register(new StringSelectAction(this, action));
+        return this;
+    }
+
     @Override
     public JSONObject compile() {
         JSONArray options = new JSONArray();
@@ -198,4 +213,6 @@ public class StringSelectMenu implements SelectMenu {
     public void setRaw(JSONObject raw) {
         this.raw = raw;
     }
+
+    public record StringSelectAction(StringSelectMenu menu, Consumer<StringSelectMenuInteractionEvent> action) {}
 }

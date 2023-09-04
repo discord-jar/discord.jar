@@ -3,6 +3,7 @@ package com.seailz.discordjar.events.model.interaction.select.entity;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjar.events.DiscordListener;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.component.select.entity.ChannelSelectMenu;
@@ -11,6 +12,8 @@ import com.seailz.discordjar.model.interaction.data.message.MessageComponentInte
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
+import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -29,10 +32,14 @@ import java.util.List;
  * @see com.seailz.discordjar.model.component.select.entity.ChannelSelectMenu
  * @since 1.0
  */
-public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
+public class ChannelSelectMenuInteractionEvent extends InteractionEvent implements CustomIdable {
 
     public ChannelSelectMenuInteractionEvent(DiscordJar bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
+
+        ChannelSelectRegistry.getInstance().getRegistry().stream()
+                .filter(select -> select.menu().customId().equals(getCustomId()))
+                .forEach(select -> select.action().accept(this));
     }
 
     /**
@@ -73,6 +80,7 @@ public class ChannelSelectMenuInteractionEvent extends InteractionEvent {
      * @return {@link String} object containing the custom id.
      */
     @NotNull
+    @Override
     public String getCustomId() {
         return getInteractionData().customId();
     }

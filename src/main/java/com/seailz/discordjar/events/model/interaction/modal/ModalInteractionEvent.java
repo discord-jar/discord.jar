@@ -2,6 +2,7 @@ package com.seailz.discordjar.events.model.interaction.modal;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.DiscordListener;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.model.component.modal.ResolvedModalComponent;
 import com.seailz.discordjar.model.interaction.data.modal.ModalSubmitInteractionData;
@@ -24,7 +25,7 @@ import java.util.List;
  * @see Modal
  * @since 1.0
  */
-public class ModalInteractionEvent extends InteractionEvent {
+public class ModalInteractionEvent extends InteractionEvent implements CustomIdable {
     public ModalInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
     }
@@ -49,6 +50,7 @@ public class ModalInteractionEvent extends InteractionEvent {
      * @return {@link String} object containing the custom id.
      */
     @NotNull
+    @Override
     public String getCustomId() {
         return getInteractionData().customId();
     }

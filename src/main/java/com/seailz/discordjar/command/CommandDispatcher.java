@@ -5,6 +5,7 @@ import com.seailz.discordjar.command.listeners.CommandListener;
 import com.seailz.discordjar.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
+import com.seailz.discordjar.events.EventDispatcher;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjar.model.interaction.data.command.ResolvedCommandOption;
@@ -42,40 +43,44 @@ public class CommandDispatcher {
     }
 
     public void dispatch(String name, CommandInteractionEvent event) {
-        if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptionsInternal() != null && !((SlashCommandInteractionEvent) event).getOptionsInternal().isEmpty()) {
-            for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptionsInternal()) {
-                if (option.type() == CommandOptionType.SUB_COMMAND) {
-                    for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
-                        for (SlashSubCommandDetails details : detailsList) {
-                            if (details.sub.getName().equals(option.name())) {
-                                SlashCommandListener top = subListeners.keySet().stream().toList()
-                                        .get(subListeners.values().stream().toList().indexOf(detailsList));
-
-                                if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                    details.listener().onCommand(event);
-                                }
-                                return;
-                            /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                            }*/
-                            }
-                        }
-                    }
-                } else if (option.type() == CommandOptionType.SUB_COMMAND_GROUP) {
-                    List<ResolvedCommandOption> subOptions = new ArrayList<>();
-
-                    for (int i = 1; i < option.options().size(); i++) {
-                        subOptions.add(option.options().get(i));
-                    }
-
-                    for (ResolvedCommandOption subs : option.options()) {
+        new Thread(() -> {
+            Class<? extends CommandInteractionEvent> eventClass = (event instanceof SlashCommandInteractionEvent ? SlashCommandInteractionEvent.class : CommandInteractionEvent.class);
+            event.getBot().getEventDispatcher().dispatchEvent(event, eventClass, event.getBot());
+            if ((event instanceof SlashCommandInteractionEvent) && ((SlashCommandInteractionEvent) event).getOptionsInternal() != null && !((SlashCommandInteractionEvent) event).getOptionsInternal().isEmpty()) {
+                for (ResolvedCommandOption option : ((SlashCommandInteractionEvent) event).getOptionsInternal()) {
+                    if (option.type() == CommandOptionType.SUB_COMMAND) {
                         for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
                             for (SlashSubCommandDetails details : detailsList) {
-                                if (details.sub.getName().equals(subs.name())) {
+                                if (details.sub.getName().equals(option.name())) {
                                     SlashCommandListener top = subListeners.keySet().stream().toList()
                                             .get(subListeners.values().stream().toList().indexOf(detailsList));
 
                                     if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
-                                        details.listener().onCommand(event);
+                                        new Thread(() -> details.listener().onCommand(event), "djar--command-dispatch").start();
+                                    }
+                                    return;
+                            /*if (event.getName().startsWith(top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                            }*/
+                                }
+                            }
+                        }
+                    } else if (option.type() == CommandOptionType.SUB_COMMAND_GROUP) {
+                        List<ResolvedCommandOption> subOptions = new ArrayList<>();
+
+                        for (int i = 1; i < option.options().size(); i++) {
+                            subOptions.add(option.options().get(i));
+                        }
+
+                        for (ResolvedCommandOption subs : option.options()) {
+                            for (ArrayList<SlashSubCommandDetails> detailsList : subListeners.values()) {
+                                for (SlashSubCommandDetails details : detailsList) {
+                                    if (details.sub.getName().equals(subs.name())) {
+                                        SlashCommandListener top = subListeners.keySet().stream().toList()
+                                                .get(subListeners.values().stream().toList().indexOf(detailsList));
+
+                                        if (Objects.equals(name, top.getClass().getAnnotation(SlashCommandInfo.class).name())) {
+                                            new Thread(() -> details.listener().onCommand(event), "djar--command-dispatch").start();
+                                        }
                                     }
                                 }
                             }
@@ -83,8 +88,8 @@ public class CommandDispatcher {
                     }
                 }
             }
-        }
-        listeners.get(name).onCommand(event);
+            new Thread(() -> listeners.get(name).onCommand(event), "djar--command-dispatch").start();
+        }, "djar--Command Dispatcher (discord.jar)").start();
     }
 
     record SlashSubCommandDetails(

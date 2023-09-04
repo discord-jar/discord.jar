@@ -11,6 +11,7 @@ import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -18,10 +19,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -50,6 +48,8 @@ public class MessageCreateAction {
     private final DiscordJar discordJar;
     private boolean silent = false;
     private AllowedMentions allowedMentions;
+    private byte[] waveform;
+    private float duration = -1;
 
     public MessageCreateAction(@Nullable String text, @NotNull String channelId, @NotNull DiscordJar discordJar) {
         this.text = text;
@@ -125,6 +125,22 @@ public class MessageCreateAction {
 
     public MessageCreateAction setText(@Nullable String text) {
         this.text = text;
+        return this;
+    }
+
+    /**
+     * For voice messages
+     */
+    public MessageCreateAction setWaveform(byte[] waveform) {
+        this.waveform = waveform;
+        return this;
+    }
+
+    /**
+     * For voice messages
+     */
+    public MessageCreateAction setDuration(float dur) {
+        this.duration = dur;
         return this;
     }
 
@@ -246,9 +262,9 @@ public class MessageCreateAction {
         return silent;
     }
 
-    public CompletableFuture<Message> run() {
-        CompletableFuture<Message> future = new CompletableFuture<>();
-        future.completeAsync(() -> {
+    public Response<Message> run() {
+        Response<Message> future = new Response<>();
+        new Thread(() -> {
             String url = URLS.POST.MESSAGES.SEND.replace("{channel.id}", channelId);
 
             JSONObject payload = new JSONObject();
@@ -256,6 +272,15 @@ public class MessageCreateAction {
             if (this.nonce != null) payload.put("nonce", this.nonce);
             if (this.tts) payload.put("tts", true);
             if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
+            if (this.waveform != null) {
+                // Encode base64
+                String encoded = Base64.getEncoder().encodeToString(this.waveform);
+                payload.put("waveform", encoded);
+            }
+
+            if (this.duration != -1) {
+                payload.put("duration", this.duration);
+            }
 
             JSONArray components = new JSONArray();
             if (this.components != null && !this.components.isEmpty()) {
@@ -326,12 +351,13 @@ public class MessageCreateAction {
                 try {
                     response = request.invoke();
                 } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    future.completeExceptionally(e);
-                    return null;
+                    future.completeError(new Response.Error(e));
+                    return;
                 }
             }
-            return Message.decompile(response.body(), discordJar);
-        });
+
+            future.complete(Message.decompile(response.body(), discordJar));
+        }, "djar--msg-create-action").start();
         return future;
     }
 

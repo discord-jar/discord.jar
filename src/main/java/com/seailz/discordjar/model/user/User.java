@@ -8,6 +8,7 @@ import com.seailz.discordjar.utils.CDNAble;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.StringFormatter;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
@@ -52,6 +53,7 @@ import java.util.HashMap;
  * @param premiumType    the type of Nitro subscription on a user's account
  * @param publicFlags    the public flags on a user's account
  * @param publicFlagsRaw the raw public flags on a user's account
+ * @param avatarDecoration the user's avatar decoration hash
  * @param discordJar      the discordJar instance
  * @author Seailz
  * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object">User Object</a>
@@ -61,8 +63,8 @@ import java.util.HashMap;
 public record User(
         String id, String username, String discriminator, String avatarHash, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
-        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags,
-        int publicFlagsRaw,
+        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, String avatarDecoration,
+        int publicFlagsRaw, String displayName,
         DiscordJar discordJar
 ) implements Compilerable, Resolvable, Mentionable, CDNAble {
 
@@ -85,7 +87,9 @@ public record User(
                 .put("verified", verified)
                 .put("email", email)
                 .put("flags", flags)
-                .put("public_flags", publicFlags);
+                .put("public_flags", publicFlags)
+                .put("global_name", displayName)
+                .put("avatar_decoration", avatarDecoration);
 
         if (premiumType == null)
             obj.put("premium_type", JSONObject.NULL);
@@ -117,6 +121,8 @@ public record User(
         EnumSet<UserFlag> publicFlags;
         int publicFlagsRaw = 0;
         int flagsRaw = 0;
+        String displayName;
+        String avatarDecoration;
 
         try {
             id = obj.getString("id");
@@ -197,7 +203,18 @@ public record User(
         } catch (JSONException e) {
             publicFlags = null;
         }
-        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, publicFlagsRaw, discordJar);
+
+        if (obj.has("global_name") && !obj.isNull("global_name"))
+            displayName = obj.getString("global_name");
+        else
+            displayName = null;
+
+        if (obj.has("avatar_decoration") && !obj.isNull("avatar_decoration"))
+            avatarDecoration = obj.getString("avatar_decoration");
+        else
+            avatarDecoration = null;
+
+        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, avatarDecoration, publicFlagsRaw, displayName, discordJar);
     }
 
     /**
@@ -210,19 +227,57 @@ public record User(
      * @return {@link DMChannel} object
      */
     @Nullable
-    public DMChannel createDM() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public DMChannel createDM() {
         JSONObject obj = new JSONObject()
                 .put("recipient_id", id);
-        DiscordResponse resp = new DiscordRequest(
-                obj,
-                new HashMap<>(),
-                URLS.POST.USERS.CREATE_DM,
-                discordJar,
-                URLS.POST.USERS.CREATE_DM,
-                RequestMethod.POST
-        ).invoke();
+        DiscordResponse resp = null;
+        try {
+            resp = new DiscordRequest(
+                    obj,
+                    new HashMap<>(),
+                    URLS.POST.USERS.CREATE_DM,
+                    discordJar,
+                    URLS.POST.USERS.CREATE_DM,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         return resp != null && resp.body() != null ? DMChannel.decompile(resp.body(), discordJar) : null;
+    }
+
+    /**
+     * Returns the user's default avatar URL. This is the avatar shown when the user has no custom avatar set.
+     */
+    public String getDefaultAvatarUrl() {
+        return URLS.CDN.DEFAULT_USER_AVATAR.formatted((Long.parseLong(id) >> 22) % 6);
+    }
+
+    /**
+     * Returns the user's avatar URL. If they do not have a custom avatar set, this will return their default avatar URL.
+     */
+    public String getEffectiveAvatarUrl() {
+        return imageUrl() == null ? getDefaultAvatarUrl() : imageUrl();
+    }
+
+    /**
+     * Returns the effective name of the user. This is either their username, or their display name (if they have one set).
+     */
+    public String getEffectiveName() {
+        return displayName != null ? displayName : username;
+    }
+
+    /**
+     * This defines if a user is using the new Pomelo username system (@usernames instead of username#0000).
+     * <br>Please see the <a href="https://support.discord.com/hc/en-us/articles/12620128861463-New-Usernames-Display-Names">help center article</a> for more information.
+     */
+    public boolean isUsingPomelo() {
+        return discriminator.equals("0");
+    }
+
+    public String getAvatarDecorationUrl() {
+        return ImageUtils.getUrl(avatarHash, ImageUtils.ImageType.USER_AVATAR_DECORATION, id);
     }
 
 
@@ -234,5 +289,10 @@ public record User(
     @Override
     public StringFormatter formatter() {
         return new StringFormatter("avatars", id, avatarHash());
+    }
+
+    @Override
+    public String iconHash() {
+        return avatarHash;
     }
 }

@@ -3,6 +3,9 @@ package com.seailz.discordjar.model.interaction.reply;
 import com.seailz.discordjar.action.interaction.InteractionCallbackAction;
 import com.seailz.discordjar.core.Compilerable;
 
+import java.io.File;
+import java.util.List;
+
 /**
  * Represents a reply to an interaction.
  * This could include things such as a modal, or a message.
@@ -20,4 +23,8 @@ import com.seailz.discordjar.core.Compilerable;
  * @since 1.0
  */
 public interface InteractionReply extends Compilerable {
+
+    boolean useFiles();
+    List<File> getFiles();
+
 }

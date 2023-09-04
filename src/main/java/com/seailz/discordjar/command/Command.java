@@ -59,7 +59,7 @@ public record Command(
         int permissions = -1;
         if (defaultMemberPermissions.length >= 1) permissions = 0;
         for (Permission permission : defaultMemberPermissions) {
-            permissions |= permission.code();
+            permissions |= (1 << permission.code());
         }
 
         JSONObject obj = new JSONObject()

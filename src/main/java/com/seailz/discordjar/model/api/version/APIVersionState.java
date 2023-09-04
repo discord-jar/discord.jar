@@ -1,11 +1,13 @@
-package com.seailz.discordjar.utils.version;
+package com.seailz.discordjar.model.api.version;
+
+import com.seailz.discordjar.model.api.version.APIVersion;
 
 /**
  * Represents the state of an API version
  * discord.jar will use the latest version of the API unless specified otherwise
  *
  * @author Seailz
- * @see com.seailz.discordjar.utils.version.APIVersion
+ * @see APIVersion
  * @since 1.0
  */
 public enum APIVersionState {

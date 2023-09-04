@@ -2,6 +2,7 @@ package com.seailz.discordjar.model.application;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.scopes.InstallParams;
 import com.seailz.discordjar.model.team.Team;
 import com.seailz.discordjar.model.user.User;
@@ -66,6 +67,7 @@ public record Application(
         String verifyKey,
         Team team,
         String guildId,
+        Guild guild,
         String primary_sku_id,
         String slug,
         String coverImage,
@@ -75,6 +77,7 @@ public record Application(
         String customInstallUrl,
         InstallParams installParams,
         String roleConnectionsVerificationUrl,
+        int approximateGuildCount,
         DiscordJar discordJar
 ) implements Compilerable, Snowflake {
 
@@ -101,10 +104,13 @@ public record Application(
                 .put("flags", flagsRaw)
                 .put("tags", tags)
                 .put("custom_install_url", customInstallUrl)
-                .put("role_connections_verification_url", roleConnectionsVerificationUrl);
+                .put("role_connections_verification_url", roleConnectionsVerificationUrl)
+                .put("approximate_guild_count", approximateGuildCount)
+                .put("guild", guild.compile());
     }
 
     public static Application decompile(JSONObject obj, DiscordJar discordJar) {
+        if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, null, 0, null,  null, null, null, 0, discordJar);
         String id;
         String name;
         String iconUrl;
@@ -119,6 +125,7 @@ public record Application(
         String verifyKey;
         Team team;
         String guildId;
+        Guild guild;
         String primary_sku_id;
         String slug;
         String coverImage;
@@ -128,6 +135,7 @@ public record Application(
         String customInstallUrl;
         InstallParams installParams;
         String roleConnectionsVerificationUrl;
+        int approximateGuildCount;
 
         try {
             id = obj.getString("id");
@@ -262,6 +270,18 @@ public record Application(
             roleConnectionsVerificationUrl = null;
         }
 
+        try {
+            approximateGuildCount = obj.getInt("approximate_guild_count");
+        } catch (JSONException e) {
+            approximateGuildCount = 0;
+        }
+
+        try {
+            guild = Guild.decompile(obj.getJSONObject("guild"), discordJar);
+        } catch (JSONException e) {
+            guild = null;
+        }
+
         return new Application(
                 id,
                 name,
@@ -277,6 +297,7 @@ public record Application(
                 verifyKey,
                 team,
                 guildId,
+                guild,
                 primary_sku_id,
                 slug,
                 coverImage,
@@ -286,6 +307,7 @@ public record Application(
                 customInstallUrl,
                 installParams,
                 roleConnectionsVerificationUrl,
+                approximateGuildCount,
                 discordJar
         );
     }
@@ -295,19 +317,23 @@ public record Application(
      * @return {@link List} of {@link ApplicationRoleConnectionMetadata}
      */
     @Nullable
-    public List<ApplicationRoleConnectionMetadata> getRoleConnections() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS
-                        .replace("{application.id}", id),
-                discordJar,
-                URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS,
-                RequestMethod.GET
-        ).invoke();
+    public List<ApplicationRoleConnectionMetadata> getRoleConnections() {
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS
+                            .replace("{application.id}", id),
+                    discordJar,
+                    URLS.GET.APPLICATIONS.GET_APPLICATION_ROLE_CONNECTIONS,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         if (response.code() == 200) {
-            System.out.println(response.body());
             return new JSONArray(response.body()).toList().stream()
                     .map(o -> ApplicationRoleConnectionMetadata.decompile((JSONObject) o))
                     .toList();
@@ -325,25 +351,28 @@ public record Application(
      * @throws com.seailz.discordjar.utils.Checker.NullArgumentException if the list is null.
      * @throws IllegalArgumentException if the list has more than 5 elements.
      */
-    public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) {
         Checker.notNull(roleConnections, "Role connections must not be null");
         Checker.sizeLessThan(roleConnections, 5, "You can only have up to 5 role connections.");
         JSONArray roleConnectionsArray = new JSONArray();
         roleConnections.stream().map(ApplicationRoleConnectionMetadata::compile).forEach(roleConnectionsArray::put);
 
-        System.out.println("{\"data\":" + roleConnectionsArray.toString() + "}");
-        new DiscordRequest(
-                roleConnectionsArray,
-                new HashMap<>(),
-                URLS.PUT.APPLICATIONS.MODIFY_APPLICATION_ROLE_CONNECTIONS
-                        .replace("{application.id}", id),
-                discordJar,
-                URLS.PUT.APPLICATIONS.MODIFY_APPLICATION_ROLE_CONNECTIONS,
-                RequestMethod.PUT
-        ).invoke();
+        try {
+            new DiscordRequest(
+                    roleConnectionsArray,
+                    new HashMap<>(),
+                    URLS.PUT.APPLICATIONS.MODIFY_APPLICATION_ROLE_CONNECTIONS
+                            .replace("{application.id}", id),
+                    discordJar,
+                    URLS.PUT.APPLICATIONS.MODIFY_APPLICATION_ROLE_CONNECTIONS,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
-    public void setRoleConnections(ApplicationRoleConnectionMetadata... roleConnections) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void setRoleConnections(ApplicationRoleConnectionMetadata... roleConnections) {
         setRoleConnections(Arrays.asList(roleConnections));
     }
 

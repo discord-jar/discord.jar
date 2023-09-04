@@ -3,6 +3,7 @@ package com.seailz.discordjar.events.model.interaction.select.entity;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.ModalInteractionCallbackAction;
 import com.seailz.discordjar.events.DiscordListener;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
 import com.seailz.discordjar.model.component.select.entity.RoleSelectMenu;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
@@ -28,7 +29,7 @@ import java.util.List;
  * @see com.seailz.discordjar.model.component.select.entity.RoleSelectMenu
  * @since 1.0
  */
-public class RoleSelectMenuInteractionEvent extends InteractionEvent {
+public class RoleSelectMenuInteractionEvent extends InteractionEvent implements CustomIdable {
 
     public RoleSelectMenuInteractionEvent(DiscordJar bot, long sequence, JSONObject data) {
         super(bot, sequence, data);
@@ -70,6 +71,7 @@ public class RoleSelectMenuInteractionEvent extends InteractionEvent {
      * @return {@link String} object containing the custom id.
      */
     @NotNull
+    @Override
     public String getCustomId() {
         return getInteractionData().customId();
     }

@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.interaction.reply.InteractionMessageResponse;
 import com.seailz.discordjar.model.mentions.AllowedMentions;
 import com.seailz.discordjar.model.message.Attachment;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -151,6 +152,11 @@ public class MessageInteractionCallbackAction extends InteractionCallbackAction 
 
     public MessageInteractionCallbackAction setAllowedMentions(AllowedMentions allowedMentions) {
         ((InteractionMessageResponse) this.getReply()).setAllowedMentions(allowedMentions);
+        return this;
+    }
+
+    public MessageInteractionCallbackAction addFile(File file) {
+        ((InteractionMessageResponse) this.getReply()).addFile(file);
         return this;
     }
 

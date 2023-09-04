@@ -11,6 +11,7 @@ import com.seailz.discordjar.model.component.Component;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embed;
 import com.seailz.discordjar.model.emoji.Reaction;
+import com.seailz.discordjar.model.emoji.sticker.StickerFormat;
 import com.seailz.discordjar.model.interaction.Interaction;
 import com.seailz.discordjar.model.message.activity.MessageActivity;
 import com.seailz.discordjar.model.resolve.Resolvable;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -87,6 +89,10 @@ public record Message(
         Thread thread,
         // sent if the message contains components like buttons, action rows, or other interactive components
         List<DisplayComponent> components,
+        List<StickerItem> stickerItems,
+        int position,
+        // data of the role subscription purchase or renewal that prompted this ROLE_SUBSCRIPTION_PURCHASE message
+        RoleSubscriptionData roleSubscriptionData,
         DiscordJar discordJar
 ) implements Compilerable, Resolvable, Snowflake {
 
@@ -119,6 +125,9 @@ public record Message(
         Interaction interaction;
         Thread thread;
         List<DisplayComponent> components = new ArrayList<>();
+        List<StickerItem> stickerItems = new ArrayList<>();
+        int position = 0;
+        RoleSubscriptionData roleSubscriptionData = null;
 
         try {
             id = obj.getString("id");
@@ -305,18 +314,26 @@ public record Message(
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
 
         try {
             thread = Thread.decompile(obj.getJSONObject("thread"), discordJar);
         } catch (JSONException e) {
             thread = null;
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
         }
 
-        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, discordJar);
+        if (obj.has("sticker_items") && !obj.isNull("sticker_items")) {
+            JSONArray stickerItemsArray = obj.getJSONArray("sticker_items");
+            stickerItemsArray.forEach(stickerItem -> {
+                stickerItems.add(StickerItem.decompile((JSONObject) stickerItem));
+            });
+        }
+
+        if (obj.has("position")) position = obj.getInt("position");
+        if (obj.has("role_subscription_data")) roleSubscriptionData = RoleSubscriptionData.decompile(obj.getJSONObject("role_subscription_data"));
+
+        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, stickerItems, position, roleSubscriptionData, discordJar);
     }
 
     @Override
@@ -405,10 +422,14 @@ public record Message(
                 .put("components", componentsArray);
     }
 
-    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
-                .replace("{channel.id}", channelId).replace("{message.id}", id),
-                discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
+    public void delete() {
+        try {
+            new DiscordRequest(new JSONObject(), new HashMap<>(), URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE
+                    .replace("{channel.id}", channelId).replace("{message.id}", id),
+                    discordJar, URLS.DELETE.CHANNEL.MESSAGE.DELETE_MESSAGE, RequestMethod.DELETE).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -416,7 +437,7 @@ public record Message(
      * @return The MessageEditAction object.
      */
     public MessageEditAction edit() {
-        return new MessageEditAction(channelId, discordJar, id);
+        return new MessageEditAction(channelId, discordJar, id, Arrays.stream(flags).toList().contains(MessageFlag.IS_VOICE_MESSAGE));
     }
 
     /**
@@ -437,33 +458,89 @@ public record Message(
         return formatted;
     }
 
+    public record StickerItem(
+            String id,
+            String name,
+            StickerFormat format
+    ) implements Compilerable {
+
+        @Override
+        public JSONObject compile() {
+            return new JSONObject()
+                    .put("id", id)
+                    .put("name", name)
+                    .put("format_type", format.getCode());
+        }
+
+        public static StickerItem decompile(JSONObject obj) {
+            return new StickerItem(
+                    obj.getString("id"),
+                    obj.getString("name"),
+                    StickerFormat.getStickerFormatByCode(obj.getInt("format_type"))
+            );
+        }
+    }
+
+    public record RoleSubscriptionData(
+            String roleSubscriptionListingId,
+            String tierName,
+            int totalMonthsSubscribed,
+            boolean isRenewal
+    ) implements Compilerable {
+
+            @Override
+            public JSONObject compile() {
+                return new JSONObject()
+                        .put("role_subscription_listing_id", roleSubscriptionListingId)
+                        .put("tier_name", tierName)
+                        .put("total_months_subscribed", totalMonthsSubscribed)
+                        .put("is_renewal", isRenewal);
+            }
+
+            public static RoleSubscriptionData decompile(JSONObject obj) {
+                return new RoleSubscriptionData(
+                        obj.getString("role_subscription_listing_id"),
+                        obj.getString("tier_name"),
+                        obj.getInt("total_months_subscribed"),
+                        obj.getBoolean("is_renewal")
+                );
+            }
+    }
     /**
      * Pins the message within the channel.
      * Note that the maximum pinned messages per channel is 50.
      */
-    public void pin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
-                discordJar,
-                URLS.PUT.CHANNELS.PINS.PIN_MESSAGE,
-                RequestMethod.PUT
-        ).invoke();
+    public void pin() {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.PUT.CHANNELS.PINS.PIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                    discordJar,
+                    URLS.PUT.CHANNELS.PINS.PIN_MESSAGE,
+                    RequestMethod.PUT
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Unpins the message within the channel.
      */
-    public void unpin() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
-                discordJar,
-                URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
-                RequestMethod.DELETE
-        ).invoke();
+    public void unpin() {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE.replace("{channel.id}", channelId).replace("{message.id}", id),
+                    discordJar,
+                    URLS.DELETE.CHANNEL.PINS.UNPIN_MESSAGE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -471,7 +548,7 @@ public record Message(
      * @param name The name of the thread.
      * @param archiveAfter The duration which after no activity the thread will be archived.
      */
-    public CompletableFuture<Thread> startThreadFromMessage(String name, Thread.AutoArchiveDuration archiveAfter, int rateLimitPerUser) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public CompletableFuture<Thread> startThreadFromMessage(String name, Thread.AutoArchiveDuration archiveAfter, int rateLimitPerUser) {
         CompletableFuture<Thread> future = new CompletableFuture<>();
         future.completeAsync(() -> {
             JSONObject body = new JSONObject();
@@ -490,14 +567,10 @@ public record Message(
                         RequestMethod.POST
                 ).invoke();
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
+                throw new DiscordRequest.DiscordAPIErrorException(e);
             }
 
-            try {
-                return Thread.decompile(res.body(), discordJar);
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            return Thread.decompile(res.body(), discordJar);
         });
         return future;
     }

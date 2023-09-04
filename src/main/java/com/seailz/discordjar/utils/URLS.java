@@ -1,24 +1,27 @@
 package com.seailz.discordjar.utils;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.utils.version.APIVersion;
+import com.seailz.discordjar.model.api.APIRelease;
+import com.seailz.discordjar.model.api.version.APIVersion;
 
 /**
  * A list of all endpoints used by discord.jar
  *
  * @author Seailz
- * @see com.seailz.discordjar.utils.version.APIVersion
+ * @see APIVersion
  * @since 1.0
  */
 public final class URLS {
 
     public static APIVersion version = APIVersion.getLatest();
+    public static APIRelease release = APIRelease.STABLE;
 
-    public URLS(APIVersion version) {
+    public URLS(APIRelease release, APIVersion version) {
         URLS.version = version;
+        URLS.release = release;
     }
 
-    public static final String BASE_URL = "https://discord.com/api/v" + version.getCode();
+    public static final String BASE_URL = "https://" + release.getBaseUrlPrefix() + "discord.com/api/v" + version.getCode();
 
     public static class POST {
         public static class INTERACTIONS {
@@ -51,6 +54,12 @@ public final class URLS {
         }
 
         public static class GUILDS {
+            /**
+             * Returns the number of members that would be pruned from the guild under specific circumstances.
+             * @param id The id of the guild
+             */
+            public static final String PRUNE = "/guilds/{guild.id}/prune";
+            public static final String UPDATE_MFA = "/guilds/{guild.id}/mfa";
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule
@@ -66,6 +75,10 @@ public final class URLS {
                  */
                 public static final String CREATE = "/guilds/{guild.id}/channels";
             }
+
+            public static class SCHEDULED_EVENTS {
+                public static final String CREATE_GUILD_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events";
+            }
         }
 
         public static class CHANNELS {
@@ -73,6 +86,7 @@ public final class URLS {
             public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
 
             public static class MESSAGES {
+                public static String BULK_DELETE = "/channels/{channel.id}/messages/bulk-delete";
                 public static class THREADS {
                     public static String START_THREAD_FROM_MESSAGE = "/channels/{channel.id}/messages/{message.id}/threads";
                 }
@@ -110,6 +124,7 @@ public final class URLS {
              * Returns the gateway URL
              */
             public static String GET_GATEWAY_URL = "/gateway";
+            public static String GET_GATEWAY_BOT = "/gateway/bot";
         }
 
         public static class APPLICATION {
@@ -117,7 +132,7 @@ public final class URLS {
              * Requests info about the current application from the API
              * Returns the bot's application object
              */
-            public static String APPLICATION_INFORMATION = "/oauth2/applications/@me";
+            public static String APPLICATION_INFORMATION = "/applications/@me";
 
             public static class COMMANDS {
                 public static String GET_GLOBAL_APPLICATION_COMMANDS = "/applications/{application.id}/commands";
@@ -171,7 +186,14 @@ public final class URLS {
         }
 
         public static class GUILDS {
-
+            /**
+             * Gets active threads in a guild.
+             */
+            public static final String GET_ACTIVE_THREADS = "/guilds/{guild.id}/threads/active";
+            /**
+             * Searches a guild's members with a specified filter.
+             */
+            public static final String SEARCH_MEMBERS = "/guilds/{guild.id}/members/search?query={filter}&limit={limit}";
             /**
              * Retrieves the guild onboarding flow for the guild.
              * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
@@ -185,11 +207,27 @@ public final class URLS {
             public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
 
             /**
+             * Returns bans in a guild
+             * @param id The id of the guild
+             */
+            public static final String BANS = "/guilds/{guild.id}/bans";
+            /**
+             * Returns a ban on a user in a guild
+             * @param guild.id The id of the guild
+             * @param user.id The id of the banned user
+             */
+            public static final String USER_BAN = "/guilds/{guild.id}/bans/{user.id}";
+            /**
+             * Returns the number of members that would be pruned from the guild under specific circumstances.
+             * @param id The id of the guild
+             */
+            public static final String PRUNE = "/guilds/{guild.id}/prune";
+            /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *
              * @param id The id of the guild
              */
-            public static String GET_GUILD = "/guilds/{guild.id}";
+            public static String GET_GUILD = "/guilds/{guild.id}?with_counts=true";
 
             /**
              * Read {@link DiscordJar#getGuilds()} for more information
@@ -217,6 +255,11 @@ public final class URLS {
                  * @param emoji.id The id of the emoji
                  */
                 public static String GET_GUILD_EMOJI = "/guilds/{guild.id}/emojis/{emoji.id}";
+            }
+
+            public static class SCHEDULED_EVENTS {
+                public static String GET_SCHEDULED_EVENTS = "/guilds/{guild.id}/scheduled-events";
+                public static String GET_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
             }
 
             public static class STICKERS {
@@ -309,13 +352,34 @@ public final class URLS {
 
         public static class GUILD {
             /**
+             * Deletes a guild.
+             * @param id The id of the guild
+             */
+            public static final String DELETE_GUILD = "/guilds/{guild.id}";
+            /**
+             * Deletes a role from a guild.
+             * @param guild.id The id of the guild
+             * @param role.id The id of the role
+             */
+            public static final String ROLES = "/guilds/{guild.id}/roles/{role.id}";
+            /**
              * Leaves a guild
              *
              * @param id The id of the guild
              */
             public static String LEAVE_GUILD = "/users/@me/guilds/{guild.id}";
 
+            public static class SCHEDULED_EVENTS {
+                public static String DELETE_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
+            }
+
             public static class MEMBER {
+                /**
+                 * Kicks a member from a Guild.
+                 * @param guild.id The id of the guild.
+                 * @param user.id The id of the user.
+                 */
+                public static final String KICK_MEMBER = "/guilds/{guild.id}/members/{user.id}";
                 /**
                  * Removes a role from a member.
                  */
@@ -381,6 +445,9 @@ public final class URLS {
 
     public static class PATCH {
         public static class GUILD {
+            public static class SCHEDULED_EVENTS {
+                public static String MODIFY_GUILD_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
+            }
             public static class MEMBER {
                 /**
                  * Modifies a guild member
@@ -440,6 +507,15 @@ public final class URLS {
         }
 
         public static class GUILD {
+            /**
+             * Bans a user from a guild.
+             * @param guild.id The id of the guild
+             * @param user.id The id of the user to ban
+             */
+            public static final String BAN_USER = "/guilds/{guild.id}/bans/{user.id}";
+
+            public static final String MODIFY_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
+
             public static class MEMBERS {
                 public static class ROLES {
                     /**
@@ -487,7 +563,12 @@ public final class URLS {
     }
 
     public static class GATEWAY {
-        public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
+        public static String BASE_URL = "wss://gateway.discord.gg/";
+    }
+
+    public static class CDN {
+        public static String BASE_URL = "https://cdn.discordapp.com";
+        public static String DEFAULT_USER_AVATAR = BASE_URL + "/embed/avatars/%s.png";
     }
 
 }

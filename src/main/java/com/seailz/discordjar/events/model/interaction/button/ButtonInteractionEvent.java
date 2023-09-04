@@ -2,23 +2,31 @@ package com.seailz.discordjar.events.model.interaction.button;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.ModalInteractionCallbackAction;
+import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.events.model.interaction.InteractionEvent;
+import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.data.message.MessageComponentInteractionData;
 import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.registry.ButtonRegistry;
+import com.seailz.discordjar.utils.registry.components.ButtonRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-public class ButtonInteractionEvent extends InteractionEvent {
+public class ButtonInteractionEvent extends InteractionEvent implements CustomIdable {
     public ButtonInteractionEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
-        // First checks the button registry for any actions that match the custom id.
-        ButtonRegistry.getInstance().getRegistry().stream()
-                .filter(buttonAction -> buttonAction.button().customId().equals(getCustomId()))
-                .forEach(buttonAction -> buttonAction.action().accept(this));
+        // First checks the button registry for any actions that match the custom id. We'll do this in a separate thread in order to not block the gateway thread.
+        new Thread(() -> {
+            for (Button.ButtonAction buttonAction : ButtonRegistry.getInstance().getRegistry()) {
+                new Thread(() -> {
+                    if (buttonAction.button().customId().equals(getCustomId())) {
+                        buttonAction.action().accept(this);
+                    }
+                }, "djar--button-dispatching-nested").start();
+            }
+        }, "djar--button-dispatching").start();
     }
 
     /**
@@ -41,6 +49,7 @@ public class ButtonInteractionEvent extends InteractionEvent {
      * @return {@link String} object containing the custom id.
      */
     @NotNull
+    @Override
     public String getCustomId() {
         return getInteractionData().customId();
     }

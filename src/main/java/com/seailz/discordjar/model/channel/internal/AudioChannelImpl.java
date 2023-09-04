@@ -121,4 +121,9 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
     public Category owner() {
         return category;
     }
+
+    @Override
+    public String parentId() {
+        return category.id();
+    }
 }

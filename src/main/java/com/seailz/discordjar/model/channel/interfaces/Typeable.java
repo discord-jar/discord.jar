@@ -16,7 +16,7 @@ public interface Typeable extends Channel {
     /**
      * Triggers a typing indicator for the channel.
      */
-    default void typing() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void typing() {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -25,7 +25,11 @@ public interface Typeable extends Channel {
                 URLS.POST.CHANNELS.TRIGGER_TYPING_INDICATOR,
                 RequestMethod.POST
         );
-        req.invoke();
+        try {
+            req.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
 }

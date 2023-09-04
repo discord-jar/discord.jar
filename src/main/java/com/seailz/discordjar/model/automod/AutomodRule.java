@@ -70,7 +70,7 @@ public record AutomodRule(
         obj.put("enabled", enabled);
 
         JSONArray exemptRolesArray = new JSONArray();
-        Checker.check(exemptChannels.size() < 20, "Exempt roles cannot be more than 20");
+        Checker.check(exemptChannels.size() > 20, "Exempt roles cannot be more than 20");
         for (Role role : exemptRoles) {
             exemptRolesArray.put(role.id());
         }
@@ -78,7 +78,7 @@ public record AutomodRule(
         obj.put("exempt_roles", exemptRolesArray);
 
         JSONArray exemptChannelsArray = new JSONArray();
-        Checker.check(exemptChannels.size() < 50, "Exempt channels cannot be more than 50");
+        Checker.check(exemptChannels.size() > 50, "Exempt channels cannot be more than 50");
         for (Channel channel : exemptChannels) {
             exemptChannelsArray.put(channel.id());
         }
@@ -89,7 +89,7 @@ public record AutomodRule(
 
     @NotNull
     @Contract("_, _ -> new")
-    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static AutomodRule decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id;
         Guild guild;
         String name;
@@ -139,7 +139,7 @@ public record AutomodRule(
     }
 
     @NotNull
-    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public static List<AutomodRule> decompileList(@NotNull JSONArray array, @NotNull DiscordJar discordJar) {
         List<AutomodRule> rules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             rules.add(decompile(array.getJSONObject(i), discordJar));
@@ -219,7 +219,8 @@ public record AutomodRule(
             List<String> regexes,
             List<KeywordPresetType> presets,
             List<String> allowList,
-            int mentionTotalLimit
+            int mentionTotalLimit,
+            boolean mentionRaidProtectionEnabled
     ) implements Compilerable {
         @NotNull
         @Override
@@ -227,19 +228,21 @@ public record AutomodRule(
             JSONObject obj = new JSONObject();
 
             if (keywords != null) {
-                Checker.check(keywords.size() < 1000, "keywords list must be less than 1000");
+                Checker.check(keywords.size() > 1000, "keywords list must be less than 1000");
                 JSONArray array = new JSONArray();
                 for (String keyword : keywords) {
                     array.put(keyword);
                 }
+                obj.put("keyword_filter", array);
             }
 
             if (regexes != null) {
-                Checker.check(regexes.size() < 10, "regexes list must be less than 10");
+                Checker.check(regexes.size() > 10, "regexes list must be less than 10");
                 JSONArray array = new JSONArray();
                 for (String regex : regexes) {
                     array.put(regex);
                 }
+                obj.put("regex_patterns", array);
             }
 
             if (presets != null) {
@@ -247,6 +250,7 @@ public record AutomodRule(
                 for (KeywordPresetType preset : presets) {
                     array.put(preset.getCode());
                 }
+                obj.put("presets", array);
             }
 
             if (allowList != null) {
@@ -254,11 +258,16 @@ public record AutomodRule(
                 for (String allow : allowList) {
                     array.put(allow);
                 }
+                obj.put("allow_list", array);
             }
 
             if (mentionTotalLimit != 0) {
-                Checker.check(mentionTotalLimit < 50, "mentionTotalLimit must be less than 50");
+                Checker.check(mentionTotalLimit > 50, "mentionTotalLimit must be less than 50");
                 obj.put("mention_total_limit", mentionTotalLimit);
+            }
+
+            if (mentionRaidProtectionEnabled) {
+                obj.put("mention_raid_protection_enabled", true);
             }
             return obj;
         }
@@ -271,6 +280,7 @@ public record AutomodRule(
             List<KeywordPresetType> presets = new ArrayList<>();
             List<String> allowList = new ArrayList<>();
             int mentionTotalLimit = -1;
+            boolean mentionRaidProtectionEnabled = false;
 
             if (obj.has("keywords")) {
                 JSONArray array = obj.getJSONArray("keywords");
@@ -296,7 +306,11 @@ public record AutomodRule(
                 mentionTotalLimit = obj.getInt("mention_total_limit");
             }
 
-            return new TriggerMetadata(keywords, regexes, presets, allowList, mentionTotalLimit);
+            if (obj.has("mention_raid_protection_enabled")) {
+                mentionRaidProtectionEnabled = obj.getBoolean("mention_raid_protection_enabled");
+            }
+
+            return new TriggerMetadata(keywords, regexes, presets, allowList, mentionTotalLimit, mentionRaidProtectionEnabled);
         }
 
         public enum KeywordPresetType {
@@ -434,6 +448,24 @@ public record AutomodRule(
             public static TimeoutActionMetadata decompile(@NotNull JSONObject obj) {
                 int duration = obj.getInt("duration_seconds");
                 return new TimeoutActionMetadata(duration);
+            }
+        }
+
+        public record BlockMessageActionMetadata(
+                String customMessage
+        ) implements ActionMetadata {
+            @Override
+            public @NotNull JSONObject compile() {
+                JSONObject obj = new JSONObject();
+                obj.put("custom_message", customMessage);
+                return obj;
+            }
+
+            @NotNull
+            @Contract("_ -> new")
+            public static BlockMessageActionMetadata decompile(@NotNull JSONObject obj) {
+                String customMessage = obj.getString("custom_message");
+                return new BlockMessageActionMetadata(customMessage);
             }
         }
     }

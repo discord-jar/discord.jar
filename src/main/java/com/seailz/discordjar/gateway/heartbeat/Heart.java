@@ -3,16 +3,17 @@ package com.seailz.discordjar.gateway.heartbeat;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Logger;
 
-public class HeartbeatManager {
+public class Heart {
 
     private int interval;
     private GatewayFactory factory;
     private boolean active = true;
 
-    public HeartbeatManager(int interval, GatewayFactory factory) {
+    public Heart(int interval, GatewayFactory factory) {
         this.interval = interval;
         this.factory = factory;
         begin();
@@ -39,19 +40,18 @@ public class HeartbeatManager {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                if (!factory.getSession().isOpen()) {
+                if (!factory.getSocket().isOpen()) {
                     deactivate();
                     break;
                 }
                 if (active) send();
             }
-        }).start();
+        }, "djar--heart-cycle").start();
     }
 
    private void sendFirst() {
        double jitter = new Random().nextDouble(1);
        double interval = this.interval * jitter;
-
          new Thread(() -> {
               try {
                 Thread.sleep((long) interval);
@@ -59,7 +59,7 @@ public class HeartbeatManager {
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
-         }).start();
+         }, "djar--first-heart").start();
    }
 
    public void forceHeartbeat() {
@@ -67,11 +67,13 @@ public class HeartbeatManager {
    }
 
     private void send() {
-        factory.sendPayload(
+        factory.queueMessage(
                 new JSONObject()
                     .put("op", 1)
                     .put("d", GatewayFactory.sequence)
         );
+
+        GatewayFactory.lastHeartbeatSent = new Date();
     }
 
     public void deactivate() {

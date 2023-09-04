@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.MessageFlag;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,8 @@ public class InteractionMessageResponse implements InteractionReply {
     private boolean silent;
     private List<DisplayComponent> components;
     private List<Attachment> attachments;
+    private List<File> fileUploads;
+
 
     public InteractionMessageResponse(String content) {
         this.content = content;
@@ -115,6 +118,28 @@ public class InteractionMessageResponse implements InteractionReply {
         this.components.remove(component);
     }
 
+    public InteractionMessageResponse addFile(File file) {
+        if (this.fileUploads == null)
+            this.fileUploads = new ArrayList<>();
+        this.fileUploads.add(file);
+        return this;
+    }
+
+    public InteractionMessageResponse addFiles(File... files) {
+        if (this.fileUploads == null)
+            this.fileUploads = new ArrayList<>();
+        this.fileUploads.addAll(List.of(files));
+        return this;
+    }
+
+    public InteractionMessageResponse addFiles(List<File> files) {
+        if (this.fileUploads == null)
+            this.fileUploads = new ArrayList<>();
+        this.fileUploads.addAll(files);
+        return this;
+    }
+
+
     public void setTts(boolean tts) {
         this.tts = tts;
     }
@@ -185,5 +210,15 @@ public class InteractionMessageResponse implements InteractionReply {
             obj.put("allowed_mentions", this.allowedMentions.compile());
 
         return obj;
+    }
+
+    @Override
+    public boolean useFiles() {
+        return this.fileUploads != null && !this.fileUploads.isEmpty();
+    }
+
+    @Override
+    public List<File> getFiles() {
+        return this.fileUploads;
     }
 }

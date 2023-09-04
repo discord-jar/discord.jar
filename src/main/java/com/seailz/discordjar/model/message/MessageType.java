@@ -33,6 +33,7 @@ public enum MessageType {
     STAGE_RAISE_HAND(30, true),
     STAGE_TOPIC_CHANGE(31, true),
     GUILD_APPLICATION_PREMIUM_SUBSCRIPTION(32, false),
+    ROLE_SUBSCRIPTION_PURCHASE(25,true)
 
     ;
 

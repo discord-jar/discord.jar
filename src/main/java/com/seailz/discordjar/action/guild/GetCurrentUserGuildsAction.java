@@ -26,6 +26,7 @@ public class GetCurrentUserGuildsAction {
     private String before;
     private String after;
     private int limit;
+    private boolean withCounts;
     private final DiscordJar discordJar;
 
     public GetCurrentUserGuildsAction(DiscordJar discordJar) {
@@ -54,6 +55,10 @@ public class GetCurrentUserGuildsAction {
         return this;
     }
 
+    public void setWithCounts(boolean withCounts) {
+        this.withCounts = withCounts;
+    }
+
     public String before() {
         return before;
     }
@@ -78,7 +83,7 @@ public class GetCurrentUserGuildsAction {
      *
      * @return {@link List A list of}  <b>partial</b> {@link Guild guilds}
      */
-    public List<Guild> run() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public List<Guild> run() {
         String url = URLS.GET.GUILDS.GET_CURRENT_USER_GUILDS;
         if (before != null || after != null || limit != 0) {
             url += "?";
@@ -88,16 +93,23 @@ public class GetCurrentUserGuildsAction {
                 url += "after=" + after + "&";
             if (limit != 0)
                 url += "limit=" + limit + "&";
+            if (withCounts)
+                url += "with_counts=true&";
         }
 
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                url,
-                discordJar,
-                URLS.GET.GUILDS.GET_CURRENT_USER_GUILDS,
-                RequestMethod.GET
-        ).invoke();
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    url,
+                    discordJar,
+                    URLS.GET.GUILDS.GET_CURRENT_USER_GUILDS,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         List<Guild> returnGuilds = new ArrayList<>();
         response.arr().forEach(guild -> returnGuilds.add(Guild.decompile((JSONObject) guild, discordJar)));

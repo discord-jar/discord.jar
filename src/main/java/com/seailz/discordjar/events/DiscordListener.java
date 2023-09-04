@@ -1,18 +1,30 @@
 package com.seailz.discordjar.events;
 
+import com.seailz.discordjar.command.listeners.CommandListener;
+import com.seailz.discordjar.events.model.automod.AutoModExecutionEvent;
+import com.seailz.discordjar.events.model.automod.rule.AutoModRuleCreateEvent;
+import com.seailz.discordjar.events.model.automod.rule.AutoModRuleUpdateEvent;
+import com.seailz.discordjar.events.model.channel.ChannelPinsUpdateEvent;
+import com.seailz.discordjar.events.model.channel.edit.ChannelCreateEvent;
+import com.seailz.discordjar.events.model.channel.edit.ChannelUpdateEvent;
 import com.seailz.discordjar.events.model.command.CommandPermissionUpdateEvent;
+import com.seailz.discordjar.events.model.gateway.GatewayResumedEvent;
 import com.seailz.discordjar.events.model.general.ReadyEvent;
 import com.seailz.discordjar.events.model.guild.GuildCreateEvent;
+import com.seailz.discordjar.events.model.guild.GuildDeleteEvent;
+import com.seailz.discordjar.events.model.guild.GuildUpdateEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberAddEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberRemoveEvent;
 import com.seailz.discordjar.events.model.guild.member.GuildMemberUpdateEvent;
 import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
+import com.seailz.discordjar.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.modal.ModalInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.events.model.message.TypingStartEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,12 +43,24 @@ public abstract class DiscordListener {
     public void onReady(@NotNull ReadyEvent event) {
     }
 
+    public void onGatewayResume(@NotNull GatewayResumedEvent event) {
+    }
+
     // Message Events
     public void onMessageReceived(@NotNull MessageCreateEvent event) {
     }
 
+    public void onTypingStart(@NotNull TypingStartEvent event) {
+    }
+
     // Guild Events
-    public void onGuildCreated(@NotNull GuildCreateEvent event) {
+    public void onGuildCreate(@NotNull GuildCreateEvent event) {
+    }
+
+    public void onGuildUpdate(@NotNull GuildUpdateEvent event) {
+    }
+
+    public void onGuildDelete(@NotNull GuildDeleteEvent event) {
     }
 
     // Guild Member Events
@@ -49,8 +73,30 @@ public abstract class DiscordListener {
     public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
     }
 
+    // Channel Events
+    public void onChannelCreate(@NotNull ChannelCreateEvent event) {
+    }
+
+    public void onChannelUpdate(@NotNull ChannelUpdateEvent event) {
+    }
+
+     public void onChannelDelete(@NotNull ChannelCreateEvent event) {
+     }
+
+     public void onChannelPinsUpdate(@NotNull ChannelPinsUpdateEvent event) {
+     }
+
     // Command Events
     public void onCommandPermissionUpdate(@NotNull CommandPermissionUpdateEvent event) {
+    }
+
+    /**
+     * <b>It is not recommend to use this method.</b> Instead, where possible, you should use {@link com.seailz.discordjar.command.listeners.slash.SlashCommandListener SLashCommandListener} with a
+     * {@link com.seailz.discordjar.command.annotation.SlashCommandInfo SlashCommandInfo} annotation and then register it using {@link com.seailz.discordjar.DiscordJar#registerCommands(CommandListener...)}
+     * @param event The event
+     */
+    @Deprecated
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
     }
 
     // Message Component Events
@@ -73,6 +119,20 @@ public abstract class DiscordListener {
 
     // Modal Events
     public void onModalInteractionEvent(@NotNull ModalInteractionEvent event) {
+    }
+
+
+    // Automod
+    public void onAutoModRuleCreate(@NotNull AutoModRuleCreateEvent event) {
+    }
+
+    public void onAutoModRuleUpdate(@NotNull AutoModRuleUpdateEvent event) {
+    }
+
+    public void onAutoModRuleDelete(@NotNull AutoModRuleUpdateEvent event) {
+    }
+
+    public void onAutoModActionExecution(@NotNull AutoModExecutionEvent event) {
     }
 
 }

@@ -63,15 +63,11 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
         });
 
         gateway.onVoiceStateUpdate((event) -> {
-            try {
+            System.out.println("Received Voice State Update");
+            if (event.guildId().equals(guild().id()) && event.userId().equals(discordJv().getSelfUser().id())) {
                 System.out.println("Received Voice State Update");
-                if (event.guildId().equals(guild().id()) && event.userId().equals(discordJv().getSelfUser().id())) {
-                    System.out.println("Received Voice State Update");
-                    sessionId.set(event.sessionId());
-                    receivedVoiceStateUpdate.set(true);
-                }
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
+                sessionId.set(event.sessionId());
+                receivedVoiceStateUpdate.set(true);
             }
         });
 
@@ -88,7 +84,7 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
                     try {
                         VoiceGatewayFactory voiceGateway = new VoiceGatewayFactory(guild().id(), discordJv().getSelfUser().id(), sessionId.get(), token.get(), endpoint.get(), vp);
                         break;
-                    } catch (ExecutionException | InterruptedException | DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                    } catch (ExecutionException | InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }

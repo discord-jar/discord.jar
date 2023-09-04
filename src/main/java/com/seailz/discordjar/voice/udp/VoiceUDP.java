@@ -40,7 +40,9 @@ public class VoiceUDP {
     }
 
     public InetSocketAddress discoverAddress() throws IOException {
+        socket.connect(this.address);
         byte[] buffer = new byte[74];
+        InetSocketAddress address = this.address;
         ByteBuffer.wrap(buffer).putShort((short) 1).putShort((short) 70).putInt(ssrc);
         socket.send(new DatagramPacket(buffer, buffer.length, address));
         buffer = new byte[74];
@@ -48,7 +50,7 @@ public class VoiceUDP {
 
         String ip = new String(buffer, 8, buffer.length - 10).trim();
         int port = ByteBuffer.wrap(new byte[] {buffer[buffer.length - 1], buffer[buffer.length - 2]}).getShort() & 0xffff;
-        this.address = new InetSocketAddress(ip, port);
+        address = new InetSocketAddress(ip, port);
         System.out.println("Discovered address: " + address.getHostName() + ":" + address.getPort());
         return address;
     }
@@ -64,7 +66,7 @@ public class VoiceUDP {
                 if (!provider.canProvide()) {
                     System.out.println("Cannot provide!");
                     try {
-                        Thread.sleep(20);
+                        Thread.sleep(15);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }

@@ -2,9 +2,11 @@ package com.seailz.discordjar.ws;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -67,7 +69,13 @@ public class WebSocket extends WebSocketListener {
     }
 
     public void send(String message) {
+        if (debug) Logger.getLogger("WS").info("[WS] Sending: " + message);
         ws.send(message);
+    }
+
+    @Override
+    public void onOpen(@NotNull okhttp3.WebSocket webSocket, @NotNull Response response) {
+        onConnectConsumers.forEach(Runnable::run);
     }
 
     @Override
@@ -137,6 +145,14 @@ public class WebSocket extends WebSocketListener {
             onMessage(webSocket, fullMessage);
         }, "djar--handle-text-msg").start();
     }
+
+    @Override
+    public void onFailure(@NotNull okhttp3.WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+        if (debug) {
+            t.printStackTrace();
+        }
+    }
+
     @Override
     public void onClosed(@NotNull okhttp3.WebSocket webSocket, int code, @NotNull String reason) {
         // Force session disconnect in case it failed to disconnect
@@ -191,6 +207,11 @@ public class WebSocket extends WebSocketListener {
                 .url(customUrl)
                 .build();
         this.ws = client.newWebSocket(request, this);
+
+        if (debug) {
+            Logger.getLogger("WS")
+                    .info("[WS] Connecting to " + customUrl);
+        }
 
         open = true;
         // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.

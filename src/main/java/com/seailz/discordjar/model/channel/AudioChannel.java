@@ -11,6 +11,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,6 +37,11 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
      */
     int bitrate();
 
+    void connect(VoiceProvider vp, boolean mute, boolean deafen);
+    default void connect(VoiceProvider vp) {
+        connect(vp, false, false);
+    }
+
     static AudioChannel decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
         String name = obj.getString("name");
@@ -43,7 +49,8 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
         boolean nsfw = obj.getBoolean("nsfw");
         String lastMessageId = obj.getString("last_message_id");
         AtomicReference<VoiceRegion> region = new AtomicReference<>();
-        discordJar.getVoiceRegions().stream().filter(r -> r.id().equals(obj.getString("region"))).findFirst().ifPresent(region::set);
+        if (obj.has("region") && !obj.isNull("region"))
+            discordJar.getVoiceRegions().stream().filter(r -> r.id().equals(obj.getString("region"))).findFirst().ifPresent(region::set);
         int bitrate = obj.getInt("bitrate");
         Category category = Category.fromId(obj.getString("parent_id"), discordJar);
         JSONArray array = obj.getJSONArray("permission_overwrites");

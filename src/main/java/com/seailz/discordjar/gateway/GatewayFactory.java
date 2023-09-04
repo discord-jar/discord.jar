@@ -14,6 +14,8 @@ import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.voice.model.VoiceServerUpdate;
+import com.seailz.discordjar.voice.model.VoiceStateUpdate;
 import com.seailz.discordjar.ws.ExponentialBackoffLogic;
 import com.seailz.discordjar.gateway.heartbeat.HeartLogic;
 import com.seailz.discordjar.ws.WebSocket;
@@ -34,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -64,6 +67,8 @@ public class GatewayFactory extends TextWebSocketHandler {
     private GatewayTransportCompressionType transportCompressionType;
     public static List<Long> pingHistoryMs = new ArrayList<>();
     public static Date lastHeartbeatSent = new Date();
+    private List<Consumer<VoiceStateUpdate>> onVoiceStateUpdateListeners = new ArrayList<>();
+    private List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners = new ArrayList<>();
 
     private WebSocket socket;
 
@@ -519,5 +524,21 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     public boolean isDebug() {
         return debug;
+    }
+
+    public void onVoiceStateUpdate(Consumer<VoiceStateUpdate> consumer) {
+        onVoiceStateUpdateListeners.add(consumer);
+    }
+
+    public void onVoiceServerUpdate(Consumer<VoiceServerUpdate> consumer) {
+        onVoiceServerUpdateListeners.add(consumer);
+    }
+
+    public List<Consumer<VoiceStateUpdate>> getOnVoiceStateUpdateListeners() {
+        return onVoiceStateUpdateListeners;
+    }
+
+    public List<Consumer<VoiceServerUpdate>> getOnVoiceServerUpdateListeners() {
+        return onVoiceServerUpdateListeners;
     }
 }

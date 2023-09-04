@@ -50,7 +50,8 @@ public interface VoiceChannel extends AudioChannel {
         boolean nsfw = obj.getBoolean("nsfw");
         String lastMessageId = obj.getString("last_message_id");
         AtomicReference<VoiceRegion> region = new AtomicReference<>();
-        discordJar.getVoiceRegions().stream().filter(r -> r.id().equals(obj.getString("region"))).findFirst().ifPresent(region::set);
+        if (obj.has("region") && !obj.isNull("region"))
+            discordJar.getVoiceRegions().stream().filter(r -> r.id().equals(obj.getString("region"))).findFirst().ifPresent(region::set);
         int bitrate = obj.getInt("bitrate");
         Category category = Category.fromId(obj.getString("parent_id"), discordJar);
         JSONArray array = obj.getJSONArray("permission_overwrites");
@@ -63,7 +64,7 @@ public interface VoiceChannel extends AudioChannel {
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
         int userLimit = obj.getInt("user_limit");
-        VideoQualityMode videoQualityMode = VideoQualityMode.fromCode(obj.getInt("video_quality_mode"));
+        VideoQualityMode videoQualityMode = obj.has("video_quality_mode") ? VideoQualityMode.fromCode(obj.getInt("video_quality_mode")) : null;
 
         return new VoiceChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, lastMessageId, region.get(), category, bitrate, userLimit, videoQualityMode, obj, discordJar);
     }

@@ -141,11 +141,5 @@
             <artifactId>xsalsa20poly1305</artifactId>
             <version>v0.10.1		</version>
         </dependency>
-        <!-- TODO: REMOVE -->
-        <dependency>
-            <groupId>com.sedmelluq</groupId>
-            <artifactId>lavaplayer</artifactId>
-            <version>1.3.78</version>
-        </dependency>
     </dependencies>
 </project>

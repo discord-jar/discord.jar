@@ -159,6 +159,7 @@ public class WebSocket extends WebSocketListener {
 
     @Override
     public void onFailure(@NotNull okhttp3.WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+        t.printStackTrace();
         open = false;
         buffer = null;
 

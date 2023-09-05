@@ -5,7 +5,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.guild.Member;
 import org.json.JSONObject;
 
-public record VoiceStateUpdate(
+public record VoiceState(
         String guildId,
         String channelId,
         String userId,
@@ -41,7 +41,7 @@ public record VoiceStateUpdate(
         return obj;
     }
 
-    public static VoiceStateUpdate decompile(JSONObject obj, DiscordJar djar) {
+    public static VoiceState decompile(JSONObject obj, DiscordJar djar) {
         String guildId = obj.has("guild_id") && !obj.isNull("guild_id") ? obj.getString("guild_id") : null;
         String channelId = obj.has("channel_id") && !obj.isNull("channel_id") ? obj.getString("channel_id") : null;
         String userId = obj.has("user_id") && !obj.isNull("user_id") ? obj.getString("user_id") : null;
@@ -55,7 +55,7 @@ public record VoiceStateUpdate(
         boolean selfVideo = obj.has("self_video") && obj.getBoolean("self_video");
         boolean suppress = obj.has("suppress") && obj.getBoolean("suppress");
         String requestToSpeakTimestamp = obj.has("request_to_speak_timestamp") && !obj.isNull("request_to_speak_timestamp") ? obj.getString("request_to_speak_timestamp") : null;
-        return new VoiceStateUpdate(guildId, channelId, userId, member, sessionId, deaf, mute, selfDeaf, selfMute, selfStream, selfVideo, suppress, requestToSpeakTimestamp);
+        return new VoiceState(guildId, channelId, userId, member, sessionId, deaf, mute, selfDeaf, selfMute, selfStream, selfVideo, suppress, requestToSpeakTimestamp);
     }
 
 }

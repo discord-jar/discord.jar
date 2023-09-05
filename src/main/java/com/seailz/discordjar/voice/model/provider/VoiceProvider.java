@@ -9,13 +9,6 @@ import com.seailz.discordjar.voice.ws.VoiceGatewayFactory;
  */
 public abstract class VoiceProvider {
 
-    private Guild guild;
-    private VoiceGatewayFactory voiceGateway;
-
-    public VoiceProvider(Guild guild) {
-        this.guild = guild;
-    }
-
     /**
      * This method must be overridden to provide audio data to the voice gateway.
      *

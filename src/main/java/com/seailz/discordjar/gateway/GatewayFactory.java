@@ -8,15 +8,13 @@ import com.seailz.discordjar.gateway.events.DispatchedEvents;
 import com.seailz.discordjar.gateway.events.GatewayEvents;
 import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Intent;
-import com.seailz.discordjar.model.channel.VoiceChannel;
-import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.voice.model.VoiceServerUpdate;
-import com.seailz.discordjar.voice.model.VoiceStateUpdate;
+import com.seailz.discordjar.voice.model.VoiceState;
 import com.seailz.discordjar.ws.ExponentialBackoffLogic;
 import com.seailz.discordjar.gateway.heartbeat.HeartLogic;
 import com.seailz.discordjar.ws.WebSocket;
@@ -24,10 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
@@ -62,7 +57,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
-    private List<Consumer<VoiceStateUpdate>> onVoiceStateUpdateListeners;
+    private List<Consumer<VoiceState>> onVoiceStateUpdateListeners;
     private List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners;
     public UUID uuid = UUID.randomUUID();
     private int shardId;
@@ -526,7 +521,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         sendPayload(payload);
     }
 
-    public void onVoiceStateUpdate(Consumer<VoiceStateUpdate> consumer) {
+    public void onVoiceStateUpdate(Consumer<VoiceState> consumer) {
         onVoiceStateUpdateListeners.add(consumer);
     }
 
@@ -534,7 +529,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         onVoiceServerUpdateListeners.add(consumer);
     }
 
-    public List<Consumer<VoiceStateUpdate>> getOnVoiceStateUpdateListeners() {
+    public List<Consumer<VoiceState>> getOnVoiceStateUpdateListeners() {
         return onVoiceStateUpdateListeners;
     }
 

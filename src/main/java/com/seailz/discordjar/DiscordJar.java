@@ -43,6 +43,7 @@ import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.ratelimit.Bucket;
+import com.seailz.discordjar.voice.model.VoiceState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -120,6 +121,8 @@ public class DiscordJar {
      * The command dispatcher
      */
     protected final CommandDispatcher commandDispatcher;
+    // Voice states / guilds
+    private final HashMap<String, VoiceState> voiceStates;
     /**
      * A cache storing self user information
      */
@@ -219,6 +222,7 @@ public class DiscordJar {
         this.commandDispatcher = new CommandDispatcher();
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
+        this.voiceStates = new HashMap<>();
         this.gatewayTransportCompressionType = gwCompressionType;
         this.debug = debug;
         this.guildCache = new Cache<>(this, Guild.class,
@@ -390,6 +394,26 @@ public class DiscordJar {
                 }
             }
         }, "djar--shutdown-hook"));
+    }
+
+    public List<VoiceState> getVoiceStates() {
+        return new ArrayList<>(voiceStates.values());
+    }
+
+    public void addVoiceState(VoiceState state) {
+        voiceStates.put(state.guildId() == null ? state.channelId() : state.guildId(), state);
+    }
+
+    public void updateVoiceState(VoiceState state) {
+        // If the user is a bot, we just want to update it for the guild since bots can be in multiple guilds and have different voice states for each.
+        // If it's not a bot, then we globally want to remove all other voice states for the user and replace it with the new one.
+        User user = getUserById(state.userId());
+        if (user.bot()) {
+            voiceStates.put(state.guildId(), state);
+        } else {
+            voiceStates.values().removeIf(s -> s.userId().equals(user.id()));
+            voiceStates.put(state.guildId(), state);
+        }
     }
 
     public void setGatewayFactory(GatewayFactory gatewayFactory) {

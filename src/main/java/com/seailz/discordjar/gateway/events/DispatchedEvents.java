@@ -43,7 +43,7 @@ import com.seailz.discordjar.utils.TriFunction;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.voice.model.VoiceServerUpdate;
-import com.seailz.discordjar.voice.model.VoiceStateUpdate;
+import com.seailz.discordjar.voice.model.VoiceState;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -138,6 +138,15 @@ public enum DispatchedEvents {
             );
         });
         if (g.isDebug()) Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (System.currentTimeMillis() - start) + "ms to cache all members");
+
+        arr = p.getJSONObject("d").getJSONArray("voice_states");
+        arr.forEach(o -> {
+            JSONObject obj = (JSONObject) o;
+            obj.put("guild_id", guild.id());
+            g.addVoiceState(
+                    VoiceState.decompile(obj, g)
+            );
+        });
 
         return GuildCreateEvent.class;
     }),
@@ -307,8 +316,11 @@ public enum DispatchedEvents {
     // TODO: User update
 
     VOICE_STATE_UPDATE((p, g, d) -> {
-        VoiceStateUpdate update = VoiceStateUpdate.decompile(p.getJSONObject("d"), d);
+        VoiceState update = VoiceState.decompile(p.getJSONObject("d"), d);
         g.getOnVoiceStateUpdateListeners().forEach(lis -> lis.accept(update));
+
+        d.updateVoiceState(update);
+
         // TODO: Create a VoiceStateUpdateEvent
         return null;
     }),

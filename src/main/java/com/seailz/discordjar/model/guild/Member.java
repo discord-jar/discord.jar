@@ -10,6 +10,7 @@ import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
+import com.seailz.discordjar.voice.model.VoiceState;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -85,6 +86,10 @@ public class Member implements Compilerable, Resolvable {
 
     public List<String> getRoleIds() {
         return roleIds;
+    }
+
+    public VoiceState getVoiceState() {
+        return discordJar.getVoiceStates().stream().filter(vs -> vs.userId().equals(user.id()) && vs.guildId() != null && vs.guildId().equals(guildId)).findFirst().orElse(null);
     }
 
     @NonNull

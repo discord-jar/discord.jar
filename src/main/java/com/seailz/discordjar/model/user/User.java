@@ -12,6 +12,7 @@ import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
+import com.seailz.discordjar.voice.model.VoiceState;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -278,6 +279,11 @@ public record User(
 
     public String getAvatarDecorationUrl() {
         return ImageUtils.getUrl(avatarHash, ImageUtils.ImageType.USER_AVATAR_DECORATION, id);
+    }
+
+    public VoiceState getVoiceState() {
+        if (bot) throw new IllegalArgumentException("Bots can have multiple voice states, so please use Member#getVoiceState() instead.");
+        return discordJar.getVoiceStates().stream().filter(vs -> vs.userId().equals(id)).findFirst().orElse(null);
     }
 
 

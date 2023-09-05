@@ -2,9 +2,11 @@ package com.seailz.discordjar.ws;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -147,6 +149,24 @@ public class WebSocket extends WebSocketListener {
         }, "djar--ws-disconnect-consumers").start();
 
         if (reEstablishConnection.apply(new CloseStatus(code, reason))) {
+            try {
+                connect(url);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onFailure(@NotNull okhttp3.WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+        open = false;
+        buffer = null;
+
+        new Thread(() -> {
+            onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(1006, t.getMessage())));
+        }, "djar--ws-disconnect-consumers").start();
+
+        if (reEstablishConnection.apply(new CloseStatus(1006, t.getMessage()))) {
             try {
                 connect(url);
             } catch (Exception e) {

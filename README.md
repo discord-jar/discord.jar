@@ -189,6 +189,9 @@ To contribute to the `/examples` module, please see [here](https://github.com/di
 ## License
 License info can be found [here](https://github.com/discord-jar/discord.jar/blob/main/LICENSE). This project is licensed under GNU General Public License V3
 
+## Example Usages
+- [Tune](https://github.com/seailz/Tune) An example Discord Music bot built using discord.jar & LavaPlayer in just 1 hour, that's how simple it is!
+
 
 ## Contact
 Our official Discord server:

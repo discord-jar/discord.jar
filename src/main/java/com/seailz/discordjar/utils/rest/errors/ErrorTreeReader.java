@@ -17,6 +17,7 @@ public class ErrorTreeReader {
         StringBuilder builder = new StringBuilder();
         builder.append("[").append(errorCode).append("] ");
 
+        if (tree.has("code")) builder.append("[").append(tree.getInt("code")).append("] ");
         if (tree.has("message")) builder.append(tree.getString("message"));
         if (!tree.has("errors")) return builder.toString();
 

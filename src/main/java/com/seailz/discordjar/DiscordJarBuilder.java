@@ -50,8 +50,9 @@ public class DiscordJarBuilder {
         this.token = token;
     }
 
-    public void setGatewayCompressionType(GatewayTransportCompressionType gwCompressionType) {
+    public DiscordJarBuilder setGatewayCompressionType(GatewayTransportCompressionType gwCompressionType) {
         this.gwCompressionType = gwCompressionType;
+        return this;
     }
 
     /**
@@ -77,8 +78,9 @@ public class DiscordJarBuilder {
      * @deprecated Manual Gateway memory management is no longer supported. This value isn't used.
      */
     @Deprecated(since = "1.0.0")
-    public void setIsNewSystemForGatewayMemoryManagement(boolean newSystemForGatewayMemoryManagement) {
+    public DiscordJarBuilder setIsNewSystemForGatewayMemoryManagement(boolean newSystemForGatewayMemoryManagement) {
         this.newSystemForGatewayMemoryManagement = newSystemForGatewayMemoryManagement;
+        return this;
     }
 
     /**
@@ -153,8 +155,9 @@ public class DiscordJarBuilder {
         return this;
     }
 
-    public void setAPIRelease(APIRelease apiRelease) {
+    public DiscordJarBuilder setAPIRelease(APIRelease apiRelease) {
         this.apiRelease = apiRelease;
+        return this;
     }
 
     public DiscordJarBuilder setHTTPOnly(boolean httpOnly) {

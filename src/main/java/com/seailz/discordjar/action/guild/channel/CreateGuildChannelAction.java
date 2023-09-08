@@ -11,6 +11,7 @@ import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -106,6 +107,13 @@ public class CreateGuildChannelAction {
             String categoryId = null;
             if (this.categoryId != null) categoryId = this.categoryId;
             else if (this.category != null) categoryId = this.category.id();
+
+            JSONArray permissionOverwrites = new JSONArray();
+            if (this.permissionOverwrites != null) {
+                for (PermissionOverwrite overwrite : this.permissionOverwrites) {
+                    permissionOverwrites.put(overwrite.compile());
+                }
+            }
             try {
                 GuildChannel chan = GuildChannel.decompile(
                         new DiscordRequest(

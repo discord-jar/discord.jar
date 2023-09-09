@@ -6,14 +6,15 @@ import com.seailz.discordjar.model.user.User;
 import org.json.JSONObject;
 
 public record TeamMember(MembershipState membershipState, String permissions, String teamId,
-                         User user) implements Compilerable {
+                         User user, Role role) implements Compilerable {
     @Override
     public JSONObject compile() {
         return new JSONObject()
                 .put("membership_state", membershipState.getCode())
                 .put("permissions", permissions)
                 .put("team_id", teamId)
-                .put("user", user.compile());
+                .put("user", user.compile())
+                .put("role", role.getValue());
     }
 
     public static TeamMember decompile(JSONObject obj, DiscordJar discordJar) {
@@ -21,6 +22,7 @@ public record TeamMember(MembershipState membershipState, String permissions, St
         String permissions;
         String teamId;
         User user;
+        Role role;
 
         try {
             membershipState = MembershipState.fromCode(obj.getInt("membership_state"));
@@ -46,6 +48,38 @@ public record TeamMember(MembershipState membershipState, String permissions, St
             user = null;
         }
 
-        return new TeamMember(membershipState, permissions, teamId, user);
+        role = obj.has("role") && !obj.isNull("role") ? Role.fromValue(obj.getString("role")) : null;
+
+
+        return new TeamMember(membershipState, permissions, teamId, user, role);
+    }
+
+    public enum Role {
+        OWNER("owner"),
+        ADMIN("admin"),
+        DEVELOPER("developer"),
+        READ_ONLY("read_only"),
+        UNKNOWN("unknown")
+        ;
+
+        private String value;
+
+        Role(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public static Role fromValue(String value) {
+            for (Role role : values()) {
+                if (role.getValue().equals(value)) {
+                    return role;
+                }
+            }
+            return UNKNOWN;
+        }
+
     }
 }

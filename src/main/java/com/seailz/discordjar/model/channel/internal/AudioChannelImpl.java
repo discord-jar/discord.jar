@@ -53,9 +53,7 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
         AtomicReference<String> endpoint = new AtomicReference<>();
 
         gateway.onVoiceServerUpdate((event) -> {
-            System.out.println("Received Voice Server Update");
             if (event.guildId().equals(guild().id())) {
-                System.out.println("Received Voice Server Update");
                 token.set(event.token());
                 endpoint.set(event.endpoint());
                 receivedVoiceServerUpdate.set(true);
@@ -63,9 +61,7 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
         });
 
         gateway.onVoiceStateUpdate((event) -> {
-            System.out.println("Received Voice State Update");
             if (event.guildId().equals(guild().id()) && event.userId().equals(discordJv().getSelfUser().id())) {
-                System.out.println("Received Voice State Update");
                 sessionId.set(event.sessionId());
                 receivedVoiceStateUpdate.set(true);
             }
@@ -91,11 +87,6 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
             }
         }).start();
 
-    }
-
-    @Override
-    public void disconnect() {
-        discordJv().getGateway().sendVoicePayload(guild().id(), id(), false, false);
     }
 
     @Override

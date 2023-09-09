@@ -106,7 +106,7 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    while (true) {
+                    while (session.isOpen()) {
                         try {
                             Thread.sleep(hbInterval);
                             JSONObject heartbeat = new JSONObject();
@@ -309,5 +309,13 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 throw new RuntimeException(e);
             }
         }).start();
+    }
+
+    public void close(int code) {
+        try {
+            session.close(new CloseStatus(code, null));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

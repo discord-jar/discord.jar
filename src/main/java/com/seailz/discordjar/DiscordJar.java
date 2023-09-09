@@ -594,9 +594,17 @@ public class DiscordJar {
      * @return An {@link AudioChannel} object
      */
     @Nullable
-    public AudioChannel getAudioChannelById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public AudioChannel getAudioChannelById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
-        JSONObject raw = getChannelCache().getById(id).raw();
+        JSONObject raw = null;
+        try {
+            raw = getChannelCache().getById(id).raw();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            if (e.getHttpCode() == 404) return null;
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (NullPointerException e) {
+            return null;
+        }
         return AudioChannel.decompile(raw, this);
     }
 

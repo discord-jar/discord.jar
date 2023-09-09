@@ -30,6 +30,7 @@ public class VoiceUDP {
     public VoiceUDP(InetSocketAddress address, VoiceProvider provider, int srrc, VoiceGatewayFactory voiceGateway) throws SocketException {
         this.address = address;
         this.provider = provider;
+        provider.setUdp(this);
         this.ssrc = srrc;
         this.socket = new DatagramSocket();
         this.voiceGateway = voiceGateway;
@@ -119,6 +120,11 @@ public class VoiceUDP {
 
             }
         }).start();
+    }
+
+    public void disconnect() {
+        voiceGateway.close(1001);
+        socket.disconnect();
     }
 
     public void stop() {

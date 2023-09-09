@@ -39,11 +39,6 @@ public interface AudioChannel extends GuildChannel, CategoryMember, Typeable, Me
     void connect(VoiceProvider vp, boolean mute, boolean deafen);
 
     /**
-     * Disconnects the current user from the voice channel.
-     */
-    void disconnect();
-
-    /**
      * Returns the ID of the last {@link Message} sent in the text section
      * <br>of the voice channel.
      */

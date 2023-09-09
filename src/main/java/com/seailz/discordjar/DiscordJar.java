@@ -401,7 +401,7 @@ public class DiscordJar {
     }
 
     public void addVoiceState(VoiceState state) {
-        voiceStates.put(state.guildId() == null ? state.channelId() : state.guildId(), state);
+        voiceStates.put(state.userId(), state);
     }
 
     public void updateVoiceState(VoiceState state) {

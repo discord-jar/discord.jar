@@ -41,6 +41,10 @@ public record VoiceState(
         return obj;
     }
 
+    public boolean connected() {
+        return channelId != null;
+    }
+
     public static VoiceState decompile(JSONObject obj, DiscordJar djar) {
         String guildId = obj.has("guild_id") && !obj.isNull("guild_id") ? obj.getString("guild_id") : null;
         String channelId = obj.has("channel_id") && !obj.isNull("channel_id") ? obj.getString("channel_id") : null;

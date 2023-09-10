@@ -146,13 +146,19 @@ public class Member implements Compilerable, Resolvable {
     }
 
     public Role[] roles() {
-        if (this.roleIds == null) {
-
-        }
+        if (this.roleIds == null) return null;
         if (this.roles != null) return this.roles;
         Role[] roles = discordJar.getGuildById(guildId).roles().stream().filter(role -> roleIds.contains(role.id())).toArray(Role[]::new);
         this.roles = roles;
         return roles;
+    }
+
+    public boolean hasRole(@NotNull String roleId) {
+        return roleIds.contains(roleId);
+    }
+
+    public boolean hasRole(@NotNull Role role) {
+        return roleIds.contains(role.id());
     }
 
     /**

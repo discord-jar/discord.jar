@@ -5,6 +5,7 @@ import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.guild.UnavailableGuild;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -60,7 +61,7 @@ public class ReadyEvent extends Event {
 
     @NotNull
     public Application getApplication() {
-        return Application.decompile(getJson().getJSONObject("d").getJSONObject("application"), getBot());
+        return (Application) ModelDecoder.decodeObject(getJson().getJSONObject("d").getJSONObject("application"), Application.class, getBot());
     }
 
 

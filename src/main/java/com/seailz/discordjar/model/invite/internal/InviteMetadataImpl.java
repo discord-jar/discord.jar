@@ -6,6 +6,7 @@ import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.invite.InviteMetadata;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONObject;
 
 public class InviteMetadataImpl extends InviteImpl implements InviteMetadata {
@@ -57,7 +58,7 @@ public class InviteMetadataImpl extends InviteImpl implements InviteMetadata {
         User inviter = obj.has("inviter") && obj.get("inviter") != JSONObject.NULL ? User.decompile(obj.getJSONObject("inviter"), discordJar) : null;
         VoiceInviteTargetType voiceInviteTarget = obj.has("target_type") ? VoiceInviteTargetType.fromCode(obj.getInt("target_type")) : null;
         User targetUserStream = obj.has("target_user") && obj.get("target_user") == JSONObject.NULL ? User.decompile(obj.getJSONObject("target_user"), discordJar) : null;
-        Application targetApplication = obj.has("target_application") && obj.get("target_application") == JSONObject.NULL ? Application.decompile(obj.getJSONObject("target_application"), discordJar) : null;
+        Application targetApplication = obj.has("target_application") && obj.get("target_application") == JSONObject.NULL ? (Application) ModelDecoder.decodeObject(obj.getJSONObject("target_application"), Application.class, discordJar) : null;
         int approximatePresenceCount = obj.has("approximate_presence_count") ? obj.getInt("approximate_presence_count") : -1;
         int approximateMemberCount = obj.has("approximate_member_count") ? obj.getInt("approximate_member_count") : -1;
         String expiresAt = obj.has("expires_at") && obj.get("expires_at") != JSONObject.NULL ? obj.getString("expires_at") : null;

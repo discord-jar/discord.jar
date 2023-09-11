@@ -39,6 +39,7 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -838,7 +839,7 @@ public class DiscordJar {
     @Nullable
     public Application getSelfInfo() {
         if (this.selfUserCache != null && !selfUserCache.isEmpty())
-            return Application.decompile(selfUserCache.get(), this);
+            return (Application) ModelDecoder.decodeObject(selfUserCache.get(), Application.class, this);
 
         DiscordRequest request = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
@@ -857,7 +858,7 @@ public class DiscordJar {
             this.selfUserCache = JsonCache.newc(response.body(), request);
         this.selfUserCache.update(response.body());
 
-        return Application.decompile(response.body(), this);
+        return (Application) ModelDecoder.decodeObject(response.body(), Application.class, this);
     }
 
     /**

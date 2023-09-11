@@ -19,6 +19,7 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONArray;
@@ -273,7 +274,7 @@ public record Message(
         }
 
         try {
-            application = Application.decompile(obj.getJSONObject("application"), discordJar);
+            application = (Application) ModelDecoder.decodeObject(obj.getJSONObject("application"), Application.class, discordJar);
         } catch (JSONException e) {
             application = null;
         }

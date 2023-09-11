@@ -13,7 +13,6 @@ import com.seailz.discordjar.model.interaction.modal.Modal;
 import com.seailz.discordjar.model.interaction.reply.InteractionModalResponse;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
-import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

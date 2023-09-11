@@ -1,14 +1,11 @@
 package com.seailz.discordjar.model.component.select.entity;
 
-import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectMenu;
-import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
 import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
-import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.guild;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -25,7 +26,7 @@ public record GuildBan (
     public static GuildBan decompile(JSONObject json, DiscordJar discordJar) {
         return new GuildBan(
                 json.has("reason") ? json.getString("reason") : null,
-                User.decompile(json.getJSONObject("user"), discordJar)
+                (User) ModelDecoder.decodeObject(json.getJSONObject("user"), User.class, discordJar)
         );
     }
 }

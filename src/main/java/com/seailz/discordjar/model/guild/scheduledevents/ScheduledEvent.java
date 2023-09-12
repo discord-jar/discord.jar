@@ -5,6 +5,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.CDNAble;
 import com.seailz.discordjar.utils.StringFormatter;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 
@@ -64,7 +65,7 @@ public record ScheduledEvent(
         EntityType entityType = EntityType.fromValue(obj.getInt("entity_type"));
         String entityId = obj.has("entity_id") && !obj.isNull("entity_id") ? obj.getString("entity_id") : null;
         EntityMetadata entityMetadata = obj.has("entity_metadata") && !obj.isNull("entity_metadata") ? EntityMetadata.decompile(obj.getJSONObject("entity_metadata")) : null;
-        User creator = obj.has("creator") && !obj.isNull("creator") ? User.decompile(obj.getJSONObject("creator"), jar) : null;
+        User creator = obj.has("creator") && !obj.isNull("creator") ? (User) ModelDecoder.decodeObject(obj.getJSONObject("creator"), User.class, jar) : null;
         int userCount = obj.has("user_count") && !obj.isNull("user_count") ? obj.getInt("user_count") : 0;
         String coverHash = obj.has("cover_image_hash") && !obj.isNull("cover_image_hash") ? obj.getString("cover_image_hash") : null;
         return new ScheduledEvent(id, guildId, channelId, creatorId, name, description, scheduledStart, scheduledEnd, privacyLevel, eventStatus, entityType, entityId, entityMetadata, creator, userCount, coverHash);

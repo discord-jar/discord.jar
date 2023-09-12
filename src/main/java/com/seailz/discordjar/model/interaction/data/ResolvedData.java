@@ -8,6 +8,7 @@ import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -97,7 +98,7 @@ public record ResolvedData(
         if (obj.has("users") && !obj.isNull("users")) {
             JSONObject usersObj = obj.getJSONObject("users");
             for (String s : usersObj.keySet()) {
-                users.put(s, User.decompile(usersObj.getJSONObject(s), discordJar));
+                users.put(s, (User) ModelDecoder.decodeObject(usersObj.getJSONObject(s), User.class, discordJar));
             }
         } else {
             users = null;

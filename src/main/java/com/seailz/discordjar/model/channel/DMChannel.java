@@ -9,6 +9,7 @@ import com.seailz.discordjar.model.channel.internal.DMChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -59,7 +60,7 @@ public interface DMChannel extends Channel, Typeable, Messageable, MessageRetrie
 
         List<User> recipients = new ArrayList<>();
         JSONArray recipientsArray = obj.getJSONArray("recipients");
-        recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, djv)));
+        recipientsArray.forEach(o -> recipients.add((User) ModelDecoder.decodeObject((JSONObject) o, User.class, djv)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
         return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv, obj);

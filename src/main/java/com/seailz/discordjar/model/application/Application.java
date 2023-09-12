@@ -9,6 +9,7 @@ import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
 import com.seailz.discordjar.utils.flag.Bitwiseable;
 import com.seailz.discordjar.utils.image.ImageUtils;
+import com.seailz.discordjar.utils.model.DiscordJarProp;
 import com.seailz.discordjar.utils.model.JSONProp;
 import com.seailz.discordjar.utils.model.Model;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
@@ -108,6 +109,7 @@ public class Application implements Model, Snowflake, CDNAble {
     @JSONProp("approximate_guild_count")
     private int approximateGuildCount;
 
+    @DiscordJarProp
     private DiscordJar discordJar;
 
     public Application(String id, String name, String iconHash, String description, List<String> rpcOrigins, boolean botPublic,
@@ -199,7 +201,6 @@ public class Application implements Model, Snowflake, CDNAble {
     @Override
     public HashMap<String, Function<JSONObject, ?>> customDecoders() {
         return new HashMap<>(){{
-            put("owner", o -> User.decompile(o, discordJar));
             put("team", o -> Team.decompile(o, discordJar));
             put("guild", o -> Guild.decompile(o, discordJar));
         }};

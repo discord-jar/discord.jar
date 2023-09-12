@@ -10,6 +10,7 @@ import com.seailz.discordjar.oauth2.response.error.CodeNotPresentResponse;
 import com.seailz.discordjar.oauth2.response.error.InvalidEndpointResponse;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -157,8 +158,8 @@ public class LinkedRolesRestController {
                 .build();
 
         HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        return User.decompile(
-                new JSONObject(res.body()), discordJar
+        return (User) ModelDecoder.decodeObject(
+                new JSONObject(res.body()), User.class, discordJar
         );
     }
 }

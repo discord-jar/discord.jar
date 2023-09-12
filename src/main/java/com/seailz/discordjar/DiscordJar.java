@@ -510,7 +510,7 @@ public class DiscordJar {
     @Nullable
     public User getSelfUser() {
         if (this.getSelfUserCache != null && getSelfUserCache.get() != null)
-            return User.decompile(getSelfUserCache.get(), this);
+            return (User) ModelDecoder.decodeObject(getSelfUserCache.get(), User.class, this);
 
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(), new HashMap<>(),
@@ -530,7 +530,7 @@ public class DiscordJar {
             getSelfUserCache.reset(60000);
         }
         this.getSelfUserCache.update(response.body());
-        return User.decompile(response.body(), this);
+        return (User) ModelDecoder.decodeObject(response.body(), User.class, this);
     }
 
     /**

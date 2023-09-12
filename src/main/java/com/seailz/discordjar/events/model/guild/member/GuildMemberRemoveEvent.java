@@ -3,6 +3,7 @@ package com.seailz.discordjar.events.model.guild.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -30,7 +31,7 @@ public class GuildMemberRemoveEvent extends GuildEvent {
      * @return {@link User} object.
      */
     public User getUser() {
-        return User.decompile(getJson().getJSONObject("d").getJSONObject("user"), getBot());
+        return (User) ModelDecoder.decodeObject(getJson().getJSONObject("d").getJSONObject("user"), User.class, getBot());
     }
 
     /**

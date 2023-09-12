@@ -141,7 +141,7 @@ public record Message(
             channelId = null;
         }
         try {
-            author = User.decompile(obj.getJSONObject("author"), discordJar);
+            author = (User) ModelDecoder.decodeObject(obj.getJSONObject("author"), User.class, discordJar);
         } catch (JSONException e) {
             author = null;
         }
@@ -187,7 +187,7 @@ public record Message(
             JSONArray mentionsArray = obj.getJSONArray("mentions");
             mentions = new User[mentionsArray.length()];
             for (int i = 0; i < mentionsArray.length(); i++) {
-                mentions[i] = User.decompile(mentionsArray.getJSONObject(i), discordJar);
+                mentions[i] = (User) ModelDecoder.decodeObject(mentionsArray.getJSONObject(i), User.class, discordJar);
             }
         } catch (JSONException e) {
             mentions = null;

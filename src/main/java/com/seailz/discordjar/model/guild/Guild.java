@@ -31,6 +31,7 @@ import com.seailz.discordjar.model.invite.internal.InviteMetadataImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
@@ -470,7 +471,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
 
         try {
-            owner = User.decompile(obj.getJSONObject("owner"), discordJar);
+            owner = (User) ModelDecoder.decodeObject(obj.getJSONObject("owner"), User.class, discordJar);
         } catch (JSONException e) {
             owner = null;
         }

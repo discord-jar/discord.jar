@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.channel.internal.GroupDMImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.image.ImageUtils;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -35,7 +36,7 @@ public interface GroupDM extends DMChannel {
 
         List<User> recipients = new ArrayList<>();
         JSONArray recipientsArray = obj.getJSONArray("recipients");
-        recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, discordJar)));
+        recipientsArray.forEach(o -> recipients.add((User) ModelDecoder.decodeObject((JSONObject) o, User.class, discordJar)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
         User owner = recipients.stream().filter(u -> u.id().equals(obj.getString("owner_id"))).findFirst().orElse(null);

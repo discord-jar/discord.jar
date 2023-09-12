@@ -9,6 +9,9 @@ import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.StringFormatter;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.image.ImageUtils;
+import com.seailz.discordjar.utils.model.DiscordJarProp;
+import com.seailz.discordjar.utils.model.JSONProp;
+import com.seailz.discordjar.utils.model.Model;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
@@ -38,184 +41,179 @@ import java.util.HashMap;
  * Usernames cannot contain the following substrings: @, #, :, ```, discord<p>
  * Usernames cannot be: everyone, here<p>
  * There are other rules and restrictions not shared here for the sake of spam and abuse mitigation, but the majority of users won't encounter them. It's important to properly handle all error messages returned by Discord when editing or updating names.
- *
- * @param id             the user's id
- * @param username       the user's username, not unique across the platform
- * @param discriminator  the user's 4-digit discord-tag
- * @param avatarHash         the user's avatar hash
- * @param bot            whether the user is a bot
- * @param system         whether the user is an Official Discord System user (part of the urgent message system)
- * @param mfaEnabled     whether the user has two factor enabled on their account
- * @param locale         the user's chosen language option
- * @param verified       whether the email on this account has been verified
- * @param email          the user's email
- * @param flags          the flags on a user's account
- * @param flagsRaw       the raw flags on a user's account
- * @param premiumType    the type of Nitro subscription on a user's account
- * @param publicFlags    the public flags on a user's account
- * @param publicFlagsRaw the raw public flags on a user's account
- * @param avatarDecoration the user's avatar decoration hash
- * @param discordJar      the discordJar instance
+ * <p>
+ * id               &nbsp;the user's id<br>
+ * username         &nbsp;the user's username, not unique across the platform<br>
+ * discriminator    &nbsp;the user's 4-digit discord-tag<br>
+ * avatarHash       &nbsp;the user's avatar hash<br>
+ * bot              &nbsp;whether the user is a bot<br>
+ * system           &nbsp;whether the user is an Official Discord System user (part of the urgent message system)<br>
+ * mfaEnabled       &nbsp;whether the user has two factor enabled on their account<br>
+ * locale           &nbsp;the user's chosen language option<br>
+ * verified         &nbsp;whether the email on this account has been verified<br>
+ * email            &nbsp;the user's email<br>
+ * flags            &nbsp;the flags on a user's account<br>
+ * flagsRaw         &nbsp;the raw flags on a user's account<br>
+ * premiumType      &nbsp;the type of Nitro subscription on a user's account<br>
+ * publicFlags      &nbsp;the public flags on a user's account<br>
+ * publicFlagsRaw   &nbsp;the raw public flags on a user's account<br>
+ * avatarDecoration &nbsp;the user's avatar decoration hash<br>
+ * discordJar       &nbsp;the discordJar instance<br>
  * @author Seailz
  * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object">User Object</a>
  * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object-user-structure">User Structure</a>
  * @since 1.0
  */
-public record User(
-        String id, String username, String discriminator, String avatarHash, boolean bot,
-        boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
-        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, String avatarDecoration,
-        int publicFlagsRaw, String displayName,
-        DiscordJar discordJar
-) implements Compilerable, Resolvable, Mentionable, CDNAble {
+public class User implements Model, Resolvable, Mentionable, CDNAble {
+    @JSONProp("id")
+    private String id;
+    @JSONProp("username")
+    private String username;
+    @JSONProp("discriminator")
+    private String discriminator;
+    @JSONProp("avatar")
+    private String avatarHash;
+    @JSONProp("bot")
+    private boolean bot;
+    @JSONProp("system")
+    private boolean system;
+    @JSONProp("mfa_enabled")
+    private boolean mfaEnabled;
+    @JSONProp("locale")
+    private String locale;
+    @JSONProp("verified")
+    private boolean verified;
+    @JSONProp("email")
+    private String email;
+    @JSONProp("flags")
+    private EnumSet<UserFlag> flags;
+    @JSONProp("flags")
+    private int flagsRaw;
+    @JSONProp("premium_type")
+    private PremiumType premiumType;
+    @JSONProp("public_flags")
+    private EnumSet<UserFlag> publicFlags;
+    @JSONProp("avatar_decoration")
+    private String avatarDecoration;
+    @JSONProp("public_flags")
+    private int publicFlagsRaw;
+    @JSONProp("display_name")
+    private String displayName;
+    @DiscordJarProp
+    private DiscordJar discordJar;
 
-    /**
-     * Converts this User object to a JSONObject
-     *
-     * @return a JSONObject consisting of the data in this User object
-     */
-    @Override
-    public @NotNull JSONObject compile() {
-        JSONObject obj = new JSONObject()
-                .put("id", id)
-                .put("username", username)
-                .put("discriminator", discriminator)
-                .put("avatar", avatarHash)
-                .put("bot", bot)
-                .put("system", system)
-                .put("mfa_enabled", mfaEnabled)
-                .put("locale", locale)
-                .put("verified", verified)
-                .put("email", email)
-                .put("flags", flags)
-                .put("public_flags", publicFlags)
-                .put("global_name", displayName)
-                .put("avatar_decoration", avatarDecoration);
-
-        if (premiumType == null)
-            obj.put("premium_type", JSONObject.NULL);
-        else
-            obj.put("premium_type", premiumType.getId());
-        return obj;
+    public User(
+            String id,
+            String username,
+            String discriminator,
+            String avatarHash,
+            boolean bot,
+            boolean system,
+            boolean mfaEnabled,
+            String locale,
+            boolean verified,
+            String email,
+            EnumSet<UserFlag> flags,
+            int flagsRaw,
+            PremiumType premiumType,
+            EnumSet<UserFlag> publicFlags,
+            String avatarDecoration,
+            int publicFlagsRaw,
+            String displayName,
+            DiscordJar discordJar
+    ) {
+        this.id = id;
+        this.username = username;
+        this.discriminator = discriminator;
+        this.avatarHash = avatarHash;
+        this.bot = bot;
+        this.system = system;
+        this.mfaEnabled = mfaEnabled;
+        this.locale = locale;
+        this.verified = verified;
+        this.email = email;
+        this.flags = flags;
+        this.flagsRaw = flagsRaw;
+        this.premiumType = premiumType;
+        this.publicFlags = publicFlags;
+        this.avatarDecoration = avatarDecoration;
+        this.publicFlagsRaw = publicFlagsRaw;
+        this.displayName = displayName;
+        this.discordJar = discordJar;
     }
 
-    /**
-     * Converts a JSONObject to a User object
-     *
-     * @param obj the JSONObject to convert
-     * @return a User object consisting of the data in the JSONObject
-     */
-    @Contract("_, _ -> new")
-    public static @NotNull User decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
-        String id;
-        String username;
-        String discriminator;
-        String avatar;
-        boolean bot;
-        boolean system;
-        boolean mfaEnabled;
-        String locale;
-        boolean verified;
-        String email;
-        EnumSet<UserFlag> flags;
-        PremiumType premiumType;
-        EnumSet<UserFlag> publicFlags;
-        int publicFlagsRaw = 0;
-        int flagsRaw = 0;
-        String displayName;
-        String avatarDecoration;
+    protected User() {}
 
-        try {
-            id = obj.getString("id");
-        } catch (JSONException e) {
-            id = null;
-        }
+    public String id() {
+        return id;
+    }
 
-        try {
-            username = obj.getString("username");
-        } catch (JSONException e) {
-            username = null;
-        }
+    public String username() {
+        return username;
+    }
 
-        try {
-            discriminator = obj.getString("discriminator");
-        } catch (JSONException e) {
-            discriminator = null;
-        }
+    public String discriminator() {
+        return discriminator;
+    }
 
-        try {
-            avatar = obj.getString("avatar");
-        } catch (JSONException e) {
-            avatar = null;
-        }
+    public String avatarHash() {
+        return avatarHash;
+    }
 
-        try {
-            bot = obj.getBoolean("bot");
-        } catch (JSONException e) {
-            bot = false;
-        }
+    public boolean bot() {
+        return bot;
+    }
 
-        try {
-            system = obj.getBoolean("system");
-        } catch (JSONException e) {
-            system = false;
-        }
+    public boolean system() {
+        return system;
+    }
 
-        try {
-            mfaEnabled = obj.getBoolean("mfa_enabled");
-        } catch (JSONException e) {
-            mfaEnabled = false;
-        }
+    public boolean mfaEnabled() {
+        return mfaEnabled;
+    }
 
-        try {
-            locale = obj.getString("locale");
-        } catch (JSONException e) {
-            locale = null;
-        }
+    public String locale() {
+        return locale;
+    }
 
-        try {
-            verified = obj.getBoolean("verified");
-        } catch (JSONException e) {
-            verified = false;
-        }
+    public boolean verified() {
+        return verified;
+    }
 
-        try {
-            email = obj.getString("email");
-        } catch (JSONException e) {
-            email = null;
-        }
+    public String email() {
+        return email;
+    }
 
-        try {
-            flags = new BitwiseUtil<UserFlag>().get(obj.getInt("flags"), UserFlag.class);
-            flagsRaw = obj.getInt("flags");
-        } catch (JSONException e) {
-            flags = null;
-        }
+    public EnumSet<UserFlag> flags() {
+        return flags;
+    }
 
-        try {
-            premiumType = PremiumType.fromId(obj.getInt("premium_type"));
-        } catch (JSONException e) {
-            premiumType = null;
-        }
+    public int flagsRaw() {
+        return flagsRaw;
+    }
 
-        try {
-            publicFlags = flags = new BitwiseUtil<UserFlag>().get(obj.getInt("public_flags"), UserFlag.class);
-            publicFlagsRaw = obj.getInt("public_flags");
-        } catch (JSONException e) {
-            publicFlags = null;
-        }
+    public PremiumType premiumType() {
+        return premiumType;
+    }
 
-        if (obj.has("global_name") && !obj.isNull("global_name"))
-            displayName = obj.getString("global_name");
-        else
-            displayName = null;
+    public EnumSet<UserFlag> publicFlags() {
+        return publicFlags;
+    }
 
-        if (obj.has("avatar_decoration") && !obj.isNull("avatar_decoration"))
-            avatarDecoration = obj.getString("avatar_decoration");
-        else
-            avatarDecoration = null;
+    public String avatarDecoration() {
+        return avatarDecoration;
+    }
 
-        return new User(id, username, discriminator, avatar, bot, system, mfaEnabled, locale, verified, email, flags, flagsRaw, premiumType, publicFlags, avatarDecoration, publicFlagsRaw, displayName, discordJar);
+    public int publicFlagsRaw() {
+        return publicFlagsRaw;
+    }
+
+    public String displayName() {
+        return displayName;
+    }
+
+    public DiscordJar discordJar() {
+        return discordJar;
     }
 
     /**

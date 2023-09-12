@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
@@ -109,7 +110,7 @@ public class Member implements Compilerable, Resolvable {
         List<Permission> permissions = null;
         String communicationDisabledUntil = null;
 
-        if (obj.has("user") && obj.get("user") != JSONObject.NULL) user = User.decompile(obj.getJSONObject("user"), discordJar);
+        if (obj.has("user") && obj.get("user") != JSONObject.NULL) user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
         if (obj.has("nick") && obj.get("nick") != JSONObject.NULL) nick = obj.getString("nick");
         if (obj.has("avatar") && obj.get("avatar") != JSONObject.NULL) avatar = obj.getString("avatar");
         if (obj.has("roles")) {

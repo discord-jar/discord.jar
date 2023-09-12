@@ -29,7 +29,7 @@ public class ReadyEvent extends Event {
      */
     @NotNull
     public User getUser() {
-        return User.decompile(getJson().getJSONObject("d").getJSONObject("user"), getBot());
+        return (User) ModelDecoder.decodeObject(getJson().getJSONObject("d").getJSONObject("user"), User.class, getBot());
     }
 
     @NotNull

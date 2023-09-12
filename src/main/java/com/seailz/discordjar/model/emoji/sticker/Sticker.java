@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -138,7 +139,7 @@ public record Sticker(
         }
 
         try {
-            user = User.decompile(obj.getJSONObject("user"), discordJar);
+            user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
         } catch (JSONException e) {
             user = null;
         }

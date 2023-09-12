@@ -5,6 +5,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
@@ -80,7 +81,7 @@ public record Emoji(
         }
 
         try {
-            user = User.decompile(obj.getJSONObject("user"), discordJar);
+            user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
         } catch (Exception e) {
             user = null;
         }

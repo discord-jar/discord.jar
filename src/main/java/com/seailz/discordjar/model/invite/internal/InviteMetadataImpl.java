@@ -55,9 +55,9 @@ public class InviteMetadataImpl extends InviteImpl implements InviteMetadata {
         String code = obj.has("code") ? obj.getString("code") : null;
         Guild guild = obj.has("guild") && obj.get("guild") != JSONObject.NULL ? Guild.decompile(obj.getJSONObject("guild"), discordJar) : null;
         Channel channel = obj.has("channel") && obj.get("channel") != JSONObject.NULL ? Channel.decompile(obj.getJSONObject("channel"), discordJar) : null;
-        User inviter = obj.has("inviter") && obj.get("inviter") != JSONObject.NULL ? User.decompile(obj.getJSONObject("inviter"), discordJar) : null;
+        User inviter = obj.has("inviter") && obj.get("inviter") != JSONObject.NULL ? (User) ModelDecoder.decodeObject(obj.getJSONObject("inviter"), User.class, discordJar) : null;
         VoiceInviteTargetType voiceInviteTarget = obj.has("target_type") ? VoiceInviteTargetType.fromCode(obj.getInt("target_type")) : null;
-        User targetUserStream = obj.has("target_user") && obj.get("target_user") == JSONObject.NULL ? User.decompile(obj.getJSONObject("target_user"), discordJar) : null;
+        User targetUserStream = obj.has("target_user") && obj.get("target_user") == JSONObject.NULL ? (User) ModelDecoder.decodeObject(obj.getJSONObject("target_user"), User.class, discordJar) : null;
         Application targetApplication = obj.has("target_application") && obj.get("target_application") == JSONObject.NULL ? (Application) ModelDecoder.decodeObject(obj.getJSONObject("target_application"), Application.class, discordJar) : null;
         int approximatePresenceCount = obj.has("approximate_presence_count") ? obj.getInt("approximate_presence_count") : -1;
         int approximateMemberCount = obj.has("approximate_member_count") ? obj.getInt("approximate_member_count") : -1;

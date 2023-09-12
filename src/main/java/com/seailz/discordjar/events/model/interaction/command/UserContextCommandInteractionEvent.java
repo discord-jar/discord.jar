@@ -3,6 +3,7 @@ package com.seailz.discordjar.events.model.interaction.command;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +40,7 @@ public class UserContextCommandInteractionEvent extends CommandInteractionEvent 
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        return User.decompile(response.body(), getBot());
+        return (User) ModelDecoder.decodeObject(response.body(), User.class, getBot());
     }
 
 }

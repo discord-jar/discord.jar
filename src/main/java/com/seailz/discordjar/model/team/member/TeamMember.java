@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.team.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONObject;
 
 public record TeamMember(MembershipState membershipState, String permissions, String teamId,
@@ -43,7 +44,7 @@ public record TeamMember(MembershipState membershipState, String permissions, St
         }
 
         try {
-            user = User.decompile(obj.getJSONObject("user"), discordJar);
+            user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
         } catch (Exception e) {
             user = null;
         }

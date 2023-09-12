@@ -3,11 +3,55 @@ package com.seailz.discordjar.model.team.member;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.model.JSONProp;
 import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONObject;
 
-public record TeamMember(MembershipState membershipState, String permissions, String teamId,
-                         User user, Role role) implements Compilerable {
+public class TeamMember implements Compilerable {
+    @JSONProp("membership_state")
+    private MembershipState membershipState;
+    @JSONProp("permissions")
+    private String permissions;
+    @JSONProp("team_id")
+    private String teamId;
+    @JSONProp("user")
+    private User user;
+    @JSONProp("role")
+    private Role role;
+
+    public TeamMember(
+            MembershipState membershipState,
+            String permissions,
+            String teamId,
+            User user,
+            Role role
+    ) {
+        this.membershipState = membershipState;
+        this.permissions = permissions;
+        this.teamId = teamId;
+        this.user = user;
+        this.role = role;
+    }
+
+    public MembershipState membershipState() {
+        return membershipState;
+    }
+
+    public String permissions() {
+        return permissions;
+    }
+
+    public String teamId() {
+        return teamId;
+    }
+
+    public User user() {
+        return user;
+    }
+
+    public Role role() {
+        return role;
+    }
     @Override
     public JSONObject compile() {
         return new JSONObject()
@@ -18,42 +62,6 @@ public record TeamMember(MembershipState membershipState, String permissions, St
                 .put("role", role.getValue());
     }
 
-    public static TeamMember decompile(JSONObject obj, DiscordJar discordJar) {
-        MembershipState membershipState;
-        String permissions;
-        String teamId;
-        User user;
-        Role role;
-
-        try {
-            membershipState = MembershipState.fromCode(obj.getInt("membership_state"));
-        } catch (Exception e) {
-            membershipState = null;
-        }
-
-        try {
-            permissions = obj.getString("permissions");
-        } catch (Exception e) {
-            permissions = null;
-        }
-
-        try {
-            teamId = obj.getString("team_id");
-        } catch (Exception e) {
-            teamId = null;
-        }
-
-        try {
-            user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
-        } catch (Exception e) {
-            user = null;
-        }
-
-        role = obj.has("role") && !obj.isNull("role") ? Role.fromValue(obj.getString("role")) : null;
-
-
-        return new TeamMember(membershipState, permissions, teamId, user, role);
-    }
 
     public enum Role {
         OWNER("owner"),

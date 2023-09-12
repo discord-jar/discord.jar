@@ -201,7 +201,6 @@ public class Application implements Model, Snowflake, CDNAble {
     @Override
     public HashMap<String, Function<JSONObject, ?>> customDecoders() {
         return new HashMap<>(){{
-            put("team", o -> Team.decompile(o, discordJar));
             put("guild", o -> Guild.decompile(o, discordJar));
         }};
     }

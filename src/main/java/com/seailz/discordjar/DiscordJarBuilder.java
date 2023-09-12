@@ -48,6 +48,8 @@ public class DiscordJarBuilder {
 
     public DiscordJarBuilder(String token) {
         this.token = token;
+        defaultCacheTypes();
+        defaultIntents();
     }
 
     public DiscordJarBuilder setGatewayCompressionType(GatewayTransportCompressionType gwCompressionType) {

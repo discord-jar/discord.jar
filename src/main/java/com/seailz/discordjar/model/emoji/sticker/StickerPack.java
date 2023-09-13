@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.emoji.sticker;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -37,7 +38,7 @@ public record StickerPack(
 
     public static StickerPack decompile(JSONObject json, DiscordJar discordJar) {
         List<Sticker> stickers = new ArrayList<>();
-        json.getJSONArray("stickers").forEach(object -> stickers.add(Sticker.decompile((JSONObject) object, discordJar)));
+        json.getJSONArray("stickers").forEach(object -> stickers.add((Sticker) ModelDecoder.decodeObject((JSONObject) object, Sticker.class, discordJar)));
 
         return new StickerPack(
                 json.getString("id"),

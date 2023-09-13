@@ -67,7 +67,9 @@ public enum GuildFeature {
 
     public static EnumSet<GuildFeature> getGuildFeatures(String[] features) {
         EnumSet<GuildFeature> guildFeatures = EnumSet.noneOf(GuildFeature.class);
+        if (features == null) return guildFeatures;
         for (String feature : features) {
+            if (feature == null) continue;
             try {
                 guildFeatures.add(GuildFeature.valueOf(feature.toUpperCase()));
             } catch (IllegalArgumentException e) {

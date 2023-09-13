@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.status.Status;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -140,7 +141,7 @@ public class Activity implements Compilerable {
         if (obj.has("application_id")) applicationId = obj.getString("application_id");
         else applicationId = null;
 
-        if (obj.has("emoji")) emoji = Emoji.decompile(obj.getJSONObject("emoji"), discordJar);
+        if (obj.has("emoji")) emoji = (Emoji) ModelDecoder.decodeObject(obj.getJSONObject("emoji"), Emoji.class, discordJar);
         else emoji = null;
 
         if (obj.has("instance")) instance = obj.getBoolean("instance");

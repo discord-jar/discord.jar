@@ -771,11 +771,11 @@ public class DiscordJar {
     public Sticker getStickerById(String id) {
         Checker.isSnowflake(id, "Given id is not a snowflake");
         try {
-            return Sticker.decompile(new DiscordRequest(
+            return (Sticker) ModelDecoder.decodeObject(new DiscordRequest(
                     new JSONObject(), new HashMap<>(),
                     URLS.GET.STICKER.GET_STICKER.replace("{sticker.id}", id),
                     this, URLS.GET.STICKER.GET_STICKER, RequestMethod.GET
-            ).invoke().body(), this);
+            ).invoke().body(), Sticker.class, this);
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             if (e.getHttpCode() == 404) return null;
             throw new DiscordRequest.DiscordAPIErrorException(e);

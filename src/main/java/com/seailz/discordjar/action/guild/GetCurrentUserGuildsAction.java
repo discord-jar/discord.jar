@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONObject;
@@ -112,7 +113,7 @@ public class GetCurrentUserGuildsAction {
         }
 
         List<Guild> returnGuilds = new ArrayList<>();
-        response.arr().forEach(guild -> returnGuilds.add(Guild.decompile((JSONObject) guild, discordJar)));
+        response.arr().forEach(guild -> returnGuilds.add((Guild) ModelDecoder.decodeObject((JSONObject) guild, Guild.class, discordJar)));
 
         returnGuilds.forEach(g -> discordJar.getGuildCache().cache(g));
         return returnGuilds;

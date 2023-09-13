@@ -24,19 +24,7 @@ public class Team implements Compilerable, Snowflake, Model {
     @JSONProp("owner_user_id")
     private String ownerUserId;
 
-    public Team(
-            String icon,
-            String id,
-            String name,
-            List<TeamMember> members,
-            String ownerUserId
-    ) {
-        this.icon = icon;
-        this.id = id;
-        this.name = name;
-        this.members = members;
-        this.ownerUserId = ownerUserId;
-    }
+    private Team() {}
 
     public String icon() {
         return icon;

@@ -1,6 +1,7 @@
 package com.seailz.discordjar.utils.model;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.model.guild.GuildFeature;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.flag.Bitwiseable;
 import org.json.JSONArray;
@@ -68,7 +69,7 @@ public class ModelDecoder {
                     if (!json.has(prop.value())) continue;
                     Enum<?> decodedEnum = null;
                     try {
-                        decodedEnum = decodeEnum((Class<? extends Enum>) field.getType(), get(json, prop.value()));
+                        decodedEnum = decodeEnum((Class<? extends Enum>) field.getType(), get(json, prop.value(), field.getType()));
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
@@ -89,6 +90,21 @@ public class ModelDecoder {
                             ParameterizedType paramType = (ParameterizedType) genericType;
                             Type[] argTypes = paramType.getActualTypeArguments();
                             Class<? extends Enum> enumClass = (Class<? extends Enum>) argTypes[0];
+
+                            if (enumClass.equals(GuildFeature.class)) {
+                                EnumSet<GuildFeature> set = null;
+                                String[] arr = json.getJSONArray(prop.value()).toList().toArray(
+                                        new String[0]
+                                );
+
+                                set = GuildFeature.getGuildFeatures(arr);
+                                try {
+                                    field.set(inst, set);
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                continue;
+                            }
 
                             // If enumClass extends Bitwiseable, we want to decode it as a Bitwiseable.
                             if (Bitwiseable.class.isAssignableFrom(enumClass)) {
@@ -123,7 +139,7 @@ public class ModelDecoder {
                             continue;
                         }
 
-                        if (!(get(json, prop.value()) instanceof JSONArray)) continue;
+                        if (!(get(json, prop.value(), field.getType()) instanceof JSONArray)) continue;
 
                         List<?> ls = null;
                         try {
@@ -139,7 +155,7 @@ public class ModelDecoder {
                         }
                     } else {
                         if (!json.has(prop.value())) continue;
-                        if (!(get(json, prop.value()) instanceof JSONObject)) continue;
+                        if (!(get(json, prop.value(), field.getType()) instanceof JSONObject)) continue;
                         try {
                             field.set(inst, decodeObject(json.getJSONObject(prop.value()), (Class<? extends Model>) field.getType(), discordJar));
                         } catch (IllegalAccessException e) {
@@ -151,7 +167,7 @@ public class ModelDecoder {
 
                 if (json.has(prop.value())) {
                     try {
-                        field.set(inst, get(json, prop.value()));
+                        field.set(inst, get(json, prop.value(), field.getType()));
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
@@ -193,7 +209,9 @@ public class ModelDecoder {
                 }
             } else {
                 for (Object e : enumClass.getEnumConstants()) {
-                    if (e.getClass().getDeclaredField(valueFieldName).getInt(e) == (int) value) {
+                    Field field = e.getClass().getDeclaredField(valueFieldName);
+                    field.setAccessible(true);
+                    if (field.getInt(e) == (int) value) {
                         return (Enum<?>) e;
                     }
                 }
@@ -216,7 +234,25 @@ public class ModelDecoder {
         }
         return Arrays.asList(arr1);
     }
-    private static Object get(JSONObject in, String key) {
-        return in.has(key) ? (in.get(key).equals(JSONObject.NULL) ? null : in.get(key)) : null;
+    private static Object get(JSONObject in, String key, Class<?> expectedType) {
+        Object nullValue = null;
+
+        // If expectedType is a primitive, set nullValue to the default value for that primitive.
+        if (expectedType == boolean.class) {
+            nullValue = false;
+        } else if (expectedType == byte.class
+                || expectedType == short.class
+                || expectedType == int.class
+                || expectedType == long.class
+                || expectedType == float.class
+                || expectedType == double.class) {
+            nullValue = 0;
+        } else if (expectedType == char.class) {
+            nullValue = '\u0000';
+        }
+
+        if (!in.has(key)) return nullValue;
+        if (in.get(key).equals(JSONObject.NULL)) return nullValue;
+        return in.get(key);
     }
 }

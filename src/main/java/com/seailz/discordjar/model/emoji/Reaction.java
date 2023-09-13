@@ -2,6 +2,7 @@ package com.seailz.discordjar.model.emoji;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
@@ -64,7 +65,7 @@ public record Reaction(
         }
 
         try {
-            emoji = Emoji.decompile(obj.getJSONObject("emoji"), discordJar);
+            emoji = (Emoji) ModelDecoder.decodeObject(obj.getJSONObject("emoji"), Emoji.class, discordJar);
         } catch (Exception e) {
             emoji = null;
         }

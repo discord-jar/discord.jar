@@ -53,7 +53,7 @@ public class InviteMetadataImpl extends InviteImpl implements InviteMetadata {
 
     public static InviteMetadataImpl decompile(JSONObject obj, DiscordJar discordJar) {
         String code = obj.has("code") ? obj.getString("code") : null;
-        Guild guild = obj.has("guild") && obj.get("guild") != JSONObject.NULL ? Guild.decompile(obj.getJSONObject("guild"), discordJar) : null;
+        Guild guild = obj.has("guild") && obj.get("guild") != JSONObject.NULL ? (Guild) ModelDecoder.decodeObject(obj.getJSONObject("guild"), Guild.class, discordJar) : null;
         Channel channel = obj.has("channel") && obj.get("channel") != JSONObject.NULL ? Channel.decompile(obj.getJSONObject("channel"), discordJar) : null;
         User inviter = obj.has("inviter") && obj.get("inviter") != JSONObject.NULL ? (User) ModelDecoder.decodeObject(obj.getJSONObject("inviter"), User.class, discordJar) : null;
         VoiceInviteTargetType voiceInviteTarget = obj.has("target_type") ? VoiceInviteTargetType.fromCode(obj.getInt("target_type")) : null;

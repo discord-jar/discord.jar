@@ -198,13 +198,6 @@ public class Application implements Model, Snowflake, CDNAble {
 
     public DiscordJar discordJar() { return discordJar; }
 
-    @Override
-    public HashMap<String, Function<JSONObject, ?>> customDecoders() {
-        return new HashMap<>(){{
-            put("guild", o -> Guild.decompile(o, discordJar));
-        }};
-    }
-
     private Application() {}
 
     /**

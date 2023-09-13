@@ -196,7 +196,7 @@ public record Message(
             JSONArray mentionRolesArray = obj.getJSONArray("mention_roles");
             mentionRoles = new Role[mentionRolesArray.length()];
             for (int i = 0; i < mentionRolesArray.length(); i++) {
-                mentionRoles[i] = Role.decompile(mentionRolesArray.getJSONObject(i));
+                mentionRoles[i] = (Role) ModelDecoder.decodeObject(mentionRolesArray.getJSONObject(i), Role.class, discordJar);
             }
         } catch (JSONException e) {
             mentionRoles = null;

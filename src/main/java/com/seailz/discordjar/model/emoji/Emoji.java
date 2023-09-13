@@ -5,111 +5,79 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.model.JSONProp;
+import com.seailz.discordjar.utils.model.Model;
 import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Discord Emoji
- *
- * @param id            The emoji's ID.
- * @param name          The emoji's name.
- * @param roles         The roles that are allowed to use this emoji.
- * @param user          The user that created this emoji.
- * @param requireColons Whether this emoji must be wrapped in colons.
- * @param managed       Whether this emoji is managed.
- * @param animated      Whether this emoji is animated.
- * @param available     Whether this emoji can be used, may be false due to loss of Server Boosts.
  */
-public record Emoji(
-        String id,
-        String name,
-        Role[] roles,
-        User user,
-        boolean requireColons,
-        boolean managed,
-        boolean animated,
-        boolean available
-) implements Compilerable, Snowflake {
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("id", id);
-        obj.put("name", name);
-        obj.put("roles", roles);
-        obj.put("user", user);
-        obj.put("require_colons", requireColons);
-        obj.put("managed", managed);
-        obj.put("animated", animated);
-        obj.put("available", available);
-        return obj;
+public class Emoji implements Model, Snowflake {
+    @JSONProp("id")
+    private String id;
+    @JSONProp("name")
+    private String name;
+    @JSONProp("roles")
+    private List<Role> roles;
+    @JSONProp("user")
+    private User user;
+    @JSONProp("require_colons")
+    private boolean requireColons;
+    @JSONProp("managed")
+    private boolean managed;
+    @JSONProp("animated")
+    private boolean animated;
+    @JSONProp("available")
+    private boolean available;
+
+    private Emoji() {}
+
+    private Emoji(String id, String name, List<Role> roles, User user, boolean requireColons, boolean managed, boolean animated, boolean available) {
+        this.id = id;
+        this.name = name;
+        this.roles = roles;
+        this.user = user;
+        this.requireColons = requireColons;
+        this.managed = managed;
+        this.animated = animated;
+        this.available = available;
     }
 
-    @NonNull
-    public static Emoji decompile(JSONObject obj, DiscordJar discordJar) {
-        String id;
-        String name;
-        Role[] roles;
-        User user;
-        boolean requireColons;
-        boolean managed;
-        boolean animated;
-        boolean available;
+    public String id() {
+        return id;
+    }
 
-        try {
-            id = obj.getString("id");
-        } catch (Exception e) {
-            id = null;
-        }
+    public String name() {
+        return name;
+    }
 
-        try {
-            name = obj.getString("name");
-        } catch (Exception e) {
-            name = null;
-        }
+    public List<Role> roles() {
+        return roles;
+    }
 
-        try {
-            ArrayList<Role> rolesList = new ArrayList<>();
-            for (Object o : obj.getJSONArray("roles")) {
-                rolesList.add(Role.decompile((JSONObject) o));
-            }
-            roles = rolesList.toArray(new Role[0]);
-        } catch (Exception e) {
-            roles = null;
-        }
+    public User user() {
+        return user;
+    }
 
-        try {
-            user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
-        } catch (Exception e) {
-            user = null;
-        }
+    public boolean requireColons() {
+        return requireColons;
+    }
 
-        try {
-            requireColons = obj.getBoolean("require_colons");
-        } catch (Exception e) {
-            requireColons = false;
-        }
+    public boolean managed() {
+        return managed;
+    }
 
-        try {
-            managed = obj.getBoolean("managed");
-        } catch (Exception e) {
-            managed = false;
-        }
+    public boolean animated() {
+        return animated;
+    }
 
-        try {
-            animated = obj.getBoolean("animated");
-        } catch (Exception e) {
-            animated = false;
-        }
-
-        try {
-            available = obj.getBoolean("available");
-        } catch (Exception e) {
-            available = false;
-        }
-        return new Emoji(id, name, roles, user, requireColons, managed, animated, available);
+    public boolean available() {
+        return available;
     }
 
     /**

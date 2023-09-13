@@ -62,7 +62,7 @@ public interface JsonCache {
      *
      * @param interval The interval on which to invalidate the cache.
      */
-    default void reset(int interval) {
+    default JsonCache reset(int interval) {
         new Thread(() -> {
             while (true) {
                 try {
@@ -73,6 +73,7 @@ public interface JsonCache {
                 invalidate();
             }
         }, "djar--CacheInvalidate" + new Random().nextInt(999)).start();
+        return this;
     }
 
     /**

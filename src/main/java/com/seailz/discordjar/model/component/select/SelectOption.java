@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.component.select;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.emoji.Emoji;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.json.JSONObject;
 
 /**
@@ -100,7 +101,7 @@ public class SelectOption implements Compilerable {
             option.setDescription(obj.getString("description"));
         }
         if (obj.has("emoji")) {
-            option.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJar));
+            option.setEmoji((Emoji) ModelDecoder.decodeObject(obj.getJSONObject("emoji"), Emoji.class, discordJar));
         }
         if (obj.has("default")) {
             option.setDefaultSelected(obj.getBoolean("default"));

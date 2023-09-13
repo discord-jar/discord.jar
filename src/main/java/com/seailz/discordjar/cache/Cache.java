@@ -3,6 +3,8 @@ package com.seailz.discordjar.cache;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.utils.model.Model;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
@@ -171,26 +173,32 @@ public class Cache<T> {
                     try {
                         decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJar.class, String.class, Guild.class);
                     } catch (NoSuchMethodException exx) {
-                        Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
-                        throw new RuntimeException(exx);
+                        decompile = null;
                     }
                 }
             }
 
-            try {
+            if (decompile == null) {
                 if (response == null) return null;
-                returnObject.set(decompile.invoke(null, response.body(), discordJar));
-            } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+                returnObject.set(ModelDecoder.decodeObject(
+                        response.body(), (Class<? extends Model>) clazz, discordJar
+                ));
+            } else {
                 try {
-                    returnObject.set(decompile.invoke(null, response.body()));
-                } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ex) {
+                    if (response == null) return null;
+                    returnObject.set(decompile.invoke(null, response.body(), discordJar));
+                } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
                     try {
-                        if (guild != null) {
-                            returnObject.set(decompile.invoke(null, response.body(), discordJar, guild.id(), guild));
-                        } else throw new IllegalArgumentException(ex);
-                    } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e1) {
-                        Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
-                        return null;
+                        returnObject.set(decompile.invoke(null, response.body()));
+                    } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ex) {
+                        try {
+                            if (guild != null) {
+                                returnObject.set(decompile.invoke(null, response.body(), discordJar, guild.id(), guild));
+                            } else throw new IllegalArgumentException(ex);
+                        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e1) {
+                            Logger.getLogger("DiscordJar").severe("Was unable to return object from cache, please report this to discord.jar's github!");
+                            return null;
+                        }
                     }
                 }
             }

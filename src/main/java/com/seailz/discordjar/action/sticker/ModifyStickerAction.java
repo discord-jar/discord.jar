@@ -3,6 +3,7 @@ package com.seailz.discordjar.action.sticker;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,7 +55,7 @@ public class ModifyStickerAction {
         CompletableFuture<Sticker> stickerCompletableFuture = new CompletableFuture<>();
         stickerCompletableFuture.completeAsync(() -> {
             try {
-                return Sticker.decompile(
+                return (Sticker) ModelDecoder.decodeObject(
                         new DiscordRequest(
                                 new JSONObject()
                                         .put("name", name != null ? name : JSONObject.NULL)
@@ -69,6 +70,7 @@ public class ModifyStickerAction {
                                 URLS.PATCH.GUILD.STICKER.MODIFY_GUILD_STICKER,
                                 RequestMethod.PATCH
                         ).invoke().body(),
+                        Sticker.class,
                         discordJar
                 );
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {

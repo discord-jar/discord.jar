@@ -6,6 +6,7 @@ import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.button.ButtonStyle;
 import com.seailz.discordjar.model.emoji.Emoji;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.registry.components.ButtonRegistry;
 import org.json.JSONObject;
 
@@ -126,7 +127,7 @@ public class ButtonImpl implements Button {
         if (obj.has("custom_id")) button.setCustomId(obj.getString("custom_id"));
         if (obj.has("url")) button.setUrl(obj.getString("url"));
         if (obj.has("disabled")) button.setDisabled(obj.getBoolean("disabled"));
-        if (obj.has("emoji")) button.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJar));
+        if (obj.has("emoji")) button.setEmoji((Emoji) ModelDecoder.decodeObject(obj.getJSONObject("emoji"), Emoji.class, discordJar));
         button.setRaw(obj);
         return button;
     }

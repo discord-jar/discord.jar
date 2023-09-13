@@ -116,7 +116,7 @@ public record ResolvedData(
         if (obj.has("roles") && !obj.isNull("roles")) {
             JSONObject rolesObj = obj.getJSONObject("roles");
             for (String s : rolesObj.keySet()) {
-                roles.put(s, Role.decompile(rolesObj.getJSONObject(s)));
+                roles.put(s, (Role) ModelDecoder.decodeObject(rolesObj.getJSONObject(s), Role.class, discordJar));
             }
         } else {
             roles = null;

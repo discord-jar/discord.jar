@@ -20,7 +20,7 @@ public enum VerificationLevel {
     // must have a verified phone number
     VERY_HIGH(4);
 
-    private final int code;
+    private int code;
 
     VerificationLevel(int code) {
         this.code = code;

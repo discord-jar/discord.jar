@@ -31,6 +31,9 @@ import com.seailz.discordjar.model.invite.internal.InviteMetadataImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
+import com.seailz.discordjar.utils.model.DiscordJarProp;
+import com.seailz.discordjar.utils.model.JSONProp;
+import com.seailz.discordjar.utils.model.Model;
 import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -49,147 +52,124 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * Represents a guild.
  */
-public class Guild implements Compilerable, Snowflake, CDNAble {
-    private final String id;
-    private final String name;
-    private final String icon;
-    private final String iconHash;
-    private final String splash;
-    private final String discoverySplash;
-    private final boolean isOwner;
-    private final User owner;
-    private final String permissions;
-    private final Channel afkChannel;
-    private final int afkTimeout;
-    private final boolean isWidgetEnabled;
+public class Guild implements Model, Snowflake, CDNAble {
+    @JSONProp("id")
+    private String id;
+    @JSONProp("name")
+    private String name;
+    @JSONProp("icon")
+    private String icon;
+    @JSONProp("icon_hash")
+    private String iconHash;
+    @JSONProp("splash")
+    private String splash;
+    @JSONProp("discovery_splash")
+    private String discoverySplash;
+    @JSONProp("owner")
+    private boolean isOwner;
+    @JSONProp("owner_id")
+    private String ownerId;
+    private User owner;
+    @JSONProp("permissions")
+    private String permissions;
+    @JSONProp("region")
+    private String region;
+    @JSONProp("afk_channel_id")
+    private String afkChannelId;
+    private Channel afkChannel;
+    @JSONProp("afk_timeout")
+    private int afkTimeout;
+    @JSONProp("widget_enabled")
+    private boolean isWidgetEnabled;
     private Channel widgetChannel = null;
-    private final String widgetChannelId;
-    private final VerificationLevel verificationLevel;
-    private final DefaultMessageNotificationLevel defaultMessageNotificationLevel;
-    private final ExplicitContentFilterLevel explicitContentFilterLevel;
-    private final List<Role> roles;
-    private final List<Emoji> emojis;
-    private final EnumSet<GuildFeature> features;
-    private final MFALevel mfaLevel;
-    private final String applicationId;
+    @JSONProp("widget_channel_id")
+    private String widgetChannelId;
+    @JSONProp("verification_level")
+    private VerificationLevel verificationLevel;
+    @JSONProp("default_message_notifications")
+    private DefaultMessageNotificationLevel defaultMessageNotificationLevel;
+    @JSONProp("explicit_content_filter")
+    private ExplicitContentFilterLevel explicitContentFilterLevel;
+    @JSONProp("roles")
+    private List<Role> roles;
+    @JSONProp("emojis")
+    private List<Emoji> emojis;
+    @JSONProp("features")
+    private EnumSet<GuildFeature> features;
+    @JSONProp("mfa_level")
+    private MFALevel mfaLevel;
+    @JSONProp("application_id")
+    private String applicationId;
     private Channel systemChannel;
-    private final String systemChannelId;
-    private final int maxPresences;
-    private final int maxMembers;
-    private final String vanityUrlCode;
-    private final String description;
-    private final String banner;
-    private final PremiumTier premiumTier;
-    private final int premiumSubscriptionCount;
-    private final String preferredLocale;
+    @JSONProp("system_channel_id")
+    private String systemChannelId;
+    @JSONProp("system_channel_flags")
+    private SystemChannelFlags systemChannelFlags;
+    @JSONProp("rules_channel_id")
+    private String rulesChannelId;
+    private Channel rulesChannel = null;
+    @JSONProp("max_presences")
+    private int maxPresences;
+    @JSONProp("max_members")
+    private int maxMembers;
+    @JSONProp("vanity_url_code")
+    private String vanityUrlCode;
+    @JSONProp("description")
+    private String description;
+    @JSONProp("banner")
+    private String banner;
+    @JSONProp("premium_tier")
+    private PremiumTier premiumTier;
+    @JSONProp("premium_subscription_count")
+    private int premiumSubscriptionCount;
+    @JSONProp("preferred_locale")
+    private String preferredLocale;
     private Channel publicUpdatesChannel;
-    private final String publicUpdatesChannelId;
-    private final int maxVideoChannelUsers;
-    private final int maxStageVideoChannelUsers;
-    private final int approximateMemberCount;
-    private final int approximatePresenceCount;
-    private final WelcomeScreen welcomeScreen;
-    private final List<Sticker> stickers;
-    private final boolean premiumProgressBarEnabled;
-    private final String safetyAlertChannelId;
+    @JSONProp("public_updates_channel_id")
+    private String publicUpdatesChannelId;
+    @JSONProp("max_video_channel_users")
+    private int maxVideoChannelUsers;
+    @JSONProp("max_stage_video_channel_users")
+    private int maxStageVideoChannelUsers;
+    @JSONProp("approximate_member_count")
+    private int approximateMemberCount;
+    @JSONProp("approximate_presence_count")
+    private int approximatePresenceCount;
+    @JSONProp("welcome_screen")
+    private WelcomeScreen welcomeScreen;
+    @JSONProp("stickers")
+    private List<Sticker> stickers;
+    @JSONProp("premium_progress_bar_enabled")
+    private boolean premiumProgressBarEnabled;
+    @JSONProp("safety_alerts_channel_id")
+    private String safetyAlertChannelId;
     private Channel safetyAlertChannel = null;
-    private final DiscordJar discordJar;
-    private final JsonCache roleCache;
+    @DiscordJarProp
+    private DiscordJar discordJar;
+    @JSONProp("role_cache_priv_obj")
+    private JsonCache roleCache;
 
-    public Guild(
-            String id,
-            String name,
-            String icon,
-            String iconHash,
-            String splash,
-            String discoverySplash,
-            boolean isOwner,
-            User owner,
-            String permissions,
-            Channel afkChannel,
-            int afkTimeout,
-            boolean isWidgetEnabled,
-            String widgetChannelId,
-            VerificationLevel verificationLevel,
-            DefaultMessageNotificationLevel defaultMessageNotificationLevel,
-            ExplicitContentFilterLevel explicitContentFilterLevel,
-            List<Role> roles,
-            List<Emoji> emojis,
-            EnumSet<GuildFeature> features,
-            MFALevel mfaLevel,
-            String applicationId,
-            Channel systemChannel,
-            String systemChannelId,
-            int maxPresences,
-            int maxMembers,
-            String vanityUrlCode,
-            String description,
-            String banner,
-            PremiumTier premiumTier,
-            int premiumSubscriptionCount,
-            String preferredLocale,
-            Channel publicUpdatesChannel,
-            String publicUpdatesChannelId,
-            int maxVideoChannelUsers,
-            int maxStageVideoChannelUsers,
-            int approximateMemberCount,
-            int approximatePresenceCount,
-            WelcomeScreen welcomeScreen,
-            List<Sticker> stickers,
-            boolean premiumProgressBarEnabled,
-            String safetyAlertChannelId,
-            DiscordJar discordJar,
-            JsonCache roleCache
-    ) {
-        this.id = id;
-        this.name = name;
-        this.icon = icon;
-        this.iconHash = iconHash;
-        this.splash = splash;
-        this.discoverySplash = discoverySplash;
-        this.isOwner = isOwner;
-        this.owner = owner;
-        this.permissions = permissions;
-        this.afkChannel = afkChannel;
-        this.afkTimeout = afkTimeout;
-        this.isWidgetEnabled = isWidgetEnabled;
-        this.widgetChannelId = widgetChannelId;
-        this.verificationLevel = verificationLevel;
-        this.defaultMessageNotificationLevel = defaultMessageNotificationLevel;
-        this.explicitContentFilterLevel = explicitContentFilterLevel;
-        this.roles = roles;
-        this.emojis = emojis;
-        this.features = features;
-        this.mfaLevel = mfaLevel;
-        this.applicationId = applicationId;
-        this.systemChannel = systemChannel;
-        this.systemChannelId = systemChannelId;
-        this.maxPresences = maxPresences;
-        this.maxMembers = maxMembers;
-        this.vanityUrlCode = vanityUrlCode;
-        this.description = description;
-        this.banner = banner;
-        this.premiumTier = premiumTier;
-        this.premiumSubscriptionCount = premiumSubscriptionCount;
-        this.preferredLocale = preferredLocale;
-        this.publicUpdatesChannel = publicUpdatesChannel;
-        this.publicUpdatesChannelId = publicUpdatesChannelId;
-        this.maxVideoChannelUsers = maxVideoChannelUsers;
-        this.maxStageVideoChannelUsers = maxStageVideoChannelUsers;
-        this.approximateMemberCount = approximateMemberCount;
-        this.approximatePresenceCount = approximatePresenceCount;
-        this.welcomeScreen = welcomeScreen;
-        this.stickers = stickers;
-        this.premiumProgressBarEnabled = premiumProgressBarEnabled;
-        this.safetyAlertChannelId = safetyAlertChannelId;
-        this.discordJar = discordJar;
-        this.roleCache = roleCache;
+    private Guild() {}
+
+    @Override
+    public HashMap<String, Function<JSONObject, ?>> customDecoders() {
+        return new HashMap<>(){{
+            put("role_cache_priv_obj", (j) -> JsonCache.newc(new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
+                    RequestMethod.GET
+            )).reset(60000));
+        }};
     }
 
     public String id() {
@@ -216,11 +196,16 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         return discoverySplash;
     }
 
+    public String regionId() {
+        return region;
+    }
+
     public boolean isOwner() {
         return isOwner;
     }
 
     public User owner() {
+        if (owner == null) owner = discordJar.getUserById(ownerId);
         return owner;
     }
 
@@ -229,6 +214,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     public Channel afkChannel() {
+        if (afkChannel == null) afkChannel = discordJar.getChannelById(afkChannelId);
         return afkChannel;
     }
 
@@ -250,6 +236,14 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     public ExplicitContentFilterLevel explicitContentFilterLevel() {
         return explicitContentFilterLevel;
+    }
+    public SystemChannelFlags systemChannelFlags() {
+        return systemChannelFlags;
+    }
+
+    public Channel rulesChannel() {
+        if (rulesChannel == null) rulesChannel = discordJar.getChannelById(rulesChannelId);
+        return rulesChannel;
     }
 
     public List<Emoji> emojis() {
@@ -340,394 +334,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         return roleCache;
     }
 
-
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("id", id)
-                .put("name", name)
-                .put("icon", icon)
-                .put("icon_hash", iconHash)
-                .put("splash", splash)
-                .put("discovery_splash", discoverySplash)
-                .put("owner", isOwner)
-                .put("owner_id", owner)
-                .put("permissions", permissions)
-                .put("afk_channel_id", afkChannel.id())
-                .put("afk_timeout", afkTimeout)
-                .put("widget_enabled", isWidgetEnabled)
-                .put("widget_channel_id", widgetChannel.id())
-                .put("verification_level", verificationLevel.getCode())
-                .put("default_message_notifications", defaultMessageNotificationLevel.getCode())
-                .put("explicit_content_filter", explicitContentFilterLevel.getCode())
-                .put("roles", roles)
-                .put("emojis", emojis)
-                .put("features", features)
-                .put("mfa_level", mfaLevel.getCode())
-                .put("application_id", applicationId)
-                .put("system_channel_id", systemChannelId)
-                .put("max_presences", maxPresences)
-                .put("max_members", maxMembers)
-                .put("vanity_url_code", vanityUrlCode)
-                .put("description", description)
-                .put("banner", banner)
-                .put("premium_tier", premiumTier.getCode())
-                .put("premium_subscription_count", premiumSubscriptionCount)
-                .put("preferred_locale", preferredLocale)
-                .put("public_updates_channel_id", publicUpdatesChannelId)
-                .put("max_video_channel_users", maxVideoChannelUsers)
-                .put("max_stage_video_channel_users", maxStageVideoChannelUsers)
-                .put("approximate_member_count", approximateMemberCount)
-                .put("approximate_presence_count", approximatePresenceCount)
-                .put("welcome_screen", welcomeScreen)
-                .put("stickers", stickers)
-                .put("premium_progress_bar_enabled", premiumProgressBarEnabled)
-                .put("safety_alerts_channel_id", safetyAlertChannelId);
-    }
-
-    @NotNull
-    public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
-        long nano = System.nanoTime();
-        String id;
-        String name;
-        String icon;
-        String iconHash;
-        String splash;
-        String discoverySplash;
-        boolean isOwner;
-        User owner;
-        String permissions;
-        Channel afkChannel;
-        int afkTimeout;
-        boolean isWidgetEnabled;
-        String widgetChannelId;
-        VerificationLevel verificationLevel;
-        DefaultMessageNotificationLevel defaultMessageNotificationLevel;
-        ExplicitContentFilterLevel explicitContentFilterLevel;
-        List<Role> roles;
-        List<Emoji> emojis;
-        EnumSet<GuildFeature> features;
-        MFALevel mfaLevel;
-        String applicationId;
-        String systemChannelId;
-        int maxPresences;
-        int maxMembers;
-        String vanityUrlCode;
-        String description;
-        String banner;
-        PremiumTier premiumTier;
-        int premiumSubscriptionCount;
-        String preferredLocale;
-        String publicUpdatesChannelId;
-        int maxVideoChannelUsers;
-        int maxStageVideoChannelUsers = 0;
-        int approximateMemberCount;
-        int approximatePresenceCount;
-        WelcomeScreen welcomeScreen;
-        List<Sticker> stickers;
-        boolean premiumProgressBarEnabled;
-        String safetyAlertsChannelId = null;
-
-        try {
-            id = obj.getString("id");
-        } catch (JSONException e) {
-            id = null;
-        }
-
-        try {
-            name = obj.getString("name");
-        } catch (JSONException e) {
-            name = null;
-        }
-
-        try {
-            icon = obj.getString("icon");
-        } catch (JSONException e) {
-            icon = null;
-        }
-
-        try {
-            iconHash = obj.getString("icon_hash");
-        } catch (JSONException e) {
-            iconHash = null;
-        }
-
-        try {
-            splash = obj.getString("splash");
-        } catch (JSONException e) {
-            splash = null;
-        }
-
-        try {
-            discoverySplash = obj.getString("discovery_splash");
-        } catch (JSONException e) {
-            discoverySplash = null;
-        }
-
-        try {
-            isOwner = obj.getBoolean("owner");
-        } catch (JSONException e) {
-            isOwner = false;
-        }
-
-        try {
-            owner = (User) ModelDecoder.decodeObject(obj.getJSONObject("owner"), User.class, discordJar);
-        } catch (JSONException e) {
-            owner = null;
-        }
-
-        try {
-            permissions = obj.getString("permissions");
-        } catch (JSONException e) {
-            permissions = null;
-        }
-
-        try {
-            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"), discordJar);
-        } catch (JSONException e) {
-            afkChannel = null;
-        }
-
-        try {
-            afkTimeout = obj.getInt("afk_timeout");
-        } catch (JSONException e) {
-            afkTimeout = 0;
-        }
-
-        try {
-            isWidgetEnabled = obj.getBoolean("widget_enabled");
-        } catch (JSONException e) {
-            isWidgetEnabled = false;
-        }
-
-        try {
-            widgetChannelId =obj.getString("widget_channel_id");
-        } catch (JSONException e) {
-            widgetChannelId = null;
-        }
-
-        try {
-            verificationLevel = VerificationLevel.getVerificationLevel(obj.getInt("verification_level"));
-        } catch (JSONException e) {
-            verificationLevel = null;
-        }
-
-        try {
-            defaultMessageNotificationLevel = DefaultMessageNotificationLevel.getDefaultMessageNotificationLevel(obj.getInt("default_message_notifications"));
-        } catch (JSONException e) {
-            defaultMessageNotificationLevel = null;
-        }
-
-        try {
-            explicitContentFilterLevel = ExplicitContentFilterLevel.getExplicitContentFilterLevel(obj.getInt("explicit_content_filter"));
-        } catch (JSONException e) {
-            explicitContentFilterLevel = null;
-        }
-
-        try {
-            JSONArray rolesArray = obj.getJSONArray("roles");
-            roles = new ArrayList<>();
-            for (int i = 0; i < rolesArray.length(); i++) {
-                roles.add(Role.decompile(rolesArray.getJSONObject(i)));
-            }
-        } catch (JSONException e) {
-            roles = null;
-        }
-
-        try {
-            JSONArray emojisArray = obj.getJSONArray("emojis");
-            emojis = new ArrayList<>();
-            for (int i = 0; i < emojisArray.length(); i++) {
-                emojis.add(Emoji.decompile(emojisArray.getJSONObject(i), discordJar));
-            }
-        } catch (JSONException e) {
-            emojis = null;
-        }
-
-        try {
-            features = GuildFeature.getGuildFeatures(obj.getJSONArray("features").toList().toArray(new String[0]));
-        } catch (JSONException e) {
-            features = null;
-        }
-
-        try {
-            mfaLevel = MFALevel.getMFALevel(obj.getInt("mfa_level"));
-        } catch (JSONException e) {
-            mfaLevel = null;
-        }
-
-        try {
-            applicationId = obj.getString("application_id");
-        } catch (JSONException e) {
-            applicationId = null;
-        }
-
-        try {
-            systemChannelId = obj.getString("system_channel_id");
-        } catch (IllegalArgumentException | JSONException e) {
-            systemChannelId = null;
-        }
-
-        try {
-            maxPresences = obj.getInt("max_presences");
-        } catch (JSONException e) {
-            maxPresences = 0;
-        }
-
-        try {
-            maxMembers = obj.getInt("max_members");
-        } catch (JSONException e) {
-            maxMembers = 0;
-        }
-
-        try {
-            vanityUrlCode = obj.getString("vanity_url_code");
-        } catch (JSONException e) {
-            vanityUrlCode = null;
-        }
-
-        try {
-            description = obj.getString("description");
-        } catch (JSONException e) {
-            description = null;
-        }
-
-        try {
-            banner = obj.getString("banner");
-        } catch (JSONException e) {
-            banner = null;
-        }
-
-        try {
-            premiumTier = PremiumTier.getPremiumTier(obj.getInt("premium_tier"));
-        } catch (JSONException e) {
-            premiumTier = null;
-        }
-
-        try {
-            premiumSubscriptionCount = obj.getInt("premium_subscription_count");
-        } catch (JSONException e) {
-            premiumSubscriptionCount = 0;
-        }
-
-        try {
-            preferredLocale = obj.getString("preferred_locale");
-        } catch (JSONException e) {
-            preferredLocale = null;
-        }
-
-        try {
-            publicUpdatesChannelId = obj.getString("public_updates_channel_id");
-        } catch (Exception e) {
-            publicUpdatesChannelId = null;
-        }
-
-        try {
-            maxVideoChannelUsers = obj.getInt("max_video_channel_users");
-        } catch (JSONException e) {
-            maxVideoChannelUsers = 0;
-        }
-        
-        try {
-            approximateMemberCount = obj.getInt("approximate_member_count");
-        } catch (JSONException e) {
-            approximateMemberCount = 0;
-        }
-
-        try {
-            approximateMemberCount = obj.getInt("approximate_member_count");
-        } catch (JSONException e) {
-            approximateMemberCount = 0;
-        }
-
-        try {
-            approximatePresenceCount = obj.getInt("approximate_presence_count");
-        } catch (JSONException e) {
-            approximatePresenceCount = 0;
-        }
-
-        try {
-            welcomeScreen = WelcomeScreen.decompile(obj.getJSONObject("welcome_screen"), discordJar);
-        } catch (JSONException e) {
-            welcomeScreen = null;
-        }
-
-        try {
-            JSONArray stickersArray = obj.getJSONArray("stickers");
-            stickers = new ArrayList<>();
-            for (int i = 0; i < stickersArray.length(); i++) {
-                stickers.add(Sticker.decompile(stickersArray.getJSONObject(i), discordJar));
-            }
-        } catch (JSONException e) {
-            stickers = null;
-        }
-
-        try {
-            premiumProgressBarEnabled = obj.getBoolean("premium_progress_bar_enabled");
-        } catch (JSONException e) {
-            premiumProgressBarEnabled = false;
-        }
-
-        if (obj.has("safety_alerts_channel_id") && !obj.isNull("safety_alerts_channel_id")) {
-            safetyAlertsChannelId = obj.getString("safety_alerts_channel_id");
-        }
-
-        Guild g = new Guild(
-                id,
-                name,
-                icon,
-                iconHash,
-                splash,
-                discoverySplash,
-                isOwner,
-                owner,
-                permissions,
-                afkChannel,
-                afkTimeout,
-                isWidgetEnabled,
-                widgetChannelId,
-                verificationLevel,
-                defaultMessageNotificationLevel,
-                explicitContentFilterLevel,
-                roles,
-                emojis,
-                features,
-                mfaLevel,
-                applicationId,
-                null,
-                systemChannelId,
-                maxPresences,
-                maxMembers,
-                vanityUrlCode,
-                description,
-                banner,
-                premiumTier,
-                premiumSubscriptionCount,
-                preferredLocale,
-                null,
-                publicUpdatesChannelId,
-                maxVideoChannelUsers,
-                maxStageVideoChannelUsers,
-                approximateMemberCount,
-                approximatePresenceCount,
-                welcomeScreen,
-                stickers,
-                premiumProgressBarEnabled,
-                safetyAlertsChannelId,
-                discordJar,
-                JsonCache.newc(new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
-                        discordJar,
-                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
-                        RequestMethod.GET
-                ))
-        );
-        g.roleCache.reset(60000);
-        return g;
-    }
-
     public Channel systemChannel() {
         if (systemChannelId == null) return null;
         if (this.systemChannel != null) return this.systemChannel;
@@ -808,7 +414,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      */
     public Sticker getStickerById(String stickerId) {
         try {
-            return Sticker.decompile(
+            return (Sticker) ModelDecoder.decodeObject(
                     new DiscordRequest(
                             new JSONObject(),
                             new HashMap<>(),
@@ -823,6 +429,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                             URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER,
                             RequestMethod.GET
                     ).invoke().body(),
+                    Sticker.class,
                     discordJar
             );
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1020,7 +627,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     discordJar,
                     URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
                     RequestMethod.GET
-            ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJar)));
+            ).invoke().arr().forEach((object) -> emojis.add((Emoji) ModelDecoder.decodeObject((JSONObject) object, Emoji.class, discordJar)));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -1035,7 +642,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      */
     public Emoji getEmojiById(@NotNull String emojiId) {
         try {
-            return Emoji.decompile(
+            return (Emoji) ModelDecoder.decodeObject(
                     new DiscordRequest(
                             new JSONObject(),
                             new HashMap<>(),
@@ -1044,6 +651,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                             URLS.GET.GUILDS.GET_GUILD,
                             RequestMethod.GET
                     ).invoke().body(),
+                    Emoji.class,
                     discordJar
             );
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
@@ -1101,7 +709,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         if (roleCache != null && !roleCache.isEmpty()) {
             List<Role> roles = new ArrayList<>();
             roleCache.get().getJSONArray("data").forEach(
-                    o -> roles.add(Role.decompile((JSONObject) o))
+                    o -> roles.add((Role) ModelDecoder.decodeObject((JSONObject) o, Role.class, discordJar))
             );
             return roles;
         }
@@ -1127,7 +735,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             System.out.println(response.code() + " " + (response.body() == null ? "null" : response.body().toString()));
         }
 
-        res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
+        res.forEach(o -> roles.add((Role) ModelDecoder.decodeObject((JSONObject) o, Role.class, discordJar)));
 
         if (roleCache != null) {
             roleCache.update(new JSONObject().put("data", res));
@@ -1989,7 +1597,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                             obj.has("id") ? obj.getString("id") : null,
                             obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
                             obj.getJSONArray("role_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
-                            Emoji.decompile(obj.getJSONObject("emoji"), discordJar),
+                            (Emoji) ModelDecoder.decodeObject(obj.getJSONObject("emoji"), Emoji.class, discordJar),
                             obj.getString("title"),
                             obj.getString("description")
                     );

@@ -5,6 +5,7 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,7 +116,7 @@ public record UnavailableGuild(
             JSONArray emojiArray = obj.getJSONArray("emojis");
 
             for (int i = 0; i < emojiArray.length(); i++) {
-                emojiList.add(Emoji.decompile(emojiArray.getJSONObject(i), discordjv));
+                emojiList.add((Emoji) ModelDecoder.decodeObject(emojiArray.getJSONObject(i), Emoji.class, discordjv));
             }
             emojis = emojiList;
         } catch (JSONException e) {
@@ -157,7 +158,7 @@ public record UnavailableGuild(
             JSONArray stickerArray = obj.getJSONArray("stickers");
 
             for (int i = 0; i < stickerArray.length(); i++) {
-                stickerList.add(Sticker.decompile(stickerArray.getJSONObject(i), discordjv));
+                stickerList.add((Sticker) ModelDecoder.decodeObject(stickerArray.getJSONObject(i), Sticker.class, discordjv));
             }
             stickers = stickerList;
         } catch (JSONException e) {

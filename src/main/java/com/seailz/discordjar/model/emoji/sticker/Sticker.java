@@ -4,6 +4,8 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Snowflake;
+import com.seailz.discordjar.utils.model.JSONProp;
+import com.seailz.discordjar.utils.model.Model;
 import com.seailz.discordjar.utils.model.ModelDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -15,148 +17,82 @@ import java.util.List;
 
 /**
  * Represents a sticker
- *
- * @param id          The id of the sticker
- * @param packId      The id of the pack the sticker is from
- * @param name        The name of the sticker
- * @param description The description of the sticker
- * @param tags        The tags for the sticker
- * @param type        The {@link StickerType} of the sticker
- * @param format      The {@link StickerFormat} of the sticker
- * @param available   Whether the sticker is available
- * @param guildId     The id of the guild that owns this sticker
- * @param user        The user that uploaded the guild sticker
- * @param sortValue   The standard sticker's sort order within its pack
  */
-public record Sticker(
-        String id,
-        String packId,
-        String name,
-        String description,
-        String tags,
-        StickerType type,
-        StickerFormat format,
-        boolean available,
-        String guildId,
-        User user,
-        int sortValue
-) implements Compilerable, Snowflake {
+public class Sticker implements Model, Snowflake {
 
+    @JSONProp("id")
+    private String id;
+    @JSONProp("pack_id")
+    private String packId;
+    @JSONProp("name")
+    private String name;
+    @JSONProp("description")
+    private String description;
+    @JSONProp("tags")
+    private String tags;
+    @JSONProp("type")
+    private StickerType type;
+    @JSONProp("format_type")
+    private StickerFormat format;
+    @JSONProp("available")
+    private boolean available;
+    @JSONProp("guild_id")
+    private String guildId;
+    @JSONProp("user")
+    private User user;
+    @JSONProp("sort_value")
+    private int sortValue;
 
-    /**
-     * Creates a {@link JSONObject} from a {@link Sticker} object
-     *
-     * @return The compiled {@link JSONObject}
-     */
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("id", id)
-                .put("pack_id", packId)
-                .put("name", name)
-                .put("description", description)
-                .put("tags", tags)
-                .put("type", type.getCode())
-                .put("format", format.getCode())
-                .put("available", available)
-                .put("guild_id", guildId)
-                .put("user", user.compile())
-                .put("sort_value", sortValue);
+    private Sticker() {}
+
+    public String id() {
+        return id;
     }
 
-    /**
-     * Creates a {@link Sticker} object from a {@link JSONObject}
-     *
-     * @param obj The {@link JSONObject} to create the {@link Sticker} object from
-     * @return The compiled {@link Sticker} object
-     */
-    @NotNull
-    public static Sticker decompile(JSONObject obj, DiscordJar discordJar) {
-        String id;
-        String packId;
-        String name;
-        String description;
-        String tags;
-        StickerType type;
-        StickerFormat format;
-        boolean available;
-        String guildId;
-        User user;
-        int sortValue;
+    public String packId() {
+        return packId;
+    }
 
-        try {
-            id = obj.getString("id");
-        } catch (JSONException e) {
-            id = null;
-        }
+    public String name() {
+        return name;
+    }
 
-        try {
-            packId = obj.getString("pack_id");
-        } catch (JSONException e) {
-            packId = null;
-        }
+    public String description() {
+        return description;
+    }
 
-        try {
-            name = obj.getString("name");
-        } catch (JSONException e) {
-            name = null;
-        }
+    public String tags() {
+        return tags;
+    }
 
-        try {
-            description = obj.getString("description");
-        } catch (JSONException e) {
-            description = null;
-        }
+    public StickerType type() {
+        return type;
+    }
 
-        try {
-            tags = obj.getString("tags");
-        } catch (JSONException e) {
-            tags = null;
-        }
+    public StickerFormat format() {
+        return format;
+    }
 
-        try {
-            type = StickerType.getStickerTypeByCode(obj.getInt("type"));
-        } catch (JSONException e) {
-            type = null;
-        }
+    public boolean available() {
+        return available;
+    }
 
-        try {
-            format = StickerFormat.getStickerFormatByCode(obj.getInt("format"));
-        } catch (JSONException e) {
-            format = null;
-        }
+    public String guildId() {
+        return guildId;
+    }
 
-        try {
-            available = obj.getBoolean("available");
-        } catch (JSONException e) {
-            available = false;
-        }
+    public User user() {
+        return user;
+    }
 
-        try {
-            guildId = obj.getString("guild_id");
-        } catch (JSONException e) {
-            guildId = null;
-        }
-
-        try {
-            user = (User) ModelDecoder.decodeObject(obj.getJSONObject("user"), User.class, discordJar);
-        } catch (JSONException e) {
-            user = null;
-        }
-
-        try {
-            sortValue = obj.getInt("sort_value");
-        } catch (JSONException e) {
-            sortValue = 0;
-        }
-
-        return new Sticker(id, packId, name, description, tags, type, format, available, guildId, user, sortValue);
+    public int sortValue() {
+        return sortValue;
     }
 
     public static List<Sticker> decompileList(JSONArray array, DiscordJar discordJar) {
         List<Sticker> stickers = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
-            stickers.add(decompile(array.getJSONObject(i), discordJar));
+            stickers.add((Sticker) ModelDecoder.decodeObject(array.getJSONObject(i), Sticker.class, discordJar));
         }
         return stickers;
     }

@@ -31,29 +31,29 @@ public class Bucket {
         this.resetAfter = new AtomicLong(resetAfterMillis);
         this.debug = debug;
         // Start the reset thread
-        new Thread(() -> {
-            while (true) {
-                if (remaining != 0) {
-                    continue;
-                }
-                long currentReset = atomicReset.get();
-                long currentTime = System.currentTimeMillis();
-
-                if (currentReset > currentTime) {
-                    try {
-                        Thread.sleep(currentReset - currentTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (atomicReset.compareAndSet(currentReset, System.currentTimeMillis() + resetAfterMillis)) {
-                    if (debug) {
-                        System.out.println("Resetting requests for " + id);
-                    }
-                    reset(); // Reset the bucket only if the currentReset is still the same as the one we fetched above.
-                }
-            }
-        }, "djar--bucket-reset").start();
+//        new Thread(() -> {
+//            while (true) {
+//                if (remaining != 0) {
+//                    continue;
+//                }
+//                long currentReset = atomicReset.get();
+//                long currentTime = System.currentTimeMillis();
+//
+//                if (currentReset > currentTime) {
+//                    try {
+//                        Thread.sleep(currentReset - currentTime);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                if (atomicReset.compareAndSet(currentReset, System.currentTimeMillis() + resetAfterMillis)) {
+//                    if (debug) {
+//                        System.out.println("Resetting requests for " + id);
+//                    }
+//                    reset(); // Reset the bucket only if the currentReset is still the same as the one we fetched above.
+//                }
+//            }
+//        }, "djar--bucket-reset").start();
     }
 
     public synchronized  Bucket update(int limit, int remaining, double reset, float resetAfter) {

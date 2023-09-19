@@ -1,8 +1,31 @@
 package com.seailz.discordjar.utils.image;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Base64;
 
 public class ImageUtils {
+
+    public static String generateImageData(File file) {
+        String fileType = null;
+        try {
+            fileType = Files.probeContentType(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(fileType);
+        return "data:" + fileType + ";base64," + Base64.getEncoder().encodeToString(getFileBytes(file));
+    }
+
+    private static byte[] getFileBytes(File file) {
+        try {
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static String getUrl(String hash, ImageType type, String... params) {
         String urlWithBase = "https://cdn.discordapp.com/" + type.getUrl();

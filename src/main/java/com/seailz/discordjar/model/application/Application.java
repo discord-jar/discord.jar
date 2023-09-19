@@ -12,6 +12,7 @@ import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.model.DiscordJarProp;
 import com.seailz.discordjar.utils.model.JSONProp;
 import com.seailz.discordjar.utils.model.Model;
+import com.seailz.discordjar.utils.model.ModelDecoder;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
@@ -223,7 +224,7 @@ public class Application implements Model, Snowflake, CDNAble {
 
         if (response.code() == 200) {
             return new JSONArray(response.body()).toList().stream()
-                    .map(o -> ApplicationRoleConnectionMetadata.decompile((JSONObject) o))
+                    .map(o -> (ApplicationRoleConnectionMetadata) ModelDecoder.decodeObject((JSONObject) o, ApplicationRoleConnectionMetadata.class, discordJar))
                     .toList();
         } else {
             return null;

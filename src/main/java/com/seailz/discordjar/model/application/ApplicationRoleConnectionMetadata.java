@@ -1,11 +1,14 @@
 package com.seailz.discordjar.model.application;
 
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.utils.model.JSONProp;
+import com.seailz.discordjar.utils.model.Model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.function.Function;
 
 /**
  * A representation of role connection metadata for an application. <p>
@@ -16,7 +19,7 @@ import java.util.HashMap;
  * its metadata will appear in the role verification configuration when the
  * application has been added as a verification method to the role. <p>
  *
- * When a user connects their account using the bot's role_connections_verification_url,
+ * When a user connects their account using the bots role_connections_verification_url,
  * the bot will update a user's role connection with metadata
  * using the OAuth2 {@code role_connections.write} scope.
  *
@@ -24,65 +27,72 @@ import java.util.HashMap;
  * @since  1.0
  * @see    Application
  */
-public record ApplicationRoleConnectionMetadata(
-        Type type,
-        String key,
-        String name,
-        HashMap<String, String> nameLocalizations,
-        String description,
-        HashMap<String, String> descriptionLocalizations
-) implements Compilerable {
+
+public class ApplicationRoleConnectionMetadata implements Model {
+    @JSONProp("type")
+    private Type type;
+    @JSONProp("key")
+    private String key;
+    @JSONProp("name")
+    private String name;
+    @JSONProp("name_localizations")
+    private HashMap<String, String> nameLocalizations;
+    @JSONProp("description")
+    private String description;
+    @JSONProp("description_localizations")
+    private HashMap<String, String> descriptionLocalizations;
+
     @Override
-    public JSONObject compile() {
-        JSONObject json = new JSONObject();
-        json.put("type", type.getCode());
-        json.put("key", key);
-        json.put("name", name);
-        if (!nameLocalizations.isEmpty()) json.put("name_localizations", new JSONObject(nameLocalizations));
-        json.put("description", description);
-        if (!descriptionLocalizations.isEmpty()) json.put("description_localizations", new JSONObject(descriptionLocalizations));
-        return json;
+    public HashMap<String, Function<JSONObject, ?>> customDecoders() {
+        return new HashMap<>(){{
+            put("name_localizations", (json) -> {
+                if (json.has("name_localizations")) {
+                    JSONObject nameLocalizationsJson = json.getJSONObject("name_localizations");
+                    HashMap<String, String> nameLocalizations = new HashMap<>();
+                    for (String key1 : nameLocalizationsJson.keySet()) {
+                        nameLocalizations.put(key1, nameLocalizationsJson.getString(key1));
+                    }
+                    return nameLocalizations;
+                }
+                return null;
+            });
+
+            put("description_localizations", (json) -> {
+                if (json.has("description_localizations")) {
+                    JSONObject descriptionLocalizationsJson = json.getJSONObject("description_localizations");
+                    HashMap<String, String> descriptionLocalizations = new HashMap<>();
+                    for (String key1 : descriptionLocalizationsJson.keySet()) {
+                        descriptionLocalizations.put(key1, descriptionLocalizationsJson.getString(key1));
+                    }
+                    return descriptionLocalizations;
+                }
+                return null;
+            });
+        }};
     }
 
-    @NotNull
-    @Contract("_ -> new")
-    public static ApplicationRoleConnectionMetadata decompile(@NotNull JSONObject json) {
-        Type type = json.has("type") ? Type.fromCode(json.getInt("type")) : null;
-        String key = json.has("key") ? json.getString("key") : null;
-        String name = json.has("name") ? json.getString("name") : null;
-        HashMap<String, String> nameLocalizations;
+    public Type type() {
+        return type;
+    }
 
-        if (json.has("name_localizations")) {
-            JSONObject nameLocalizationsJson = json.getJSONObject("name_localizations");
-            nameLocalizations = new HashMap<>();
-            for (String key1 : nameLocalizationsJson.keySet()) {
-                nameLocalizations.put(key1, nameLocalizationsJson.getString(key1));
-            }
-        } else {
-            nameLocalizations = null;
-        }
+    public String key() {
+        return key;
+    }
 
-        String description = json.has("description") ? json.getString("description") : null;
-        HashMap<String, String> descriptionLocalizations;
+    public String name() {
+        return name;
+    }
 
-        if (json.has("description_localizations")) {
-            JSONObject descriptionLocalizationsJson = json.getJSONObject("description_localizations");
-            descriptionLocalizations = new HashMap<>();
-            for (String key1 : descriptionLocalizationsJson.keySet()) {
-                descriptionLocalizations.put(key1, descriptionLocalizationsJson.getString(key1));
-            }
-        } else {
-            descriptionLocalizations = null;
-        }
+    public HashMap<String, String> nameLocalizations() {
+        return nameLocalizations;
+    }
 
-        return new ApplicationRoleConnectionMetadata(
-                type == null ? Type.UNKNOWN : type,
-                key,
-                name,
-                nameLocalizations,
-                description,
-                descriptionLocalizations
-        );
+    public String description() {
+        return description;
+    }
+
+    public HashMap<String, String> descriptionLocalizations() {
+        return descriptionLocalizations;
     }
 
     public ApplicationRoleConnectionMetadata(Type type, String key, String name, HashMap<String, String> nameLocalizations, String description, HashMap<String, String> descriptionLocalizations) {
@@ -97,6 +107,8 @@ public record ApplicationRoleConnectionMetadata(
     public ApplicationRoleConnectionMetadata(Type type, String key, String name, String description) {
         this(type, key, name, new HashMap<>(), description, new HashMap<>());
     }
+
+    private ApplicationRoleConnectionMetadata() {}
 
     public ApplicationRoleConnectionMetadata addNameLocalization(String language, String name) {
         this.nameLocalizations.put(language, name);

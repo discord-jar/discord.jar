@@ -164,7 +164,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
 
-        logger.info("[GW] [" + status.getCode() + "] " + status.getReason());
+        if (debug) logger.info("[GW] [" + status.getCode() + "] " + status.getReason());
 
         switch (status.getCode()) {
             case 1012:

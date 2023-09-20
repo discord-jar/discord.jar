@@ -169,7 +169,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         switch (status.getCode()) {
             case 1012:
                 return true;
-            case 1011, 1015:
+            case 1011, 1015, 1003:
                 return false;
             case 4000:
                 if (debug) logger.info("[Gateway] Connection was closed due to an unknown error. Will attempt reconnect.");
@@ -407,7 +407,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        if (getSocket() != null && getSocket().getWs() != null) getSocket().getWs().close(CloseStatus.TLS_HANDSHAKE_FAILURE.getCode(), "Going away");
+        if (getSocket() != null && getSocket().getWs() != null) getSocket().getWs().close(CloseStatus.NOT_ACCEPTABLE.getCode(), "Going away");
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed.");

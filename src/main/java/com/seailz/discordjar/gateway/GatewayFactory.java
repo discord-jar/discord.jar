@@ -13,6 +13,7 @@ import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.thread.DiscordJarThreadAllocator;
 import com.seailz.discordjar.voice.model.VoiceServerUpdate;
 import com.seailz.discordjar.voice.model.VoiceState;
 import com.seailz.discordjar.ws.ExponentialBackoffLogic;
@@ -109,7 +110,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
         backoffReconnectLogic.setAttemptReconnect((c) -> {
-            new Thread(discordJar::clearMemberCaches, "djar--clearing-member-caches").start();
+            DiscordJarThreadAllocator.requestVirtualThread(discordJar::clearMemberCaches, "djar--clearing-member-caches");
             return !shouldResume;
         });
 
@@ -352,7 +353,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
-        new Thread(() -> {
+        DiscordJarThreadAllocator.requestVirtualThread(() -> {
             Event event;
             try {
                 event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
@@ -373,7 +374,7 @@ public class GatewayFactory extends TextWebSocketHandler {
             if (debug) {
                 logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
             }
-        }, "djar--event-dispatch-gw").start();
+        }, "djar--event-dispatch-gw");
 
         if (Objects.requireNonNull(DispatchedEvents.getEventByName(payload.getString("t"))) == DispatchedEvents.READY) {
             this.sessionId = payload.getJSONObject("d").getString("session_id");

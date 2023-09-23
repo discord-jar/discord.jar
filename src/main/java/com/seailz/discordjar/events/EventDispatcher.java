@@ -69,7 +69,7 @@ public class EventDispatcher {
      */
     public void dispatchEvent(Event event, Class<? extends Event> type, DiscordJar djv) {
         if (event == null) return;
-        new Thread(() -> {
+        DiscordJarThreadAllocator.requestVirtualThread(() -> {
             long start = System.currentTimeMillis();
             List<ListenerMethodPair> listenersForEventType = listenersByEventType.get(type);
             if (listenersForEventType == null) {
@@ -91,7 +91,7 @@ public class EventDispatcher {
                 }
 
                 method.setAccessible(true);
-                DiscordJarThreadAllocator.requestThread(() -> {
+                DiscordJarThreadAllocator.requestVirtualThread(() -> {
                     try {
                         method.invoke(listenerMethodPair.listener, event);
                     } catch (IllegalAccessException | ArrayIndexOutOfBoundsException e) {
@@ -102,8 +102,8 @@ public class EventDispatcher {
                         System.out.println(method.getDeclaringClass().getSimpleName() + "#" + method.getName() + " threw an exception while being invoked.");
                         e.getCause().printStackTrace();
                     }
-                }, "djar--EventDispatcher-inner").start();
+                }, "djar--EventDispatcher-inner");
             }
-        }, "djar--EventDispatcher").start();
+        }, "djar--EventDispatcher");
     }
 }

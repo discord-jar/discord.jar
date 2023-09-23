@@ -102,7 +102,7 @@ public class EventDispatcher {
                         System.out.println(method.getDeclaringClass().getSimpleName() + "#" + method.getName() + " threw an exception while being invoked.");
                         e.getCause().printStackTrace();
                     }
-                }, "djar--EventDispatcher-inner").start();
+                }, "djar--EventDispatcher-inner");
             }
         }, "djar--EventDispatcher").start();
     }

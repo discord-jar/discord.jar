@@ -406,8 +406,10 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (this.heartbeatManager != null) heartbeatManager.stop();
         heartbeatManager = null;
         readyForMessages = false;
+
         // close connection
-        if (getSocket() != null && getSocket().getWs() != null) getSocket().getWs().close(CloseStatus.TLS_HANDSHAKE_FAILURE.getCode(), "Going away");
+        if (getSocket() != null && getSocket().getWs() != null) getSocket().getWs().close(1011, "Going away");
+        shouldResume = true;
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed.");

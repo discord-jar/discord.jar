@@ -1,6 +1,7 @@
 package com.seailz.discordjar.action.interaction.followup;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.interaction.MessageInteractionCallbackAction;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
@@ -12,6 +13,7 @@ import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -139,6 +141,21 @@ public class InteractionFollowupAction {
         return this;
     }
 
+    public InteractionFollowupAction addFile(File file) {
+        this.getReply().addFile(file);
+        return this;
+    }
+
+    public InteractionFollowupAction addFiles(File... files) {
+        this.getReply().addFiles(files);
+        return this;
+    }
+
+    public InteractionFollowupAction addFiles(List<File> files) {
+        this.getReply().addFiles(files);
+        return this;
+    }
+
     public InteractionMessageResponse getReply() {
         return reply;
     }
@@ -146,7 +163,7 @@ public class InteractionFollowupAction {
     public Response<InteractionHandler> run() {
         Response<InteractionHandler> response = new Response<>();
         try {
-            new DiscordRequest(
+            DiscordRequest req = new DiscordRequest(
                     getReply().compile(),
                     new HashMap<>(),
                     URLS.POST.INTERACTIONS.FOLLOWUP
@@ -155,7 +172,16 @@ public class InteractionFollowupAction {
                     discordJar,
                     URLS.POST.INTERACTIONS.FOLLOWUP,
                     RequestMethod.POST
-            ).invoke();
+            );
+
+            if (getReply().useFiles()) {
+                List<File> files = getReply().getFiles();
+                File[] filesArray = new File[files.size()];
+                filesArray = files.toArray(filesArray);
+                req.invokeWithFiles(filesArray);
+            } else {
+                req.invoke();
+            }
             response.complete(InteractionHandler.from(token, id, discordJar));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             response.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));

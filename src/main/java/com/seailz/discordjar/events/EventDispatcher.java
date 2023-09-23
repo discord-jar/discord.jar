@@ -103,6 +103,7 @@ public class EventDispatcher {
                         e.getCause().printStackTrace();
                     }
                 }, "djar--EventDispatcher-inner");
+
             }
         }, "djar--EventDispatcher");
     }

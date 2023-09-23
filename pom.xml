@@ -9,9 +9,9 @@
     <version>b-1.1</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
     </properties>
 
     <build>
@@ -65,12 +65,6 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <!-- TODO: REMOVE -->
-        <repository>
-            <id>dv8tion</id>
-            <name>m2-dv8tion</name>
-            <url>https://m2.dv8tion.net/releases</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -122,8 +116,8 @@
         <!-- Database API used for Linked Roles/OAuth2 token refreshing -->
         <dependency>
             <groupId>com.github.seailz</groupId>
-            <artifactId>databaseapi</artifactId>
-            <version>2.3</version>
+            <artifactId>Database4J</artifactId>
+            <version>02941e7bef</version>
         </dependency>
         <!-- Used for creating transcripts of channels -->
         <dependency>
@@ -144,7 +138,7 @@
         <dependency>
             <groupId>com.github.codahale</groupId>
             <artifactId>xsalsa20poly1305</artifactId>
-            <version>v0.10.1		</version>
+            <version>v0.10.1</version>
         </dependency>
     </dependencies>
 </project>

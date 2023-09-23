@@ -31,6 +31,21 @@ public class DiscordJarThreadAllocator {
         return thread;
     }
 
+    public static Thread requestVirtualThread(Runnable runnable, String name) {
+        // First, let's check if we can actually use a virtual thread due to the JDK version.
+        int javaRelease = Integer.parseInt(System.getProperty("java.specification.version"));
+        if (javaRelease < 21) {
+            Logger.getLogger("discord.jar-threading")
+                    .warning("discord.jar virtual threads are only supported on JDK 21 and above, falling back to normal threads. It's recommended, if possible, that you upgrade your JDK to 21 or above.");
+            return requestThread(runnable, name);
+        }
+
+        Thread virtualThread = Thread.ofVirtual()
+                .start(runnable);
+        virtualThread.setName(name);
+        return virtualThread;
+    }
+
     private static void printThreads() {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 

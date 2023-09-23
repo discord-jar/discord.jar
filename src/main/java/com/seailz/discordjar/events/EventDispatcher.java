@@ -4,9 +4,8 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.annotation.EventMethod;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.interaction.CustomIdable;
-import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.utils.annotation.RequireCustomId;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.thread.DiscordJarThreadAllocator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -92,7 +91,7 @@ public class EventDispatcher {
                 }
 
                 method.setAccessible(true);
-                new Thread(() -> {
+                DiscordJarThreadAllocator.requestThread(() -> {
                     try {
                         method.invoke(listenerMethodPair.listener, event);
                     } catch (IllegalAccessException | ArrayIndexOutOfBoundsException e) {
@@ -103,7 +102,7 @@ public class EventDispatcher {
                         System.out.println(method.getDeclaringClass().getSimpleName() + "#" + method.getName() + " threw an exception while being invoked.");
                         e.getCause().printStackTrace();
                     }
-                }).start();
+                }, "djar--EventDispatcher-inner").start();
             }
         }, "djar--EventDispatcher").start();
     }

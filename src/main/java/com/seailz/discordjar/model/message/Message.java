@@ -32,6 +32,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -540,7 +542,7 @@ public record Message(
                 new DiscordRequest(
                         new JSONObject(),
                         new HashMap<>(),
-                        URLS.PUT.MESSAGES.ADD_REACTION.replace("{channel.id}", channelId).replace("{message.id}", id).replace("{emoji}", emoji.toSimpleString()),
+                        URLS.PUT.MESSAGES.ADD_REACTION.replace("{channel.id}", channelId).replace("{message.id}", id).replace("{emoji}", URLEncoder.encode(emoji.toSimpleString(), StandardCharsets.UTF_8)),
                         discordJar,
                         URLS.PUT.MESSAGES.ADD_REACTION,
                         RequestMethod.PUT

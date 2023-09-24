@@ -145,4 +145,8 @@ public record Emoji(
 
         return Emoji.from(id, name, animated);
     }
+
+    public String toSimpleString() {
+        return name + ":" + id;
+    }
 }

@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.component.ActionRow;
 import com.seailz.discordjar.model.component.Component;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embed;
+import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.Reaction;
 import com.seailz.discordjar.model.emoji.sticker.StickerFormat;
 import com.seailz.discordjar.model.interaction.Interaction;
@@ -21,6 +22,9 @@ import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
+import com.seailz.discordjar.utils.thread.DiscordJarThreadAllocator;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -523,6 +527,31 @@ public record Message(
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
+    }
+
+    /**
+     * Given an emoji, creates a reaction on the message.
+     * @return The response object.
+     */
+    public Response<Void> createReaction(@NotNull Emoji emoji) {
+        Response<Void> response = new Response<>();
+        DiscordJarThreadAllocator.requestThread(() -> {
+            try {
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.PUT.MESSAGES.ADD_REACTION.replace("{channel.id}", channelId).replace("{message.id}", id).replace("{emoji}", emoji.toSimpleString()),
+                        discordJar,
+                        URLS.PUT.MESSAGES.ADD_REACTION,
+                        RequestMethod.PUT
+                ).invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                response.completeError(new Response.Error(e));
+                return;
+            }
+            response.complete(null);
+        }, "djar--create-reaction");
+        return response;
     }
 
     /**

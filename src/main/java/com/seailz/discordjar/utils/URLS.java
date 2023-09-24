@@ -530,6 +530,9 @@ public final class URLS {
             }
         }
 
+        public static class MESSAGES {
+            public static String ADD_REACTION = "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me";
+        }
 
         public static class CHANNELS {
             public static class PERMISSIONS {

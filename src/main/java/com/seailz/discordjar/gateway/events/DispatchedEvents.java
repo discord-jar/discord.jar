@@ -32,7 +32,6 @@ import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMe
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.events.model.message.TypingStartEvent;
 import com.seailz.discordjar.gateway.Gateway;
-import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.component.ComponentType;
@@ -202,7 +201,7 @@ public enum DispatchedEvents {
             return null;
         }
 
-        GatewayFactory.MemberChunkStorageWrapper wrapper = g.memberRequestChunks.get(nonce);
+        Gateway.MemberChunkStorageWrapper wrapper = g.memberRequestChunks.get(nonce);
         if (wrapper == null) {
             Logger.getLogger("DispatchedEvents").warning("[discord.jar] Received member chunk with unknown nonce: " + nonce);
             return null;
@@ -254,10 +253,10 @@ public enum DispatchedEvents {
 
                 switch (CommandType.fromCode(p.getJSONObject("d").getJSONObject("data").getInt("type"))) {
                     case SLASH_COMMAND ->
-                            event = new SlashCommandInteractionEvent(d, GatewayFactory.sequence, p);
-                    case USER -> event = new UserContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
+                            event = new SlashCommandInteractionEvent(d, Gateway.lastSequenceNumber, p);
+                    case USER -> event = new UserContextCommandInteractionEvent(d, Gateway.lastSequenceNumber, p);
                     case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
+                            event = new MessageContextCommandInteractionEvent(d, Gateway.lastSequenceNumber, p);
                 }
 
                 d.getCommandDispatcher().dispatch(p.getJSONObject("d").getJSONObject("data").getString("name"),

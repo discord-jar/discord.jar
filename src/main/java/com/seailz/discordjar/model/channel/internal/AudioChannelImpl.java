@@ -1,14 +1,13 @@
 package com.seailz.discordjar.model.channel.internal;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.model.channel.AudioChannel;
 import com.seailz.discordjar.model.channel.Category;
 import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import com.seailz.discordjar.voice.ws.VoiceGatewayFactory;
 import lombok.SneakyThrows;
@@ -42,7 +41,7 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
     @SneakyThrows
     @Override
     public void connect(VoiceProvider vp, boolean mute, boolean deafen) {
-        GatewayFactory gateway = discordJv().getGateway();
+        Gateway gateway = discordJv().getGateway();
         gateway.sendVoicePayload(guild().id(), id(), mute, deafen);
 
         AtomicBoolean receivedVoiceServerUpdate = new AtomicBoolean(false);

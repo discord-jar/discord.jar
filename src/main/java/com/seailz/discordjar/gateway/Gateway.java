@@ -10,6 +10,7 @@ import com.seailz.discordjar.gateway.heartbeat.HeartLogic;
 import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -43,14 +44,15 @@ public class Gateway {
     private WebSocket socket;
     private boolean resumedConnection = false;
     private ReconnectInfo resumeInfo;
-    private long lastSequenceNumber = -1;
+    public static long lastSequenceNumber = -1;
     private boolean readyForMessages = false;
     private HeartLogic heartbeatManager;
     public static Date lastHeartbeatSent = new Date();
     public static List<Long> pingHistoryMs = new ArrayList<>();
     private final List<Consumer<VoiceState>> onVoiceStateUpdateListeners = new ArrayList<>();
     private final List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners = new ArrayList<>();
-    public final HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
+    public final HashMap<String, Gateway.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
+    private Status status = null;
 
     protected Gateway(DiscordJar bot, int shardCount, int shardId, GatewayTransportCompressionType compressionType) {
         this.bot = bot;
@@ -362,7 +364,7 @@ public class Gateway {
 
         queueMessage(payload);
 
-        memberRequestChunks.put(action.getNonce(), new GatewayFactory.MemberChunkStorageWrapper(new ArrayList<>(), future));
+        memberRequestChunks.put(action.getNonce(), new Gateway.MemberChunkStorageWrapper(new ArrayList<>(), future));
     }
 
     public void sendVoicePayload(String guildId, String channelId, boolean selfMute, boolean selfDeaf) {
@@ -391,6 +393,15 @@ public class Gateway {
 
     public List<Consumer<VoiceServerUpdate>> getOnVoiceServerUpdateListeners() {
         return onVoiceServerUpdateListeners;
+    }
+
+    /**
+     * Do not use this method - it is for internal use only.
+     * @param status The status to set.
+     */
+    @Deprecated
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {

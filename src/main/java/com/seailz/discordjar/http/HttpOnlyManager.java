@@ -12,7 +12,7 @@ import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInt
 import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
-import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.interaction.Interaction;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
@@ -79,12 +79,12 @@ public class HttpOnlyManager {
 
                 switch (CommandType.fromCode(new JSONObject(interaction.raw()).getJSONObject("data").getInt("type"))) {
                     case SLASH_COMMAND -> {
-                        event = new SlashCommandInteractionEvent(discordJar, GatewayFactory.sequence, new JSONObject().put("d", new JSONObject(body)));
+                        event = new SlashCommandInteractionEvent(discordJar, Gateway.lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
                     }
                     case USER ->
-                            event = new UserContextCommandInteractionEvent(discordJar, GatewayFactory.sequence, new JSONObject().put("d", new JSONObject(body)));
+                            event = new UserContextCommandInteractionEvent(discordJar, Gateway.lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
                     case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(discordJar, GatewayFactory.sequence, new JSONObject().put("d", new JSONObject(body)));
+                            event = new MessageContextCommandInteractionEvent(discordJar, Gateway.lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
                 }
 
                 discordJar.getCommandDispatcher().dispatch(new JSONObject(interaction.raw()).getJSONObject("data").getString("name"), event);

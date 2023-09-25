@@ -147,6 +147,7 @@ public class DiscordJar {
     public List<GatewayFactory> gatewayFactories = new ArrayList<>();
     private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
     private final GatewayTransportCompressionType gatewayTransportCompressionType;
+    private final APIVersion apiVersion;
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
@@ -216,6 +217,7 @@ public class DiscordJar {
         this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
         this.intents = intents;
+        this.apiVersion = version;
         this.cacheTypes = cacheTypes;
         new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
@@ -1570,5 +1572,7 @@ public class DiscordJar {
          return sum / getGatewayPingHistory().size();
      }
 
-
+    public APIVersion getApiVersion() {
+        return apiVersion;
+    }
 }

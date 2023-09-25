@@ -31,6 +31,7 @@ import com.seailz.discordjar.events.model.interaction.select.entity.RoleSelectMe
 import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.events.model.message.TypingStartEvent;
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.model.channel.Channel;
@@ -338,13 +339,13 @@ public enum DispatchedEvents {
     UNKNOWN((p, g, d) -> null),
     ;
 
-    private final TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> event;
+    private final TriFunction<JSONObject, Gateway, DiscordJar, Class<? extends Event>> event;
 
-    DispatchedEvents(TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> event) {
+    DispatchedEvents(TriFunction<JSONObject, Gateway, DiscordJar, Class<? extends Event>> event) {
         this.event = event;
     }
 
-    public TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> getEvent() {
+    public TriFunction<JSONObject, Gateway, DiscordJar, Class<? extends Event>> getEvent() {
         return event;
     }
 

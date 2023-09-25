@@ -68,6 +68,10 @@ public class WebSocket extends WebSocketListener {
         ws.close(1000, "Disconnecting");
     }
 
+    public void disconnect(int code, String reason) {
+        ws.close(code, reason);
+    }
+
     public void send(String message) {
         ws.send(message);
     }
@@ -144,9 +148,8 @@ public class WebSocket extends WebSocketListener {
         // Force session disconnect in case it failed to disconnect
         open = false;
         buffer = null;
-        new Thread(() -> {
-            onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(code, reason)));
-        }, "djar--ws-disconnect-consumers").start();
+        inflator.reset();
+        onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(code, reason)));
 
         if (reEstablishConnection.apply(new CloseStatus(code, reason))) {
             try {

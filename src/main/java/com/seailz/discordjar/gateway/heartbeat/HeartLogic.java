@@ -1,11 +1,14 @@
 package com.seailz.discordjar.gateway.heartbeat;
 
-import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.ws.WSPayloads;
 import com.seailz.discordjar.ws.WebSocket;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Every animal has a heart, and as we all know that websockets are animals, they also have hearts.
@@ -65,7 +68,7 @@ public class HeartLogic {
                     socket.send(
                         WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
                     );
-                    GatewayFactory.lastHeartbeatSent = new Date();
+                    Gateway.lastHeartbeatSent = new Date();
                     Thread.sleep(interval);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

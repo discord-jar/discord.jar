@@ -78,69 +78,69 @@ public class GatewayFactory extends TextWebSocketHandler {
         this.numShards = numShards;
         this.transportCompressionType = compressionType;
 
-        discordJar.setGatewayFactory(this);
-
-        if (resumeUrl == null) {
-            try {
-                DiscordResponse response = null;
-                try {
-                    response = new DiscordRequest(
-                            new JSONObject(),
-                            new HashMap<>(),
-                            "/gateway",
-                            discordJar,
-                            "/gateway", RequestMethod.GET
-                    ).invoke();
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
-                if (response == null || response.body() == null || !response.body().has("url")) {
-                    // In case the request fails, we can attempt to use the backup gateway URL instead.
-                    this.gatewayUrl = URLS.GATEWAY.BASE_URL;
-                } else this.gatewayUrl = response.body().getString("url") + "/";
-            } catch (Exception e) {
-                logger.warning("[DISCORD.JAR] Failed to get gateway URL. Restarting gateway after 5 seconds.");
-                Thread.sleep(5000);
-                discordJar.restartGateway();
-                return;
-            }
-        } else gatewayUrl = resumeUrl;
-
-        socket = new WebSocket(appendGatewayQueryParams(gatewayUrl), debug);
-
-        ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
-        socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
-        backoffReconnectLogic.setAttemptReconnect((c) -> {
-            new Thread(discordJar::clearMemberCaches, "djar--clearing-member-caches").start();
-            return !shouldResume;
-        });
-
-        socket.addMessageConsumer((tm) -> {
-            try {
-                handleTextMessage(tm);
-            } catch (Exception e) {
-                logger.warning("[Gateway] Failed to handle text message: " + e.getMessage());
-            }
-        });
-
-        socket.connect().onSuccess(this::onConnect).onFailed((e) -> {
-            logger.severe("[Gateway] Failed to establish connection: " + e.getThrowable().getMessage() + " - Will attempt to reconnect after 5 seconds.");
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            }
-            discordJar.restartGateway();
-        });
-
-        socket.addOnConnect(() -> {
-            onConnect(null);
-        });
-
-        socket.addOnDisconnectConsumer((cs) -> {
-            this.heartbeatManager = null;
-            readyForMessages = false;
-            attemptReconnect(cs);
-            discordJar.clearMemberCaches();
-        });
+//        discordJar.setGatewayFactory(this);
+//
+//        if (resumeUrl == null) {
+//            try {
+//                DiscordResponse response = null;
+//                try {
+//                    response = new DiscordRequest(
+//                            new JSONObject(),
+//                            new HashMap<>(),
+//                            "/gateway",
+//                            discordJar,
+//                            "/gateway", RequestMethod.GET
+//                    ).invoke();
+//                } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
+//                if (response == null || response.body() == null || !response.body().has("url")) {
+//                    // In case the request fails, we can attempt to use the backup gateway URL instead.
+//                    this.gatewayUrl = URLS.GATEWAY.BASE_URL;
+//                } else this.gatewayUrl = response.body().getString("url") + "/";
+//            } catch (Exception e) {
+//                logger.warning("[DISCORD.JAR] Failed to get gateway URL. Restarting gateway after 5 seconds.");
+//                Thread.sleep(5000);
+//                discordJar.restartGateway();
+//                return;
+//            }
+//        } else gatewayUrl = resumeUrl;
+//
+//        socket = new WebSocket(appendGatewayQueryParams(gatewayUrl), debug);
+//
+//        ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
+//        socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
+//        backoffReconnectLogic.setAttemptReconnect((c) -> {
+//            new Thread(discordJar::clearMemberCaches, "djar--clearing-member-caches").start();
+//            return !shouldResume;
+//        });
+//
+//        socket.addMessageConsumer((tm) -> {
+//            try {
+//                handleTextMessage(tm);
+//            } catch (Exception e) {
+//                logger.warning("[Gateway] Failed to handle text message: " + e.getMessage());
+//            }
+//        });
+//
+//        socket.connect().onSuccess(this::onConnect).onFailed((e) -> {
+//            logger.severe("[Gateway] Failed to establish connection: " + e.getThrowable().getMessage() + " - Will attempt to reconnect after 5 seconds.");
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException interruptedException) {
+//                interruptedException.printStackTrace();
+//            }
+//            discordJar.restartGateway();
+//        });
+//
+//        socket.addOnConnect(() -> {
+//            onConnect(null);
+//        });
+//
+//        socket.addOnDisconnectConsumer((cs) -> {
+//            this.heartbeatManager = null;
+//            readyForMessages = false;
+//            attemptReconnect(cs);
+//            discordJar.clearMemberCaches();
+//        });
     }
 
     /**
@@ -342,7 +342,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private void handleDispatched(JSONObject payload) {
         // Handle dispatched events
         // actually dispatch the event
-        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
+        Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, null, discordJar);
         if (eventClass == null) {
             if (debug) logger.info("[discord.jar] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
             return;

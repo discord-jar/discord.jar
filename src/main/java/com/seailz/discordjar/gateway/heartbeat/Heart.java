@@ -1,5 +1,6 @@
 package com.seailz.discordjar.gateway.heartbeat;
 
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.gateway.GatewayFactory;
 import org.json.JSONObject;
 
@@ -73,7 +74,7 @@ public class Heart {
                     .put("d", GatewayFactory.sequence)
         );
 
-        GatewayFactory.lastHeartbeatSent = new Date();
+        Gateway.lastHeartbeatSent = new Date();
     }
 
     public void deactivate() {

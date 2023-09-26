@@ -35,6 +35,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+/**
+ * The Gateway is the real-time two-way WebSocket between Discord and the bot.
+ * <br>This class is responsible for handling the connection to the Gateway, as well as handling & sending messages.
+ *
+ * <p>This is the v3 implementation of the Gateway, designed for stability, simplicity, and performance.
+ *
+ * <p>For more information on the Gateway, see the <a href="https://discord.com/developers/docs/topics/gateway">Discord API docs</a>.
+ * @see <a href="https://discord.com/developers/docs/topics/gateway">Discord API docs</a>
+ * @see HeartLogic
+ * @see DispatchedEvents
+ * @see GatewayEvents
+ * @see GatewayTransportCompressionType
+ * @see DiscordJar
+ * @author Seailz
+ * @since b-1.1
+ */
 public class Gateway {
 
     private final DiscordJar bot;
@@ -65,7 +81,7 @@ public class Gateway {
     }
 
     /**
-     * Runs the necessary steps to initialize the Gateway connection.
+     * Flow for connecting to the Gateway.
      */
     private void connectionFlow() {
         String gatewayUrl;
@@ -88,10 +104,18 @@ public class Gateway {
         lastSequenceNumber = -1;
     }
 
+    /**
+     * Disconnects from the Gateway.
+     * @param closeStatus The close status of the disconnect.
+     */
     public void disconnect(@NotNull CloseStatus closeStatus) {
         socket.disconnect(closeStatus.getCode(), closeStatus.getReason());
     }
 
+    /**
+     * Flow after a disconnect from the Gateway.
+     * @param closeStatus The close status of the disconnect.
+     */
     public void disconnectFlow(@NotNull CloseStatus closeStatus) {
         heartbeatManager.stop(); // Stop attempting heartbeats to avoid broken pipe errors
         CloseCode closeCode = CloseCode.fromCode(closeStatus.getCode());
@@ -106,6 +130,9 @@ public class Gateway {
         else connectionFlow();
     }
 
+    /**
+     * Flow for resuming a connection to the Gateway.
+     */
     private void resumeFlow() {
         if (resumeInfo == null) {
             logger.warning("[Gateway - Resume Flow] Resume info is null, cannot resume. Attempting normal connection.");
@@ -122,7 +149,11 @@ public class Gateway {
         resumedConnection = true;
     }
 
-    protected void handleTextMessage(String message) throws Exception {
+    /**
+     * Handles a message received from the Gateway.
+     * @param message The message received from the Gateway.
+     */
+    protected void handleTextMessage(String message) {
         JSONObject payload = new JSONObject(message);
 
         if (bot.isDebug()) {
@@ -186,7 +217,11 @@ public class Gateway {
         }
     }
 
-    private void handleDispatch(JSONObject payload) {
+    /**
+     * Handles a DISPATCHED event.
+     * @param payload The payload of the event.
+     */
+    private void handleDispatch(@NotNull JSONObject payload) {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, bot);
@@ -240,11 +275,18 @@ public class Gateway {
         }
     }
 
-    private void handleHello(JSONObject payload) {
+    /**
+     * Starts the heartbeat cycle.
+     * @param payload The HELLO payload.
+     */
+    private void handleHello(@NotNull JSONObject payload) {
         heartbeatManager = new HeartLogic(socket, payload.getJSONObject("d").getInt("heartbeat_interval"));
         heartbeatManager.start();
     }
 
+    /**
+     * Sends an IDENTIFY payload to the gateway.
+     */
     private void sendIdentify() {
         AtomicInteger intents = new AtomicInteger();
         if (bot.getIntents().contains(Intent.ALL)) {
@@ -272,6 +314,9 @@ public class Gateway {
         socket.send(payload.toString());
     }
 
+    /**
+     * Given a {@link WebSocket} instance, connects to the gateway using it and returns the same {@link WebSocket} instance.
+     */
     @Contract("_, _ -> param1")
     private @NotNull WebSocket connectToSocket(@NotNull WebSocket socket, boolean resuming) {
         socket.connect()
@@ -296,6 +341,10 @@ public class Gateway {
                 });
         return socket;
     }
+
+    /**
+     * Sets up a {@link WebSocket} instance to be used for the gateway connection.
+     */
     @Contract("_ -> param1")
     private @NotNull WebSocket setupDisconnectedSocket(@NotNull WebSocket socket) {
         ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
@@ -321,13 +370,21 @@ public class Gateway {
         return socket;
     }
 
+    /**
+     * Appends the relevant query parameters for the given URL.
+     */
     private String appendGatewayQueryParams(String url) {
         url = url + "?v=" + bot.getApiVersion().getCode() + "&encoding=json";
         if (compressionType != GatewayTransportCompressionType.NONE) url = url + "&compress=" + compressionType.getValue();
         return url;
     }
 
-    public void queueMessage(JSONObject payload) {
+    /**
+     * Queues a message to be sent to the gateway.
+     * <br>Messages will be sent after the HELLO event is received.
+     * @param payload {@link JSONObject} containing the payload to send
+     */
+    public void queueMessage(@NotNull JSONObject payload) {
         if (bot.isDebug()) logger.info("[Gateway] Queued message: " + payload);
         while (readyForMessages) {
             socket.send(payload.toString());
@@ -338,7 +395,12 @@ public class Gateway {
         }
     }
 
-    public void requestGuildMembers(RequestGuildMembersAction action, CompletableFuture<List<Member>> future) {
+    /**
+     * Sends a request to the gateway to request guild members.
+     * @param action {@link RequestGuildMembersAction} containing extra information about the request
+     * @param future {@link CompletableFuture} that will be completed when the request is completed
+     */
+    public void requestGuildMembers(@NotNull RequestGuildMembersAction action, @NotNull CompletableFuture<List<Member>> future) {
         if (action.getQuery() == null & action.getUserIds() == null) {
             throw new IllegalArgumentException("You must provide either a query or a list of user ids");
         }

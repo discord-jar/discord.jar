@@ -3,7 +3,6 @@ package com.seailz.discordjar.events.model.guild;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.model.guild.Guild;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;

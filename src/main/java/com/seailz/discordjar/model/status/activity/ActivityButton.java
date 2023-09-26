@@ -14,17 +14,17 @@ public record ActivityButton(
         String url
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("label", label)
-                .put("url", url);
-    }
-
     public static ActivityButton decompile(JSONObject obj) {
         return new ActivityButton(
                 obj.getString("label"),
                 obj.getString("url")
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("label", label)
+                .put("url", url);
     }
 }

@@ -21,37 +21,6 @@ import java.util.List;
  */
 public interface Component extends Compilerable {
 
-    JSONObject raw();
-
-    /**
-     * The type of the component
-     *
-     * @return {@link ComponentType}
-     */
-    ComponentType type();
-
-    /**
-     * Whether the component is compatible with a {@link com.seailz.discordjar.model.message.Message}
-     *
-     * @return A boolean representing whether the component is compatible with a {@link com.seailz.discordjar.model.message.Message}
-     */
-    boolean isMessageCompatible();
-
-    /**
-     * Whether the component is compatible with a @{@link Modal}
-     *
-     * @return A boolean representing whether the component is compatible with a Modal
-     */
-
-    boolean isModalCompatible();
-
-    /**
-     * Whether the component is a {@link SelectMenu}
-     *
-     * @return A boolean representing whether the component is a select menu
-     */
-    boolean isSelect();
-
     /**
      * Decompiles a list of {@link Component}s from a {@link JSONArray}
      *
@@ -96,4 +65,35 @@ public interface Component extends Compilerable {
             arr.put(component.compile());
         return arr;
     }
+
+    JSONObject raw();
+
+    /**
+     * The type of the component
+     *
+     * @return {@link ComponentType}
+     */
+    ComponentType type();
+
+    /**
+     * Whether the component is compatible with a {@link com.seailz.discordjar.model.message.Message}
+     *
+     * @return A boolean representing whether the component is compatible with a {@link com.seailz.discordjar.model.message.Message}
+     */
+    boolean isMessageCompatible();
+
+    /**
+     * Whether the component is compatible with a @{@link Modal}
+     *
+     * @return A boolean representing whether the component is compatible with a Modal
+     */
+
+    boolean isModalCompatible();
+
+    /**
+     * Whether the component is a {@link SelectMenu}
+     *
+     * @return A boolean representing whether the component is a select menu
+     */
+    boolean isSelect();
 }

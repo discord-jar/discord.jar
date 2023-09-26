@@ -6,9 +6,9 @@ import java.util.EnumSet;
  * BitwiseUtil is a utility class for bitwise operations.
  * It allows you to retrieve things like {@link com.seailz.discordjar.model.user.UserFlag UserFlags} from a raw int.
  *
+ * @param <T> Enum to return, such as {@link com.seailz.discordjar.model.user.UserFlag UserFlag}
  * @author Seailz
- * @since  1.0
- * @param  <T> Enum to return, such as {@link com.seailz.discordjar.model.user.UserFlag UserFlag}
+ * @since 1.0
  */
 public class BitwiseUtil<T extends Enum<T> & Bitwiseable> {
 

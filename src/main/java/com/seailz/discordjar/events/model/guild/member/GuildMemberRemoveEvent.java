@@ -16,9 +16,10 @@ import org.json.JSONObject;
  * </ul>
  *
  * <b>Requires the {@code GUILD_MEMBERS} intent</b>.
+ *
  * @author Seailz
- * @since  1.0
- * @see    com.seailz.discordjar.model.guild.Member Member
+ * @see com.seailz.discordjar.model.guild.Member Member
+ * @since 1.0
  */
 public class GuildMemberRemoveEvent extends GuildEvent {
     public GuildMemberRemoveEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
@@ -27,6 +28,7 @@ public class GuildMemberRemoveEvent extends GuildEvent {
 
     /**
      * Returns the {@link User} that was removed from the guild.
+     *
      * @return {@link User} object.
      */
     public User getUser() {

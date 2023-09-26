@@ -9,7 +9,6 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,20 +16,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class CreateGuildChannelAction {
 
     private final String name;
     private final ChannelType type;
+    private final Guild guild;
+    private final DiscordJar discordJar;
     private String topic;
     private int position;
     private List<PermissionOverwrite> permissionOverwrites;
     private Category category;
     private String categoryId;
     private ForumChannel.DefaultForumLayout defaultForumLayout;
-    private final Guild guild;
-    private final DiscordJar discordJar;
 
     public CreateGuildChannelAction(String name, ChannelType type, Guild guild, DiscordJar discordJar) {
         this.name = name;
@@ -39,28 +37,8 @@ public class CreateGuildChannelAction {
         this.discordJar = discordJar;
     }
 
-    public CreateGuildChannelAction setTopic(String topic) {
-        this.topic = topic;
-        return this;
-    }
-
-    public CreateGuildChannelAction setPosition(int position) {
-        this.position = position;
-        return this;
-    }
-
-    public CreateGuildChannelAction setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
-        this.permissionOverwrites = permissionOverwrites;
-        return this;
-    }
-
     public CreateGuildChannelAction setDefaultForumLayout(ForumChannel.DefaultForumLayout defaultForumLayout) {
         this.defaultForumLayout = defaultForumLayout;
-        return this;
-    }
-
-    public CreateGuildChannelAction setCategory(Category category) {
-        this.category = category;
         return this;
     }
 
@@ -84,16 +62,36 @@ public class CreateGuildChannelAction {
         return topic;
     }
 
+    public CreateGuildChannelAction setTopic(String topic) {
+        this.topic = topic;
+        return this;
+    }
+
     public int getPosition() {
         return position;
+    }
+
+    public CreateGuildChannelAction setPosition(int position) {
+        this.position = position;
+        return this;
     }
 
     public List<PermissionOverwrite> getPermissionOverwrites() {
         return permissionOverwrites;
     }
 
+    public CreateGuildChannelAction setPermissionOverwrites(List<PermissionOverwrite> permissionOverwrites) {
+        this.permissionOverwrites = permissionOverwrites;
+        return this;
+    }
+
     public Category getCategory() {
         return category;
+    }
+
+    public CreateGuildChannelAction setCategory(Category category) {
+        this.category = category;
+        return this;
     }
 
     public Guild getGuild() {

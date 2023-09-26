@@ -19,10 +19,6 @@ public enum StickerFormat {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static StickerFormat getStickerFormatByCode(int code) {
         for (StickerFormat type : values()) {
             if (type.getCode() == code) {
@@ -30,6 +26,10 @@ public enum StickerFormat {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

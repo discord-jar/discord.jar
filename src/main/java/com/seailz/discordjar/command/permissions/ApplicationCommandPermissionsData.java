@@ -22,14 +22,6 @@ public record ApplicationCommandPermissionsData(
         boolean permission
 ) implements Compilerable, Snowflake {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("id", id)
-                .put("type", type.getCode())
-                .put("permission", permission);
-    }
-
     @NotNull
     public static ApplicationCommandPermissionsData decompile(@NotNull JSONObject obj) {
         String id;
@@ -55,5 +47,13 @@ public record ApplicationCommandPermissionsData(
         }
 
         return new ApplicationCommandPermissionsData(id, type, permission);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("id", id)
+                .put("type", type.getCode())
+                .put("permission", permission);
     }
 }

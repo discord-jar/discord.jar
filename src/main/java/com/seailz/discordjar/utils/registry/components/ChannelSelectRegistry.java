@@ -1,7 +1,6 @@
 package com.seailz.discordjar.utils.registry.components;
 
 import com.seailz.discordjar.model.component.select.entity.ChannelSelectMenu;
-import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
 import com.seailz.discordjar.utils.registry.Registry;
 
 public class ChannelSelectRegistry extends Registry<ChannelSelectMenu.ChannelSelectAction> {

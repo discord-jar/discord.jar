@@ -1,8 +1,8 @@
 package com.seailz.discordjar.command.listeners;
 
+import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.MessageContextCommandInteractionEvent;
-import com.seailz.discordjar.command.CommandType;
 
 public interface MessageContextCommandListener extends CommandListener {
     /**

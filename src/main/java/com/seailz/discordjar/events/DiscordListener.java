@@ -80,11 +80,11 @@ public abstract class DiscordListener {
     public void onChannelUpdate(@NotNull ChannelUpdateEvent event) {
     }
 
-     public void onChannelDelete(@NotNull ChannelCreateEvent event) {
-     }
+    public void onChannelDelete(@NotNull ChannelCreateEvent event) {
+    }
 
-     public void onChannelPinsUpdate(@NotNull ChannelPinsUpdateEvent event) {
-     }
+    public void onChannelPinsUpdate(@NotNull ChannelPinsUpdateEvent event) {
+    }
 
     // Command Events
     public void onCommandPermissionUpdate(@NotNull CommandPermissionUpdateEvent event) {
@@ -93,6 +93,7 @@ public abstract class DiscordListener {
     /**
      * <b>It is not recommend to use this method.</b> Instead, where possible, you should use {@link com.seailz.discordjar.command.listeners.slash.SlashCommandListener SLashCommandListener} with a
      * {@link com.seailz.discordjar.command.annotation.SlashCommandInfo SlashCommandInfo} annotation and then register it using {@link com.seailz.discordjar.DiscordJar#registerCommands(CommandListener...)}
+     *
      * @param event The event
      */
     @Deprecated

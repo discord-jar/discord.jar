@@ -8,7 +8,6 @@ import com.seailz.discordjar.model.channel.audio.VoiceRegion;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import com.seailz.discordjar.voice.ws.VoiceGatewayFactory;
 import lombok.SneakyThrows;

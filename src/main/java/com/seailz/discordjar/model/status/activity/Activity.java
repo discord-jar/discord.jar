@@ -42,81 +42,6 @@ public class Activity implements Compilerable {
         setState(customStatus);
     }
 
-    /**
-     * If you've selected an Activity Type that's not 4 (custom), you can set the state as extra info to your activity.
-     *  User's current party status.
-     */
-    public Activity setState(String state) {
-        this.state = state;
-        return this;
-    }
-
-    public Activity setStreamUrl(String url) {
-        this.streamUrl = url;
-        return this;
-    }
-
-    public Activity setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-        return this;
-    }
-
-    public Activity setInstance(boolean instance) {
-        this.instance = instance;
-        return this;
-    }
-
-    public Activity setFlags(EnumSet<ActivityFlags> flags) {
-        this.flags = flags;
-        return this;
-    }
-
-    public Activity setEmoji(Emoji emoji) {
-        this.emoji = emoji;
-        return this;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public ActivityType type() {
-        return type;
-    }
-    public String state() { return state; }
-
-    public String streamUrl() {
-        return streamUrl;
-    }
-
-    public String applicationId() {
-        return applicationId;
-    }
-
-    public Emoji emoji() {
-        return emoji;
-    }
-
-    public boolean instance() {
-        return instance;
-    }
-
-    public EnumSet<ActivityFlags> flags() {
-        return flags;
-    }
-
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("name", name)
-                .put("type", type.getCode())
-                .put("url", streamUrl)
-                .put("application_id", applicationId)
-                .put("emoji", emoji == null ? JSONObject.NULL : emoji.compile())
-                .put("instance", instance)
-                .put("state", state);
-    }
-
     @NotNull
     public static Activity decompile(JSONObject obj, DiscordJar discordJar) {
         String name;
@@ -159,5 +84,83 @@ public class Activity implements Compilerable {
                 .setEmoji(emoji)
                 .setInstance(instance)
                 .setFlags(flags);
+    }
+
+    /**
+     * If you've selected an Activity Type that's not 4 (custom), you can set the state as extra info to your activity.
+     * User's current party status.
+     */
+    public Activity setState(String state) {
+        this.state = state;
+        return this;
+    }
+
+    public Activity setStreamUrl(String url) {
+        this.streamUrl = url;
+        return this;
+    }
+
+    public Activity setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+        return this;
+    }
+
+    public Activity setInstance(boolean instance) {
+        this.instance = instance;
+        return this;
+    }
+
+    public Activity setFlags(EnumSet<ActivityFlags> flags) {
+        this.flags = flags;
+        return this;
+    }
+
+    public Activity setEmoji(Emoji emoji) {
+        this.emoji = emoji;
+        return this;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public ActivityType type() {
+        return type;
+    }
+
+    public String state() {
+        return state;
+    }
+
+    public String streamUrl() {
+        return streamUrl;
+    }
+
+    public String applicationId() {
+        return applicationId;
+    }
+
+    public Emoji emoji() {
+        return emoji;
+    }
+
+    public boolean instance() {
+        return instance;
+    }
+
+    public EnumSet<ActivityFlags> flags() {
+        return flags;
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("name", name)
+                .put("type", type.getCode())
+                .put("url", streamUrl)
+                .put("application_id", applicationId)
+                .put("emoji", emoji == null ? JSONObject.NULL : emoji.compile())
+                .put("instance", instance)
+                .put("state", state);
     }
 }

@@ -9,13 +9,6 @@ public record DefaultReaction(
         String emojiName
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("emoji_id", emojiId)
-                .put("emoji_name", emojiName);
-    }
-
     @NonNull
     public static DefaultReaction decompile(JSONObject obj) {
         String emojiId;
@@ -34,5 +27,12 @@ public record DefaultReaction(
         }
 
         return new DefaultReaction(emojiId, emojiName);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("emoji_id", emojiId)
+                .put("emoji_name", emojiName);
     }
 }

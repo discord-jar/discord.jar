@@ -25,10 +25,6 @@ public enum ButtonStyle {
         this.color = color;
     }
 
-    public int code() {
-        return code;
-    }
-
     public static ButtonStyle fromCode(int code) {
         for (ButtonStyle style : values()) {
             if (style.code() == code) {
@@ -36,6 +32,10 @@ public enum ButtonStyle {
             }
         }
         return UNKNOWN;
+    }
+
+    public int code() {
+        return code;
     }
 
 }

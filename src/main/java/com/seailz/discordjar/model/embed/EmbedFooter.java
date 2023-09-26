@@ -11,15 +11,6 @@ public record EmbedFooter(
 ) implements Compilerable {
 
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("text", text);
-        obj.put("icon_url", iconUrl);
-        obj.put("proxy_icon_url", proxyIconUrl);
-        return obj;
-    }
-
     @NonNull
     public static EmbedFooter decompile(JSONObject obj) {
         String text;
@@ -44,5 +35,14 @@ public record EmbedFooter(
             proxyIconUrl = null;
         }
         return new EmbedFooter(text, iconUrl, proxyIconUrl);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("text", text);
+        obj.put("icon_url", iconUrl);
+        obj.put("proxy_icon_url", proxyIconUrl);
+        return obj;
     }
 }

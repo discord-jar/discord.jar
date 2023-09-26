@@ -24,10 +24,6 @@ public enum GatewayEvents {
         this.opCode = opCode;
     }
 
-    public int getOpCode() {
-        return opCode;
-    }
-
     public static GatewayEvents getEvent(int opCode) {
         for (GatewayEvents event : values()) {
             if (event.getOpCode() == opCode) {
@@ -35,6 +31,10 @@ public enum GatewayEvents {
             }
         }
         return null;
+    }
+
+    public int getOpCode() {
+        return opCode;
     }
 
 }

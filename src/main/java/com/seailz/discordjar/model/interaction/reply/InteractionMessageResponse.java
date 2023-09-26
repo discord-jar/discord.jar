@@ -98,12 +98,12 @@ public class InteractionMessageResponse implements InteractionReply {
         this.embeds = embeds;
     }
 
-    public void setAllowedMentions(AllowedMentions allowedMentions) {
-        this.allowedMentions = allowedMentions;
-    }
-
     public AllowedMentions getAllowedMentions() {
         return allowedMentions;
+    }
+
+    public void setAllowedMentions(AllowedMentions allowedMentions) {
+        this.allowedMentions = allowedMentions;
     }
 
     public void addEmbed(Embeder embed) {
@@ -144,12 +144,12 @@ public class InteractionMessageResponse implements InteractionReply {
         this.tts = tts;
     }
 
-    public void setSilent(boolean silent) {
-        this.silent = silent;
-    }
-
     public boolean isSilent() {
         return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 
     /**

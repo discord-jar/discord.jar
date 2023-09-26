@@ -5,7 +5,6 @@ import com.seailz.discordjar.command.listeners.CommandListener;
 import com.seailz.discordjar.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
-import com.seailz.discordjar.events.EventDispatcher;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.SlashCommandInteractionEvent;
 import com.seailz.discordjar.model.interaction.data.command.ResolvedCommandOption;
@@ -30,6 +29,7 @@ public class CommandDispatcher {
     public void registerCommand(String name, CommandListener listener) {
         listeners.put(name, listener);
     }
+
     public void registerSubCommand(SlashCommandListener top, SlashSubCommand sub, SubCommandListener listener) {
         if (subListeners.containsKey(top)) {
             ArrayList<SlashSubCommandDetails> exist = subListeners.get(top);
@@ -95,5 +95,6 @@ public class CommandDispatcher {
     record SlashSubCommandDetails(
             SlashSubCommand sub,
             SubCommandListener listener
-    ) {}
+    ) {
+    }
 }

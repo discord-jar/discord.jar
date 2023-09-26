@@ -24,10 +24,6 @@ public enum PremiumTier {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static PremiumTier getPremiumTier(int code) {
         for (PremiumTier tier : values()) {
             if (tier.getCode() == code) {
@@ -35,6 +31,10 @@ public enum PremiumTier {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

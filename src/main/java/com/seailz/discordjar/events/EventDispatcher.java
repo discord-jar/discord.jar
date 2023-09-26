@@ -26,18 +26,6 @@ public class EventDispatcher {
     // Map: Event type -> List of pairs (Listener, Method)
     private final Map<Class<? extends Event>, List<ListenerMethodPair>> listenersByEventType = new HashMap<>();
 
-    // Pair of listener instance and method to call
-    private static class ListenerMethodPair {
-        final DiscordListener listener;
-        final Method method;
-
-        ListenerMethodPair(DiscordListener listener, Method method) {
-            this.listener = listener;
-            this.method = method;
-        }
-    }
-
-
     public EventDispatcher(DiscordJar bot) {
     }
 
@@ -105,5 +93,16 @@ public class EventDispatcher {
                 }, "djar--EventDispatcher-inner");
             }
         }, "djar--EventDispatcher").start();
+    }
+
+    // Pair of listener instance and method to call
+    private static class ListenerMethodPair {
+        final DiscordListener listener;
+        final Method method;
+
+        ListenerMethodPair(DiscordListener listener, Method method) {
+            this.listener = listener;
+            this.method = method;
+        }
     }
 }

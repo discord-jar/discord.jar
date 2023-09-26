@@ -74,15 +74,14 @@ public class DiscordJar {
      * The current version of discord.jar
      */
     public static final String VERSION = "b-1.0";
-
+    /**
+     * The command dispatcher
+     */
+    protected final CommandDispatcher commandDispatcher;
     /**
      * The token of the bot
      */
     private final String token;
-    /**
-     * Used to manage the gateway connection
-     */
-    private GatewayFactory gatewayFactory;
     /**
      * Stores the logger
      */
@@ -108,7 +107,6 @@ public class DiscordJar {
      * This hashmap is a map of guild ids to a cache of members in that guild.
      */
     private final Map<String, Cache<Member>> guildMemberCaches;
-    private EnumSet<CacheType> cacheTypes;
     /**
      * Manages dispatching events to listeners
      */
@@ -117,12 +115,17 @@ public class DiscordJar {
      * Queued messages to be sent to the Discord API incase the rate-limits are hit
      */
     private final List<DiscordRequest> queuedRequests;
-    /**
-     * The command dispatcher
-     */
-    protected final CommandDispatcher commandDispatcher;
     // Voice states / guilds
     private final HashMap<String, VoiceState> voiceStates;
+    private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
+    private final GatewayTransportCompressionType gatewayTransportCompressionType;
+    public int gatewayConnections = 0;
+    public List<GatewayFactory> gatewayFactories = new ArrayList<>();
+    /**
+     * Used to manage the gateway connection
+     */
+    private GatewayFactory gatewayFactory;
+    private final EnumSet<CacheType> cacheTypes;
     /**
      * A cache storing self user information
      */
@@ -131,22 +134,17 @@ public class DiscordJar {
     /**
      * Should the bot be in debug mode?
      */
-    private boolean debug;
+    private final boolean debug;
     /**
      * List of rate-limit buckets
      */
-    private List<Bucket> buckets;
-    private int shardId;
-    private int numShards;
+    private final List<Bucket> buckets;
+    private final int shardId;
+    private final int numShards;
     /**
      * The current status of the bot, or null if not set.
      */
     private Status status;
-
-    public int gatewayConnections = 0;
-    public List<GatewayFactory> gatewayFactories = new ArrayList<>();
-    private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
-    private final GatewayTransportCompressionType gatewayTransportCompressionType;
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
@@ -188,29 +186,28 @@ public class DiscordJar {
         this(token, EnumSet.noneOf(Intent.class), APIVersion.getLatest(), httpOnly, httpOnlyInfo, false, -1, -1, APIRelease.STABLE, EnumSet.of(CacheType.ALL), GatewayTransportCompressionType.ZLIB_STREAM);
     }
 
-        /**
-         * Creates a new instance of the DiscordJar class
-         * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
-         *
-         * @param token        The token of the bot
-         * @param intents      The intents the bot will use
-         * @param version      The version of the Discord API the bot will use
-         * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
-         *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
-         *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
-         *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
-         *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
-         *                     Interaction-based events will still be delivered as usual.
-         *                     For a full tutorial, see the README.md file.
-         * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
-         *                     See the above parameter for more information.
-         * @param debug        Should the bot be in debug mode?
-         * @throws ExecutionException   If an error occurs while connecting to the gateway
-         * @throws InterruptedException If an error occurs while connecting to the gateway
-         *
-         * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
-         */
-        @Deprecated
+    /**
+     * Creates a new instance of the DiscordJar class
+     * This will start the connection to the Discord gateway, set caches, set the event dispatcher, set the logger, set up eliminate handling, and initiates no shutdown
+     *
+     * @param token        The token of the bot
+     * @param intents      The intents the bot will use
+     * @param version      The version of the Discord API the bot will use
+     * @param httpOnly     Makes your bot an <a href="https://discord.com/developers/docs/topics/gateway#privileged-intents">HTTP only bot</a>. This WILL
+     *                     break some methods and is only recommended to be set to true if you know what you are doing. Otherwise, leave it to false or don't set it.
+     *                     HTTP-only bots (or Interaction-only bots) are bots that do not connect to the gateway, and therefore cannot receive events. They receive
+     *                     interactions through POST requests to a specified endpoint of your bot. This is useful if you want to make a bot that only uses slash commands.
+     *                     Voice <b>will not work</b>, neither will {@link #setStatus(Status)} & most gateway events.
+     *                     Interaction-based events will still be delivered as usual.
+     *                     For a full tutorial, see the README.md file.
+     * @param httpOnlyInfo The information needed to make your bot HTTP only. This is only needed if you set httpOnly to true, otherwise set to null.
+     *                     See the above parameter for more information.
+     * @param debug        Should the bot be in debug mode?
+     * @throws ExecutionException   If an error occurs while connecting to the gateway
+     * @throws InterruptedException If an error occurs while connecting to the gateway
+     * @deprecated Use {@link DiscordJarBuilder} instead. This constructor will be set to protected in the future.
+     */
+    @Deprecated
     public DiscordJar(String token, EnumSet<Intent> intents, APIVersion version, boolean httpOnly, HTTPOnlyInfo httpOnlyInfo, boolean debug, int shardId, int numShards, APIRelease release, EnumSet<CacheType> cacheTypes, GatewayTransportCompressionType gwCompressionType) throws ExecutionException, InterruptedException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         this.eventDispatcher = new EventDispatcher(this);
@@ -274,7 +271,7 @@ public class DiscordJar {
 
                     List<ThreadInfo> djarThreads = new ArrayList<>();
                     List<ThreadInfo> globalThreads = new ArrayList<>();
-                    for(Long threadID : threadMXBean.getAllThreadIds()) {
+                    for (Long threadID : threadMXBean.getAllThreadIds()) {
                         ThreadInfo info = threadMXBean.getThreadInfo(threadID);
                         if (info.getThreadName().startsWith("djar--")) djarThreads.add(info);
                         globalThreads.add(info);
@@ -295,9 +292,9 @@ public class DiscordJar {
         this.shardId = shardId;
         this.numShards = numShards;
 
-            if (!httpOnly) {
-                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gwCompressionType);
-            }
+        if (!httpOnly) {
+            this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gwCompressionType);
+        }
 
     }
 
@@ -352,7 +349,8 @@ public class DiscordJar {
     public void killGateway() {
         try {
             if (gatewayFactory != null) gatewayFactory.killConnection();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
         gatewayFactory = null;
         // init garbage collection to avoid memory leaks
         System.gc();
@@ -369,7 +367,8 @@ public class DiscordJar {
     public void restartGateway() {
         try {
             TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
         killGateway();
         try {
             gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gatewayTransportCompressionType);
@@ -455,11 +454,16 @@ public class DiscordJar {
 
     /**
      * Allows one to disable member caching for a particular guild. This will remove all members from the cache for that guild - and then prevent them from being cached again.
+     *
      * @param guildId The id of the guild to disable member caching for
      */
     public void disableMemberCachingForGuild(String guildId) {
         memberCachingDisabledGuilds.add(guildId);
         guildMemberCaches.remove(guildId);
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     /**
@@ -476,10 +480,6 @@ public class DiscordJar {
         gatewayFactory.queueMessage(json);
         gatewayFactory.setStatus(status);
         this.status = status;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 
     /**
@@ -920,10 +920,10 @@ public class DiscordJar {
     public void clearMemberCaches() {
         guildMemberCaches.clear();
         if (debug) Logger.getLogger("DiscordJar")
-                        .info("[discord.jar] All member caches cleared. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
+                .info("[discord.jar] All member caches cleared. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
         System.gc();
         if (debug) Logger.getLogger("DiscordJar")
-                        .info("[discord.jar] Garbage collection ran. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
+                .info("[discord.jar] Garbage collection ran. Current RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
     }
 
     /**
@@ -934,8 +934,7 @@ public class DiscordJar {
      * <p> It's done that way because discord.jar uses a cache per guild, and not a cache for all members.
      *
      * @param guildId The id of the guild
-     * @param member The member to insert
-     *
+     * @param member  The member to insert
      * @see #getMemberGuildCaches()
      */
     public void insertMemberCache(@NotNull String guildId, @NotNull Member member, @Nullable Guild guild) {
@@ -972,7 +971,7 @@ public class DiscordJar {
      * <br>If one can't be found, you will get the {@link DiscordRequest.DiscordAPIErrorException} exception or null.
      *
      * @param guildId The id of the guild
-     * @param userId The id of the user
+     * @param userId  The id of the user
      * @return The member if one can be found, or null if one can't be found
      */
     @Nullable
@@ -999,7 +998,7 @@ public class DiscordJar {
      * using discord.jar. It's only meant to be used internally.
      *
      * @param guildId The id of the guild
-     * @param userId The id of the user
+     * @param userId  The id of the user
      * @return A member if one can be found, or null if one can't be found
      */
     private Member getMemberManuallyOrNull(@NotNull String guildId, @NotNull String userId) {
@@ -1064,8 +1063,8 @@ public class DiscordJar {
      * Registers command(s) with Discord.
      *
      * @param listeners The listeners/commands to register
-     * @param push You still need to register commands to discord.jar each time you start up your app, but you can skip registering to Discord (if you've already registered your commands
-     *             with Discord, as they are persistent throughout restarts) by setting this to false.
+     * @param push      You still need to register commands to discord.jar each time you start up your app, but you can skip registering to Discord (if you've already registered your commands
+     *                  with Discord, as they are persistent throughout restarts) by setting this to false.
      * @throws IllegalArgumentException <ul>
      *                                  <li>If the command name is less than 1 character or more than 32 characters</li>
      *
@@ -1130,7 +1129,7 @@ public class DiscordJar {
 
             commandDispatcher.registerCommand(name, listener);
 
-            if (!(listener instanceof SlashCommandListener slashCommandListener)) continue  ;
+            if (!(listener instanceof SlashCommandListener slashCommandListener)) continue;
             if (slashCommandListener.getSubCommands().isEmpty()) continue;
 
             for (SlashSubCommand subCommand : slashCommandListener.getSubCommands().keySet()) {
@@ -1155,8 +1154,10 @@ public class DiscordJar {
 
         for (CommandOption o : command.options()) {
             Checker.check(!(o.name().length() > 1 && o.name().length() < 32), "Option name must be within 1 and 32 characters!");
-            if (o.description() != null) Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
-            if (o.choices() != null) Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
+            if (o.description() != null)
+                Checker.check(!(o.description().length() > 1 && o.description().length() < 100), "Option description must be within 1 and 100 characters!");
+            if (o.choices() != null)
+                Checker.check(o.choices().size() > 25, "Command options can only have up to 25 choices!");
 
             if (o.choices() != null) {
                 for (CommandChoice c : o.choices()) {
@@ -1203,6 +1204,7 @@ public class DiscordJar {
 
     /**
      * Returns all the global commands for this app.
+     *
      * @param withLocalizations Whether to include localizations for the commands.
      * @return List of {@link Command} objects.
      */
@@ -1234,6 +1236,7 @@ public class DiscordJar {
 
     /**
      * Returns a global command for this app.
+     *
      * @param commandId The id of the command.
      * @return The {@link Command} object.
      */
@@ -1258,8 +1261,9 @@ public class DiscordJar {
 
     /**
      * Edits a global command for this app.
+     *
      * @param newCommand The new command.
-     * @param commandId The id of the command.
+     * @param commandId  The id of the command.
      * @return The {@link Command} object.
      */
     @Nullable
@@ -1283,6 +1287,7 @@ public class DiscordJar {
 
     /**
      * Deletes a global command for this app.
+     *
      * @param commandId The id of the command.
      */
     public void deleteGlobalCommand(String commandId) {
@@ -1303,6 +1308,7 @@ public class DiscordJar {
 
     /**
      * Bulk overwrites all the global commands for this app.
+     *
      * @param commands The new commands to overwrite with.
      */
     public void bulkOverwriteCommands(@NotNull List<Command> commands) {
@@ -1326,7 +1332,8 @@ public class DiscordJar {
 
     /**
      * Returns all the guild commands for this app.
-     * @param guildId The id of the guild.
+     *
+     * @param guildId           The id of the guild.
      * @param withLocalizations Whether to include localizations for the commands.
      * @return List of {@link Command} objects.
      */
@@ -1358,7 +1365,8 @@ public class DiscordJar {
 
     /**
      * Returns a guild command for this app.
-     * @param guildId The id of the guild.
+     *
+     * @param guildId   The id of the guild.
      * @param commandId The id of the command.
      * @return The {@link Command} object.
      */
@@ -1383,9 +1391,10 @@ public class DiscordJar {
 
     /**
      * Edits a guild command for this app.
+     *
      * @param newCommand The new command.
-     * @param guildId The id of the guild.
-     * @param commandId The id of the command.
+     * @param guildId    The id of the guild.
+     * @param commandId  The id of the command.
      * @return The edited {@link Command} object.
      */
     @Nullable
@@ -1409,7 +1418,8 @@ public class DiscordJar {
 
     /**
      * Deletes a guild command for this app.
-     * @param guildId The id of the guild.
+     *
+     * @param guildId   The id of the guild.
      * @param commandId The id of the command.
      */
     public void deleteGuildCommand(String guildId, String commandId) {
@@ -1430,8 +1440,9 @@ public class DiscordJar {
 
     /**
      * Bulk overwrites all the guild commands for this app.
+     *
      * @param commands The new commands to overwrite with.
-     * @param guildId The id of the guild.
+     * @param guildId  The id of the guild.
      */
     public void bulkOverwriteGuildCommands(@NotNull List<Command> commands, String guildId) {
         JSONArray arr = new JSONArray();
@@ -1452,14 +1463,13 @@ public class DiscordJar {
     }
 
 
-
     /**
      * Retrieves up to 200 guilds the bot is in.
      * <br>If you want to retrieve more guilds than that, you need to specify the last guild id in the <b>after</b> parameter.
-     *<p>
+     * <p>
      * Please be aware of the fact that this method is rate limited quite heavily.
      * <br>It is recommended that only smaller bots use this method.
-     *<p>
+     * <p>
      * If you need to retrieve a (possibly inaccurate) list of guilds as a larger bot, use {@link #getGuildCache()} instead.
      * <br>All guilds retrieved from this method will be cached.
      */
@@ -1561,14 +1571,14 @@ public class DiscordJar {
      * Returns the average Gateway ping in ms.
      * <br>This is determined using heartbeats - it waits for the response and then calculates the time the Gateway took to respond.
      */
-     public Long getAverageGatewayPing() {
-         long sum = 0;
-         for (Long l : getGatewayPingHistory()) {
-             sum += l;
-         }
+    public Long getAverageGatewayPing() {
+        long sum = 0;
+        for (Long l : getGatewayPingHistory()) {
+            sum += l;
+        }
 
-         return sum / getGatewayPingHistory().size();
-     }
+        return sum / getGatewayPingHistory().size();
+    }
 
 
 }

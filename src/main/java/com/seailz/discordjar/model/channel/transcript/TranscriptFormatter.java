@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by Ryzeon. Modified for use in discord.jar by Seailz.
+ *
  * @Authors: [Ryzeon, Seailz]
  */
 public class TranscriptFormatter {

@@ -5,9 +5,9 @@ import com.seailz.discordjar.action.automod.AutomodRuleCreateAction;
 import com.seailz.discordjar.action.automod.AutomodRuleModifyAction;
 import com.seailz.discordjar.action.guild.channel.CreateGuildChannelAction;
 import com.seailz.discordjar.action.guild.members.RequestGuildMembersAction;
+import com.seailz.discordjar.action.guild.onboarding.ModifyOnboardingGuild;
 import com.seailz.discordjar.action.guild.scheduledevents.CreateScheduledEventAction;
 import com.seailz.discordjar.action.guild.scheduledevents.ModifyScheduledEventAction;
-import com.seailz.discordjar.action.guild.onboarding.ModifyOnboardingGuild;
 import com.seailz.discordjar.action.sticker.ModifyStickerAction;
 import com.seailz.discordjar.cache.JsonCache;
 import com.seailz.discordjar.core.Compilerable;
@@ -67,7 +67,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final Channel afkChannel;
     private final int afkTimeout;
     private final boolean isWidgetEnabled;
-    private Channel widgetChannel = null;
     private final String widgetChannelId;
     private final VerificationLevel verificationLevel;
     private final DefaultMessageNotificationLevel defaultMessageNotificationLevel;
@@ -77,7 +76,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final EnumSet<GuildFeature> features;
     private final MFALevel mfaLevel;
     private final String applicationId;
-    private Channel systemChannel;
     private final String systemChannelId;
     private final int maxPresences;
     private final int maxMembers;
@@ -87,7 +85,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final PremiumTier premiumTier;
     private final int premiumSubscriptionCount;
     private final String preferredLocale;
-    private Channel publicUpdatesChannel;
     private final String publicUpdatesChannelId;
     private final int maxVideoChannelUsers;
     private final int maxStageVideoChannelUsers;
@@ -97,9 +94,12 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final List<Sticker> stickers;
     private final boolean premiumProgressBarEnabled;
     private final String safetyAlertChannelId;
-    private Channel safetyAlertChannel = null;
     private final DiscordJar discordJar;
     private final JsonCache roleCache;
+    private Channel widgetChannel = null;
+    private Channel systemChannel;
+    private Channel publicUpdatesChannel;
+    private Channel safetyAlertChannel = null;
 
     public Guild(
             String id,
@@ -189,6 +189,349 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         this.safetyAlertChannelId = safetyAlertChannelId;
         this.discordJar = discordJar;
         this.roleCache = roleCache;
+    }
+
+    @NotNull
+    public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+        long nano = System.nanoTime();
+        String id;
+        String name;
+        String icon;
+        String iconHash;
+        String splash;
+        String discoverySplash;
+        boolean isOwner;
+        User owner;
+        String permissions;
+        Channel afkChannel;
+        int afkTimeout;
+        boolean isWidgetEnabled;
+        String widgetChannelId;
+        VerificationLevel verificationLevel;
+        DefaultMessageNotificationLevel defaultMessageNotificationLevel;
+        ExplicitContentFilterLevel explicitContentFilterLevel;
+        List<Role> roles;
+        List<Emoji> emojis;
+        EnumSet<GuildFeature> features;
+        MFALevel mfaLevel;
+        String applicationId;
+        String systemChannelId;
+        int maxPresences;
+        int maxMembers;
+        String vanityUrlCode;
+        String description;
+        String banner;
+        PremiumTier premiumTier;
+        int premiumSubscriptionCount;
+        String preferredLocale;
+        String publicUpdatesChannelId;
+        int maxVideoChannelUsers;
+        int maxStageVideoChannelUsers = 0;
+        int approximateMemberCount;
+        int approximatePresenceCount;
+        WelcomeScreen welcomeScreen;
+        List<Sticker> stickers;
+        boolean premiumProgressBarEnabled;
+        String safetyAlertsChannelId = null;
+
+        try {
+            id = obj.getString("id");
+        } catch (JSONException e) {
+            id = null;
+        }
+
+        try {
+            name = obj.getString("name");
+        } catch (JSONException e) {
+            name = null;
+        }
+
+        try {
+            icon = obj.getString("icon");
+        } catch (JSONException e) {
+            icon = null;
+        }
+
+        try {
+            iconHash = obj.getString("icon_hash");
+        } catch (JSONException e) {
+            iconHash = null;
+        }
+
+        try {
+            splash = obj.getString("splash");
+        } catch (JSONException e) {
+            splash = null;
+        }
+
+        try {
+            discoverySplash = obj.getString("discovery_splash");
+        } catch (JSONException e) {
+            discoverySplash = null;
+        }
+
+        try {
+            isOwner = obj.getBoolean("owner");
+        } catch (JSONException e) {
+            isOwner = false;
+        }
+
+        try {
+            owner = User.decompile(obj.getJSONObject("owner"), discordJar);
+        } catch (JSONException e) {
+            owner = null;
+        }
+
+        try {
+            permissions = obj.getString("permissions");
+        } catch (JSONException e) {
+            permissions = null;
+        }
+
+        try {
+            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"), discordJar);
+        } catch (JSONException e) {
+            afkChannel = null;
+        }
+
+        try {
+            afkTimeout = obj.getInt("afk_timeout");
+        } catch (JSONException e) {
+            afkTimeout = 0;
+        }
+
+        try {
+            isWidgetEnabled = obj.getBoolean("widget_enabled");
+        } catch (JSONException e) {
+            isWidgetEnabled = false;
+        }
+
+        try {
+            widgetChannelId = obj.getString("widget_channel_id");
+        } catch (JSONException e) {
+            widgetChannelId = null;
+        }
+
+        try {
+            verificationLevel = VerificationLevel.getVerificationLevel(obj.getInt("verification_level"));
+        } catch (JSONException e) {
+            verificationLevel = null;
+        }
+
+        try {
+            defaultMessageNotificationLevel = DefaultMessageNotificationLevel.getDefaultMessageNotificationLevel(obj.getInt("default_message_notifications"));
+        } catch (JSONException e) {
+            defaultMessageNotificationLevel = null;
+        }
+
+        try {
+            explicitContentFilterLevel = ExplicitContentFilterLevel.getExplicitContentFilterLevel(obj.getInt("explicit_content_filter"));
+        } catch (JSONException e) {
+            explicitContentFilterLevel = null;
+        }
+
+        try {
+            JSONArray rolesArray = obj.getJSONArray("roles");
+            roles = new ArrayList<>();
+            for (int i = 0; i < rolesArray.length(); i++) {
+                roles.add(Role.decompile(rolesArray.getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            roles = null;
+        }
+
+        try {
+            JSONArray emojisArray = obj.getJSONArray("emojis");
+            emojis = new ArrayList<>();
+            for (int i = 0; i < emojisArray.length(); i++) {
+                emojis.add(Emoji.decompile(emojisArray.getJSONObject(i), discordJar));
+            }
+        } catch (JSONException e) {
+            emojis = null;
+        }
+
+        try {
+            features = GuildFeature.getGuildFeatures(obj.getJSONArray("features").toList().toArray(new String[0]));
+        } catch (JSONException e) {
+            features = null;
+        }
+
+        try {
+            mfaLevel = MFALevel.getMFALevel(obj.getInt("mfa_level"));
+        } catch (JSONException e) {
+            mfaLevel = null;
+        }
+
+        try {
+            applicationId = obj.getString("application_id");
+        } catch (JSONException e) {
+            applicationId = null;
+        }
+
+        try {
+            systemChannelId = obj.getString("system_channel_id");
+        } catch (IllegalArgumentException | JSONException e) {
+            systemChannelId = null;
+        }
+
+        try {
+            maxPresences = obj.getInt("max_presences");
+        } catch (JSONException e) {
+            maxPresences = 0;
+        }
+
+        try {
+            maxMembers = obj.getInt("max_members");
+        } catch (JSONException e) {
+            maxMembers = 0;
+        }
+
+        try {
+            vanityUrlCode = obj.getString("vanity_url_code");
+        } catch (JSONException e) {
+            vanityUrlCode = null;
+        }
+
+        try {
+            description = obj.getString("description");
+        } catch (JSONException e) {
+            description = null;
+        }
+
+        try {
+            banner = obj.getString("banner");
+        } catch (JSONException e) {
+            banner = null;
+        }
+
+        try {
+            premiumTier = PremiumTier.getPremiumTier(obj.getInt("premium_tier"));
+        } catch (JSONException e) {
+            premiumTier = null;
+        }
+
+        try {
+            premiumSubscriptionCount = obj.getInt("premium_subscription_count");
+        } catch (JSONException e) {
+            premiumSubscriptionCount = 0;
+        }
+
+        try {
+            preferredLocale = obj.getString("preferred_locale");
+        } catch (JSONException e) {
+            preferredLocale = null;
+        }
+
+        try {
+            publicUpdatesChannelId = obj.getString("public_updates_channel_id");
+        } catch (Exception e) {
+            publicUpdatesChannelId = null;
+        }
+
+        try {
+            maxVideoChannelUsers = obj.getInt("max_video_channel_users");
+        } catch (JSONException e) {
+            maxVideoChannelUsers = 0;
+        }
+
+        try {
+            approximateMemberCount = obj.getInt("approximate_member_count");
+        } catch (JSONException e) {
+            approximateMemberCount = 0;
+        }
+
+        try {
+            approximateMemberCount = obj.getInt("approximate_member_count");
+        } catch (JSONException e) {
+            approximateMemberCount = 0;
+        }
+
+        try {
+            approximatePresenceCount = obj.getInt("approximate_presence_count");
+        } catch (JSONException e) {
+            approximatePresenceCount = 0;
+        }
+
+        try {
+            welcomeScreen = WelcomeScreen.decompile(obj.getJSONObject("welcome_screen"), discordJar);
+        } catch (JSONException e) {
+            welcomeScreen = null;
+        }
+
+        try {
+            JSONArray stickersArray = obj.getJSONArray("stickers");
+            stickers = new ArrayList<>();
+            for (int i = 0; i < stickersArray.length(); i++) {
+                stickers.add(Sticker.decompile(stickersArray.getJSONObject(i), discordJar));
+            }
+        } catch (JSONException e) {
+            stickers = null;
+        }
+
+        try {
+            premiumProgressBarEnabled = obj.getBoolean("premium_progress_bar_enabled");
+        } catch (JSONException e) {
+            premiumProgressBarEnabled = false;
+        }
+
+        if (obj.has("safety_alerts_channel_id") && !obj.isNull("safety_alerts_channel_id")) {
+            safetyAlertsChannelId = obj.getString("safety_alerts_channel_id");
+        }
+
+        Guild g = new Guild(
+                id,
+                name,
+                icon,
+                iconHash,
+                splash,
+                discoverySplash,
+                isOwner,
+                owner,
+                permissions,
+                afkChannel,
+                afkTimeout,
+                isWidgetEnabled,
+                widgetChannelId,
+                verificationLevel,
+                defaultMessageNotificationLevel,
+                explicitContentFilterLevel,
+                roles,
+                emojis,
+                features,
+                mfaLevel,
+                applicationId,
+                null,
+                systemChannelId,
+                maxPresences,
+                maxMembers,
+                vanityUrlCode,
+                description,
+                banner,
+                premiumTier,
+                premiumSubscriptionCount,
+                preferredLocale,
+                null,
+                publicUpdatesChannelId,
+                maxVideoChannelUsers,
+                maxStageVideoChannelUsers,
+                approximateMemberCount,
+                approximatePresenceCount,
+                welcomeScreen,
+                stickers,
+                premiumProgressBarEnabled,
+                safetyAlertsChannelId,
+                discordJar,
+                JsonCache.newc(new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
+                        discordJar,
+                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
+                        RequestMethod.GET
+                ))
+        );
+        g.roleCache.reset(60000);
+        return g;
     }
 
     public String id() {
@@ -339,7 +682,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         return roleCache;
     }
 
-
     @Override
     public JSONObject compile() {
         return new JSONObject()
@@ -382,349 +724,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 .put("stickers", stickers)
                 .put("premium_progress_bar_enabled", premiumProgressBarEnabled)
                 .put("safety_alerts_channel_id", safetyAlertChannelId);
-    }
-
-    @NotNull
-    public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
-        long nano = System.nanoTime();
-        String id;
-        String name;
-        String icon;
-        String iconHash;
-        String splash;
-        String discoverySplash;
-        boolean isOwner;
-        User owner;
-        String permissions;
-        Channel afkChannel;
-        int afkTimeout;
-        boolean isWidgetEnabled;
-        String widgetChannelId;
-        VerificationLevel verificationLevel;
-        DefaultMessageNotificationLevel defaultMessageNotificationLevel;
-        ExplicitContentFilterLevel explicitContentFilterLevel;
-        List<Role> roles;
-        List<Emoji> emojis;
-        EnumSet<GuildFeature> features;
-        MFALevel mfaLevel;
-        String applicationId;
-        String systemChannelId;
-        int maxPresences;
-        int maxMembers;
-        String vanityUrlCode;
-        String description;
-        String banner;
-        PremiumTier premiumTier;
-        int premiumSubscriptionCount;
-        String preferredLocale;
-        String publicUpdatesChannelId;
-        int maxVideoChannelUsers;
-        int maxStageVideoChannelUsers = 0;
-        int approximateMemberCount;
-        int approximatePresenceCount;
-        WelcomeScreen welcomeScreen;
-        List<Sticker> stickers;
-        boolean premiumProgressBarEnabled;
-        String safetyAlertsChannelId = null;
-
-        try {
-            id = obj.getString("id");
-        } catch (JSONException e) {
-            id = null;
-        }
-
-        try {
-            name = obj.getString("name");
-        } catch (JSONException e) {
-            name = null;
-        }
-
-        try {
-            icon = obj.getString("icon");
-        } catch (JSONException e) {
-            icon = null;
-        }
-
-        try {
-            iconHash = obj.getString("icon_hash");
-        } catch (JSONException e) {
-            iconHash = null;
-        }
-
-        try {
-            splash = obj.getString("splash");
-        } catch (JSONException e) {
-            splash = null;
-        }
-
-        try {
-            discoverySplash = obj.getString("discovery_splash");
-        } catch (JSONException e) {
-            discoverySplash = null;
-        }
-
-        try {
-            isOwner = obj.getBoolean("owner");
-        } catch (JSONException e) {
-            isOwner = false;
-        }
-
-        try {
-            owner = User.decompile(obj.getJSONObject("owner"), discordJar);
-        } catch (JSONException e) {
-            owner = null;
-        }
-
-        try {
-            permissions = obj.getString("permissions");
-        } catch (JSONException e) {
-            permissions = null;
-        }
-
-        try {
-            afkChannel = Channel.decompile(obj.getJSONObject("afk_channel"), discordJar);
-        } catch (JSONException e) {
-            afkChannel = null;
-        }
-
-        try {
-            afkTimeout = obj.getInt("afk_timeout");
-        } catch (JSONException e) {
-            afkTimeout = 0;
-        }
-
-        try {
-            isWidgetEnabled = obj.getBoolean("widget_enabled");
-        } catch (JSONException e) {
-            isWidgetEnabled = false;
-        }
-
-        try {
-            widgetChannelId =obj.getString("widget_channel_id");
-        } catch (JSONException e) {
-            widgetChannelId = null;
-        }
-
-        try {
-            verificationLevel = VerificationLevel.getVerificationLevel(obj.getInt("verification_level"));
-        } catch (JSONException e) {
-            verificationLevel = null;
-        }
-
-        try {
-            defaultMessageNotificationLevel = DefaultMessageNotificationLevel.getDefaultMessageNotificationLevel(obj.getInt("default_message_notifications"));
-        } catch (JSONException e) {
-            defaultMessageNotificationLevel = null;
-        }
-
-        try {
-            explicitContentFilterLevel = ExplicitContentFilterLevel.getExplicitContentFilterLevel(obj.getInt("explicit_content_filter"));
-        } catch (JSONException e) {
-            explicitContentFilterLevel = null;
-        }
-
-        try {
-            JSONArray rolesArray = obj.getJSONArray("roles");
-            roles = new ArrayList<>();
-            for (int i = 0; i < rolesArray.length(); i++) {
-                roles.add(Role.decompile(rolesArray.getJSONObject(i)));
-            }
-        } catch (JSONException e) {
-            roles = null;
-        }
-
-        try {
-            JSONArray emojisArray = obj.getJSONArray("emojis");
-            emojis = new ArrayList<>();
-            for (int i = 0; i < emojisArray.length(); i++) {
-                emojis.add(Emoji.decompile(emojisArray.getJSONObject(i), discordJar));
-            }
-        } catch (JSONException e) {
-            emojis = null;
-        }
-
-        try {
-            features = GuildFeature.getGuildFeatures(obj.getJSONArray("features").toList().toArray(new String[0]));
-        } catch (JSONException e) {
-            features = null;
-        }
-
-        try {
-            mfaLevel = MFALevel.getMFALevel(obj.getInt("mfa_level"));
-        } catch (JSONException e) {
-            mfaLevel = null;
-        }
-
-        try {
-            applicationId = obj.getString("application_id");
-        } catch (JSONException e) {
-            applicationId = null;
-        }
-
-        try {
-            systemChannelId = obj.getString("system_channel_id");
-        } catch (IllegalArgumentException | JSONException e) {
-            systemChannelId = null;
-        }
-
-        try {
-            maxPresences = obj.getInt("max_presences");
-        } catch (JSONException e) {
-            maxPresences = 0;
-        }
-
-        try {
-            maxMembers = obj.getInt("max_members");
-        } catch (JSONException e) {
-            maxMembers = 0;
-        }
-
-        try {
-            vanityUrlCode = obj.getString("vanity_url_code");
-        } catch (JSONException e) {
-            vanityUrlCode = null;
-        }
-
-        try {
-            description = obj.getString("description");
-        } catch (JSONException e) {
-            description = null;
-        }
-
-        try {
-            banner = obj.getString("banner");
-        } catch (JSONException e) {
-            banner = null;
-        }
-
-        try {
-            premiumTier = PremiumTier.getPremiumTier(obj.getInt("premium_tier"));
-        } catch (JSONException e) {
-            premiumTier = null;
-        }
-
-        try {
-            premiumSubscriptionCount = obj.getInt("premium_subscription_count");
-        } catch (JSONException e) {
-            premiumSubscriptionCount = 0;
-        }
-
-        try {
-            preferredLocale = obj.getString("preferred_locale");
-        } catch (JSONException e) {
-            preferredLocale = null;
-        }
-
-        try {
-            publicUpdatesChannelId = obj.getString("public_updates_channel_id");
-        } catch (Exception e) {
-            publicUpdatesChannelId = null;
-        }
-
-        try {
-            maxVideoChannelUsers = obj.getInt("max_video_channel_users");
-        } catch (JSONException e) {
-            maxVideoChannelUsers = 0;
-        }
-        
-        try {
-            approximateMemberCount = obj.getInt("approximate_member_count");
-        } catch (JSONException e) {
-            approximateMemberCount = 0;
-        }
-
-        try {
-            approximateMemberCount = obj.getInt("approximate_member_count");
-        } catch (JSONException e) {
-            approximateMemberCount = 0;
-        }
-
-        try {
-            approximatePresenceCount = obj.getInt("approximate_presence_count");
-        } catch (JSONException e) {
-            approximatePresenceCount = 0;
-        }
-
-        try {
-            welcomeScreen = WelcomeScreen.decompile(obj.getJSONObject("welcome_screen"), discordJar);
-        } catch (JSONException e) {
-            welcomeScreen = null;
-        }
-
-        try {
-            JSONArray stickersArray = obj.getJSONArray("stickers");
-            stickers = new ArrayList<>();
-            for (int i = 0; i < stickersArray.length(); i++) {
-                stickers.add(Sticker.decompile(stickersArray.getJSONObject(i), discordJar));
-            }
-        } catch (JSONException e) {
-            stickers = null;
-        }
-
-        try {
-            premiumProgressBarEnabled = obj.getBoolean("premium_progress_bar_enabled");
-        } catch (JSONException e) {
-            premiumProgressBarEnabled = false;
-        }
-
-        if (obj.has("safety_alerts_channel_id") && !obj.isNull("safety_alerts_channel_id")) {
-            safetyAlertsChannelId = obj.getString("safety_alerts_channel_id");
-        }
-
-        Guild g = new Guild(
-                id,
-                name,
-                icon,
-                iconHash,
-                splash,
-                discoverySplash,
-                isOwner,
-                owner,
-                permissions,
-                afkChannel,
-                afkTimeout,
-                isWidgetEnabled,
-                widgetChannelId,
-                verificationLevel,
-                defaultMessageNotificationLevel,
-                explicitContentFilterLevel,
-                roles,
-                emojis,
-                features,
-                mfaLevel,
-                applicationId,
-                null,
-                systemChannelId,
-                maxPresences,
-                maxMembers,
-                vanityUrlCode,
-                description,
-                banner,
-                premiumTier,
-                premiumSubscriptionCount,
-                preferredLocale,
-                null,
-                publicUpdatesChannelId,
-                maxVideoChannelUsers,
-                maxStageVideoChannelUsers,
-                approximateMemberCount,
-                approximatePresenceCount,
-                welcomeScreen,
-                stickers,
-                premiumProgressBarEnabled,
-                safetyAlertsChannelId,
-                discordJar,
-                JsonCache.newc(new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES.replace("{guild.id}", id),
-                        discordJar,
-                        URLS.GET.GUILDS.ROLES.GET_GUILD_ROLES,
-                        RequestMethod.GET
-                ))
-        );
-        g.roleCache.reset(60000);
-        return g;
     }
 
     public Channel systemChannel() {
@@ -1006,6 +1005,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Lists the guild's custom emojis.
+     *
      * @return A list of the guild emojis.
      */
     public List<Emoji> getEmojis() {
@@ -1029,6 +1029,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a guild emoji by its id.
+     *
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
@@ -1052,6 +1053,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a guild emoji by its id.
+     *
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
@@ -1118,7 +1120,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         DiscordResponse response = null;
         try {
             response = req.invoke();
-               res = response.arr();
+            res = response.arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
@@ -1153,8 +1155,9 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      *     <li>Requesting a prefix (query parameter) will return a maximum of 100 members.</li>
      *     <li>Requesting user ids will continue to be limited to returning 100 members.</li>
      *  </ul>
-     *
+     * <p>
      * This method is done over the Gateway.
+     *
      * @return A {@link CompletableFuture<List>} of {@link Member Members}, but first a {@link com.seailz.discordjar.action.guild.members.RequestGuildMembersAction RequestGuildMembersAction} is returned,
      * for you to set the parameters of the request.
      */
@@ -1184,6 +1187,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     /**
      * Returns the invite objects for this guild.
      * <br>This method requires the <b>MANAGE_GUILD</b> permission.
+     *
      * @return A list of {@link Invite invites} for this guild.
      */
     public List<InviteMetadata> getInvites() {
@@ -1231,12 +1235,14 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
-        if (response.code() != 200) throw new RuntimeException("An error occurred when deleting the guild. Make sure the application owns the guild before doing this.");
+        if (response.code() != 200)
+            throw new RuntimeException("An error occurred when deleting the guild. Make sure the application owns the guild before doing this.");
     }
 
     /**
      * Deletes a role from the guild.
      * This requires your application to have the {@code MANAGE_ROLES} permission.
+     *
      * @param role The role to delete.
      */
     public void deleteRole(Role role) {
@@ -1256,6 +1262,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a role in the guild by its id if it exists.
+     *
      * @param id The id of the role to find.
      * @return The role if it exists, {@code null} if it does not.
      */
@@ -1265,6 +1272,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a role in the guild by its id if it exists.
+     *
      * @param id The id of the role to find.
      * @return The role if it exists, {@code null} if it does not.
      */
@@ -1277,17 +1285,21 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a list of roles from the guild with the given name.
+     *
      * @param name A name to find.
      * @return A list of roles with the given name, which may be empty.
      */
     public List<Role> getRolesByName(String name) {
         List<Role> roles = new ArrayList<>();
-        roles().forEach(r -> {if (r.name().equals(name)) roles.add(r);});
+        roles().forEach(r -> {
+            if (r.name().equals(name)) roles.add(r);
+        });
         return roles;
     }
 
     /**
      * Modifies the MFA level of a Guild. This requires Guild ownership.
+     *
      * @param level The new MFA level to set.
      */
     public void modifyMFALevel(MFALevel level) {
@@ -1307,6 +1319,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a list of all currently banned users on the guild. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @return Current guild bans
      */
     public List<GuildBan> getBans() {
@@ -1332,6 +1345,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a ban on a user in the guild. Returns {@code null} if no ban could be found. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @param userId The id of the banned user
      * @return The ban on the user, if applicable
      */
@@ -1354,6 +1368,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets a ban on a user in the guild. Returns {@code null} if no ban could be found. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @param userId The id of the banned user
      * @return The ban on the user, if applicable
      */
@@ -1363,6 +1378,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Bans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @param userId The id of the user to ban
      */
     public void banUser(String userId) {
@@ -1382,6 +1398,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Bans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @param userId The id of the user to ban
      */
     public void banUser(long userId) {
@@ -1390,6 +1407,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Unbans a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @param userId The id of the user to unban
      */
     public void unbanUser(String userId) {
@@ -1409,6 +1427,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Unban a user from the guild. Requires the {@code BAN_MEMBERS} permission.
+     *
      * @param userId The id of the user to unban
      */
     public void unbanUser(long userId) {
@@ -1419,6 +1438,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
      * </p>
      * By default, this tests for 7 days.
+     *
      * @return The number of members that would be pruned in the prune operation.
      */
     public int getPruneCount() {
@@ -1427,11 +1447,13 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
+     *
      * @param days The amount of days to check users against, from 1-30.
      * @return The number of members that would be pruned in the prune operation.
      */
     public int getPruneCount(int days) {
-        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!"))) return 0;
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside of 1-30!")))
+            return 0;
 
         DiscordRequest req = new DiscordRequest(
                 new JSONObject()
@@ -1451,11 +1473,14 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     *
      * @param days The amount of days to check users against, from 1-30.
      * @return The amount of pruned users
      */
     public int prune(int days) {
-        if (!Checker.inRange(1, 30, days, () -> {throw new RuntimeException("Days cannot be outside 1-30!");})) return 0;
+        if (!Checker.inRange(1, 30, days, () -> {
+            throw new RuntimeException("Days cannot be outside 1-30!");
+        })) return 0;
 
         try {
             DiscordResponse response = new DiscordRequest(
@@ -1475,12 +1500,15 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Finds how many members would be pruned from the guild in the case of a prune. This requires the {@code KICK_MEMBERS} permission.
-     * @param days The amount of days to check users against, from 1-30.
+     *
+     * @param days          The amount of days to check users against, from 1-30.
      * @param includedRoles A list of roles to include in the count.
      * @return The number of members that would be pruned in the prune operation.
      */
     public int getPruneCount(int days, List<Role> includedRoles) {
-        if (!Checker.inRange(1, 30, days, () -> {throw new RuntimeException("Days cannot be outisde 1-30!");})) return 0;
+        if (!Checker.inRange(1, 30, days, () -> {
+            throw new RuntimeException("Days cannot be outisde 1-30!");
+        })) return 0;
 
         StringBuilder commaDelimitedSnowflakesString = new StringBuilder("[");
         if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
@@ -1514,10 +1542,12 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Begins a prune operation on the guild. This requires the {@code KICK_MEMBERS} permission.
+     *
      * @param days The amount of days to check users against, from 1-30.
      */
     public void prune(int days, List<Role> includedRoles) {
-        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside 1-30!"))) return;
+        if (!Checker.inRange(1, 30, days, () -> Logger.getLogger("[DISCORD.JAR]").severe("Days cannot be outside 1-30!")))
+            return;
 
         StringBuilder commaDelimitedSnowflakesString = new StringBuilder();
         if (includedRoles.size() == 1) commaDelimitedSnowflakesString.append(includedRoles.get(0).id());
@@ -1546,6 +1576,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Returns a list of Guild {@link Member}s whose names or nicknames contain a filter string.
+     *
      * @param filter The username filter string.
      * @return A list of Guild {@link Member}s.
      */
@@ -1555,12 +1586,15 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Returns a list of Guild {@link Member}s whose names or nicknames contain a filter string.
+     *
      * @param filter The username filter string.
-     * @param limit The limit of members to get. Must be 1-1000.
+     * @param limit  The limit of members to get. Must be 1-1000.
      * @return A list of Guild {@link Member}s.
      */
     public List<Member> getMembersByName(String filter, int limit) {
-        if (!Checker.inRange(1, 1000, limit, () -> {throw new RuntimeException("Limit must be within 1-1000!");})) return null;
+        if (!Checker.inRange(1, 1000, limit, () -> {
+            throw new RuntimeException("Limit must be within 1-1000!");
+        })) return null;
         try {
             List<Member> namedMembers = new ArrayList<>();
             new DiscordRequest(
@@ -1579,6 +1613,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Kicks a {@link Member} from the Guild. This requires the {@code KICK_MEMBERS} permission.
+     *
      * @param member The member to kick.
      */
     public void kickMember(Member member) {
@@ -1598,6 +1633,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Returns all active threads in the guild, including public and private threads.
+     *
      * @return A List of active threads.
      */
     public List<Thread> getActiveThreads() {
@@ -1622,6 +1658,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets the URL for the PNG image widget for the guild. Requires no permissions or authentication.
+     *
      * @return A URL as a String, pointing to the widget image.
      */
     public String getWidgetImageURL() {
@@ -1630,15 +1667,17 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Gets the URL for the PNG image widget for the guild. Requires no permissions or authentication.
+     *
      * @param style The style for the widget image. One of {@code shield}, {@code banner1}, {@code banner2}, {@code banner3}, {@code banner4}
      * @return A URL as a String, pointing to the widget image.
      */
     public String getWidgetImageURL(String style) {
         return "https://discord.com/api/guilds/%s/widget.png?style=%s".formatted(id(), style);
     }
-    
+
     /**
      * Returns the onboarding flow for this guild.
+     *
      * @return {@link Onboarding}
      * @throws DiscordRequest.DiscordAPIErrorException If the request fails.
      */
@@ -1741,10 +1780,11 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     /**
      * Represents the <a href="https://support.discord.com/hc/en-us/articles/11074987197975-Community-Onboarding-FAQ">onboarding</a> flow for a guild.
-     * @param guild The guild this onboarding flow is for.
-     * @param prompts Prompts shown during onboarding and in customize community.
+     *
+     * @param guild             The guild this onboarding flow is for.
+     * @param prompts           Prompts shown during onboarding and in customize community.
      * @param defaultChannelIds Channel IDs that members get opted into automatically.
-     * @param enabled Whether onboarding is enabled in the guild.
+     * @param enabled           Whether onboarding is enabled in the guild.
      */
     public record Onboarding(
             Guild guild,
@@ -1753,42 +1793,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             boolean enabled,
             Mode mode
     ) implements Compilerable {
-
-        public enum Mode {
-            ONBOARDING_DEFAULT(0),
-            ONBOARDING_ADVANCED(1),
-            UNKNOWN(-1)
-            ;
-
-            private int value;
-
-            Mode(int value) {
-                this.value = value;
-            }
-
-            public int value() {
-                return value;
-            }
-
-            public static Mode fromValue(int value) {
-                for (Mode mode : values()) {
-                    if (mode.value == value) return mode;
-                }
-                return UNKNOWN;
-            }
-        }
-
-        @NotNull
-        @Override
-        public JSONObject compile() {
-            JSONObject obj = new JSONObject();
-            obj.put("enabled", enabled);
-            obj.put("default_channel_ids", defaultChannelIds);
-            obj.put("prompts", prompts.stream().map(Prompt::compile).collect(Collectors.toList()));
-            obj.put("guild_id", guild.id());
-            obj.put("mode", mode.value());
-            return obj;
-        }
 
         @NotNull
         @Contract("_, _, _ -> new")
@@ -1806,11 +1810,46 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             );
         }
 
+        @NotNull
+        @Override
+        public JSONObject compile() {
+            JSONObject obj = new JSONObject();
+            obj.put("enabled", enabled);
+            obj.put("default_channel_ids", defaultChannelIds);
+            obj.put("prompts", prompts.stream().map(Prompt::compile).collect(Collectors.toList()));
+            obj.put("guild_id", guild.id());
+            obj.put("mode", mode.value());
+            return obj;
+        }
+
+        public enum Mode {
+            ONBOARDING_DEFAULT(0),
+            ONBOARDING_ADVANCED(1),
+            UNKNOWN(-1);
+
+            private final int value;
+
+            Mode(int value) {
+                this.value = value;
+            }
+
+            public static Mode fromValue(int value) {
+                for (Mode mode : values()) {
+                    if (mode.value == value) return mode;
+                }
+                return UNKNOWN;
+            }
+
+            public int value() {
+                return value;
+            }
+        }
+
         /**
          * Represents a prompt shown during onboarding and in customize community.
          */
         public static class Prompt implements Compilerable {
-            private String id;
+            private final String id;
             private Type type;
             private List<Option> options;
             private String title;
@@ -1834,6 +1873,20 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
             public Prompt(String id, Type type, List<Option> options, String title, boolean inOnboarding) {
                 this(id, type, options, title, false, false, inOnboarding);
+            }
+
+            @NotNull
+            @Contract("_, _ -> new")
+            public static Prompt decompile(@NotNull JSONObject obj, @NotNull DiscordJar djar) {
+                return new Prompt(
+                        obj.getString("id"),
+                        Type.fromCode(obj.getInt("type")),
+                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile(new JSONObject((HashMap<String, Object>) o), djar)).collect(Collectors.toList()),
+                        obj.getString("title"),
+                        obj.getBoolean("single_select"),
+                        obj.getBoolean("required"),
+                        obj.getBoolean("in_onboarding")
+                );
             }
 
             public void setInOnboarding(boolean inOnboarding) {
@@ -1880,20 +1933,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 return obj;
             }
 
-            @NotNull
-            @Contract("_, _ -> new")
-            public static Prompt decompile(@NotNull JSONObject obj, @NotNull DiscordJar djar) {
-                return new Prompt(
-                        obj.getString("id"),
-                        Type.fromCode(obj.getInt("type")),
-                        obj.getJSONArray("options").toList().stream().map(o -> Option.decompile(new JSONObject((HashMap<String, Object>) o), djar)).collect(Collectors.toList()),
-                        obj.getString("title"),
-                        obj.getBoolean("single_select"),
-                        obj.getBoolean("required"),
-                        obj.getBoolean("in_onboarding")
-                );
-            }
-
             public enum Type {
                 MULTIPLE_CHOICE(0),
                 DROPDOWN(1),
@@ -1905,10 +1944,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     this.code = code;
                 }
 
-                public int getCode() {
-                    return code;
-                }
-
                 public static Type fromCode(int code) {
                     for (Type type : values()) {
                         if (type.code == code) {
@@ -1917,13 +1952,17 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     }
                     return UNKNOWN;
                 }
+
+                public int getCode() {
+                    return code;
+                }
             }
 
             /**
              * Represents an option available within a prompt.
              */
             public static class Option implements Compilerable {
-                private String id;
+                private final String id;
                 private List<String> channelIds;
                 private List<String> roleIds;
                 private Emoji emoji;
@@ -1947,6 +1986,18 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     this(null, channelIds, roleIds, emoji, title, null);
                 }
 
+                @NotNull
+                @Contract("_, _ -> new")
+                public static Option decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
+                    return new Option(
+                            obj.has("id") ? obj.getString("id") : null,
+                            obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                            obj.getJSONArray("role_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
+                            Emoji.decompile(obj.getJSONObject("emoji"), discordJar),
+                            obj.getString("title"),
+                            obj.getString("description")
+                    );
+                }
 
                 public void setChannelIds(List<String> channelIds) {
                     this.channelIds = channelIds;
@@ -1979,19 +2030,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     obj.put("title", title);
                     obj.put("description", description);
                     return obj;
-                }
-
-                @NotNull
-                @Contract("_, _ -> new")
-                public static Option decompile(@NotNull JSONObject obj, DiscordJar discordJar) {
-                    return new Option(
-                            obj.has("id") ? obj.getString("id") : null,
-                            obj.getJSONArray("channel_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
-                            obj.getJSONArray("role_ids").toList().stream().map(o -> (String) o).collect(Collectors.toList()),
-                            Emoji.decompile(obj.getJSONObject("emoji"), discordJar),
-                            obj.getString("title"),
-                            obj.getString("description")
-                    );
                 }
             }
         }

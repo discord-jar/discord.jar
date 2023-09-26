@@ -18,8 +18,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class AutomodRuleModifyAction {
 
-    private String name;
     private final Guild guild;
+    private final DiscordJar discordJar;
+    private String name;
     private AutomodRule.EventType eventType;
     private AutomodRule.TriggerType triggerType;
     private AutomodRule.TriggerMetadata triggerMetadata;
@@ -27,7 +28,6 @@ public class AutomodRuleModifyAction {
     private boolean enabled = true;
     private List<Role> exemptRoles;
     private List<Channel> exemptChannels;
-    private final DiscordJar discordJar;
 
     public AutomodRuleModifyAction(String id, Guild g, DiscordJar discordJar) {
         this.guild = g;

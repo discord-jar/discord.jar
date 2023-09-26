@@ -12,10 +12,6 @@ public enum ApplicationCommandPermissionType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static ApplicationCommandPermissionType getType(int code) {
         for (ApplicationCommandPermissionType type : values()) {
             if (type.getCode() == code) {
@@ -23,6 +19,10 @@ public enum ApplicationCommandPermissionType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

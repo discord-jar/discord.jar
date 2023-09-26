@@ -19,14 +19,6 @@ public record ActivitySecrets(
         String spectate,
         String match
 ) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("join", join)
-                .put("spectate", spectate)
-                .put("match", match);
-    }
-
     public static ActivitySecrets decompile(JSONObject obj) {
         String join;
         String spectate;
@@ -51,5 +43,13 @@ public record ActivitySecrets(
         }
 
         return new ActivitySecrets(join, spectate, match);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("join", join)
+                .put("spectate", spectate)
+                .put("match", match);
     }
 }

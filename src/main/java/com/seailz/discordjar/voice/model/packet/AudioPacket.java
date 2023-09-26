@@ -1,17 +1,15 @@
 package com.seailz.discordjar.voice.model.packet;
 
 import com.codahale.xsalsa20poly1305.SecretBox;
-import com.codahale.xsalsa20poly1305.SimpleBox;
 
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class AudioPacket {
 
-    private byte[] data;
     private final byte[] header;
+    private byte[] data;
 
     public AudioPacket(byte[] data, int ssrc, char sequence, int timestamp) {
         ByteBuffer header = ByteBuffer.allocate(12)

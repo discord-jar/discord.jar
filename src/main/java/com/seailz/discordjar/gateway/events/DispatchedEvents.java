@@ -1,6 +1,7 @@
 package com.seailz.discordjar.gateway.events;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.automod.AutoModExecutionEvent;
 import com.seailz.discordjar.events.model.automod.rule.AutoModRuleCreateEvent;
@@ -32,7 +33,6 @@ import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMe
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
 import com.seailz.discordjar.events.model.message.TypingStartEvent;
 import com.seailz.discordjar.gateway.GatewayFactory;
-import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.guild.Guild;
@@ -137,7 +137,8 @@ public enum DispatchedEvents {
                     guild
             );
         });
-        if (g.isDebug()) Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (System.currentTimeMillis() - start) + "ms to cache all members");
+        if (g.isDebug())
+            Logger.getLogger("DiscordJar").log(Level.INFO, "Took " + (System.currentTimeMillis() - start) + "ms to cache all members");
 
         arr = p.getJSONObject("d").getJSONArray("voice_states");
         arr.forEach(o -> {
@@ -252,11 +253,9 @@ public enum DispatchedEvents {
                 CommandInteractionEvent event = null;
 
                 switch (CommandType.fromCode(p.getJSONObject("d").getJSONObject("data").getInt("type"))) {
-                    case SLASH_COMMAND ->
-                            event = new SlashCommandInteractionEvent(d, GatewayFactory.sequence, p);
+                    case SLASH_COMMAND -> event = new SlashCommandInteractionEvent(d, GatewayFactory.sequence, p);
                     case USER -> event = new UserContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
-                    case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
+                    case MESSAGE -> event = new MessageContextCommandInteractionEvent(d, GatewayFactory.sequence, p);
                 }
 
                 d.getCommandDispatcher().dispatch(p.getJSONObject("d").getJSONObject("data").getString("name"),
@@ -344,10 +343,6 @@ public enum DispatchedEvents {
         this.event = event;
     }
 
-    public TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> getEvent() {
-        return event;
-    }
-
     public static DispatchedEvents getEventByName(String name) {
         for (DispatchedEvents event : values()) {
             if (event.name().equalsIgnoreCase(name)) {
@@ -355,6 +350,10 @@ public enum DispatchedEvents {
             }
         }
         return UNKNOWN;
+    }
+
+    public TriFunction<JSONObject, GatewayFactory, DiscordJar, Class<? extends Event>> getEvent() {
+        return event;
     }
 
 }

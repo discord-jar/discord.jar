@@ -17,17 +17,17 @@ public record ActivityTimestamp(
         int end
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("start", start)
-                .put("end", end);
-    }
-
     public static ActivityTimestamp decompile(JSONObject obj) {
         return new ActivityTimestamp(
                 obj.getInt("start"),
                 obj.getInt("end")
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("start", start)
+                .put("end", end);
     }
 }

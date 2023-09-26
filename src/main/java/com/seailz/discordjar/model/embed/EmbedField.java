@@ -10,15 +10,6 @@ public record EmbedField(
         boolean inline
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", name);
-        obj.put("value", value);
-        obj.put("inline", inline);
-        return obj;
-    }
-
     @NonNull
     public static EmbedField decompile(JSONObject obj) {
         String name;
@@ -43,6 +34,15 @@ public record EmbedField(
             inline = false;
         }
         return new EmbedField(name, value, inline);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("name", name);
+        obj.put("value", value);
+        obj.put("inline", inline);
+        return obj;
     }
 
 }

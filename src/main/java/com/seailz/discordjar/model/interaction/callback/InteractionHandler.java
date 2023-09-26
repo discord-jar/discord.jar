@@ -5,17 +5,28 @@ import com.seailz.discordjar.action.interaction.EditInteractionMessageAction;
 import com.seailz.discordjar.action.interaction.followup.InteractionFollowupAction;
 import com.seailz.discordjar.model.interaction.callback.internal.InteractionHandlerImpl;
 import com.seailz.discordjar.model.message.Message;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 
 /**
  * Class for handling interactions.
  */
 public interface InteractionHandler {
 
+    /**
+     * Creates a new InteractionHandler.
+     *
+     * @param token      The token of the interaction.
+     * @param id         The id of the interaction.
+     * @param discordJar The DiscordJar instance.
+     * @return The new InteractionHandler.
+     */
+    static InteractionHandler from(String token, String id, DiscordJar discordJar) {
+        return new InteractionHandlerImpl(token, id, discordJar);
+    }
+
     InteractionFollowupAction followup(String content);
+    // TODO: editing
 
     Message getOriginalResponse();
-    // TODO: editing
 
     void deleteOriginalResponse();
 
@@ -38,21 +49,9 @@ public interface InteractionHandler {
      */
     void deferEdit();
 
-
     String getToken();
 
     String getId();
-
-    /**
-     * Creates a new InteractionHandler.
-     * @param token The token of the interaction.
-     * @param id The id of the interaction.
-     * @param discordJar The DiscordJar instance.
-     * @return The new InteractionHandler.
-     */
-    static InteractionHandler from(String token, String id, DiscordJar discordJar) {
-        return new InteractionHandlerImpl(token, id, discordJar);
-    }
 
 
 }

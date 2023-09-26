@@ -21,14 +21,6 @@ public record ActivityParty(
         int maxSize
 ) implements Compilerable, Snowflake {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("id", id)
-                .put("current_size", currentSize)
-                .put("max_size", maxSize);
-    }
-
     public static ActivityParty decompile(JSONObject obj) {
         String id;
         int currentSize;
@@ -53,5 +45,13 @@ public record ActivityParty(
         }
 
         return new ActivityParty(id, currentSize, maxSize);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("id", id)
+                .put("current_size", currentSize)
+                .put("max_size", maxSize);
     }
 }

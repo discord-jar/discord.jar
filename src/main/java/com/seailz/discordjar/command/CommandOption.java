@@ -38,6 +38,63 @@ public record CommandOption(
         this(name, description, type, required, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), -1, -1, -1, -1, false);
     }
 
+    public static CommandOption decompile(JSONObject obj) {
+        String name = obj.has("name") ? obj.getString("name") : null;
+        String description = obj.has("description") ? obj.getString("description") : null;
+        CommandOptionType type = obj.has("type") ? CommandOptionType.fromCode(obj.getInt("type")) : CommandOptionType.STRING;
+        boolean required = obj.has("required") && obj.getBoolean("required");
+        List<CommandChoice> choices = new ArrayList<>();
+        List<CommandOption> options = new ArrayList<>();
+        List<ChannelType> channelTypes = new ArrayList<>();
+        int minValue = obj.has("min_value") ? obj.getInt("min_value") : 0;
+        int maxValue = obj.has("max_value") ? obj.getInt("max_value") : 0;
+        int minLength = obj.has("min_length") ? obj.getInt("min_length") : 0;
+        int maxLength = obj.has("max_length") ? obj.getInt("max_length") : 0;
+        boolean autocomplete = obj.has("autocomplete") && obj.getBoolean("autocomplete");
+
+        if (obj.has("choices")) {
+            for (Object v : obj.getJSONArray("choices")) {
+                choices.add(CommandChoice.decompile((JSONObject) v));
+            }
+        }
+
+        List<SlashSubCommand> subCommands = new ArrayList<>();
+        if (obj.has("options") && type == CommandOptionType.SUB_COMMAND_GROUP) {
+            for (Object v : obj.getJSONArray("options")) {
+                subCommands.add(SlashSubCommand.decompile((JSONObject) v));
+            }
+        }
+
+        if (obj.has("options") && type == CommandOptionType.SUB_COMMAND) {
+            for (Object v : obj.getJSONArray("options")) {
+                options.add(CommandOption.decompile((JSONObject) v));
+            }
+        }
+
+        if (obj.has("channel_types")) {
+            for (Object v : obj.getJSONArray("channel_types")) {
+                channelTypes.add(ChannelType.fromCode((int) v));
+            }
+        }
+
+
+        return new CommandOption(
+                name,
+                description,
+                type,
+                required,
+                choices,
+                subCommands,
+                options,
+                channelTypes,
+                minValue,
+                maxValue,
+                minLength,
+                maxLength,
+                autocomplete
+        );
+    }
+
     public CommandOption addChoice(CommandChoice choice) {
         choices.add(choice);
         return this;
@@ -124,63 +181,5 @@ public record CommandOption(
 
         obj.put("autocomplete", autocomplete);
         return obj;
-    }
-
-    public static CommandOption decompile(JSONObject obj) {
-        String name = obj.has("name") ? obj.getString("name") : null;
-        String description = obj.has("description") ? obj.getString("description") : null;
-        CommandOptionType type = obj.has("type") ? CommandOptionType.fromCode(obj.getInt("type")) : CommandOptionType.STRING;
-        boolean required = obj.has("required") && obj.getBoolean("required");
-        List<CommandChoice> choices = new ArrayList<>();
-        List<CommandOption> options = new ArrayList<>();
-        List<ChannelType> channelTypes = new ArrayList<>();
-        int minValue = obj.has("min_value") ? obj.getInt("min_value") : 0;
-        int maxValue = obj.has("max_value") ? obj.getInt("max_value") : 0;
-        int minLength = obj.has("min_length") ? obj.getInt("min_length") : 0;
-        int maxLength = obj.has("max_length") ? obj.getInt("max_length") : 0;
-        boolean autocomplete = obj.has("autocomplete") && obj.getBoolean("autocomplete");
-
-        if (obj.has("choices")) {
-            for (Object v : obj.getJSONArray("choices")) {
-                choices.add(CommandChoice.decompile((JSONObject) v));
-            }
-        }
-
-        List<SlashSubCommand> subCommands = new ArrayList<>();
-        if (obj.has("options") && type == CommandOptionType.SUB_COMMAND_GROUP) {
-            for (Object v : obj.getJSONArray("options")) {
-                subCommands.add(SlashSubCommand.decompile((JSONObject) v));
-            }
-        }
-
-        if (obj.has("options") && type == CommandOptionType.SUB_COMMAND) {
-            for (Object v : obj.getJSONArray("options")) {
-                options.add(CommandOption.decompile((JSONObject) v));
-            }
-        }
-
-        if (obj.has("channel_types")) {
-            for (Object v : obj.getJSONArray("channel_types")) {
-                channelTypes.add(ChannelType.fromCode((int) v));
-            }
-        }
-
-
-
-        return new CommandOption(
-                name,
-                description,
-                type,
-                required,
-                choices,
-                subCommands,
-                options,
-                channelTypes,
-                minValue,
-                maxValue,
-                minLength,
-                maxLength,
-                autocomplete
-        );
     }
 }

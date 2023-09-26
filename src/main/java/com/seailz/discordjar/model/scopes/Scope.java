@@ -30,17 +30,12 @@ public enum Scope {
     ACTIVITIES__READ,
     VOICE,
 
-    UNKNOWN
-    ;
+    UNKNOWN;
 
     private String scope;
 
     Scope() {
         this.scope = name().toLowerCase().replaceAll("__", ".");
-    }
-
-    public String getScope() {
-        return scope;
     }
 
     public static Scope fromString(String scope) {
@@ -56,6 +51,10 @@ public enum Scope {
         Scope s = UNKNOWN;
         s.scope = scope;
         return s;
+    }
+
+    public String getScope() {
+        return scope;
     }
 
 }

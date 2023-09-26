@@ -25,20 +25,6 @@ public record ApplicationCommandPermissions(
         ApplicationCommandPermissionsData[] permissions
 ) implements Compilerable, Snowflake {
 
-    @Override
-    public JSONObject compile() {
-        JSONArray permissionsArray = new JSONArray();
-        for (ApplicationCommandPermissionsData permission : permissions) {
-            permissionsArray.put(permission.compile());
-        }
-
-        return new JSONObject()
-                .put("id", id)
-                .put("application_id", applicationId)
-                .put("guild_id", guildId)
-                .put("permissions", permissionsArray);
-    }
-
     @NotNull
     public static ApplicationCommandPermissions decompile(@NotNull JSONObject obj) {
         String id;
@@ -75,6 +61,20 @@ public record ApplicationCommandPermissions(
         }
 
         return new ApplicationCommandPermissions(id, applicationId, guildId, permissions);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray permissionsArray = new JSONArray();
+        for (ApplicationCommandPermissionsData permission : permissions) {
+            permissionsArray.put(permission.compile());
+        }
+
+        return new JSONObject()
+                .put("id", id)
+                .put("application_id", applicationId)
+                .put("guild_id", guildId)
+                .put("permissions", permissionsArray);
     }
 
 }

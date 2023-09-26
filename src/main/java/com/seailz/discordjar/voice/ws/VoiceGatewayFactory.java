@@ -2,10 +2,8 @@ package com.seailz.discordjar.voice.ws;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.seailz.discordjar.voice.model.packet.AudioPacket;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import com.seailz.discordjar.voice.udp.VoiceUDP;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -14,13 +12,10 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import com.codahale.xsalsa20poly1305.SecretBox;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -36,11 +31,11 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
     private WebSocketSession session;
     private WebSocketClient client;
 
-    private VoiceProvider provider;
+    private final VoiceProvider provider;
     private int ssrc;
 
-    private List<Consumer<JSONObject>> onSessionDescription = new ArrayList<>();
-    private boolean speaking = true;
+    private final List<Consumer<JSONObject>> onSessionDescription = new ArrayList<>();
+    private final boolean speaking = true;
     private VoiceUDP socket;
 
     public VoiceGatewayFactory(String serverId, String userId, String sessionId, String token, String endpoint, VoiceProvider prov) throws ExecutionException, InterruptedException {

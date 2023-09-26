@@ -9,14 +9,6 @@ public record MessageActivity(
         String partyId
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("type", type.getCode());
-        obj.put("party_id", partyId);
-        return obj;
-    }
-
     @NonNull
     public static MessageActivity decompile(JSONObject obj) {
         MessageActivityType type;
@@ -34,5 +26,13 @@ public record MessageActivity(
             partyId = null;
         }
         return new MessageActivity(type, partyId);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("type", type.getCode());
+        obj.put("party_id", partyId);
+        return obj;
     }
 }

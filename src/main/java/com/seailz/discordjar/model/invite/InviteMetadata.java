@@ -2,9 +2,10 @@ package com.seailz.discordjar.model.invite;
 
 /**
  * An extension of {@link Invite} that contains extra metadata about the invite.
+ *
+ * @author Seailz
  * @see Invite
  * @see <a href="https://discordapp.com/developers/docs/resources/invite#invite-metadata-object">Invite Metadata</a>
- * @author Seailz
  */
 public interface InviteMetadata extends Invite {
 

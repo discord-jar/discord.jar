@@ -1,7 +1,5 @@
 package com.seailz.discordjar.model.api.version;
 
-import com.seailz.discordjar.model.api.version.APIVersion;
-
 /**
  * Represents the state of an API version
  * discord.jar will use the latest version of the API unless specified otherwise

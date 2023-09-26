@@ -13,13 +13,6 @@ public record CommandChoice(
         String name,
         String value
 ) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("name", name)
-                .put("value", value);
-    }
-
     public static CommandChoice decompile(JSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
         String value = obj.has("value") ? obj.getString("value") : null;
@@ -28,5 +21,12 @@ public record CommandChoice(
                 name,
                 value
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("name", name)
+                .put("value", value);
     }
 }

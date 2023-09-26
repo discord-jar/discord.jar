@@ -18,15 +18,12 @@ import java.util.List;
  * <br>A group DM channel is a private channel between multiple users.
  *
  * @author Seailz
- * @since  1.0
- * @see    User
- * @see    User#createDM()
- * @see    DMChannel
+ * @see User
+ * @see User#createDM()
+ * @see DMChannel
+ * @since 1.0
  */
 public interface GroupDM extends DMChannel {
-
-    User owner();
-    String iconUrl();
 
     @NotNull
     @Contract("_, _ -> new")
@@ -42,5 +39,9 @@ public interface GroupDM extends DMChannel {
         String iconUrl = obj.has("icon") ? ImageUtils.getUrl(obj.getString("icon"), ImageUtils.ImageType.DM_ICON, obj.getString("id")) : null;
         return new GroupDMImpl(obj.getString("id"), ChannelType.GROUP_DM, name, lastMessageId, recipients, discordJar, owner, iconUrl, obj);
     }
+
+    User owner();
+
+    String iconUrl();
 
 }

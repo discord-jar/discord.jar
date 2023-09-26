@@ -20,27 +20,6 @@ public record PermissionOverwrite(
         this(id, type, EnumSet.noneOf(Permission.class), EnumSet.noneOf(Permission.class));
     }
 
-    @Override
-    public JSONObject compile() {
-        int allowInt = 0;
-        int denyInt = 0;
-
-        for (Permission permission : allow) {
-            allowInt += permission.getLeftShiftId();
-        }
-
-        for (Permission permission : deny) {
-            denyInt += permission.getLeftShiftId();
-        }
-
-        JSONObject obj = new JSONObject();
-        obj.put("id", id);
-        obj.put("type", type.getCode());
-        obj.put("allow", allowInt);
-        obj.put("deny", denyInt);
-        return obj;
-    }
-
     @NonNull
     public static PermissionOverwrite decompile(JSONObject obj) {
         String id;
@@ -81,6 +60,27 @@ public record PermissionOverwrite(
 
 
         return new PermissionOverwrite(id, type, allowList, denyList);
+    }
+
+    @Override
+    public JSONObject compile() {
+        int allowInt = 0;
+        int denyInt = 0;
+
+        for (Permission permission : allow) {
+            allowInt += permission.getLeftShiftId();
+        }
+
+        for (Permission permission : deny) {
+            denyInt += permission.getLeftShiftId();
+        }
+
+        JSONObject obj = new JSONObject();
+        obj.put("id", id);
+        obj.put("type", type.getCode());
+        obj.put("allow", allowInt);
+        obj.put("deny", denyInt);
+        return obj;
     }
 
     public PermissionOverwrite allow(Permission permission) {

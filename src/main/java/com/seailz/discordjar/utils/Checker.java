@@ -48,6 +48,44 @@ public class Checker {
         if (object == null) illegalArgument(message);
     }
 
+    public static void sizeLessThan(List<?> list, int size, String message) {
+        if (list.size() > size) illegalArgument(message);
+    }
+
+    private static void illegalArgument(String message) {
+        throw new IllegalArgumentException(message);
+    }
+
+    private static void nullArgument(String message) {
+        throw new NullArgumentException(message);
+    }
+
+    public static boolean inRange(int min, int max, int num) {
+        return num >= min && num <= max;
+    }
+
+    public static boolean inRange(float min, float max, float num) {
+        return num >= min && num <= max;
+    }
+
+    public static boolean inRange(int min, int max, int num, Runnable callback) {
+        if (!inRange(min, max, num)) {
+            callback.run();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean inRange(float min, float max, float num, Runnable callback) {
+        if (!inRange(min, max, num)) {
+            callback.run();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     /**
      * Checks if a given string matches a given regex.
      *
@@ -80,51 +118,13 @@ public class Checker {
         if (list.size() != size) illegalArgument(message);
     }
 
-    public static void sizeLessThan(List<?> list, int size, String message) {
-        if (list.size() > size) illegalArgument(message);
-    }
-
     public void sizeGreaterThan(List<?> list, int size, String message) {
         if (list.size() < size) illegalArgument(message);
-    }
-
-    private static void illegalArgument(String message) {
-        throw new IllegalArgumentException(message);
-    }
-
-    private static void nullArgument(String message) {
-        throw new NullArgumentException(message);
     }
 
     public static class NullArgumentException extends IllegalArgumentException {
         public NullArgumentException(String message) {
             super(message);
-        }
-    }
-
-    public static boolean inRange(int min, int max, int num) {
-        return num >= min && num <= max;
-    }
-
-    public static boolean inRange(float min, float max, float num) {
-        return num >= min && num <= max;
-    }
-
-    public static boolean inRange(int min, int max, int num, Runnable callback) {
-        if (!inRange(min, max, num)) {
-            callback.run();
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public static boolean inRange(float min, float max, float num, Runnable callback) {
-        if (!inRange(min, max, num)) {
-            callback.run();
-            return false;
-        } else {
-            return true;
         }
     }
 }

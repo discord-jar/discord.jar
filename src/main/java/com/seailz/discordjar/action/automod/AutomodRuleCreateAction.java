@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class AutomodRuleCreateAction {
 
     private String name;
-    private Guild guild;
+    private final Guild guild;
     private AutomodRule.EventType eventType;
     private AutomodRule.TriggerType triggerType;
     private AutomodRule.TriggerMetadata triggerMetadata;
@@ -27,7 +27,7 @@ public class AutomodRuleCreateAction {
     private boolean enabled = true;
     private List<Role> exemptRoles;
     private List<Channel> exemptChannels;
-    private DiscordJar discordJar;
+    private final DiscordJar discordJar;
 
     public AutomodRuleCreateAction(String name, AutomodRule.EventType eventType, AutomodRule.TriggerType triggerType, AutomodRule.TriggerMetadata triggerMetadata, List<AutomodRule.Action> actions, boolean enabled, List<Role> exemptRoles, List<Channel> exemptChannels, Guild guild, DiscordJar discordJar) {
         this.name = name;
@@ -199,7 +199,6 @@ public class AutomodRuleCreateAction {
 
         return future;
     }
-
 
 
 }

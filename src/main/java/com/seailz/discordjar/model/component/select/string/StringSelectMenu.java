@@ -1,11 +1,9 @@
 package com.seailz.discordjar.model.component.select.string;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.events.model.interaction.button.ButtonInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
-import com.seailz.discordjar.model.component.button.Button;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.component.select.SelectOption;
 import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
@@ -74,6 +72,22 @@ public class StringSelectMenu implements SelectMenu {
         this(customId, new ArrayList<>(List.of(selectOptions)));
     }
 
+    public static StringSelectMenu decompile(JSONObject json, DiscordJar discordJar) {
+        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
+        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
+        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
+        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        List<SelectOption> options = new ArrayList<>();
+
+        if (json.has("options")) {
+            JSONArray optionsJson = json.getJSONArray("options");
+            for (int i = 0; i < optionsJson.length(); i++)
+                options.add(SelectOption.decompile(optionsJson.getJSONObject(i), discordJar));
+        }
+
+        return new StringSelectMenu(customId, placeholder, minValues, maxValues, options, json.has("disabled") && json.getBoolean("disabled"), json);
+    }
+
     @Override
     public String customId() {
         return customId;
@@ -131,7 +145,6 @@ public class StringSelectMenu implements SelectMenu {
         return this;
     }
 
-
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new StringSelectMenu(
@@ -188,22 +201,6 @@ public class StringSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static StringSelectMenu decompile(JSONObject json, DiscordJar discordJar) {
-        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
-        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
-        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
-        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
-        List<SelectOption> options = new ArrayList<>();
-
-        if (json.has("options")) {
-            JSONArray optionsJson = json.getJSONArray("options");
-            for (int i = 0; i < optionsJson.length(); i++)
-                options.add(SelectOption.decompile(optionsJson.getJSONObject(i), discordJar));
-        }
-
-        return new StringSelectMenu(customId, placeholder, minValues, maxValues, options, json.has("disabled") && json.getBoolean("disabled"), json);
-    }
-
     @Override
     public JSONObject raw() {
         return raw;
@@ -214,5 +211,6 @@ public class StringSelectMenu implements SelectMenu {
         this.raw = raw;
     }
 
-    public record StringSelectAction(StringSelectMenu menu, Consumer<StringSelectMenuInteractionEvent> action) {}
+    public record StringSelectAction(StringSelectMenu menu, Consumer<StringSelectMenuInteractionEvent> action) {
+    }
 }

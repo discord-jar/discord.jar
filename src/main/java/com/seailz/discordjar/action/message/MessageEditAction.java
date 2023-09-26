@@ -6,7 +6,6 @@ import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.message.MessageFlag;
-import com.seailz.discordjar.model.message.MessageReference;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -33,15 +32,15 @@ import java.util.concurrent.CompletableFuture;
  */
 public class MessageEditAction {
 
+    private final String channelId;
+    private final DiscordJar discordJar;
+    private final String messageId;
     private String text;
     private List<Embeder> embeds;
     private List<DisplayComponent> components;
     private List<Attachment> attachments;
     private List<File> fileUploads;
     private boolean supressEmbeds;
-    private final String channelId;
-    private final DiscordJar discordJar;
-    private final String messageId;
 
     public MessageEditAction(@NotNull String channelId, @NotNull DiscordJar discordJar, String messageId, boolean isVoiceMessage) {
         this.channelId = channelId;

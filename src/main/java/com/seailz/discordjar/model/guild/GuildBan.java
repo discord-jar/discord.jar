@@ -8,24 +8,25 @@ import org.json.JSONObject;
 
 /**
  * Represents a ban on a user in a {@link Guild}.
+ *
  * @param reason The reason the user was banned
- * @param user The user that was banned
+ * @param user   The user that was banned
  */
-public record GuildBan (
+public record GuildBan(
         String reason,
         @NotNull User user
 ) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("reason", reason)
-                .put("user", user.compile());
-    }
-
     public static GuildBan decompile(JSONObject json, DiscordJar discordJar) {
         return new GuildBan(
                 json.has("reason") ? json.getString("reason") : null,
                 User.decompile(json.getJSONObject("user"), discordJar)
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("reason", reason)
+                .put("user", user.compile());
     }
 }

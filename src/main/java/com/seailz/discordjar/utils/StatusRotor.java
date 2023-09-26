@@ -7,21 +7,23 @@ import java.util.List;
 
 /**
  * Simple util for a status rotor - switches between statuses every x seconds.
+ *
  * @author Seailz
  */
 public class StatusRotor {
 
-    private List<Status> statuses;
-    private long interval;
-    private DiscordJar dJar;
+    private final List<Status> statuses;
+    private final long interval;
+    private final DiscordJar dJar;
     private boolean running;
 
     /**
      * Creates a new status rotor.
      * Start the rotor by calling {@link #start()}
-     * @param status The statuses to rotate between
+     *
+     * @param status   The statuses to rotate between
      * @param interval The interval (in milliseconds) to switch between statuses
-     * @param dJar The DiscordJar instance
+     * @param dJar     The DiscordJar instance
      */
     public StatusRotor(List<Status> status, long interval, DiscordJar dJar) {
         this.statuses = status;

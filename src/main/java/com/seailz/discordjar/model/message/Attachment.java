@@ -41,23 +41,6 @@ public record Attachment(
 ) implements Compilerable, Resolvable {
 
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("id", id);
-        obj.put("filename", fileName);
-        obj.put("description", description);
-        if (type != null) obj.put("type", type);
-        if (size != -1) obj.put("size", size);
-        if (url != null) obj.put("url", url);
-        if (proxyUrl != null) obj.put("proxy_url", proxyUrl);
-        if (height != -1) obj.put("height", height);
-        if (width != -1) obj.put("width", width);
-        if (ephemeral) obj.put("ephemeral", true);
-        if (flagsRaw != -1) obj.put("flags", flagsRaw);
-        return obj;
-    }
-
     public static Attachment fromFile(int id, File file) {
         return new Attachment(
                 id,
@@ -160,11 +143,28 @@ public record Attachment(
         return new Attachment(id, fileName, description, type, size, url, proxyUrl, height, width, ephemeral, flagsRaw, flags);
     }
 
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("id", id);
+        obj.put("filename", fileName);
+        obj.put("description", description);
+        if (type != null) obj.put("type", type);
+        if (size != -1) obj.put("size", size);
+        if (url != null) obj.put("url", url);
+        if (proxyUrl != null) obj.put("proxy_url", proxyUrl);
+        if (height != -1) obj.put("height", height);
+        if (width != -1) obj.put("width", width);
+        if (ephemeral) obj.put("ephemeral", true);
+        if (flagsRaw != -1) obj.put("flags", flagsRaw);
+        return obj;
+    }
+
     public enum Flag implements Bitwiseable {
         IS_REMIX(2),
         ;
 
-        private int id;
+        private final int id;
 
         Flag(int id) {
             this.id = id;

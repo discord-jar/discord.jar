@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * Each payload is a JSON object or array that is sent with a set of fields.
+ *
  * @author Seailz
  */
 public class WSPayloads {
@@ -19,6 +20,7 @@ public class WSPayloads {
 
     /**
      * Represents a payload that is sent to the gateway.
+     *
      * @author Seailz
      */
     public static class Payload {
@@ -31,6 +33,7 @@ public class WSPayloads {
 
         /**
          * Adds a parameter to the payload.
+         *
          * @param param The parameter to add.
          * @return The payload.
          */
@@ -55,7 +58,7 @@ public class WSPayloads {
          *         "d": "SLOT HERE"
          *     }
          * </pre>
-         *
+         * <p>
          * Then the slot would be "d".
          * Or, if the payload is:
          * <pre>
@@ -66,8 +69,9 @@ public class WSPayloads {
          *         }
          *     }
          * </pre>
-         *
+         * <p>
          * Then the slot would be "d.field_1".
+         *
          * @author Seailz
          */
         public static class Param {

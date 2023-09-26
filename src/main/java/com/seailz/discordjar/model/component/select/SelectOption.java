@@ -36,6 +36,20 @@ public class SelectOption implements Compilerable {
         this.value = value;
     }
 
+    public static SelectOption decompile(JSONObject obj, DiscordJar discordJar) {
+        SelectOption option = new SelectOption(obj.getString("label"), obj.getString("value"));
+        if (obj.has("description")) {
+            option.setDescription(obj.getString("description"));
+        }
+        if (obj.has("emoji")) {
+            option.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJar));
+        }
+        if (obj.has("default")) {
+            option.setDefaultSelected(obj.getBoolean("default"));
+        }
+        return option;
+    }
+
     public String label() {
         return label;
     }
@@ -76,7 +90,6 @@ public class SelectOption implements Compilerable {
         this.defaultSelected = defaultSelected;
     }
 
-
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
@@ -92,20 +105,6 @@ public class SelectOption implements Compilerable {
             obj.put("default", true);
         }
         return obj;
-    }
-
-    public static SelectOption decompile(JSONObject obj, DiscordJar discordJar) {
-        SelectOption option = new SelectOption(obj.getString("label"), obj.getString("value"));
-        if (obj.has("description")) {
-            option.setDescription(obj.getString("description"));
-        }
-        if (obj.has("emoji")) {
-            option.setEmoji(Emoji.decompile(obj.getJSONObject("emoji"), discordJar));
-        }
-        if (obj.has("default")) {
-            option.setDefaultSelected(obj.getBoolean("default"));
-        }
-        return option;
     }
 
     public record ResolvedSelectOption(String value) {

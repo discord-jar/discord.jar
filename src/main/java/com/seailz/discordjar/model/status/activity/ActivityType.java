@@ -22,10 +22,6 @@ public enum ActivityType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static ActivityType fromCode(int code) {
         switch (code) {
             case 0 -> {
@@ -50,6 +46,10 @@ public enum ActivityType {
                 return null;
             }
         }
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

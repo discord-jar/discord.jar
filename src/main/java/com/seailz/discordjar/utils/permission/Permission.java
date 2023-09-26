@@ -7,8 +7,8 @@ import com.seailz.discordjar.utils.flag.Bitwiseable;
  * This class is also used to check a bot has permission to do something, before the library does it.
  *
  * @author Seailz
- * @since  1.0
- * @see    com.seailz.discordjar.model.guild.Guild
+ * @see com.seailz.discordjar.model.guild.Guild
+ * @since 1.0
  */
 public enum Permission implements Bitwiseable<Permission> {
 

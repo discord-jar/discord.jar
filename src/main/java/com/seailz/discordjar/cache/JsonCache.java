@@ -22,6 +22,22 @@ import java.util.Random;
 public interface JsonCache {
 
     /**
+     * Returns a new, empty JsonCache object.
+     */
+    static JsonCache newc(DiscordRequest howToUpdateFresh) {
+        return new JsonCacheImpl(howToUpdateFresh);
+    }
+
+    /**
+     * Returns a new JsonCache object with the specified object.
+     *
+     * @param object The object to store in the cache when initialized.
+     */
+    static JsonCache newc(JSONObject object, DiscordRequest howToUpdateFresh) {
+        return new JsonCacheImpl(object, howToUpdateFresh);
+    }
+
+    /**
      * Returns the JSON object stored in the cache,
      * <br>or null if the cache is empty.
      */
@@ -109,23 +125,6 @@ public interface JsonCache {
      */
     default boolean isEmpty() {
         return get() == null;
-    }
-
-
-    /**
-     * Returns a new, empty JsonCache object.
-     */
-    static JsonCache newc(DiscordRequest howToUpdateFresh) {
-        return new JsonCacheImpl(howToUpdateFresh);
-    }
-
-    /**
-     * Returns a new JsonCache object with the specified object.
-     *
-     * @param object The object to store in the cache when initialized.
-     */
-    static JsonCache newc(JSONObject object, DiscordRequest howToUpdateFresh) {
-        return new JsonCacheImpl(object, howToUpdateFresh);
     }
 
 }

@@ -29,7 +29,8 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
 
         try {
             options = options.getJSONObject(0).getJSONArray("options");
-        } catch (JSONException ignored) {}
+        } catch (JSONException ignored) {
+        }
 
         List<ResolvedCommandOption> decompiled = new ArrayList<>();
         for (Object option : options) {
@@ -41,6 +42,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
     /**
      * This is an internal method for the library. It is not recommended to use this method.
      * As such, you will not be given support if you use this method.
+     *
      * @return List of {@link ResolvedCommandOption} objects that were passed to the top level command, including sub commands.
      */
     public List<ResolvedCommandOption> getOptionsInternal() {
@@ -56,6 +58,7 @@ public class SlashCommandInteractionEvent extends CommandInteractionEvent {
 
     /**
      * Returns the option with the given name.
+     *
      * @param name The name of the option.
      * @return The {@link ResolvedCommandOption} object with the given name.
      */

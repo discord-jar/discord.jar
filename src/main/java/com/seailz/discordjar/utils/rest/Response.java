@@ -11,8 +11,9 @@ import java.util.function.Supplier;
 
 /**
  * Response from Discord's API.
- * @see DiscordRequest
+ *
  * @author Seailz
+ * @see DiscordRequest
  * @since 1.0.0
  */
 public class Response<T> {
@@ -21,7 +22,8 @@ public class Response<T> {
     private final CompletableFuture<Error> errorFuture = new CompletableFuture<>();
     private boolean throwOnError = false;
 
-    public Response() {}
+    public Response() {
+    }
 
     public T awaitCompleted() {
         return responseFuture.join();
@@ -89,9 +91,9 @@ public class Response<T> {
     }
 
     public static class Error {
-        private int code;
-        private String message;
-        private JSONObject errors;
+        private final int code;
+        private final String message;
+        private final JSONObject errors;
 
         public Error(int code, String message, JSONObject errors) {
             this.code = code;
@@ -113,24 +115,6 @@ public class Response<T> {
 
         public JSONObject getErrors() {
             return errors;
-        }
-
-        public class ErroredResponse {
-            private String message;
-            private int code;
-
-            public ErroredResponse(String message, int code) {
-                this.message = message;
-                this.code = code;
-            }
-
-            public String getMessage() {
-                return message;
-            }
-
-            public int getCode() {
-                return code;
-            }
         }
 
         public List<ErroredResponse> getAllErrorMessages() {
@@ -179,6 +163,24 @@ public class Response<T> {
                     ", message='" + message + '\'' +
                     ", errors=" + errors +
                     '}';
+        }
+
+        public class ErroredResponse {
+            private final String message;
+            private final int code;
+
+            public ErroredResponse(String message, int code) {
+                this.message = message;
+                this.code = code;
+            }
+
+            public String getMessage() {
+                return message;
+            }
+
+            public int getCode() {
+                return code;
+            }
         }
     }
 }

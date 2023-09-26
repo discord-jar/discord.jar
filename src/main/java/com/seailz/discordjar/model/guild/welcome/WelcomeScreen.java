@@ -19,18 +19,6 @@ public record WelcomeScreen(
         WelcomeScreenChannel[] welcomeChannels
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONArray welcomeChannels = new JSONArray();
-        for (WelcomeScreenChannel channel : welcomeChannels()) {
-            welcomeChannels.put(channel.compile());
-        }
-
-        return new JSONObject()
-                .put("description", description)
-                .put("welcome_channels", welcomeChannels);
-    }
-
     public static WelcomeScreen decompile(JSONObject obj, DiscordJar discordJar) {
         List<WelcomeScreenChannel> welcomeChannels = new ArrayList<>();
         JSONArray welcomeChannelsArray = obj.getJSONArray("welcome_channels");
@@ -42,6 +30,18 @@ public record WelcomeScreen(
                 obj.getString("description"),
                 welcomeChannels.toArray(new WelcomeScreenChannel[0])
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray welcomeChannels = new JSONArray();
+        for (WelcomeScreenChannel channel : welcomeChannels()) {
+            welcomeChannels.put(channel.compile());
+        }
+
+        return new JSONObject()
+                .put("description", description)
+                .put("welcome_channels", welcomeChannels);
     }
 
 }

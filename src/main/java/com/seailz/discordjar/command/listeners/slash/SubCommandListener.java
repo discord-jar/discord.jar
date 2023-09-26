@@ -1,9 +1,9 @@
 package com.seailz.discordjar.command.listeners.slash;
 
+import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.command.listeners.CommandListener;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.command.SlashCommandInteractionEvent;
-import com.seailz.discordjar.command.CommandType;
 
 public interface SubCommandListener extends CommandListener {
 

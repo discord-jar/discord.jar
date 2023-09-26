@@ -13,10 +13,11 @@ import org.jetbrains.annotations.Nullable;
  * Represents an invite.
  * <p>Invites are links that can be sent and allow
  * <br>anyone seeing that link to join a server or a group DM.
+ *
  * @author Seailz
- * @since 1.0
  * @see Guild
  * @see com.seailz.discordjar.model.channel.GroupDM
+ * @since 1.0
  */
 public interface Invite extends Compilerable, Resolvable {
 
@@ -103,15 +104,15 @@ public interface Invite extends Compilerable, Resolvable {
             this.code = code;
         }
 
-        public int getCode() {
-            return code;
-        }
-
         public static VoiceInviteTargetType fromCode(int i) {
             for (VoiceInviteTargetType value : values()) {
                 if (value.getCode() == i) return value;
             }
             return UNKNOWN;
+        }
+
+        public int getCode() {
+            return code;
         }
     }
 

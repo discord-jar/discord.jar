@@ -15,14 +15,14 @@ import java.util.HashMap;
  * If an application has configured role connection metadata,
  * its metadata will appear in the role verification configuration when the
  * application has been added as a verification method to the role. <p>
- *
+ * <p>
  * When a user connects their account using the bot's role_connections_verification_url,
  * the bot will update a user's role connection with metadata
  * using the OAuth2 {@code role_connections.write} scope.
  *
  * @author Seailz
- * @since  1.0
- * @see    Application
+ * @see Application
+ * @since 1.0
  */
 public record ApplicationRoleConnectionMetadata(
         Type type,
@@ -32,16 +32,17 @@ public record ApplicationRoleConnectionMetadata(
         String description,
         HashMap<String, String> descriptionLocalizations
 ) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        JSONObject json = new JSONObject();
-        json.put("type", type.getCode());
-        json.put("key", key);
-        json.put("name", name);
-        if (!nameLocalizations.isEmpty()) json.put("name_localizations", new JSONObject(nameLocalizations));
-        json.put("description", description);
-        if (!descriptionLocalizations.isEmpty()) json.put("description_localizations", new JSONObject(descriptionLocalizations));
-        return json;
+    public ApplicationRoleConnectionMetadata(Type type, String key, String name, HashMap<String, String> nameLocalizations, String description, HashMap<String, String> descriptionLocalizations) {
+        this.type = type == null ? Type.UNKNOWN : type;
+        this.key = key;
+        this.name = name;
+        this.nameLocalizations = nameLocalizations;
+        this.description = description;
+        this.descriptionLocalizations = descriptionLocalizations;
+    }
+
+    public ApplicationRoleConnectionMetadata(Type type, String key, String name, String description) {
+        this(type, key, name, new HashMap<>(), description, new HashMap<>());
     }
 
     @NotNull
@@ -85,17 +86,17 @@ public record ApplicationRoleConnectionMetadata(
         );
     }
 
-    public ApplicationRoleConnectionMetadata(Type type, String key, String name, HashMap<String, String> nameLocalizations, String description, HashMap<String, String> descriptionLocalizations) {
-        this.type = type == null ? Type.UNKNOWN : type;
-        this.key = key;
-        this.name = name;
-        this.nameLocalizations = nameLocalizations;
-        this.description = description;
-        this.descriptionLocalizations = descriptionLocalizations;
-    }
-
-    public ApplicationRoleConnectionMetadata(Type type, String key, String name, String description) {
-        this(type, key, name, new HashMap<>(), description, new HashMap<>());
+    @Override
+    public JSONObject compile() {
+        JSONObject json = new JSONObject();
+        json.put("type", type.getCode());
+        json.put("key", key);
+        json.put("name", name);
+        if (!nameLocalizations.isEmpty()) json.put("name_localizations", new JSONObject(nameLocalizations));
+        json.put("description", description);
+        if (!descriptionLocalizations.isEmpty())
+            json.put("description_localizations", new JSONObject(descriptionLocalizations));
+        return json;
     }
 
     public ApplicationRoleConnectionMetadata addNameLocalization(String language, String name) {
@@ -112,8 +113,8 @@ public record ApplicationRoleConnectionMetadata(
      * Represents the type of role connection metadata.
      *
      * @author Seailz
-     * @since  1.0
-     * @see    ApplicationRoleConnectionMetadata
+     * @see ApplicationRoleConnectionMetadata
+     * @since 1.0
      */
     public enum Type {
         INTEGER_LESS_THAN_OR_EQUAL(1),
@@ -133,10 +134,6 @@ public record ApplicationRoleConnectionMetadata(
             this.code = code;
         }
 
-        public int getCode() {
-            return code;
-        }
-
         public static Type fromCode(int code) {
             for (Type type : values()) {
                 if (type.getCode() == code) {
@@ -144,6 +141,10 @@ public record ApplicationRoleConnectionMetadata(
                 }
             }
             return null;
+        }
+
+        public int getCode() {
+            return code;
         }
     }
 }

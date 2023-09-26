@@ -6,7 +6,7 @@
  * For <b>Linked Roles</b>, discord.jar uses Spring's web API.
  *
  * @author Seailz
- * @see    com.seailz.discordjar.DiscordJar
- * @since   1.0
+ * @see com.seailz.discordjar.DiscordJar
+ * @since 1.0
  */
 package com.seailz.discordjar.oauth2;

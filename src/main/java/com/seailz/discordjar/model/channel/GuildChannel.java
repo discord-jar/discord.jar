@@ -22,6 +22,35 @@ import java.util.List;
 
 public interface GuildChannel extends Channel {
 
+    /**
+     * Decompile a {@link JSONObject} into a {@link GuildChannel}
+     *
+     * @param obj        The {@link JSONObject} to decompile
+     * @param discordJar The {@link DiscordJar} instance
+     * @return The {@link GuildChannel} instance
+     */
+    @NotNull
+    @Contract("_, _ -> new")
+    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
+        String id = obj.getString("id");
+        ChannelType type = ChannelType.fromCode(obj.getInt("type"));
+        String name = obj.getString("name");
+        Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
+        int position = obj.has("position") ? obj.getInt("position") : 0;
+        boolean nsfw = obj.has("nsfw") && obj.getBoolean("nsfw");
+
+        List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
+        if (obj.has("permission_overwrites")) {
+            JSONArray array = obj.getJSONArray("permission_overwrites");
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject overwrite = array.getJSONObject(i);
+                permissionOverwrites.add(PermissionOverwrite.decompile(overwrite));
+            }
+        }
+
+        return new GuildChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, obj, discordJar);
+    }
+
     @NotNull
     Guild guild();
 
@@ -55,41 +84,12 @@ public interface GuildChannel extends Channel {
         return obj;
     }
 
-    /**
-     * Decompile a {@link JSONObject} into a {@link GuildChannel}
-     *
-     * @param obj The {@link JSONObject} to decompile
-     * @param discordJar The {@link DiscordJar} instance
-     *
-     * @return The {@link GuildChannel} instance
-     */
-    @NotNull
-    @Contract("_, _ -> new")
-    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
-        String id = obj.getString("id");
-        ChannelType type = ChannelType.fromCode(obj.getInt("type"));
-        String name = obj.getString("name");
-        Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
-        int position = obj.has("position") ? obj.getInt("position") : 0;
-        boolean nsfw = obj.has("nsfw") && obj.getBoolean("nsfw");
-
-        List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
-        if (obj.has("permission_overwrites")) {
-            JSONArray array = obj.getJSONArray("permission_overwrites");
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject overwrite = array.getJSONObject(i);
-                permissionOverwrites.add(PermissionOverwrite.decompile(overwrite));
-            }
-        }
-
-        return new GuildChannelImpl(id, type, name, guild, position, permissionOverwrites, nsfw, obj, discordJar);
-    }
-
     @NotNull
     DiscordJar discordJv();
 
     /**
      * Returns this class as a {@link MessagingChannel}, or null if it is not a messaging channel.
+     *
      * @throws IllegalArgumentException If the channel is not a messaging channel
      */
     @Nullable
@@ -104,6 +104,7 @@ public interface GuildChannel extends Channel {
 
     /**
      * Adds a {@link PermissionOverwrite} to this channel
+     *
      * @param overwrite The {@link PermissionOverwrite} to add
      */
     default void addPermissionOverwrite(@NotNull PermissionOverwrite overwrite) {

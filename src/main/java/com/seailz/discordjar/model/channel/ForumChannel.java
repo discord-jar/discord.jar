@@ -4,12 +4,10 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.message.StartThreadForumChannelAction;
 import com.seailz.discordjar.model.channel.forum.DefaultSortOrder;
 import com.seailz.discordjar.model.channel.forum.ForumTag;
-import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.ForumChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -31,10 +29,37 @@ import java.util.List;
  * <br>At the moment there are only two sort orders, LATEST_ACTIVITY and CREATION_DATE.
  *
  * @author Seailz
- * @since  1.0
- * @see    GuildChannel
+ * @see GuildChannel
+ * @since 1.0
  */
 public interface ForumChannel extends GuildChannel {
+
+    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) {
+        String id = obj.getString("id");
+        String name = obj.getString("name");
+        int position = obj.getInt("position");
+
+        List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
+        for (Object overwrite : obj.getJSONArray("permission_overwrites")) {
+            permissionOverwrites.add(PermissionOverwrite.decompile((JSONObject) overwrite));
+        }
+
+        boolean nsfw = obj.getBoolean("nsfw");
+        String postGuidelines = obj.has("topic") && !obj.isNull("topic") ? obj.getString("topic") : null;
+        String lastThreadId = obj.has("last_thread_id") && !obj.isNull("last_thread_id") ? obj.getString("last_thread_id") : null;
+        DefaultSortOrder defaultSortOrder = obj.has("default_sort_order") && !obj.isNull("default_sort_order") ? DefaultSortOrder.fromCode(obj.getInt("default_sort_order")) : DefaultSortOrder.UNKNOWN;
+
+        List<ForumTag> tags = new ArrayList<>();
+        if (obj.has("available_tags") && !obj.isNull("available_tags")) {
+            for (Object tag : obj.getJSONArray("available_tags")) {
+                tags.add(ForumTag.decompile((JSONObject) tag));
+            }
+        }
+
+        Guild guild = obj.has("guild_id") && !obj.isNull("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
+        DefaultForumLayout dfl = obj.has("default_forum_layout") && !obj.isNull("default_forum_layout") ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
+        return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJar, dfl);
+    }
 
     /**
      * The topic of the channel.
@@ -50,6 +75,7 @@ public interface ForumChannel extends GuildChannel {
 
     /**
      * The default sort order of the channel.
+     *
      * @see com.seailz.discordjar.model.channel.forum.DefaultSortOrder
      */
     DefaultSortOrder defaultSortOrder();
@@ -87,33 +113,6 @@ public interface ForumChannel extends GuildChannel {
         return obj;
     }
 
-    static ForumChannel decompile(JSONObject obj, DiscordJar discordJar) {
-        String id = obj.getString("id");
-        String name = obj.getString("name");
-        int position = obj.getInt("position");
-
-        List<PermissionOverwrite> permissionOverwrites = new ArrayList<>();
-        for (Object overwrite : obj.getJSONArray("permission_overwrites")) {
-            permissionOverwrites.add(PermissionOverwrite.decompile((JSONObject) overwrite));
-        }
-
-        boolean nsfw = obj.getBoolean("nsfw");
-        String postGuidelines = obj.has("topic") && !obj.isNull("topic") ? obj.getString("topic") : null;
-        String lastThreadId = obj.has("last_thread_id") && !obj.isNull("last_thread_id")  ? obj.getString("last_thread_id") : null;
-        DefaultSortOrder defaultSortOrder = obj.has("default_sort_order") && !obj.isNull("default_sort_order")  ? DefaultSortOrder.fromCode(obj.getInt("default_sort_order")) : DefaultSortOrder.UNKNOWN;
-
-        List<ForumTag> tags = new ArrayList<>();
-        if (obj.has("available_tags") && !obj.isNull("available_tags")) {
-            for (Object tag : obj.getJSONArray("available_tags")) {
-                tags.add(ForumTag.decompile((JSONObject) tag));
-            }
-        }
-
-        Guild guild = obj.has("guild_id") && !obj.isNull("guild_id") ?  discordJar.getGuildById(obj.getString("guild_id")) : null;
-        DefaultForumLayout dfl = obj.has("default_forum_layout") && !obj.isNull("default_forum_layout")  ? DefaultForumLayout.fromCode(obj.getInt("default_forum_layout")) : DefaultForumLayout.UNKNOWN;
-        return new ForumChannelImpl(id, ChannelType.GUILD_FORUM, name, guild, position, permissionOverwrites, nsfw, postGuidelines, tags, defaultSortOrder, lastThreadId, obj, discordJar, dfl);
-    }
-
     /**
      * The layout in which to display posts in a forum channel.
      * Defaults to <b>NOT_SET</b> if a layout view has not been specified
@@ -131,15 +130,20 @@ public interface ForumChannel extends GuildChannel {
 
         UNKNOWN(-1);
         private final int code;
+
         DefaultForumLayout(int code) {
             this.code = code;
         }
-        public int getCode() { return code; }
+
         public static DefaultForumLayout fromCode(int code) {
             for (DefaultForumLayout value : values()) {
                 if (value.getCode() == code) return value;
             }
             return UNKNOWN;
+        }
+
+        public int getCode() {
+            return code;
         }
     }
 }

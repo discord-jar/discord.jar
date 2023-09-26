@@ -7,7 +7,6 @@ import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 

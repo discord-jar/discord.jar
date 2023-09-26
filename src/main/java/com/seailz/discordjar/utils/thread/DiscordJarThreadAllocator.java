@@ -9,12 +9,14 @@ import java.util.logging.Logger;
 
 /**
  * Handles threading for discord.jar, just simplifies some things.
+ *
  * @author Seailz
  */
 public class DiscordJarThreadAllocator {
 
     /**
      * Requests a thread to be created and started. <b>All threads returned from this method are started automatically.</b>
+     *
      * @param runnable The runnable to run on the thread.
      * @return The thread that was created.
      */
@@ -36,7 +38,7 @@ public class DiscordJarThreadAllocator {
 
         List<ThreadInfo> djarThreads = new ArrayList<>();
         List<ThreadInfo> globalThreads = new ArrayList<>();
-        for(Long threadID : threadMXBean.getAllThreadIds()) {
+        for (Long threadID : threadMXBean.getAllThreadIds()) {
             ThreadInfo info = threadMXBean.getThreadInfo(threadID);
             if (info.getThreadName().startsWith("djar--")) djarThreads.add(info);
             globalThreads.add(info);

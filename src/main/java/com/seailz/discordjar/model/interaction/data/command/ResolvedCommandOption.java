@@ -1,7 +1,7 @@
 package com.seailz.discordjar.model.interaction.data.command;
 
-import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.command.CommandOptionType;
+import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.interaction.data.ResolvedData;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.role.Role;
@@ -38,20 +38,6 @@ public class ResolvedCommandOption implements Compilerable {
         this.focused = focused;
     }
 
-    @Override
-    public JSONObject compile() {
-        JSONArray options = new JSONArray();
-        for (ResolvedCommandOption option : this.options)
-            options.put(option.compile());
-
-        return new JSONObject()
-                .put("name", name)
-                .put("value", data)
-                .put("type", type.getCode())
-                .put("options", options)
-                .put("focused", focused);
-    }
-
     @NotNull
     public static ResolvedCommandOption decompile(JSONObject obj, ResolvedData resolvedData) {
         List<ResolvedCommandOption> options = new ArrayList<>();
@@ -74,6 +60,20 @@ public class ResolvedCommandOption implements Compilerable {
         return res;
     }
 
+    @Override
+    public JSONObject compile() {
+        JSONArray options = new JSONArray();
+        for (ResolvedCommandOption option : this.options)
+            options.put(option.compile());
+
+        return new JSONObject()
+                .put("name", name)
+                .put("value", data)
+                .put("type", type.getCode())
+                .put("options", options)
+                .put("focused", focused);
+    }
+
     public String name() {
         return name;
     }
@@ -89,6 +89,7 @@ public class ResolvedCommandOption implements Compilerable {
     public boolean getAsBoolean() {
         return (boolean) data;
     }
+
     public double getAsDouble() {
         BigDecimal bd = (BigDecimal) data;
         return bd.doubleValue();
@@ -105,9 +106,11 @@ public class ResolvedCommandOption implements Compilerable {
     public Role getAsRole() {
         return this.resolved.roles().get(getAsString());
     }
+
     public User getAsUser() {
         return this.resolved.users().get(getAsString());
     }
+
     public Attachment getAsAttachment() {
         return this.resolved.attachments().get(getAsString());
     }

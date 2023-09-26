@@ -24,10 +24,6 @@ public enum CommandOptionType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static CommandOptionType fromCode(int code) {
         for (CommandOptionType type : CommandOptionType.values()) {
             if (type.getCode() == code) {
@@ -35,6 +31,10 @@ public enum CommandOptionType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

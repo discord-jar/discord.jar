@@ -24,26 +24,12 @@ public record Status(
         boolean afk
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONArray activities = new JSONArray();
-        for (Activity activity : this.activities) {
-            activities.put(activity.compile());
-        }
-
-        return new JSONObject()
-                .put("since", since == 0 ? JSONObject.NULL : since)
-                .put("activities", activities)
-                .put("status", status.getCode())
-                .put("afk", afk);
+    public Status(Activity activity, StatusType status) {
+        this(0, new Activity[]{activity}, status, false);
     }
 
     public static Status of(Activity activity, StatusType status) {
         return new Status(activity, status);
-    }
-
-    public Status(Activity activity, StatusType status) {
-        this(0, new Activity[]{activity}, status, false);
     }
 
     public static Status decompile(JSONObject obj, DiscordJar discordjv) {
@@ -80,5 +66,19 @@ public record Status(
         }
 
         return new Status(since, activities, status, afk);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray activities = new JSONArray();
+        for (Activity activity : this.activities) {
+            activities.put(activity.compile());
+        }
+
+        return new JSONObject()
+                .put("since", since == 0 ? JSONObject.NULL : since)
+                .put("activities", activities)
+                .put("status", status.getCode())
+                .put("afk", afk);
     }
 }

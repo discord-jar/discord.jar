@@ -11,10 +11,6 @@ public enum MembershipState {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static MembershipState fromCode(int code) {
         for (MembershipState state : values()) {
             if (state.getCode() == code) {
@@ -22,6 +18,10 @@ public enum MembershipState {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

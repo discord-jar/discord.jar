@@ -24,10 +24,6 @@ public enum InteractionType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static InteractionType getType(int code) {
         for (InteractionType type : values()) {
             if (type.getCode() == code) {
@@ -35,5 +31,9 @@ public enum InteractionType {
             }
         }
         return UNKNOWN;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

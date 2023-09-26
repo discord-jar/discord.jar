@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 
 public class Heart {
 
-    private int interval;
-    private GatewayFactory factory;
+    private final int interval;
+    private final GatewayFactory factory;
     private boolean active = true;
 
     public Heart(int interval, GatewayFactory factory) {
@@ -28,8 +28,8 @@ public class Heart {
         if (factory.isDebug()) {
             Logger.getLogger("HeartbeatManager").info(
                     """
-                            [HEARTBEAT] Starting heartbeat cycle with interval of %dms.
-                         """
+                               [HEARTBEAT] Starting heartbeat cycle with interval of %dms.
+                            """
                             .formatted(interval)
             );
         }
@@ -49,28 +49,28 @@ public class Heart {
         }, "djar--heart-cycle").start();
     }
 
-   private void sendFirst() {
-       double jitter = new Random().nextDouble(1);
-       double interval = this.interval * jitter;
-         new Thread(() -> {
-              try {
+    private void sendFirst() {
+        double jitter = new Random().nextDouble(1);
+        double interval = this.interval * jitter;
+        new Thread(() -> {
+            try {
                 Thread.sleep((long) interval);
                 if (active) send();
-              } catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-              }
-         }, "djar--first-heart").start();
-   }
+            }
+        }, "djar--first-heart").start();
+    }
 
-   public void forceHeartbeat() {
+    public void forceHeartbeat() {
         send();
-   }
+    }
 
     private void send() {
         factory.queueMessage(
                 new JSONObject()
-                    .put("op", 1)
-                    .put("d", GatewayFactory.sequence)
+                        .put("op", 1)
+                        .put("d", GatewayFactory.sequence)
         );
 
         GatewayFactory.lastHeartbeatSent = new Date();

@@ -26,10 +26,6 @@ public enum VerificationLevel {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static VerificationLevel getVerificationLevel(int code) {
         for (VerificationLevel level : values()) {
             if (level.getCode() == code) {
@@ -37,6 +33,10 @@ public enum VerificationLevel {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

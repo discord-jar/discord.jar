@@ -11,16 +11,6 @@ public record EmbedImage(
         int width
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("url", url);
-        obj.put("proxy_url", proxyUrl);
-        if (height != 0) obj.put("height", height);
-        if (width != 0) obj.put("width", width);
-        return obj;
-    }
-
     @NonNull
     public static EmbedImage decompile(JSONObject obj) {
         String url;
@@ -52,6 +42,16 @@ public record EmbedImage(
             width = 0;
         }
         return new EmbedImage(url, proxyUrl, height, width);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("url", url);
+        obj.put("proxy_url", proxyUrl);
+        if (height != 0) obj.put("height", height);
+        if (width != 0) obj.put("width", width);
+        return obj;
     }
 
 }

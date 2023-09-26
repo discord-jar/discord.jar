@@ -1,14 +1,11 @@
 package com.seailz.discordjar.model.component.select.entity;
 
-import com.seailz.discordjar.events.model.interaction.select.StringSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelectMenuInteractionEvent;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectMenu;
-import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
 import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
-import com.seailz.discordjar.utils.registry.components.StringSelectRegistry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,6 +70,27 @@ public class ChannelSelectMenu implements SelectMenu {
      */
     public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw, ChannelType... channelTypes) {
         this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled, raw);
+    }
+
+    public static ChannelSelectMenu decompile(JSONObject json) {
+        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
+        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
+        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
+        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        JSONArray channelTypes = json.has("channel_types") ? json.getJSONArray("channel_types") : null;
+        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
+
+        List<ChannelType> channelTypesDecompiled = new ArrayList<>();
+        if (channelTypes != null) {
+            channelTypes.forEach(channelType -> {
+                ChannelType type = ChannelType.fromCode((int) channelType);
+                if (type != null) {
+                    channelTypesDecompiled.add(type);
+                }
+            });
+        }
+
+        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled, json);
     }
 
     @Override
@@ -169,27 +187,6 @@ public class ChannelSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static ChannelSelectMenu decompile(JSONObject json) {
-        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
-        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
-        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
-        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
-        JSONArray channelTypes = json.has("channel_types") ? json.getJSONArray("channel_types") : null;
-        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
-
-        List<ChannelType> channelTypesDecompiled = new ArrayList<>();
-        if (channelTypes != null) {
-            channelTypes.forEach(channelType -> {
-                ChannelType type = ChannelType.fromCode((int) channelType);
-                if (type != null) {
-                    channelTypesDecompiled.add(type);
-                }
-            });
-        }
-
-        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled, json);
-    }
-
     @Override
     public JSONObject raw() {
         return raw;
@@ -200,7 +197,8 @@ public class ChannelSelectMenu implements SelectMenu {
         this.raw = raw;
     }
 
-    public record ChannelSelectAction(ChannelSelectMenu menu, Consumer<ChannelSelectMenuInteractionEvent> action) {}
+    public record ChannelSelectAction(ChannelSelectMenu menu, Consumer<ChannelSelectMenuInteractionEvent> action) {
+    }
 
 }
 

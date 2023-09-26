@@ -21,10 +21,6 @@ public enum MFALevel {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static MFALevel getMFALevel(int code) {
         for (MFALevel level : values()) {
             if (level.getCode() == code) {
@@ -32,6 +28,10 @@ public enum MFALevel {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

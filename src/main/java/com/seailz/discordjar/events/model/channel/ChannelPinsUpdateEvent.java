@@ -3,13 +3,11 @@ package com.seailz.discordjar.events.model.channel;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.model.channel.Channel;
-import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.guild.Guild;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,9 +21,9 @@ import java.time.format.DateTimeFormatter;
  */
 public class ChannelPinsUpdateEvent extends Event {
 
-    private String guildId;
+    private final String guildId;
     private Guild guild;
-    private String channelId;
+    private final String channelId;
     private Channel channel;
     private LocalDateTime lastPinTimestamp;
 

@@ -9,6 +9,7 @@ package com.seailz.discordjar.utils;
 public interface CDNAble {
 
     StringFormatter formatter();
+
     String iconHash();
 
     default String imageUrl() {

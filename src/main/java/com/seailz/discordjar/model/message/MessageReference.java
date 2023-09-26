@@ -19,16 +19,6 @@ public record MessageReference(
         boolean failIfNotExists
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("message_id", messageId);
-        obj.put("channel_id", channelId);
-        obj.put("guild_id", guildId);
-        obj.put("fail_if_not_exists", failIfNotExists);
-        return obj;
-    }
-
     @NonNull
     public static MessageReference decompile(JSONObject obj) {
         String messageId;
@@ -60,5 +50,15 @@ public record MessageReference(
             failIfNotExists = true;
         }
         return new MessageReference(messageId, channelId, guildId, failIfNotExists);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("message_id", messageId);
+        obj.put("channel_id", channelId);
+        obj.put("guild_id", guildId);
+        obj.put("fail_if_not_exists", failIfNotExists);
+        return obj;
     }
 }

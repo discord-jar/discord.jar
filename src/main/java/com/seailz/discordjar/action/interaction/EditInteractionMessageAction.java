@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class EditInteractionMessageAction {
 
@@ -52,16 +51,36 @@ public class EditInteractionMessageAction {
         return attachments;
     }
 
+    public EditInteractionMessageAction setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
+        return this;
+    }
+
     public List<DisplayComponent> getComponents() {
         return components;
+    }
+
+    public EditInteractionMessageAction setComponents(List<DisplayComponent> components) {
+        this.components = components;
+        return this;
     }
 
     public List<Embeder> getEmbeds() {
         return embeds;
     }
 
+    public EditInteractionMessageAction setEmbeds(List<Embeder> embeds) {
+        this.embeds = embeds;
+        return this;
+    }
+
     public List<File> getFileUploads() {
         return fileUploads;
+    }
+
+    public EditInteractionMessageAction setFileUploads(List<File> fileUploads) {
+        this.fileUploads = fileUploads;
+        return this;
     }
 
     public String getApplicationId() {
@@ -72,37 +91,17 @@ public class EditInteractionMessageAction {
         return content;
     }
 
+    public EditInteractionMessageAction setContent(String content) {
+        this.content = content;
+        return this;
+    }
+
     public String getFollowupId() {
         return followupId;
     }
 
     public String getInteractionToken() {
         return interactionToken;
-    }
-
-    public EditInteractionMessageAction setContent(String content) {
-        this.content = content;
-        return this;
-    }
-
-    public EditInteractionMessageAction setComponents(List<DisplayComponent> components) {
-        this.components = components;
-        return this;
-    }
-
-    public EditInteractionMessageAction setAttachments(List<Attachment> attachments) {
-        this.attachments = attachments;
-        return this;
-    }
-
-    public EditInteractionMessageAction setEmbeds(List<Embeder> embeds) {
-        this.embeds = embeds;
-        return this;
-    }
-
-    public EditInteractionMessageAction setFileUploads(List<File> fileUploads) {
-        this.fileUploads = fileUploads;
-        return this;
     }
 
     public EditInteractionMessageAction addFileUpload(File file) {

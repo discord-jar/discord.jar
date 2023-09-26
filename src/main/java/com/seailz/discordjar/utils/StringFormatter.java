@@ -19,16 +19,16 @@ public class StringFormatter {
         this.args = List.of(args);
     }
 
-    public String format(String string) {
-        for (int i = 0; i < args.size(); i++) {
-            string = string.replace("{" + i + "}", args.get(i).toString());
+    public static String format(String string, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            string = string.replace("{" + i + "}", args[i].toString());
         }
         return string;
     }
 
-    public static String format(String string, Object... args) {
-        for (int i = 0; i < args.length; i++) {
-            string = string.replace("{" + i + "}", args[i].toString());
+    public String format(String string) {
+        for (int i = 0; i < args.size(); i++) {
+            string = string.replace("{" + i + "}", args.get(i).toString());
         }
         return string;
     }

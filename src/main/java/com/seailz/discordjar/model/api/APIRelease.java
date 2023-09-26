@@ -2,15 +2,15 @@ package com.seailz.discordjar.model.api;
 
 /**
  * Represents an API release, for example, stable, canary, or ptb.
- * @since 1.0
+ *
  * @author Seailz
+ * @since 1.0
  */
 public enum APIRelease {
 
     STABLE(""),
     CANARY("canary."),
-    PTB("ptb.")
-    ;
+    PTB("ptb.");
 
     String baseUrlPrefix;
 

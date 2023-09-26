@@ -21,10 +21,6 @@ public enum DefaultMessageNotificationLevel {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static DefaultMessageNotificationLevel getDefaultMessageNotificationLevel(int code) {
         for (DefaultMessageNotificationLevel level : values()) {
             if (level.getCode() == code) {
@@ -32,6 +28,10 @@ public enum DefaultMessageNotificationLevel {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

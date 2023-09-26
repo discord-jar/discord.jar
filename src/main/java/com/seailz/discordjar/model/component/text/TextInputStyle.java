@@ -27,15 +27,15 @@ public enum TextInputStyle {
         this.code = code;
     }
 
-    public int code() {
-        return code;
-    }
-
     public static TextInputStyle fromCode(int code) {
         for (TextInputStyle style : TextInputStyle.values()) {
             if (style.code() == code) return style;
         }
         return UNKNOWN;
+    }
+
+    public int code() {
+        return code;
     }
 
 }

@@ -20,21 +20,6 @@ public record StickerPack(
 ) implements Compilerable, Snowflake {
 
 
-    @Override
-    public JSONObject compile() {
-        JSONArray stickers = new JSONArray();
-        this.stickers.forEach(sticker -> stickers.put(sticker.compile()));
-
-        return new JSONObject()
-                .put("id", id)
-                .put("stickers", stickers)
-                .put("name", name)
-                .put("sku_id", skuId)
-                .put("cover_sticker_id", coverStickerId)
-                .put("description", description)
-                .put("banner_id", bannerId);
-    }
-
     public static StickerPack decompile(JSONObject json, DiscordJar discordJar) {
         List<Sticker> stickers = new ArrayList<>();
         json.getJSONArray("stickers").forEach(object -> stickers.add(Sticker.decompile((JSONObject) object, discordJar)));
@@ -55,5 +40,20 @@ public record StickerPack(
         List<StickerPack> packs = new ArrayList<>();
         arr.forEach(object -> packs.add(decompile((JSONObject) object, discordJar)));
         return packs;
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray stickers = new JSONArray();
+        this.stickers.forEach(sticker -> stickers.put(sticker.compile()));
+
+        return new JSONObject()
+                .put("id", id)
+                .put("stickers", stickers)
+                .put("name", name)
+                .put("sku_id", skuId)
+                .put("cover_sticker_id", coverStickerId)
+                .put("description", description)
+                .put("banner_id", bannerId);
     }
 }

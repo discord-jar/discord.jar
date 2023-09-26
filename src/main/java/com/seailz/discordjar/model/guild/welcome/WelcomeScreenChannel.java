@@ -21,15 +21,6 @@ public record WelcomeScreenChannel(
         String emojiName
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("channel_id", channel.id())
-                .put("description", description)
-                .put("emoji_id", emojiId)
-                .put("emoji_name", emojiName);
-    }
-
     @NonNull
     public static WelcomeScreenChannel decompile(JSONObject obj, DiscordJar discordJar) {
         return new WelcomeScreenChannel(
@@ -38,5 +29,14 @@ public record WelcomeScreenChannel(
                 obj.getString("emoji_id"),
                 obj.getString("emoji_name")
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("channel_id", channel.id())
+                .put("description", description)
+                .put("emoji_id", emojiId)
+                .put("emoji_name", emojiName);
     }
 }

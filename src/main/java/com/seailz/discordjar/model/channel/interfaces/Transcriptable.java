@@ -1,11 +1,9 @@
 package com.seailz.discordjar.model.channel.interfaces;
 
-import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.transcript.TranscriptFormatter;
 import com.seailz.discordjar.model.embed.Embed;
 import com.seailz.discordjar.model.embed.EmbedField;
-import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
@@ -22,7 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,9 +35,9 @@ public interface Transcriptable extends MessageRetrievable {
      *
      * @return The HTML transcript.
      * @throws IOException If the file cannot be created.
-     * <p><p>
-     * Original author: https://github.com/Ryzeon
-     * <br>Modified for use in discord.jar by Seailz
+     *                     <p><p>
+     *                     Original author: https://github.com/Ryzeon
+     *                     <br>Modified for use in discord.jar by Seailz
      */
     default TranscriptResponse transcript() throws IOException, DiscordRequest.UnhandledDiscordAPIErrorException {
         List<String>
@@ -62,7 +62,7 @@ public interface Transcriptable extends MessageRetrievable {
         Document document = Jsoup.parse(htmlTemplate, "UTF-8");
         document.outputSettings().indentAmount(0).prettyPrint(true);
         document.getElementsByClass("preamble__guild-icon")
-                .first().attr("src", "https://cdn.discordapp.com/icons/" +"" + "/" + "" + ".png"); // set guild icon
+                .first().attr("src", "https://cdn.discordapp.com/icons/" + "/" + ".png"); // set guild icon
 
         document.getElementById("transcriptTitle").text(channel.name()); // set title
         document.getElementById("guildname").text(""); // set guild name
@@ -178,7 +178,7 @@ public interface Transcriptable extends MessageRetrievable {
             }
 
             // messsage attachments
-            if (!(message.attachments() == null) && message.attachments().length > 0) {
+            if (!(message.attachments() == null)) {
                 for (Attachment attach : message.attachments()) {
                     attachments.add(attach);
                     Element attachmentsDiv = document.createElement("div");
@@ -486,6 +486,7 @@ public interface Transcriptable extends MessageRetrievable {
     record TranscriptResponse(
             InputStream transcript,
             List<Attachment> attachments
-    ) {}
+    ) {
+    }
 
 }

@@ -7,7 +7,7 @@ import java.util.function.Function;
  * Represents a function that accepts three arguments and produces a result.
  */
 @FunctionalInterface
-public interface TriFunction<A,B,C,R> {
+public interface TriFunction<A, B, C, R> {
 
     R apply(A a, B b, C c);
 

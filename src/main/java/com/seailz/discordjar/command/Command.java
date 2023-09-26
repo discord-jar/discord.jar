@@ -33,51 +33,6 @@ public record Command(
         boolean canUseInDms,
         boolean nsfw
 ) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        JSONArray optionsJson = new JSONArray();
-        options.forEach((option) -> optionsJson.put(option.compile()));
-
-        JSONObject nameLocales = new JSONObject();
-        HashMap<String, String> nameLocalesMap = new HashMap<>();
-        for (Locale locale : nameLocalizations) {
-            nameLocalesMap.put(locale.locale(), locale.value());
-        }
-        for (String locale : nameLocalesMap.keySet()) {
-            nameLocales.put(locale, nameLocalesMap.get(locale));
-        }
-
-        JSONObject descriptionLocales = new JSONObject();
-        HashMap<String, String> descriptionLocalesMap = new HashMap<>();
-        for (Locale locale : descriptionLocalizations) {
-            descriptionLocalesMap.put(locale.locale(), locale.value());
-        }
-        for (String locale : descriptionLocalesMap.keySet()) {
-            descriptionLocales.put(locale, descriptionLocalesMap.get(locale));
-        }
-
-        int permissions = -1;
-        if (defaultMemberPermissions.length >= 1) permissions = 0;
-        for (Permission permission : defaultMemberPermissions) {
-            permissions |= (1 << permission.code());
-        }
-
-        JSONObject obj = new JSONObject()
-                .put("name", name)
-                .put("type", type.getCode())
-                .put("description", description)
-                .put("options", optionsJson);
-
-        if (nameLocales.length() > 0) obj.put("name_localizations", nameLocales);
-
-        if (descriptionLocales.length() > 0) obj.put("description_localizations", descriptionLocales);
-        if (permissions != -1) obj.put("default_member_permissions", permissions);
-        obj.put("dm_permission", canUseInDms);
-        if (nsfw) obj.put("nsfw", true);
-
-        return obj;
-    }
-
     public static Command decompile(JSONObject obj) {
         String name = obj.has("name") ? obj.getString("name") : null;
         CommandType type = obj.has("type") ? CommandType.fromCode(obj.getInt("type")) : CommandType.UNKNOWN;
@@ -154,5 +109,50 @@ public record Command(
                 return value;
             }
         };
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray optionsJson = new JSONArray();
+        options.forEach((option) -> optionsJson.put(option.compile()));
+
+        JSONObject nameLocales = new JSONObject();
+        HashMap<String, String> nameLocalesMap = new HashMap<>();
+        for (Locale locale : nameLocalizations) {
+            nameLocalesMap.put(locale.locale(), locale.value());
+        }
+        for (String locale : nameLocalesMap.keySet()) {
+            nameLocales.put(locale, nameLocalesMap.get(locale));
+        }
+
+        JSONObject descriptionLocales = new JSONObject();
+        HashMap<String, String> descriptionLocalesMap = new HashMap<>();
+        for (Locale locale : descriptionLocalizations) {
+            descriptionLocalesMap.put(locale.locale(), locale.value());
+        }
+        for (String locale : descriptionLocalesMap.keySet()) {
+            descriptionLocales.put(locale, descriptionLocalesMap.get(locale));
+        }
+
+        int permissions = -1;
+        if (defaultMemberPermissions.length >= 1) permissions = 0;
+        for (Permission permission : defaultMemberPermissions) {
+            permissions |= (1 << permission.code());
+        }
+
+        JSONObject obj = new JSONObject()
+                .put("name", name)
+                .put("type", type.getCode())
+                .put("description", description)
+                .put("options", optionsJson);
+
+        if (nameLocales.length() > 0) obj.put("name_localizations", nameLocales);
+
+        if (descriptionLocales.length() > 0) obj.put("description_localizations", descriptionLocales);
+        if (permissions != -1) obj.put("default_member_permissions", permissions);
+        obj.put("dm_permission", canUseInDms);
+        if (nsfw) obj.put("nsfw", true);
+
+        return obj;
     }
 }

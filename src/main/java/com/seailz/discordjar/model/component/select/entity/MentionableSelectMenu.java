@@ -48,6 +48,16 @@ public class MentionableSelectMenu implements SelectMenu {
         this.raw = raw;
     }
 
+    public static MentionableSelectMenu decompile(JSONObject json) {
+        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
+        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
+        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
+        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
+
+        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues, disabled, json);
+    }
+
     @Override
     public String customId() {
         return customId;
@@ -114,16 +124,6 @@ public class MentionableSelectMenu implements SelectMenu {
         if (maxValues != 0) obj.put("max_values", maxValues);
         if (disabled) obj.put("disabled", true);
         return obj;
-    }
-
-    public static MentionableSelectMenu decompile(JSONObject json) {
-        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
-        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
-        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
-        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
-        boolean disabled = json.has("disabled") && json.getBoolean("disabled");
-
-        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues, disabled, json);
     }
 
     @Override

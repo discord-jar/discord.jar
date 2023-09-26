@@ -18,16 +18,16 @@ import java.util.List;
  * This is an internal class, that is given to the user. It is highly recommended that you don't make your own instance of this class.
  *
  * @author Seailz
- * @since  1.0
- * @see    DiscordJar#getGuilds()
+ * @see DiscordJar#getGuilds()
+ * @since 1.0
  */
 public class GetCurrentUserGuildsAction {
 
+    private final DiscordJar discordJar;
     private String before;
     private String after;
     private int limit;
     private boolean withCounts;
-    private final DiscordJar discordJar;
 
     public GetCurrentUserGuildsAction(DiscordJar discordJar) {
         this.before = null;
@@ -74,10 +74,10 @@ public class GetCurrentUserGuildsAction {
     /**
      * Retrieves up to 200 guilds the bot is in.
      * <br>If you want to retrieve more guilds than that, you need to specify the last guild id in the <b>after</b> parameter.
-     *<p>
+     * <p>
      * Please be aware of the fact that this method is rate limited quite heavily.
      * <br>It is recommended that only smaller bots use this method.
-     *<p>
+     * <p>
      * If you need to retrieve a (possibly inaccurate) list of guilds as a larger bot, use {@link DiscordJar#getGuildCache()} instead.
      * <br>All guilds retrieved from this method will be cached.
      *
@@ -117,7 +117,6 @@ public class GetCurrentUserGuildsAction {
         returnGuilds.forEach(g -> discordJar.getGuildCache().cache(g));
         return returnGuilds;
     }
-
 
 
 }

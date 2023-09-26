@@ -17,6 +17,18 @@ import org.json.JSONObject;
  */
 public interface VoiceRegion extends Snowflake {
 
+    @NotNull
+    @Contract("_ -> new")
+    static VoiceRegion decompile(@NotNull JSONObject obj) {
+        String id = obj.getString("id");
+        String name = obj.getString("name");
+        boolean optimal = obj.getBoolean("optimal");
+        boolean deprecated = obj.getBoolean("deprecated");
+        boolean custom = obj.getBoolean("custom");
+
+        return new VoiceRegionImpl(id, name, optimal, deprecated, custom);
+    }
+
     /**
      * Unique ID for the region.
      */
@@ -41,16 +53,4 @@ public interface VoiceRegion extends Snowflake {
      * Whether this is a custom voice region (used for events/etc)
      */
     boolean custom();
-
-    @NotNull
-    @Contract("_ -> new")
-    static VoiceRegion decompile(@NotNull JSONObject obj) {
-        String id = obj.getString("id");
-        String name = obj.getString("name");
-        boolean optimal = obj.getBoolean("optimal");
-        boolean deprecated = obj.getBoolean("deprecated");
-        boolean custom = obj.getBoolean("custom");
-
-        return new VoiceRegionImpl(id, name, optimal, deprecated, custom);
-    }
 }

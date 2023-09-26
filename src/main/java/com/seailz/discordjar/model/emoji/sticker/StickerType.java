@@ -20,10 +20,6 @@ public enum StickerType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static StickerType getStickerTypeByCode(int code) {
         for (StickerType type : values()) {
             if (type.getCode() == code) {
@@ -31,6 +27,10 @@ public enum StickerType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

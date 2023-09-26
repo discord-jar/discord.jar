@@ -10,14 +10,6 @@ public record ResolvedModalComponent(
         ComponentType type,
         String value
 ) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("custom_id", customId)
-                .put("type", type.getCode())
-                .put("value", value);
-    }
-
     @NotNull
     public static ResolvedModalComponent decompile(JSONObject obj) {
         return new ResolvedModalComponent(
@@ -25,5 +17,13 @@ public record ResolvedModalComponent(
                 ComponentType.getType(obj.getInt("type")),
                 obj.getString("value")
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("custom_id", customId)
+                .put("type", type.getCode())
+                .put("value", value);
     }
 }

@@ -11,12 +11,13 @@ import java.util.logging.Logger;
 /**
  * Represents allowed mentions
  * See <a href="https://discord.com/developers/docs/resources/channel#allowed-mentions-object">Allowed Mentions</a>
- * @param parse The types of mentions to parse from the content
- * @param roles The role ids to mention
- * @param users The user ids to mention
- * @param pingReply Whether to ping the author of the message being replied to
  *
- * None of these values may be null, but the lists can be empty.
+ * @param parse     The types of mentions to parse from the content
+ * @param roles     The role ids to mention
+ * @param users     The user ids to mention
+ * @param pingReply Whether to ping the author of the message being replied to
+ *                  <p>
+ *                  None of these values may be null, but the lists can be empty.
  * @author Seailz
  */
 public record AllowedMentions(
@@ -87,15 +88,15 @@ public record AllowedMentions(
             this.value = value;
         }
 
-        public String value() {
-            return value;
-        }
-
         public static Type fromValue(String value) {
             for (Type type : Type.values()) {
                 if (type.value().equals(value)) return type;
             }
             return null;
+        }
+
+        public String value() {
+            return value;
         }
     }
 }

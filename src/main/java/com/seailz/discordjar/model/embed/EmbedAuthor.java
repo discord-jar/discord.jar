@@ -11,16 +11,6 @@ public record EmbedAuthor(
         String proxyIconUrl
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", name);
-        obj.put("url", url);
-        obj.put("icon_url", iconUrl);
-        obj.put("proxy_icon_url", proxyIconUrl);
-        return obj;
-    }
-
     @NonNull
     public static EmbedAuthor decompile(JSONObject obj) {
         String name;
@@ -52,5 +42,15 @@ public record EmbedAuthor(
             proxyIconUrl = null;
         }
         return new EmbedAuthor(name, url, iconUrl, proxyIconUrl);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("name", name);
+        obj.put("url", url);
+        obj.put("icon_url", iconUrl);
+        obj.put("proxy_icon_url", proxyIconUrl);
+        return obj;
     }
 }

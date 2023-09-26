@@ -77,7 +77,7 @@ public class CreateChannelInviteAction {
      * If this is a voice channel invite and {@link #targetType} is set to {@link Invite.VoiceInviteTargetType#STREAM},
      * <br>then this sets the user whose stream to display for this invite.
      * <p>
-     *     The user must be streaming in the channel.
+     * The user must be streaming in the channel.
      * </p>
      */
     public CreateChannelInviteAction setTargetUser(String targetUser) {

@@ -23,6 +23,15 @@ public enum PremiumType {
         this.isNitro = isNitro;
     }
 
+    public static PremiumType fromId(int id) {
+        for (PremiumType type : values()) {
+            if (type.getId() == id) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public int getId() {
         return id;
     }
@@ -33,15 +42,6 @@ public enum PremiumType {
 
     public boolean isNitro() {
         return isNitro;
-    }
-
-    public static PremiumType fromId(int id) {
-        for (PremiumType type : values()) {
-            if (type.getId() == id) {
-                return type;
-            }
-        }
-        return null;
     }
 
 }

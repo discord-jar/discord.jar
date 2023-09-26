@@ -8,10 +8,10 @@ import com.seailz.discordjar.utils.CDNAble;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.StringFormatter;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.voice.model.VoiceState;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -39,23 +39,23 @@ import java.util.HashMap;
  * Usernames cannot be: everyone, here<p>
  * There are other rules and restrictions not shared here for the sake of spam and abuse mitigation, but the majority of users won't encounter them. It's important to properly handle all error messages returned by Discord when editing or updating names.
  *
- * @param id             the user's id
- * @param username       the user's username, not unique across the platform
- * @param discriminator  the user's 4-digit discord-tag
- * @param avatarHash         the user's avatar hash
- * @param bot            whether the user is a bot
- * @param system         whether the user is an Official Discord System user (part of the urgent message system)
- * @param mfaEnabled     whether the user has two factor enabled on their account
- * @param locale         the user's chosen language option
- * @param verified       whether the email on this account has been verified
- * @param email          the user's email
- * @param flags          the flags on a user's account
- * @param flagsRaw       the raw flags on a user's account
- * @param premiumType    the type of Nitro subscription on a user's account
- * @param publicFlags    the public flags on a user's account
- * @param publicFlagsRaw the raw public flags on a user's account
+ * @param id               the user's id
+ * @param username         the user's username, not unique across the platform
+ * @param discriminator    the user's 4-digit discord-tag
+ * @param avatarHash       the user's avatar hash
+ * @param bot              whether the user is a bot
+ * @param system           whether the user is an Official Discord System user (part of the urgent message system)
+ * @param mfaEnabled       whether the user has two factor enabled on their account
+ * @param locale           the user's chosen language option
+ * @param verified         whether the email on this account has been verified
+ * @param email            the user's email
+ * @param flags            the flags on a user's account
+ * @param flagsRaw         the raw flags on a user's account
+ * @param premiumType      the type of Nitro subscription on a user's account
+ * @param publicFlags      the public flags on a user's account
+ * @param publicFlagsRaw   the raw public flags on a user's account
  * @param avatarDecoration the user's avatar decoration hash
- * @param discordJar      the discordJar instance
+ * @param discordJar       the discordJar instance
  * @author Seailz
  * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object">User Object</a>
  * @see <a href="https://discordapp.com/developers/docs/resources/user#user-object-user-structure">User Structure</a>
@@ -64,40 +64,11 @@ import java.util.HashMap;
 public record User(
         String id, String username, String discriminator, String avatarHash, boolean bot,
         boolean system, boolean mfaEnabled, String locale, boolean verified, String email,
-        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags, String avatarDecoration,
+        EnumSet<UserFlag> flags, int flagsRaw, PremiumType premiumType, EnumSet<UserFlag> publicFlags,
+        String avatarDecoration,
         int publicFlagsRaw, String displayName,
         DiscordJar discordJar
 ) implements Compilerable, Resolvable, Mentionable, CDNAble {
-
-    /**
-     * Converts this User object to a JSONObject
-     *
-     * @return a JSONObject consisting of the data in this User object
-     */
-    @Override
-    public @NotNull JSONObject compile() {
-        JSONObject obj = new JSONObject()
-                .put("id", id)
-                .put("username", username)
-                .put("discriminator", discriminator)
-                .put("avatar", avatarHash)
-                .put("bot", bot)
-                .put("system", system)
-                .put("mfa_enabled", mfaEnabled)
-                .put("locale", locale)
-                .put("verified", verified)
-                .put("email", email)
-                .put("flags", flags)
-                .put("public_flags", publicFlags)
-                .put("global_name", displayName)
-                .put("avatar_decoration", avatarDecoration);
-
-        if (premiumType == null)
-            obj.put("premium_type", JSONObject.NULL);
-        else
-            obj.put("premium_type", premiumType.getId());
-        return obj;
-    }
 
     /**
      * Converts a JSONObject to a User object
@@ -219,6 +190,36 @@ public record User(
     }
 
     /**
+     * Converts this User object to a JSONObject
+     *
+     * @return a JSONObject consisting of the data in this User object
+     */
+    @Override
+    public @NotNull JSONObject compile() {
+        JSONObject obj = new JSONObject()
+                .put("id", id)
+                .put("username", username)
+                .put("discriminator", discriminator)
+                .put("avatar", avatarHash)
+                .put("bot", bot)
+                .put("system", system)
+                .put("mfa_enabled", mfaEnabled)
+                .put("locale", locale)
+                .put("verified", verified)
+                .put("email", email)
+                .put("flags", flags)
+                .put("public_flags", publicFlags)
+                .put("global_name", displayName)
+                .put("avatar_decoration", avatarDecoration);
+
+        if (premiumType == null)
+            obj.put("premium_type", JSONObject.NULL);
+        else
+            obj.put("premium_type", premiumType.getId());
+        return obj;
+    }
+
+    /**
      * Opens a DM channel with this user. <p>
      * <p>
      * You should not use this endpoint to DM everyone in a server about something.
@@ -282,7 +283,8 @@ public record User(
     }
 
     public VoiceState getVoiceState() {
-        if (bot) throw new IllegalArgumentException("Bots can have multiple voice states, so please use Member#getVoiceState() instead.");
+        if (bot)
+            throw new IllegalArgumentException("Bots can have multiple voice states, so please use Member#getVoiceState() instead.");
         return discordJar.getVoiceStates().stream().filter(vs -> vs.userId().equals(id)).findFirst().orElse(null);
     }
 

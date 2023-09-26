@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Used to create a message and define extra properties
@@ -32,6 +31,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class MessageCreateAction {
 
+    private final String channelId;
+    private final DiscordJar discordJar;
     private String text;
     private String nonce;
     private boolean tts;
@@ -44,8 +45,6 @@ public class MessageCreateAction {
     private List<Attachment> attachments;
     private List<File> fileUploads;
     private boolean supressEmbeds;
-    private final String channelId;
-    private final DiscordJar discordJar;
     private boolean silent = false;
     private AllowedMentions allowedMentions;
     private byte[] waveform;
@@ -144,13 +143,13 @@ public class MessageCreateAction {
         return this;
     }
 
+    public AllowedMentions getAllowedMentions() {
+        return allowedMentions;
+    }
+
     public MessageCreateAction setAllowedMentions(AllowedMentions allowedMentions) {
         this.allowedMentions = allowedMentions;
         return this;
-    }
-
-    public AllowedMentions getAllowedMentions() {
-        return allowedMentions;
     }
 
     public MessageCreateAction setNonce(@Nullable String nonce) {
@@ -254,12 +253,12 @@ public class MessageCreateAction {
         return this;
     }
 
-    public void setSilent(boolean silent) {
-        this.silent = silent;
-    }
-
     public boolean isSilent() {
         return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 
     public Response<Message> run() {

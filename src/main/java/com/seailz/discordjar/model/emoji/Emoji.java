@@ -32,20 +32,6 @@ public record Emoji(
         boolean animated,
         boolean available
 ) implements Compilerable, Snowflake {
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("id", id);
-        obj.put("name", name);
-        obj.put("roles", roles);
-        obj.put("user", user);
-        obj.put("require_colons", requireColons);
-        obj.put("managed", managed);
-        obj.put("animated", animated);
-        obj.put("available", available);
-        return obj;
-    }
-
     @NonNull
     public static Emoji decompile(JSONObject obj, DiscordJar discordJar) {
         String id;
@@ -111,19 +97,6 @@ public record Emoji(
         return new Emoji(id, name, roles, user, requireColons, managed, animated, available);
     }
 
-    /**
-     * Gets an emoji is a mention that can be added in a {@link com.seailz.discordjar.model.message.Message}
-     * @return The emoji mention as a String
-     */
-    public String getAsMention() {
-        StringBuilder mentionBuilder = new StringBuilder();
-        mentionBuilder.append("<");
-        if (animated) mentionBuilder.append("a");
-        mentionBuilder.append(":").append(name).append(":").append(id).append(">");
-
-        return mentionBuilder.toString();
-    }
-
     public static Emoji from(String id, String name, boolean animated) {
         return new Emoji(id, name, null, null, false, false, animated, false);
     }
@@ -144,6 +117,34 @@ public record Emoji(
         }
 
         return Emoji.from(id, name, animated);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("id", id);
+        obj.put("name", name);
+        obj.put("roles", roles);
+        obj.put("user", user);
+        obj.put("require_colons", requireColons);
+        obj.put("managed", managed);
+        obj.put("animated", animated);
+        obj.put("available", available);
+        return obj;
+    }
+
+    /**
+     * Gets an emoji is a mention that can be added in a {@link com.seailz.discordjar.model.message.Message}
+     *
+     * @return The emoji mention as a String
+     */
+    public String getAsMention() {
+        StringBuilder mentionBuilder = new StringBuilder();
+        mentionBuilder.append("<");
+        if (animated) mentionBuilder.append("a");
+        mentionBuilder.append(":").append(name).append(":").append(id).append(">");
+
+        return mentionBuilder.toString();
     }
 
     public String toSimpleString() {

@@ -16,9 +16,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Represents the data of an interaction
@@ -37,13 +35,9 @@ public class Interaction implements Compilerable {
     private final InteractionType type;
     // Interaction data payload
     private final InteractionData data;
-    // The guild it was sent from
-    private Guild guild;
     private final String guildId;
     // The channel it was sent from
     private final Channel channel;
-    // Guild member data for the invoking user, including permissions
-    private Member member;
     private final JSONObject memberJson;
     // User object for the invoking user, if invoked in a DM
     private final User user;
@@ -63,6 +57,10 @@ public class Interaction implements Compilerable {
     private final DiscordJar djar;
     @Deprecated
     private final String channelId;
+    // The guild it was sent from
+    private Guild guild;
+    // Guild member data for the invoking user, including permissions
+    private Member member;
 
     public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, JSONObject member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId, DiscordJar discordJar) {
         this.id = id;
@@ -87,6 +85,27 @@ public class Interaction implements Compilerable {
         this.raw = raw;
         this.channelId = channelId;
         this.djar = discordJar;
+    }
+
+    @NotNull
+    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
+        String id = json.has("id") ? json.getString("id") : null;
+        Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
+        InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
+        InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJar) : null;
+        String guildId = json.has("guild_id") ? json.getString("guild_id") : null;
+        Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJar) : null;
+        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJar, guildId, null) : null;
+        User user = json.has("user") ? User.decompile(json.getJSONObject("user"), discordJar) : null;
+        String token = json.has("token") ? json.getString("token") : null;
+        int version = json.has("version") ? json.getInt("version") : 0;
+        Message message = json.has("message") ? Message.decompile(json.getJSONObject("message"), discordJar) : null;
+        String appPermissions = json.has("app_permissions") ? json.getString("app_permissions") : null;
+        String locale = json.has("locale") ? json.getString("locale") : null;
+        String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
+        String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
+
+        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId, discordJar);
     }
 
     @Deprecated
@@ -195,27 +214,6 @@ public class Interaction implements Compilerable {
                 .put("locale", locale)
                 .put("guild_locale", guildLocale)
                 .put("channel_id", channelId);
-    }
-
-    @NotNull
-    public static Interaction decompile(JSONObject json, DiscordJar discordJar) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
-        String id = json.has("id") ? json.getString("id") : null;
-        Application application = json.has("application") ? Application.decompile(json.getJSONObject("application"), discordJar) : null;
-        InteractionType type = json.has("type") ? InteractionType.getType(json.getInt("type")) : null;
-        InteractionData data = json.has("data") ? InteractionData.decompile(type, json.getJSONObject("data"), discordJar) : null;
-        String guildId = json.has("guild_id") ? json.getString("guild_id") : null;
-        Channel channel = json.has("channel") ? Channel.decompile(json.getJSONObject("channel"), discordJar) : null;
-        Member member = json.has("member") ? Member.decompile(json.getJSONObject("member"), discordJar, guildId, null) : null;
-        User user = json.has("user") ? User.decompile(json.getJSONObject("user"), discordJar) : null;
-        String token = json.has("token") ? json.getString("token") : null;
-        int version = json.has("version") ? json.getInt("version") : 0;
-        Message message = json.has("message") ? Message.decompile(json.getJSONObject("message"), discordJar) : null;
-        String appPermissions = json.has("app_permissions") ? json.getString("app_permissions") : null;
-        String locale = json.has("locale") ? json.getString("locale") : null;
-        String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
-        String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
-
-        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId, discordJar);
     }
 
 

@@ -3,12 +3,12 @@ package com.seailz.discordjar;
 import com.seailz.discordjar.cache.CacheType;
 import com.seailz.discordjar.gateway.GatewayTransportCompressionType;
 import com.seailz.discordjar.model.api.APIRelease;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.model.api.version.APIVersion;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -126,7 +126,7 @@ public class DiscordJarBuilder {
         if (this.intents == null) {
             this.intents = EnumSet.noneOf(Intent.class);
             intents.add(Intent.ALL);
-        };
+        }
         this.intents.add(intent);
         return this;
     }
@@ -135,7 +135,7 @@ public class DiscordJarBuilder {
         if (this.cacheTypes == null) {
             this.cacheTypes = EnumSet.noneOf(CacheType.class);
             cacheTypes.add(CacheType.ALL);
-        };
+        }
         this.cacheTypes.add(cacheType);
         return this;
     }
@@ -204,19 +204,19 @@ public class DiscordJarBuilder {
         return res.body().getInt("shards");
     }
 
-    @SuppressWarnings("deprecation") // Deprecation warning is suppressed here because the only intended use of the DiscordJar constructor is here.
+    @SuppressWarnings("deprecation")
+    // Deprecation warning is suppressed here because the only intended use of the DiscordJar constructor is here.
     public DiscordJar build() {
         if (intents == null) defaultIntents();
         if (cacheTypes == null) defaultCacheTypes();
-        if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
+        if (httpOnly && httpOnlyInfo == null)
+            throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
         try {
             return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes, gwCompressionType);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
-
-
 
 
 }

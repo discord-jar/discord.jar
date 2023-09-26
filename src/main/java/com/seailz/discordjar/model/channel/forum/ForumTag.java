@@ -22,16 +22,6 @@ public record ForumTag(
         String emojiName
 ) implements Compilerable, Snowflake {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("id", id)
-                .put("name", name)
-                .put("moderated", moderated)
-                .put("emoji_id", emojiId)
-                .put("emoji_name", emojiName);
-    }
-
     @NonNull
     public static ForumTag decompile(JSONObject obj) {
         String id;
@@ -71,5 +61,15 @@ public record ForumTag(
         }
 
         return new ForumTag(id, name, moderated, emojiId, emojiName);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("id", id)
+                .put("name", name)
+                .put("moderated", moderated)
+                .put("emoji_id", emojiId)
+                .put("emoji_name", emojiName);
     }
 }

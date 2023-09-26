@@ -1,7 +1,6 @@
 package com.seailz.discordjar.model.channel.internal;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.model.channel.Category;
 import com.seailz.discordjar.model.channel.TextChannel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;

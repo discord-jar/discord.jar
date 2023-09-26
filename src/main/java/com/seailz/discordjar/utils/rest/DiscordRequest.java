@@ -23,22 +23,20 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 public class DiscordRequest {
 
 
-    private JSONObject body;
+    // HashMap of endpoint to whether or not it can be requested (rate limited)
+    private static final HashMap<String, Boolean> canRequest = new HashMap<>();
     private final HashMap<String, String> headers;
     private final String url;
     private final DiscordJar djv;
     private final String baseUrl;
     private final RequestMethod requestMethod;
+    private JSONObject body;
     private JSONArray aBody;
-    // HashMap of endpoint to whether or not it can be requested (rate limited)
-    private static HashMap<String, Boolean> canRequest = new HashMap<>();
 
     public DiscordRequest(JSONObject body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
         this.body = body;
@@ -48,6 +46,7 @@ public class DiscordRequest {
         this.baseUrl = baseUrl;
         this.requestMethod = requestMethod;
     }
+
     public DiscordRequest(JSONArray body, HashMap<String, String> headers, String url, DiscordJar djv, String baseUrl, RequestMethod requestMethod) {
         this.aBody = body;
         this.headers = headers;
@@ -62,7 +61,7 @@ public class DiscordRequest {
         try {
             Thread.sleep((long) (resetAfter * 1000));
         } catch (InterruptedException e) {
-                e.printStackTrace();
+            e.printStackTrace();
         }
 
         new Thread(() -> {
@@ -366,12 +365,6 @@ public class DiscordRequest {
         }
     }
 
-    public static class DiscordUnexpectedError extends RuntimeException {
-        public DiscordUnexpectedError(Throwable throwable) {
-            super(throwable);
-        }
-    }
-
     public DiscordResponse invoke(JSONObject body) throws UnhandledDiscordAPIErrorException {
         return invoke(null, true);
     }
@@ -487,6 +480,27 @@ public class DiscordRequest {
         return null;
     }
 
+    public JSONObject body() {
+        return body;
+    }
+
+    public JSONArray array() {
+        return aBody;
+    }
+
+    public HashMap<String, String> headers() {
+        return headers;
+    }
+
+    public String url() {
+        return url;
+    }
+
+    public static class DiscordUnexpectedError extends RuntimeException {
+        public DiscordUnexpectedError(Throwable throwable) {
+            super(throwable);
+        }
+    }
 
     public static class DiscordAPIErrorException extends RuntimeException {
         public DiscordAPIErrorException(UnhandledDiscordAPIErrorException e) {
@@ -495,12 +509,13 @@ public class DiscordRequest {
     }
 
     public static class UnhandledDiscordAPIErrorException extends Exception {
-        private int code;
-        private JSONObject body;
-        private String error;
-        private int httpCode;
+        private final int code;
+        private final JSONObject body;
+        private final String error;
+        private final int httpCode;
+
         public UnhandledDiscordAPIErrorException(JSONObject body, int httpCode) {
-            this.body = body.has("errors") ?  body.getJSONObject("errors") : body;
+            this.body = body.has("errors") ? body.getJSONObject("errors") : body;
             this.code = body.getInt("code");
             this.error = body.getString("message");
             this.httpCode = httpCode;
@@ -525,22 +540,6 @@ public class DiscordRequest {
         public String getError() {
             return error;
         }
-    }
-
-    public JSONObject body() {
-        return body;
-    }
-
-    public JSONArray array() {
-        return aBody;
-    }
-
-    public HashMap<String, String> headers() {
-        return headers;
-    }
-
-    public String url() {
-        return url;
     }
 
 

@@ -11,8 +11,8 @@ import org.json.JSONObject;
  */
 public class JsonCacheImpl implements JsonCache {
 
-    private JSONObject object;
     private final DiscordRequest request;
+    private JSONObject object;
 
     /**
      * Creates a new JsonCacheImpl object.

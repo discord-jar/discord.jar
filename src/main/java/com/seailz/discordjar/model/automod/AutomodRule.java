@@ -8,7 +8,6 @@ import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,45 +46,6 @@ public record AutomodRule(
         List<Role> exemptRoles,
         List<Channel> exemptChannels
 ) implements Compilerable, Snowflake {
-
-    @NotNull
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-
-        obj.put("id", id);
-        obj.put("guild_id", guild.id());
-        obj.put("name", name);
-        obj.put("creator_id", creator.id());
-        obj.put("event", event.code);
-        obj.put("trigger", trigger.code);
-        obj.put("trigger_metadata", triggerMetadata.compile());
-
-        JSONArray actionsArray = new JSONArray();
-        for (Action action : actions) {
-            actionsArray.put(action.compile());
-        }
-
-        obj.put("actions", actionsArray);
-        obj.put("enabled", enabled);
-
-        JSONArray exemptRolesArray = new JSONArray();
-        Checker.check(exemptChannels.size() > 20, "Exempt roles cannot be more than 20");
-        for (Role role : exemptRoles) {
-            exemptRolesArray.put(role.id());
-        }
-
-        obj.put("exempt_roles", exemptRolesArray);
-
-        JSONArray exemptChannelsArray = new JSONArray();
-        Checker.check(exemptChannels.size() > 50, "Exempt channels cannot be more than 50");
-        for (Channel channel : exemptChannels) {
-            exemptChannelsArray.put(channel.id());
-        }
-
-        obj.put("exempt_channels", exemptChannelsArray);
-        return obj;
-    }
 
     @NotNull
     @Contract("_, _ -> new")
@@ -147,6 +107,45 @@ public record AutomodRule(
         return rules;
     }
 
+    @NotNull
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("id", id);
+        obj.put("guild_id", guild.id());
+        obj.put("name", name);
+        obj.put("creator_id", creator.id());
+        obj.put("event", event.code);
+        obj.put("trigger", trigger.code);
+        obj.put("trigger_metadata", triggerMetadata.compile());
+
+        JSONArray actionsArray = new JSONArray();
+        for (Action action : actions) {
+            actionsArray.put(action.compile());
+        }
+
+        obj.put("actions", actionsArray);
+        obj.put("enabled", enabled);
+
+        JSONArray exemptRolesArray = new JSONArray();
+        Checker.check(exemptChannels.size() > 20, "Exempt roles cannot be more than 20");
+        for (Role role : exemptRoles) {
+            exemptRolesArray.put(role.id());
+        }
+
+        obj.put("exempt_roles", exemptRolesArray);
+
+        JSONArray exemptChannelsArray = new JSONArray();
+        Checker.check(exemptChannels.size() > 50, "Exempt channels cannot be more than 50");
+        for (Channel channel : exemptChannels) {
+            exemptChannelsArray.put(channel.id());
+        }
+
+        obj.put("exempt_channels", exemptChannelsArray);
+        return obj;
+    }
+
     /**
      * Indicates in what event context a rule should be checked.
      */
@@ -163,10 +162,6 @@ public record AutomodRule(
             this.code = code;
         }
 
-        public int getCode() {
-            return code;
-        }
-
         public static EventType fromCode(int code) {
             for (EventType type : values()) {
                 if (type.code == code) {
@@ -174,6 +169,10 @@ public record AutomodRule(
                 }
             }
             return UNKNOWN;
+        }
+
+        public int getCode() {
+            return code;
         }
     }
 
@@ -196,10 +195,6 @@ public record AutomodRule(
             this.code = code;
         }
 
-        public int getCode() {
-            return code;
-        }
-
         public static TriggerType fromCode(int code) {
             for (TriggerType type : values()) {
                 if (type.code == code) {
@@ -207,6 +202,10 @@ public record AutomodRule(
                 }
             }
             return UNKNOWN;
+        }
+
+        public int getCode() {
+            return code;
         }
 
     }
@@ -222,6 +221,47 @@ public record AutomodRule(
             int mentionTotalLimit,
             boolean mentionRaidProtectionEnabled
     ) implements Compilerable {
+        @Contract("_ -> new")
+        @NotNull
+        public static TriggerMetadata decompile(@NotNull JSONObject obj) {
+            List<String> keywords = new ArrayList<>();
+            List<String> regexes = new ArrayList<>();
+            List<KeywordPresetType> presets = new ArrayList<>();
+            List<String> allowList = new ArrayList<>();
+            int mentionTotalLimit = -1;
+            boolean mentionRaidProtectionEnabled = false;
+
+            if (obj.has("keywords")) {
+                JSONArray array = obj.getJSONArray("keywords");
+                array.toList().forEach(o -> keywords.add((String) o));
+            }
+
+            if (obj.has("regexes")) {
+                JSONArray array = obj.getJSONArray("regexes");
+                array.toList().forEach(o -> regexes.add((String) o));
+            }
+
+            if (obj.has("presets")) {
+                JSONArray array = obj.getJSONArray("presets");
+                array.toList().forEach(o -> presets.add(KeywordPresetType.fromCode((int) o)));
+            }
+
+            if (obj.has("allow_list")) {
+                JSONArray array = obj.getJSONArray("allow_list");
+                array.toList().forEach(o -> allowList.add((String) o));
+            }
+
+            if (obj.has("mention_total_limit")) {
+                mentionTotalLimit = obj.getInt("mention_total_limit");
+            }
+
+            if (obj.has("mention_raid_protection_enabled")) {
+                mentionRaidProtectionEnabled = obj.getBoolean("mention_raid_protection_enabled");
+            }
+
+            return new TriggerMetadata(keywords, regexes, presets, allowList, mentionTotalLimit, mentionRaidProtectionEnabled);
+        }
+
         @NotNull
         @Override
         public JSONObject compile() {
@@ -272,47 +312,6 @@ public record AutomodRule(
             return obj;
         }
 
-        @Contract("_ -> new")
-        @NotNull
-        public static TriggerMetadata decompile(@NotNull JSONObject obj) {
-            List<String> keywords = new ArrayList<>();
-            List<String> regexes = new ArrayList<>();
-            List<KeywordPresetType> presets = new ArrayList<>();
-            List<String> allowList = new ArrayList<>();
-            int mentionTotalLimit = -1;
-            boolean mentionRaidProtectionEnabled = false;
-
-            if (obj.has("keywords")) {
-                JSONArray array = obj.getJSONArray("keywords");
-                array.toList().forEach(o -> keywords.add((String) o));
-            }
-
-            if (obj.has("regexes")) {
-                JSONArray array = obj.getJSONArray("regexes");
-                array.toList().forEach(o -> regexes.add((String) o));
-            }
-
-            if (obj.has("presets")) {
-                JSONArray array = obj.getJSONArray("presets");
-                array.toList().forEach(o -> presets.add(KeywordPresetType.fromCode((int) o)));
-            }
-
-            if (obj.has("allow_list")) {
-                JSONArray array = obj.getJSONArray("allow_list");
-                array.toList().forEach(o -> allowList.add((String) o));
-            }
-
-            if (obj.has("mention_total_limit")) {
-                mentionTotalLimit = obj.getInt("mention_total_limit");
-            }
-
-            if (obj.has("mention_raid_protection_enabled")) {
-                mentionRaidProtectionEnabled = obj.getBoolean("mention_raid_protection_enabled");
-            }
-
-            return new TriggerMetadata(keywords, regexes, presets, allowList, mentionTotalLimit, mentionRaidProtectionEnabled);
-        }
-
         public enum KeywordPresetType {
 
             PROFANITY(1),
@@ -328,10 +327,6 @@ public record AutomodRule(
                 this.code = code;
             }
 
-            public int getCode() {
-                return code;
-            }
-
             public static KeywordPresetType fromCode(int code) {
                 for (KeywordPresetType type : values()) {
                     if (type.code == code) {
@@ -339,6 +334,10 @@ public record AutomodRule(
                     }
                 }
                 return UNKNOWN;
+            }
+
+            public int getCode() {
+                return code;
             }
 
         }
@@ -352,19 +351,19 @@ public record AutomodRule(
             ActionMetadata metadata
     ) implements Compilerable {
         @NotNull
+        public static Action decompile(@NotNull JSONObject obj) {
+            ActionType type = ActionType.fromCode(obj.getInt("type"));
+            ActionMetadata metadata = ActionMetadata.decompile(obj.getJSONObject("metadata"));
+            return new Action(type, metadata);
+        }
+
+        @NotNull
         @Override
         public JSONObject compile() {
             JSONObject obj = new JSONObject();
             obj.put("type", type.getCode());
             obj.put("metadata", metadata.compile());
             return obj;
-        }
-
-        @NotNull
-        public static Action decompile(@NotNull JSONObject obj) {
-            ActionType type = ActionType.fromCode(obj.getInt("type"));
-            ActionMetadata metadata = ActionMetadata.decompile(obj.getJSONObject("metadata"));
-            return new Action(type, metadata);
         }
 
         public enum ActionType {
@@ -382,10 +381,6 @@ public record AutomodRule(
                 this.code = code;
             }
 
-            public int getCode() {
-                return code;
-            }
-
             public static ActionType fromCode(int code) {
                 for (ActionType type : values()) {
                     if (type.code == code) {
@@ -393,6 +388,10 @@ public record AutomodRule(
                     }
                 }
                 return UNKNOWN;
+            }
+
+            public int getCode() {
+                return code;
             }
         }
 
@@ -416,6 +415,13 @@ public record AutomodRule(
         public record SendAlertActionMetadata(
                 String channelId
         ) implements ActionMetadata {
+            @NotNull
+            @Contract("_ -> new")
+            public static SendAlertActionMetadata decompile(@NotNull JSONObject obj) {
+                String channelId = obj.getString("channel_id");
+                return new SendAlertActionMetadata(channelId);
+            }
+
             @Override
             public @NotNull JSONObject compile() {
                 JSONObject obj = new JSONObject();
@@ -423,18 +429,18 @@ public record AutomodRule(
                 obj.put("channel_id", channelId);
                 return obj;
             }
-
-            @NotNull
-            @Contract("_ -> new")
-            public static SendAlertActionMetadata decompile(@NotNull JSONObject obj) {
-                String channelId = obj.getString("channel_id");
-                return new SendAlertActionMetadata(channelId);
-            }
         }
 
         public record TimeoutActionMetadata(
                 int duration
         ) implements ActionMetadata {
+            @NotNull
+            @Contract("_ -> new")
+            public static TimeoutActionMetadata decompile(@NotNull JSONObject obj) {
+                int duration = obj.getInt("duration_seconds");
+                return new TimeoutActionMetadata(duration);
+            }
+
             @Override
             public @NotNull JSONObject compile() {
                 JSONObject obj = new JSONObject();
@@ -442,30 +448,23 @@ public record AutomodRule(
                 Checker.check(duration < 2419200, "duration must be less than 2419200 (4 weeks)");
                 return obj;
             }
-
-            @NotNull
-            @Contract("_ -> new")
-            public static TimeoutActionMetadata decompile(@NotNull JSONObject obj) {
-                int duration = obj.getInt("duration_seconds");
-                return new TimeoutActionMetadata(duration);
-            }
         }
 
         public record BlockMessageActionMetadata(
                 String customMessage
         ) implements ActionMetadata {
-            @Override
-            public @NotNull JSONObject compile() {
-                JSONObject obj = new JSONObject();
-                obj.put("custom_message", customMessage);
-                return obj;
-            }
-
             @NotNull
             @Contract("_ -> new")
             public static BlockMessageActionMetadata decompile(@NotNull JSONObject obj) {
                 String customMessage = obj.getString("custom_message");
                 return new BlockMessageActionMetadata(customMessage);
+            }
+
+            @Override
+            public @NotNull JSONObject compile() {
+                JSONObject obj = new JSONObject();
+                obj.put("custom_message", customMessage);
+                return obj;
             }
         }
     }

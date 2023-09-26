@@ -43,27 +43,6 @@ public record Sticker(
 
 
     /**
-     * Creates a {@link JSONObject} from a {@link Sticker} object
-     *
-     * @return The compiled {@link JSONObject}
-     */
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("id", id)
-                .put("pack_id", packId)
-                .put("name", name)
-                .put("description", description)
-                .put("tags", tags)
-                .put("type", type.getCode())
-                .put("format", format.getCode())
-                .put("available", available)
-                .put("guild_id", guildId)
-                .put("user", user.compile())
-                .put("sort_value", sortValue);
-    }
-
-    /**
      * Creates a {@link Sticker} object from a {@link JSONObject}
      *
      * @param obj The {@link JSONObject} to create the {@link Sticker} object from
@@ -158,5 +137,26 @@ public record Sticker(
             stickers.add(decompile(array.getJSONObject(i), discordJar));
         }
         return stickers;
+    }
+
+    /**
+     * Creates a {@link JSONObject} from a {@link Sticker} object
+     *
+     * @return The compiled {@link JSONObject}
+     */
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("id", id)
+                .put("pack_id", packId)
+                .put("name", name)
+                .put("description", description)
+                .put("tags", tags)
+                .put("type", type.getCode())
+                .put("format", format.getCode())
+                .put("available", available)
+                .put("guild_id", guildId)
+                .put("user", user.compile())
+                .put("sort_value", sortValue);
     }
 }

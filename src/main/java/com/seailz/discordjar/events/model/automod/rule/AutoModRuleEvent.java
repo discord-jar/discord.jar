@@ -3,7 +3,6 @@ package com.seailz.discordjar.events.model.automod.rule;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.automod.AutomodRule;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

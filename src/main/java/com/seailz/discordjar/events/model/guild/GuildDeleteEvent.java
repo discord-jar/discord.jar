@@ -11,7 +11,7 @@ import org.json.JSONObject;
  */
 public class GuildDeleteEvent extends Event {
 
-    private UnavailableGuild guild;
+    private final UnavailableGuild guild;
 
     public GuildDeleteEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         super(bot, sequence, data);
@@ -20,6 +20,7 @@ public class GuildDeleteEvent extends Event {
 
     /**
      * Returns the {@link UnavailableGuild} that was deleted.
+     *
      * @return {@link UnavailableGuild} object.
      */
     public UnavailableGuild getGuild() {

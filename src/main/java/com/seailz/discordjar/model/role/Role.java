@@ -1,7 +1,6 @@
 package com.seailz.discordjar.model.role;
 
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
@@ -10,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Represents a Discord role in a guild.
@@ -148,18 +146,25 @@ public record Role(
 
     /**
      * Represents a flag on a role.
+     *
      * @author Seailz
      */
     public enum Flag implements Bitwiseable {
 
         IN_PROMPT(0),
-        UNKNOWN(-1)
-        ;
+        UNKNOWN(-1);
 
-        private int value;
+        private final int value;
 
         Flag(int value) {
             this.value = value;
+        }
+
+        public static Flag fromValue(int value) {
+            for (Flag flag : values()) {
+                if (flag.id() == value) return flag;
+            }
+            return UNKNOWN;
         }
 
         @Override
@@ -170,13 +175,6 @@ public record Role(
         @Override
         public int id() {
             return value;
-        }
-
-        public static Flag fromValue(int value) {
-            for (Flag flag : values()) {
-                if (flag.id() == value) return flag;
-            }
-            return UNKNOWN;
         }
     }
 }

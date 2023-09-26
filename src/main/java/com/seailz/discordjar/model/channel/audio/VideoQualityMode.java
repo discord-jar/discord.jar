@@ -16,10 +16,6 @@ public enum VideoQualityMode {
         this.code = code;
     }
 
-    public int code() {
-        return code;
-    }
-
     public static VideoQualityMode fromCode(int code) {
         for (VideoQualityMode mode : values()) {
             if (mode.code() == code) {
@@ -27,6 +23,10 @@ public enum VideoQualityMode {
             }
         }
         return null;
+    }
+
+    public int code() {
+        return code;
     }
 
 }

@@ -10,10 +10,6 @@ public enum OverwriteType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static OverwriteType fromCode(int code) {
         for (OverwriteType type : values()) {
             if (type.getCode() == code) {
@@ -21,5 +17,9 @@ public enum OverwriteType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

@@ -55,6 +55,24 @@ public class TextInput implements ModalComponent {
     }
 
     /**
+     * @param json The json to parse
+     * @return The parsed {@link TextInput}
+     */
+    public static TextInput decompile(@NotNull JSONObject json) {
+        String customId = json.getString("custom_id");
+        TextInputStyle style = TextInputStyle.fromCode(json.getInt("style"));
+        String label = json.getString("label");
+
+        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
+        String value = json.has("value") ? json.getString("value") : null;
+        int minLength = json.has("min_length") ? json.getInt("min_length") : 0;
+        int maxLength = json.has("max_length") ? json.getInt("max_length") : 4000;
+        boolean required = json.has("required") && json.getBoolean("required");
+
+        return new TextInput(customId, style, label, placeholder, value, minLength, maxLength, required, json);
+    }
+
+    /**
      * Compiles the component into a {@link JSONObject}
      *
      * @return The compiled component
@@ -94,24 +112,6 @@ public class TextInput implements ModalComponent {
         object.put("max_length", maxLength);
         object.put("required", required);
         return object;
-    }
-
-    /**
-     * @param json The json to parse
-     * @return The parsed {@link TextInput}
-     */
-    public static TextInput decompile(@NotNull JSONObject json) {
-        String customId = json.getString("custom_id");
-        TextInputStyle style = TextInputStyle.fromCode(json.getInt("style"));
-        String label = json.getString("label");
-
-        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
-        String value = json.has("value") ? json.getString("value") : null;
-        int minLength = json.has("min_length") ? json.getInt("min_length") : 0;
-        int maxLength = json.has("max_length") ? json.getInt("max_length") : 4000;
-        boolean required = json.has("required") && json.getBoolean("required");
-
-        return new TextInput(customId, style, label, placeholder, value, minLength, maxLength, required, json);
     }
 
     /**

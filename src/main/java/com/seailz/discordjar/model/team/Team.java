@@ -16,20 +16,6 @@ public record Team(
         List<TeamMember> members,
         String ownerUserId
 ) implements Compilerable, Snowflake {
-    @Override
-    public JSONObject compile() {
-        JSONArray membersArray = new JSONArray();
-        members.forEach(m -> {
-            membersArray.put(m.compile());
-        });
-        return new JSONObject()
-                .put("icon", icon)
-                .put("id", id)
-                .put("name", name)
-                .put("members", membersArray.toString())
-                .put("owner_user_id", ownerUserId);
-    }
-
     public static Team decompile(JSONObject obj, DiscordJar discordJar) {
         String icon;
         String id;
@@ -67,5 +53,19 @@ public record Team(
             ownerUserId = null;
         }
         return new Team(icon, id, name, members, ownerUserId);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray membersArray = new JSONArray();
+        members.forEach(m -> {
+            membersArray.put(m.compile());
+        });
+        return new JSONObject()
+                .put("icon", icon)
+                .put("id", id)
+                .put("name", name)
+                .put("members", membersArray.toString())
+                .put("owner_user_id", ownerUserId);
     }
 }

@@ -23,10 +23,6 @@ public enum ExplicitContentFilterLevel {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static ExplicitContentFilterLevel getExplicitContentFilterLevel(int code) {
         for (ExplicitContentFilterLevel level : values()) {
             if (level.getCode() == code) {
@@ -34,6 +30,10 @@ public enum ExplicitContentFilterLevel {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

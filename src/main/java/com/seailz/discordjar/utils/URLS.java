@@ -15,13 +15,12 @@ public final class URLS {
 
     public static APIVersion version = APIVersion.getLatest();
     public static APIRelease release = APIRelease.STABLE;
+    public static final String BASE_URL = "https://" + release.getBaseUrlPrefix() + "discord.com/api/v" + version.getCode();
 
     public URLS(APIRelease release, APIVersion version) {
         URLS.version = version;
         URLS.release = release;
     }
-
-    public static final String BASE_URL = "https://" + release.getBaseUrlPrefix() + "discord.com/api/v" + version.getCode();
 
     public static class POST {
         public static class INTERACTIONS {
@@ -56,10 +55,12 @@ public final class URLS {
         public static class GUILDS {
             /**
              * Returns the number of members that would be pruned from the guild under specific circumstances.
+             *
              * @param id The id of the guild
              */
             public static final String PRUNE = "/guilds/{guild.id}/prune";
             public static final String UPDATE_MFA = "/guilds/{guild.id}/mfa";
+
             public static class AUTOMOD {
                 /**
                  * Creates an automod rule
@@ -67,7 +68,7 @@ public final class URLS {
                  * @param {guild.id} The guild to create the rule in
                  */
                 public static final String CREATE_AUTO_MOD_RULE = "/guilds/{guild.id}/auto-moderation/rules";
-             }
+            }
 
             public static class CHANNELS {
                 /**
@@ -87,6 +88,7 @@ public final class URLS {
 
             public static class MESSAGES {
                 public static String BULK_DELETE = "/channels/{channel.id}/messages/bulk-delete";
+
                 public static class THREADS {
                     public static String START_THREAD_FROM_MESSAGE = "/channels/{channel.id}/messages/{message.id}/threads";
                 }
@@ -195,33 +197,34 @@ public final class URLS {
              */
             public static final String SEARCH_MEMBERS = "/guilds/{guild.id}/members/search?query={filter}&limit={limit}";
             /**
-             * Retrieves the guild onboarding flow for the guild.
-             * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
-             */
-            public static String GET_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
-
-            /**
-             * Returns a list of invites for this guild.
-             * Requires the MANAGE_GUILD permission.
-             */
-            public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
-
-            /**
              * Returns bans in a guild
+             *
              * @param id The id of the guild
              */
             public static final String BANS = "/guilds/{guild.id}/bans";
             /**
              * Returns a ban on a user in a guild
+             *
              * @param guild.id The id of the guild
              * @param user.id The id of the banned user
              */
             public static final String USER_BAN = "/guilds/{guild.id}/bans/{user.id}";
             /**
              * Returns the number of members that would be pruned from the guild under specific circumstances.
+             *
              * @param id The id of the guild
              */
             public static final String PRUNE = "/guilds/{guild.id}/prune";
+            /**
+             * Retrieves the guild onboarding flow for the guild.
+             * <br>See {@link com.seailz.discordjar.model.guild.Guild.Onboarding Onboarding Object}
+             */
+            public static String GET_GUILD_ONBOARDING = "/guilds/{guild.id}/onboarding";
+            /**
+             * Returns a list of invites for this guild.
+             * Requires the MANAGE_GUILD permission.
+             */
+            public static String GET_GUILD_INVITES = "/guilds/{guild.id}/invites";
             /**
              * Returns a {@link com.seailz.discordjar.model.guild.Guild} object containing information about the guild
              *
@@ -246,11 +249,13 @@ public final class URLS {
             public static class EMOJIS {
                 /**
                  * Gets guild emojis
+                 *
                  * @param id The id of the guild
                  */
                 public static String GUILD_EMOJIS = "/guilds/{guild.id}/emojis";
                 /**
                  * Gets a guild emoji by id
+                 *
                  * @param id The id of the guild
                  * @param emoji.id The id of the emoji
                  */
@@ -329,6 +334,7 @@ public final class URLS {
             public static String GET_APPLICATION = "/applications/{bot.id}/rpc";
             /**
              * Returns a list of {@link com.seailz.discordjar.model.application.ApplicationRoleConnectionMetadata} objects containing information about the role connections the application has.
+             *
              * @param id the id of the app
              */
             public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
@@ -353,11 +359,13 @@ public final class URLS {
         public static class GUILD {
             /**
              * Deletes a guild.
+             *
              * @param id The id of the guild
              */
             public static final String DELETE_GUILD = "/guilds/{guild.id}";
             /**
              * Deletes a role from a guild.
+             *
              * @param guild.id The id of the guild
              * @param role.id The id of the role
              */
@@ -376,6 +384,7 @@ public final class URLS {
             public static class MEMBER {
                 /**
                  * Kicks a member from a Guild.
+                 *
                  * @param guild.id The id of the guild.
                  * @param user.id The id of the user.
                  */
@@ -413,18 +422,20 @@ public final class URLS {
         }
 
         public static class CHANNEL {
-            public static class PINS {
-                public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
-            }
-            public static class MESSAGE {
-                public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
-            }
             /**
              * Deletes a channel
              *
              * @param id The id of the channel
              */
             public static String DELETE_CHANNEL = "/channels/{channel.id}";
+
+            public static class PINS {
+                public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
+            }
+
+            public static class MESSAGE {
+                public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+            }
 
             public static class THREAD_MEMBERS {
                 public static String REMOVE_THREAD_MEMBER = "/channels/{channel.id}/thread-members/{user.id}";
@@ -448,6 +459,7 @@ public final class URLS {
             public static class SCHEDULED_EVENTS {
                 public static String MODIFY_GUILD_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
             }
+
             public static class MEMBER {
                 /**
                  * Modifies a guild member
@@ -457,6 +469,7 @@ public final class URLS {
                  */
                 public static String MODIFY_GUILD_MEMBER = "/guilds/{guild.id}/members/{user.id}";
             }
+
             public static class AUTOMOD {
                 /**
                  * Updates an automod rule
@@ -466,6 +479,7 @@ public final class URLS {
                  */
                 public static String UPDATE_AUTOMOD_RULE = "/guilds/{guild.id}/auto-moderation/rules/{rule.id}";
             }
+
             public static class STICKER {
                 /**
                  * Modifies a guild sticker
@@ -509,6 +523,7 @@ public final class URLS {
         public static class GUILD {
             /**
              * Bans a user from a guild.
+             *
              * @param guild.id The id of the guild
              * @param user.id The id of the user to ban
              */
@@ -538,6 +553,7 @@ public final class URLS {
             public static class PERMISSIONS {
                 public static String EDIT_CHANNEL_PERMS = "/channels/{channel.id}/permissions/{overwrite.id}";
             }
+
             public static class PINS {
                 public static String PIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }

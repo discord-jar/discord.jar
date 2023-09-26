@@ -31,15 +31,15 @@ public enum InteractionCallbackType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static InteractionCallbackType fromCode(int code) {
         for (InteractionCallbackType value : values()) {
             if (value.getCode() == code)
                 return value;
         }
         return UNKNOWN;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

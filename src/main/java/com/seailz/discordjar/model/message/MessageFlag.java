@@ -30,8 +30,7 @@ public enum MessageFlag {
     FAILED_THREAD_MEMBER_ADD(8, false),
     // this message is "silent"
     SUPPRESS_NOTICICATIONS(12, true),
-    IS_VOICE_MESSAGE(13, true)
-    ;
+    IS_VOICE_MESSAGE(13, true);
 
     private final int id;
     private final boolean canBeSent;
@@ -39,14 +38,6 @@ public enum MessageFlag {
     MessageFlag(int id, boolean canBeSent) {
         this.id = id;
         this.canBeSent = canBeSent;
-    }
-
-    public int getLeftShiftId() {
-        return 1 << id;
-    }
-
-    public boolean canBeSent() {
-        return canBeSent;
     }
 
     public static EnumSet<MessageFlag> getFlagsByInt(int flags) {
@@ -58,5 +49,13 @@ public enum MessageFlag {
                 set.add(flag);
         }
         return set;
+    }
+
+    public int getLeftShiftId() {
+        return 1 << id;
+    }
+
+    public boolean canBeSent() {
+        return canBeSent;
     }
 }

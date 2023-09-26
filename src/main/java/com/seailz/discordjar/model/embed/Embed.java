@@ -26,24 +26,6 @@ public record Embed(
 ) implements Compilerable {
 
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("title", title == null ? null : title)
-                .put("type", type.toString())
-                .put("description", description == null ? null : description)
-                .put("url", url == null ? null : url)
-                .put("timestamp", timestamp == null ? null : timestamp)
-                .put("color", color)
-                .put("footer", footer == null ? null : footer.compile())
-                .put("image", image == null ? null : image.compile())
-                .put("thumbnail", thumbnail == null ? null : thumbnail.compile())
-                .put("video", video == null ? null : video.compile())
-                .put("provider", provider == null ? null : provider.compile())
-                .put("author", author == null ? null : author.compile())
-                .put("fields", fields == null ? null: new JSONArray(fields));
-    }
-
     @NonNull
     public static Embed decompile(JSONObject obj) {
         String title;
@@ -144,6 +126,24 @@ public record Embed(
         }
 
         return new Embed(title, type, description, url, timestamp, color, footer, image, thumbnail, video, provider, author, fields);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("title", title)
+                .put("type", type.toString())
+                .put("description", description)
+                .put("url", url)
+                .put("timestamp", timestamp)
+                .put("color", color)
+                .put("footer", footer == null ? null : footer.compile())
+                .put("image", image == null ? null : image.compile())
+                .put("thumbnail", thumbnail == null ? null : thumbnail.compile())
+                .put("video", video == null ? null : video.compile())
+                .put("provider", provider == null ? null : provider.compile())
+                .put("author", author == null ? null : author.compile())
+                .put("fields", fields == null ? null : new JSONArray(fields));
     }
 
     public Embeder asEmbeder() {

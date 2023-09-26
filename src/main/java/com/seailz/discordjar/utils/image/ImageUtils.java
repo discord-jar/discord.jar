@@ -58,7 +58,7 @@ public class ImageUtils {
         GUILD_MEMBER_BANNER("guild/%s/users/%s/banners/%h"),
         DM_ICON("channel-icons/%s/%h");
 
-        private String url;
+        private final String url;
 
         ImageType(String url) {
             this.url = url;

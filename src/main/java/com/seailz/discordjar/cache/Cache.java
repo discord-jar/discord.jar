@@ -53,10 +53,11 @@ public class Cache<T> {
      *
      * @param t The object to add
      */
-    public void cache(@NotNull T t)  {
+    public void cache(@NotNull T t) {
         if (t == null) return;
         try {
-            if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return;
+            if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL))
+                return;
             String id;
             try {
                 if (isMember) {
@@ -79,19 +80,20 @@ public class Cache<T> {
                     cache.remove(cacheMember);
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         synchronized (cache) {
             try {
                 if (cache.size() == -1) {
                     Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - cache size is -1");
                     return;
-                }; // Also this seems impossible, recent exceptions prove otherwise, so I'm leaving it in. Please ignore your IDE.
+                }
+                // Also this seems impossible, recent exceptions prove otherwise, so I'm leaving it in. Please ignore your IDE.
                 cache.add(0, t);
             } catch (Exception e) {
                 // We can ignore this - since the cache isn't critical.
                 // We'll print the stacktrace for debugging purposes.
                 Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - " + e.getMessage());
-                return;
             }
         }
     }
@@ -151,16 +153,17 @@ public class Cache<T> {
                         }
                     }
                 });
-            } catch (Exception e ) {}
+            } catch (Exception e) {
+            }
         }
 
 
         if (returnObject.get() == null) {
             // request from discord
             DiscordResponse response;
-                response = new DiscordRequest(
-                        discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
-                ).invoke();
+            response = new DiscordRequest(
+                    discordRequest.body(), discordRequest.headers(), discordRequest.url().replaceAll("%s", id), discordJar, discordRequest.url(), RequestMethod.GET
+            ).invoke();
             Method decompile;
             try {
                 decompile = clazz.getMethod("decompile", JSONObject.class, DiscordJar.class);
@@ -201,7 +204,8 @@ public class Cache<T> {
     }
 
     private T getFromCacheByIdOrNull(String id) {
-        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return null;
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL))
+            return null;
         AtomicReference<Object> returnObject = new AtomicReference<>();
         ArrayList<T> cacheCopy = new ArrayList<>(cache);
         cacheCopy.forEach(t -> {

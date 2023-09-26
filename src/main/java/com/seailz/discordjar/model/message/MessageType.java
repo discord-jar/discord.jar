@@ -33,9 +33,7 @@ public enum MessageType {
     STAGE_RAISE_HAND(30, true),
     STAGE_TOPIC_CHANGE(31, true),
     GUILD_APPLICATION_PREMIUM_SUBSCRIPTION(32, false),
-    ROLE_SUBSCRIPTION_PURCHASE(25,true)
-
-    ;
+    ROLE_SUBSCRIPTION_PURCHASE(25, true);
 
 
     private final boolean isDeletable;
@@ -46,14 +44,6 @@ public enum MessageType {
         this.code = code;
     }
 
-    public boolean isDeletable() {
-        return isDeletable;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
     public static MessageType fromCode(int code) {
         for (MessageType type : values()) {
             if (type.getCode() == code) {
@@ -61,5 +51,13 @@ public enum MessageType {
             }
         }
         return null;
+    }
+
+    public boolean isDeletable() {
+        return isDeletable;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

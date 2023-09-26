@@ -29,14 +29,6 @@ public enum ChannelType {
         this.name = name;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     public static ChannelType fromCode(int code) {
         for (ChannelType type : values()) {
             if (type.getCode() == code) {
@@ -44,5 +36,13 @@ public enum ChannelType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
     }
 }

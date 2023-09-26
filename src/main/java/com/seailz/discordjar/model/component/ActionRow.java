@@ -1,11 +1,9 @@
 package com.seailz.discordjar.model.component;
 
-import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +18,34 @@ public class ActionRow implements DisplayComponent {
 
     private List<RawComponent> components;
     private JSONObject raw;
+
+    @NotNull
+    public static ActionRow of(List<RawComponent> components) {
+        ActionRow row = new ActionRow();
+        row.components = components;
+        return row;
+    }
+
+    @NotNull
+    public static ActionRow of(RawComponent... components) {
+        ActionRow row = new ActionRow();
+        row.components = List.of(components);
+        return row;
+    }
+
+    @NotNull
+    public static ActionRow decompile(JSONObject obj) {
+        ActionRow row = new ActionRow();
+        List<RawComponent> comp = new ArrayList<>();
+
+        obj.getJSONArray("components").forEach(c -> {
+            JSONObject component = (JSONObject) c;
+            comp.add(RawComponent.unknown(component));
+        });
+        row.raw = obj;
+        row.components = comp;
+        return row;
+    }
 
     @Override
     public JSONObject compile() {
@@ -49,33 +75,5 @@ public class ActionRow implements DisplayComponent {
     @Override
     public @NotNull List<RawComponent> components() {
         return components;
-    }
-
-    @NotNull
-    public static ActionRow of(List<RawComponent> components) {
-        ActionRow row = new ActionRow();
-        row.components = components;
-        return row;
-    }
-
-    @NotNull
-    public static ActionRow of(RawComponent... components) {
-        ActionRow row = new ActionRow();
-        row.components = List.of(components);
-        return row;
-    }
-
-    @NotNull
-    public static ActionRow decompile(JSONObject obj) {
-        ActionRow row = new ActionRow();
-        List<RawComponent> comp = new ArrayList<>();
-
-        obj.getJSONArray("components").forEach(c -> {
-            JSONObject component = (JSONObject) c;
-            comp.add(RawComponent.unknown(component));
-        });
-        row.raw = obj;
-        row.components = comp;
-        return row;
     }
 }

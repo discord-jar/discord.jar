@@ -8,7 +8,6 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -19,13 +18,13 @@ import java.util.List;
 
 public class MessagingChannelImpl extends GuildChannelImpl implements MessagingChannel {
 
-    private Category category;
     private final String ownerId;
     private final int slowMode;
     private final String topic;
     private final String lastMessageId;
     private final int defaultAutoArchiveDuration;
     private final DiscordJar discordJar;
+    private Category category;
 
 
     public MessagingChannelImpl(String id, ChannelType type, String name, Guild guild, int position, List<PermissionOverwrite> permissionOverwrites, boolean nsfw, String ownerId, int slowMode, String topic, String lastMessageId, int defaultAutoArchiveDuration, DiscordJar discordJar, JSONObject raw) {
@@ -68,7 +67,7 @@ public class MessagingChannelImpl extends GuildChannelImpl implements MessagingC
     public Response<Void> bulkDeleteMessages(List<String> messageIds, boolean filterMessages, String reason) {
         Response<Void> response = new Response<>();
         new Thread(() -> {
-            HashMap<String, String> headers = new HashMap<>(){{
+            HashMap<String, String> headers = new HashMap<>() {{
                 if (reason != null) put("X-Audit-Log-Reason", reason);
             }};
             DiscordRequest request = new DiscordRequest(

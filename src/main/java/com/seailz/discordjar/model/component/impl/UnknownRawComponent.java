@@ -16,12 +16,17 @@ import org.json.JSONObject;
  */
 public class UnknownRawComponent implements RawComponent {
 
-    private ComponentType type;
+    private final ComponentType type;
     private JSONObject raw;
 
     public UnknownRawComponent(ComponentType type, JSONObject raw) {
         this.type = type;
         this.raw = raw;
+    }
+
+    public static UnknownRawComponent of(JSONObject raw) {
+        ComponentType type = ComponentType.getType(raw.getInt("type"));
+        return new UnknownRawComponent(type, raw);
     }
 
     @Override
@@ -47,10 +52,5 @@ public class UnknownRawComponent implements RawComponent {
     @Override
     public void setRaw(JSONObject raw) {
         this.raw = raw;
-    }
-
-    public static UnknownRawComponent of(JSONObject raw) {
-        ComponentType type = ComponentType.getType(raw.getInt("type"));
-        return new UnknownRawComponent(type, raw);
     }
 }

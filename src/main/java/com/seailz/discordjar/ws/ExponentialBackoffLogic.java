@@ -2,8 +2,8 @@ package com.seailz.discordjar.ws;
 
 import org.springframework.web.socket.CloseStatus;
 
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -11,13 +11,14 @@ import java.util.logging.Logger;
  * Defines logic for a reconnect attempt based on increasing intervals - doubling each time.
  * <br>This is the recommended usage for reconnecting to a websocket. Additional logic can be added by using the attemptReconnect function to override the default logic.
  * <br>If true is returned in attemptReconnect, the reconnect will be attempted after the interval. If false is returned, the reconnect will not be attempted.
+ *
  * @author Seailz
  */
 public class ExponentialBackoffLogic {
 
-    private Function<CloseStatus, Boolean> attemptReconnect = (e) -> true;
     // If this interval is reached, the reconnect will be attempted at the same interval until it succeeds.
     private final int maxInterval = 60000;
+    private Function<CloseStatus, Boolean> attemptReconnect = (e) -> true;
     private int interval = 3000;
     private int attempts = 0;
 

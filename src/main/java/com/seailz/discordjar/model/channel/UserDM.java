@@ -26,9 +26,10 @@ import java.util.List;
  * <br>If a feature is added to DMs, but not group DMs, this class will be updated and the deprecated annotation will be removed.
  * <p>
  * {@code TL;DR}: <b>Class is deprecated, use {@link DMChannel} instead. This class will continue to be supported, however.</b>
+ *
  * @author Seailz
- * @since  1.0
- * @see    DMChannel
+ * @see DMChannel
+ * @since 1.0
  */
 @Deprecated(since = "1.0")
 public interface UserDM extends DMChannel {
@@ -43,7 +44,7 @@ public interface UserDM extends DMChannel {
         recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, djv)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
-        return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv, obj);
+        return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId, recipients, djv, obj);
     }
 
 }

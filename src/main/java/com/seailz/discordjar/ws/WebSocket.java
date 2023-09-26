@@ -9,8 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.WebSocketClient;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -32,16 +30,16 @@ import java.util.zip.Inflater;
  */
 public class WebSocket extends WebSocketListener {
 
+    private static final byte[] ZLIB_SUFFIX = new byte[]{0, 0, (byte) 0xff, (byte) 0xff};
+    private static final Inflater inflator = new Inflater();
+    private static byte[] buffer = {};
     private final String url;
-    private okhttp3.WebSocket ws;
     private final boolean debug;
     private final List<Consumer<String>> messageConsumers = new ArrayList<>();
     private final List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
     private final List<Runnable> onConnectConsumers = new ArrayList<>();
+    private okhttp3.WebSocket ws;
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
-    private static final byte[] ZLIB_SUFFIX = new byte[] { 0, 0, (byte) 0xff, (byte) 0xff };
-    private static byte[] buffer = {};
-    private static final Inflater inflator = new Inflater();
     private boolean open = false;
 
     public WebSocket(String url, boolean debug) {
@@ -87,7 +85,7 @@ public class WebSocket extends WebSocketListener {
     public void onMessage(@NotNull okhttp3.WebSocket webSocket, @NotNull ByteString text) {
         long start = System.currentTimeMillis();
         byte[] msg = text.toByteArray();
-        if (buffer ==null) buffer = new byte[]{};
+        if (buffer == null) buffer = new byte[]{};
         byte[] extendedBuffer = new byte[buffer.length + msg.length];
         System.arraycopy(buffer, 0, extendedBuffer, 0, buffer.length);
         try {
@@ -139,6 +137,7 @@ public class WebSocket extends WebSocketListener {
             onMessage(webSocket, fullMessage);
         }, "djar--handle-text-msg").start();
     }
+
     @Override
     public void onClosed(@NotNull okhttp3.WebSocket webSocket, int code, @NotNull String reason) {
         // Force session disconnect in case it failed to disconnect
@@ -205,7 +204,7 @@ public class WebSocket extends WebSocketListener {
 
     private void connect(String customUrl) throws ExecutionException, InterruptedException {
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(0,  TimeUnit.MILLISECONDS)
+                .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
 
         Request request = new Request.Builder()
@@ -246,12 +245,19 @@ public class WebSocket extends WebSocketListener {
 //        }
     }
 
+    public boolean isOpen() {
+        return open;
+    }
+
+    public interface WebsocketError {
+    }
 
     public class WebsocketAction<T> {
         private final CompletableFuture<T> onSuccessful = new CompletableFuture<>();
         private final CompletableFuture<WebsocketError> onFailed = new CompletableFuture<>();
 
-        protected WebsocketAction() {}
+        protected WebsocketAction() {
+        }
 
         public WebsocketAction<T> onSuccess(Consumer<T> consumer) {
             onSuccessful.thenAccept(consumer);
@@ -289,10 +295,8 @@ public class WebSocket extends WebSocketListener {
         }
     }
 
-    public interface WebsocketError {}
-
     public class WebsocketExceptionError implements WebsocketError {
-        private Throwable throwable;
+        private final Throwable throwable;
 
         public WebsocketExceptionError(Throwable throwable) {
             this.throwable = throwable;
@@ -304,8 +308,8 @@ public class WebSocket extends WebSocketListener {
     }
 
     public class WebsocketDisconnectError implements WebsocketError {
-        private int code;
-        private String reason;
+        private final int code;
+        private final String reason;
 
         public WebsocketDisconnectError(int code, String reason) {
             this.code = code;
@@ -319,9 +323,5 @@ public class WebSocket extends WebSocketListener {
         public String getReason() {
             return reason;
         }
-    }
-
-    public boolean isOpen() {
-        return open;
     }
 }

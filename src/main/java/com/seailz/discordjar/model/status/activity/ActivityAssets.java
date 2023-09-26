@@ -12,15 +12,6 @@ public record ActivityAssets(
 ) implements Compilerable {
 
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("large_image", largeImage)
-                .put("large_text", largeText)
-                .put("small_image", smallImage)
-                .put("small_text", smallText);
-    }
-
     public static ActivityAssets decompile(JSONObject obj) {
         String largeImage;
         String largeText;
@@ -52,5 +43,14 @@ public record ActivityAssets(
         }
 
         return new ActivityAssets(largeImage, largeText, smallImage, smallText);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("large_image", largeImage)
+                .put("large_text", largeText)
+                .put("small_image", smallImage)
+                .put("small_text", smallText);
     }
 }

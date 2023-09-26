@@ -6,6 +6,7 @@ import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.gateway.events.DispatchedEvents;
 import com.seailz.discordjar.gateway.events.GatewayEvents;
+import com.seailz.discordjar.gateway.heartbeat.HeartLogic;
 import com.seailz.discordjar.model.api.version.APIVersion;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.guild.Member;
@@ -16,7 +17,6 @@ import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.voice.model.VoiceServerUpdate;
 import com.seailz.discordjar.voice.model.VoiceState;
 import com.seailz.discordjar.ws.ExponentialBackoffLogic;
-import com.seailz.discordjar.gateway.heartbeat.HeartLogic;
 import com.seailz.discordjar.ws.WebSocket;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,28 +44,26 @@ import java.util.logging.Logger;
  */
 public class GatewayFactory extends TextWebSocketHandler {
 
+    public static int sequence;
+    public static List<Long> pingHistoryMs = new ArrayList<>();
+    public static Date lastHeartbeatSent = new Date();
+    private static String resumeUrl;
     private final DiscordJar discordJar;
     private final Logger logger = Logger.getLogger(GatewayFactory.class.getName().toUpperCase());
-    public static int sequence;
-
+    private final boolean debug;
+    public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
+    public UUID uuid = UUID.randomUUID();
     private Status status;
     private String gatewayUrl = null;
     private String sessionId;
-    private static String resumeUrl;
     private HeartLogic heartbeatManager;
     private boolean shouldResume = false;
     private boolean readyForMessages = false;
-    public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
-    private final boolean debug;
-    private List<Consumer<VoiceState>> onVoiceStateUpdateListeners;
-    private List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners;
-    public UUID uuid = UUID.randomUUID();
-    private int shardId;
-    private int numShards;
-    private GatewayTransportCompressionType transportCompressionType;
-    public static List<Long> pingHistoryMs = new ArrayList<>();
-    public static Date lastHeartbeatSent = new Date();
-
+    private final List<Consumer<VoiceState>> onVoiceStateUpdateListeners;
+    private final List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners;
+    private final int shardId;
+    private final int numShards;
+    private final GatewayTransportCompressionType transportCompressionType;
     private WebSocket socket;
 
     public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards, GatewayTransportCompressionType compressionType) throws ExecutionException, InterruptedException {
@@ -91,7 +89,8 @@ public class GatewayFactory extends TextWebSocketHandler {
                             discordJar,
                             "/gateway", RequestMethod.GET
                     ).invoke();
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
+                } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {
+                }
                 if (response == null || response.body() == null || !response.body().has("url")) {
                     // In case the request fails, we can attempt to use the backup gateway URL instead.
                     this.gatewayUrl = URLS.GATEWAY.BASE_URL;
@@ -145,12 +144,14 @@ public class GatewayFactory extends TextWebSocketHandler {
 
     /**
      * Applies the needed query string params for the Gateway URL.
+     *
      * @param url Input URL
      * @return Output URL with query springs applied.
      */
     private String appendGatewayQueryParams(String url) {
         url = url + "?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
-        if (transportCompressionType != GatewayTransportCompressionType.NONE) url = url + "&compress=" + transportCompressionType.getValue();
+        if (transportCompressionType != GatewayTransportCompressionType.NONE)
+            url = url + "&compress=" + transportCompressionType.getValue();
         return url;
     }
 
@@ -172,55 +173,71 @@ public class GatewayFactory extends TextWebSocketHandler {
             case 1011, 1015:
                 return false;
             case 4000:
-                if (debug) logger.info("[Gateway] Connection was closed due to an unknown error. Will attempt reconnect.");
+                if (debug)
+                    logger.info("[Gateway] Connection was closed due to an unknown error. Will attempt reconnect.");
                 return true;
             case 4001:
-                if (debug) logger.warning("[Gateway] Connection was closed due to an unknown opcode. Will attempt reconnect. This is usually a discord.jar bug.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to an unknown opcode. Will attempt reconnect. This is usually a discord.jar bug.");
                 return true;
             case 4002:
-                if (debug) logger.warning("[Gateway] Connection was closed due to a decode error. Will attempt reconnect.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to a decode error. Will attempt reconnect.");
                 return true;
             case 4003:
-                if (debug) logger.warning("[Gateway] Connection was closed due to not being authenticated. Will attempt reconnect.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to not being authenticated. Will attempt reconnect.");
                 return true;
             case 4004:
-                if (debug) logger.warning("[Gateway] Connection was closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to authentication failure. Will not attempt reconnect. Check your bot token!");
                 return false;
             case 4005:
-                if (debug) logger.warning("[Gateway] Connection was closed due to an already authenticated connection. Will attempt reconnect.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to an already authenticated connection. Will attempt reconnect.");
                 return true;
             case 4007:
-                if (debug) logger.info("[Gateway] Connection was closed due to an invalid sequence. Will attempt reconnect.");
+                if (debug)
+                    logger.info("[Gateway] Connection was closed due to an invalid sequence. Will attempt reconnect.");
                 return true;
             case 4008:
-                if (debug) logger.warning("[Gateway] Connection was closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to rate limiting. Will attempt reconnect. Make sure you're not spamming gateway requests!");
                 return true;
             case 4009:
-                if (debug) logger.info("[Gateway] Connection was closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
+                if (debug)
+                    logger.info("[Gateway] Connection was closed due to an invalid session. Will attempt reconnect. This is nothing to worry about.");
                 return true;
             case 4010:
-                if (debug) logger.warning("[Gateway] Connection was closed due to an invalid shard. Will not attempt reconnect.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to an invalid shard. Will not attempt reconnect.");
                 return false;
             case 4011:
-                if (debug) logger.warning("[Gateway] Connection was closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to a shard being required. Will not attempt reconnect. If your bot is in more than 2500 servers, you must use sharding. See discord.jar's GitHub for more info.");
                 return false;
             case 4012:
-                if (debug) logger.warning("[Gateway] Connection was closed due to an invalid API version. Will not attempt reconnect.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to an invalid API version. Will not attempt reconnect.");
                 return false;
             case 4013:
-                if (debug) logger.warning("[Gateway] Connection was closed due to an invalid intent. Will not attempt reconnect.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to an invalid intent. Will not attempt reconnect.");
                 return false;
             case 4014:
-                if (debug)  logger.warning("[Gateway] Connection was closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
+                if (debug)
+                    logger.warning("[Gateway] Connection was closed due to a disallowed intent. Will not attempt reconnect. If you've set intents, please make sure they are enabled in the developer portal and you're approved for them if you run a verified bot.");
                 return false;
             case 1000:
-                if (debug) logger.info("[Gateway] Connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
+                if (debug)
+                    logger.info("[Gateway] Connection was closed using the close code 1000. The heartbeat cycle has likely fallen out of sync. Will attempt reconnect.");
                 return true;
             case 1001:
                 if (debug) logger.info("[Gateway] Gateway requested a reconnect (close code 1001), reconnecting...");
                 return true;
             case 1006:
-                if (debug) logger.info("[Gateway] Connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
+                if (debug)
+                    logger.info("[Gateway] Connection was closed using the close code 1006. This is usually an error with Spring. Please post this error with the stacktrace below (if there is one) on discord.jar's GitHub. Will attempt reconnect.");
                 discordJar.restartGateway();
                 return false;
             default:
@@ -232,18 +249,18 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
+    public Status getStatus() {
+        return status;
+    }
 
     /**
      * Do not use this method - it is for internal use only.
+     *
      * @param status The status to set.
      */
     @Deprecated
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 
     public void queueMessage(JSONObject payload) {
@@ -253,7 +270,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         while (readyForMessages) {
             sendPayload(payload);
             if (debug) {
-                logger.info("[DISCORD.JAR - DEBUG] Sent message: " + payload.toString());
+                logger.info("[DISCORD.JAR - DEBUG] Sent message: " + payload);
             }
             break;
         }
@@ -264,7 +281,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         JSONObject payload = new JSONObject(message);
 
         if (debug) {
-            logger.info("[Gateway - DEBUG] Received message: " + payload.toString());
+            logger.info("[Gateway - DEBUG] Received message: " + payload);
             logger.info("[Gateway - DEBUG] Message size: " + payload.toString().getBytes(StandardCharsets.UTF_8).length + "b");
         }
         try {
@@ -274,7 +291,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         GatewayEvents event = GatewayEvents.getEvent(payload.getInt("op"));
         if (event == null) {
-            logger.warning("[discord.jar] Unknown event received: " + payload.getInt("op") + ". This is rare, please create an issue on GitHub with this log message. Payload: " + payload.toString());
+            logger.warning("[discord.jar] Unknown event received: " + payload.getInt("op") + ". This is rare, please create an issue on GitHub with this log message. Payload: " + payload);
             return;
         }
 
@@ -344,7 +361,8 @@ public class GatewayFactory extends TextWebSocketHandler {
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
         if (eventClass == null) {
-            if (debug) logger.info("[discord.jar] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
+            if (debug)
+                logger.info("[discord.jar] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
             return;
         }
         if (debug) {
@@ -377,7 +395,7 @@ public class GatewayFactory extends TextWebSocketHandler {
 
         if (Objects.requireNonNull(DispatchedEvents.getEventByName(payload.getString("t"))) == DispatchedEvents.READY) {
             this.sessionId = payload.getJSONObject("d").getString("session_id");
-            this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
+            resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
             readyForMessages = true;
 
             if (discordJar.getStatus() != null) {
@@ -539,6 +557,10 @@ public class GatewayFactory extends TextWebSocketHandler {
         return onVoiceServerUpdateListeners;
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
     public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
         public void addMember(Member member) {
             members.add(member);
@@ -547,10 +569,5 @@ public class GatewayFactory extends TextWebSocketHandler {
         public void complete() {
             future.complete(members);
         }
-    }
-
-
-    public boolean isDebug() {
-        return debug;
     }
 }

@@ -20,16 +20,6 @@ public record ThreadMember(
 ) implements Compilerable {
 
 
-    @Override
-    public @NotNull JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("id", id());
-        obj.put("user_id", userId());
-        obj.put("join_timestamp", joinTimestamp());
-        obj.put("flags", flags());
-        return obj;
-    }
-
     public static ThreadMember decompile(JSONObject obj) {
         String id;
         String userId;
@@ -61,5 +51,15 @@ public record ThreadMember(
         }
 
         return new ThreadMember(id, userId, joinTimestamp, flags);
+    }
+
+    @Override
+    public @NotNull JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("id", id());
+        obj.put("user_id", userId());
+        obj.put("join_timestamp", joinTimestamp());
+        obj.put("flags", flags());
+        return obj;
     }
 }

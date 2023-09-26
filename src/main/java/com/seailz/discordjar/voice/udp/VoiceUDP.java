@@ -1,6 +1,5 @@
 package com.seailz.discordjar.voice.udp;
 
-import com.codahale.xsalsa20poly1305.SecretBox;
 import com.seailz.discordjar.voice.model.packet.AudioPacket;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import com.seailz.discordjar.voice.ws.VoiceGatewayFactory;
@@ -11,21 +10,19 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class VoiceUDP {
 
-    private DatagramSocket socket;
-    private VoiceProvider provider;
-    private InetSocketAddress address;
-    private int ssrc;
-
+    private final VoiceGatewayFactory voiceGateway;
+    private final DatagramSocket socket;
+    private final VoiceProvider provider;
+    private final InetSocketAddress address;
+    private final int ssrc;
     private byte[] secretKey;
     private char sequence = 0;
     private volatile boolean sending = false;
     private volatile boolean speaking = false;
-    private final VoiceGatewayFactory voiceGateway;
 
     public VoiceUDP(InetSocketAddress address, VoiceProvider provider, int srrc, VoiceGatewayFactory voiceGateway) throws SocketException {
         this.address = address;
@@ -50,7 +47,7 @@ public class VoiceUDP {
         socket.receive(new DatagramPacket(buffer, buffer.length));
 
         String ip = new String(buffer, 8, buffer.length - 10).trim();
-        int port = ByteBuffer.wrap(new byte[] {buffer[buffer.length - 1], buffer[buffer.length - 2]}).getShort() & 0xffff;
+        int port = ByteBuffer.wrap(new byte[]{buffer[buffer.length - 1], buffer[buffer.length - 2]}).getShort() & 0xffff;
         address = new InetSocketAddress(ip, port);
         return address;
     }
@@ -130,8 +127,6 @@ public class VoiceUDP {
     public void stop() {
         sending = false;
     }
-
-
 
 
 }

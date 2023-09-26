@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
  * Defines info about a specific context command.
  *
  * @author Seailz
- * @see    com.seailz.discordjar.command.listeners.MessageContextCommandListener
- * @see    com.seailz.discordjar.command.listeners.UserContextCommandListener
+ * @see com.seailz.discordjar.command.listeners.MessageContextCommandListener
+ * @see com.seailz.discordjar.command.listeners.UserContextCommandListener
  * @since 1.0
  */
 @Target(ElementType.TYPE)

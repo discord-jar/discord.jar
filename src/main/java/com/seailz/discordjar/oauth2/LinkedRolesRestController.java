@@ -5,10 +5,10 @@ import com.seailz.databaseapi.ColumnType;
 import com.seailz.databaseapi.Database;
 import com.seailz.databaseapi.annotation.builder.TableBuilder;
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.oauth2.response.Response;
 import com.seailz.discordjar.oauth2.response.error.CodeNotPresentResponse;
 import com.seailz.discordjar.oauth2.response.error.InvalidEndpointResponse;
-import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.URLS;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
  * This is an internal class used by discord.jar & spring to handle OAuth2 requests.
  *
  * @author Seailz
- * @since  1.0
- * @see    LinkedRoles
+ * @see LinkedRoles
+ * @since 1.0
  */
 @RestController
 public class LinkedRolesRestController {
@@ -62,6 +62,16 @@ public class LinkedRolesRestController {
      * </ol>
      */
     private static TriConsumer<HttpServletResponse, String, String> onCodeReceived;
+
+    protected static void set(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, boolean redirectBackToDiscord, DiscordJar discordJar, Database database) {
+        LinkedRolesRestController.clientId = clientId;
+        LinkedRolesRestController.clientSecret = clientSecret;
+        LinkedRolesRestController.redirectEndpoint = redirectEndpoint;
+        LinkedRolesRestController.discordJar = discordJar;
+        LinkedRolesRestController.redirectUrl = redirectUrl;
+        LinkedRolesRestController.redirectBackToDiscord = redirectBackToDiscord;
+        LinkedRolesRestController.database = database;
+    }
 
     @RequestMapping(value = "/*", method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST})
     protected Response request(@RequestParam Map<String, String> reqParam, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, InterruptedException, URISyntaxException, SQLException {
@@ -126,16 +136,6 @@ public class LinkedRolesRestController {
         }
 
         return new InvalidEndpointResponse();
-    }
-
-    protected static void set(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, boolean redirectBackToDiscord, DiscordJar discordJar, Database database) {
-        LinkedRolesRestController.clientId = clientId;
-        LinkedRolesRestController.clientSecret = clientSecret;
-        LinkedRolesRestController.redirectEndpoint = redirectEndpoint;
-        LinkedRolesRestController.discordJar = discordJar;
-        LinkedRolesRestController.redirectUrl = redirectUrl;
-        LinkedRolesRestController.redirectBackToDiscord = redirectBackToDiscord;
-        LinkedRolesRestController.database = database;
     }
 
     private HttpRequest.BodyPublisher getParamsUrlEncoded(Map<String, String> parameters) {

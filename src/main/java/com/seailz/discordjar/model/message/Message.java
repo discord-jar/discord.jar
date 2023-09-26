@@ -6,7 +6,6 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.application.Application;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.utils.ChannelMention;
-import com.seailz.discordjar.model.component.ActionRow;
 import com.seailz.discordjar.model.component.Component;
 import com.seailz.discordjar.model.component.DisplayComponent;
 import com.seailz.discordjar.model.embed.Embed;
@@ -337,7 +336,8 @@ public record Message(
         }
 
         if (obj.has("position")) position = obj.getInt("position");
-        if (obj.has("role_subscription_data")) roleSubscriptionData = RoleSubscriptionData.decompile(obj.getJSONObject("role_subscription_data"));
+        if (obj.has("role_subscription_data"))
+            roleSubscriptionData = RoleSubscriptionData.decompile(obj.getJSONObject("role_subscription_data"));
 
         return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, stickerItems, position, roleSubscriptionData, discordJar);
     }
@@ -440,6 +440,7 @@ public record Message(
 
     /**
      * Allows you to edit the message.
+     *
      * @return The MessageEditAction object.
      */
     public MessageEditAction edit() {
@@ -464,54 +465,6 @@ public record Message(
         return formatted;
     }
 
-    public record StickerItem(
-            String id,
-            String name,
-            StickerFormat format
-    ) implements Compilerable {
-
-        @Override
-        public JSONObject compile() {
-            return new JSONObject()
-                    .put("id", id)
-                    .put("name", name)
-                    .put("format_type", format.getCode());
-        }
-
-        public static StickerItem decompile(JSONObject obj) {
-            return new StickerItem(
-                    obj.getString("id"),
-                    obj.getString("name"),
-                    StickerFormat.getStickerFormatByCode(obj.getInt("format_type"))
-            );
-        }
-    }
-
-    public record RoleSubscriptionData(
-            String roleSubscriptionListingId,
-            String tierName,
-            int totalMonthsSubscribed,
-            boolean isRenewal
-    ) implements Compilerable {
-
-            @Override
-            public JSONObject compile() {
-                return new JSONObject()
-                        .put("role_subscription_listing_id", roleSubscriptionListingId)
-                        .put("tier_name", tierName)
-                        .put("total_months_subscribed", totalMonthsSubscribed)
-                        .put("is_renewal", isRenewal);
-            }
-
-            public static RoleSubscriptionData decompile(JSONObject obj) {
-                return new RoleSubscriptionData(
-                        obj.getString("role_subscription_listing_id"),
-                        obj.getString("tier_name"),
-                        obj.getInt("total_months_subscribed"),
-                        obj.getBoolean("is_renewal")
-                );
-            }
-    }
     /**
      * Pins the message within the channel.
      * Note that the maximum pinned messages per channel is 50.
@@ -533,6 +486,7 @@ public record Message(
 
     /**
      * Given an emoji, creates a reaction on the message.
+     *
      * @return The response object.
      */
     public Response<Void> createReaction(@NotNull Emoji emoji) {
@@ -576,7 +530,8 @@ public record Message(
 
     /**
      * Creates a new thread from the message.
-     * @param name The name of the thread.
+     *
+     * @param name         The name of the thread.
      * @param archiveAfter The duration which after no activity the thread will be archived.
      */
     public CompletableFuture<Thread> startThreadFromMessage(String name, Thread.AutoArchiveDuration archiveAfter, int rateLimitPerUser) {
@@ -604,6 +559,55 @@ public record Message(
             return Thread.decompile(res.body(), discordJar);
         });
         return future;
+    }
+
+    public record StickerItem(
+            String id,
+            String name,
+            StickerFormat format
+    ) implements Compilerable {
+
+        public static StickerItem decompile(JSONObject obj) {
+            return new StickerItem(
+                    obj.getString("id"),
+                    obj.getString("name"),
+                    StickerFormat.getStickerFormatByCode(obj.getInt("format_type"))
+            );
+        }
+
+        @Override
+        public JSONObject compile() {
+            return new JSONObject()
+                    .put("id", id)
+                    .put("name", name)
+                    .put("format_type", format.getCode());
+        }
+    }
+
+    public record RoleSubscriptionData(
+            String roleSubscriptionListingId,
+            String tierName,
+            int totalMonthsSubscribed,
+            boolean isRenewal
+    ) implements Compilerable {
+
+        public static RoleSubscriptionData decompile(JSONObject obj) {
+            return new RoleSubscriptionData(
+                    obj.getString("role_subscription_listing_id"),
+                    obj.getString("tier_name"),
+                    obj.getInt("total_months_subscribed"),
+                    obj.getBoolean("is_renewal")
+            );
+        }
+
+        @Override
+        public JSONObject compile() {
+            return new JSONObject()
+                    .put("role_subscription_listing_id", roleSubscriptionListingId)
+                    .put("tier_name", tierName)
+                    .put("total_months_subscribed", totalMonthsSubscribed)
+                    .put("is_renewal", isRenewal);
+        }
     }
 
 }

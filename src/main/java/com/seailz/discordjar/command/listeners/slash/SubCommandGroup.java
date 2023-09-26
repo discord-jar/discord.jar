@@ -9,9 +9,9 @@ import java.util.HashMap;
 
 public class SubCommandGroup implements Compilerable {
 
+    private final HashMap<SlashSubCommand, SubCommandListener> subCommands = new HashMap<>();
     private String name;
     private String description;
-    private final HashMap<SlashSubCommand, SubCommandListener> subCommands = new HashMap<>();
 
     public SubCommandGroup(String name) {
         this.name = name;
@@ -41,6 +41,7 @@ public class SubCommandGroup implements Compilerable {
         subCommands.put(subCommand, listener);
         return this;
     }
+
     @Override
     public JSONObject compile() {
         JSONArray subCommandsJson = new JSONArray();

@@ -12,10 +12,10 @@ import java.util.List;
 /**
  * Represents a reaction to a message
  *
- * @param count The amount of times this reaction has been used (including super-reactions)
- * @param me    Whether the current user has used this reaction
+ * @param count   The amount of times this reaction has been used (including super-reactions)
+ * @param me      Whether the current user has used this reaction
  * @param meBurst Whether the current user has super-reacted using this emoji
- * @param emoji The emoji used in the reaction
+ * @param emoji   The emoji used in the reaction
  */
 public record Reaction(
         int count,
@@ -25,25 +25,6 @@ public record Reaction(
         Emoji emoji,
         List<String> burstColors
 ) implements Compilerable {
-
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("count", count);
-        obj.put("me", me);
-        obj.put("me_burst", meBurst);
-        obj.put("emoji", emoji.compile());
-        if (countDetails != null) obj.put("count_details", countDetails.compile());
-
-        JSONArray burstColors = new JSONArray();
-        for (String color : this.burstColors) {
-            burstColors.put(color);
-        }
-
-        obj.put("burst_colors", burstColors);
-
-        return obj;
-    }
 
     @NonNull
     public static Reaction decompile(JSONObject obj, DiscordJar discordJar) {
@@ -82,10 +63,36 @@ public record Reaction(
         return new Reaction(count, details, me, meBurst, emoji, burstColors);
     }
 
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("count", count);
+        obj.put("me", me);
+        obj.put("me_burst", meBurst);
+        obj.put("emoji", emoji.compile());
+        if (countDetails != null) obj.put("count_details", countDetails.compile());
+
+        JSONArray burstColors = new JSONArray();
+        for (String color : this.burstColors) {
+            burstColors.put(color);
+        }
+
+        obj.put("burst_colors", burstColors);
+
+        return obj;
+    }
+
     public record CountDetails(
             int burst,
             int normal
     ) implements Compilerable {
+
+        @NonNull
+        public static CountDetails decompile(JSONObject obj) {
+            int burst = obj.has("burst") && !obj.isNull("burst") ? obj.getInt("burst") : 0;
+            int normal = obj.has("normal") && !obj.isNull("normal") ? obj.getInt("normal") : 0;
+            return new CountDetails(burst, normal);
+        }
 
         @Override
         public JSONObject compile() {
@@ -93,13 +100,6 @@ public record Reaction(
             obj.put("burst", burst);
             obj.put("normal", normal);
             return obj;
-        }
-
-        @NonNull
-        public static CountDetails decompile(JSONObject obj) {
-            int burst = obj.has("burst") && !obj.isNull("burst") ? obj.getInt("burst") : 0;
-            int normal = obj.has("normal") && !obj.isNull("normal") ? obj.getInt("normal") : 0;
-            return new CountDetails(burst, normal);
         }
     }
 }

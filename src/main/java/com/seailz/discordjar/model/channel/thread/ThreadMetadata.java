@@ -23,17 +23,6 @@ public record ThreadMetadata(
         String createTimestamp
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("archived", archived)
-                .put("auto_archive_duration", autoArchiveDuration)
-                .put("archive_timestamp", archiveTimestamp)
-                .put("locked", locked)
-                .put("invitable", invitable)
-                .put("create_timestamp", createTimestamp);
-    }
-
     @NonNull
     public static ThreadMetadata decompile(JSONObject obj) {
         boolean archived;
@@ -80,5 +69,16 @@ public record ThreadMetadata(
         }
 
         return new ThreadMetadata(archived, autoArchiveDuration, archiveTimestamp, locked, invitable, createTimestamp);
+    }
+
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("archived", archived)
+                .put("auto_archive_duration", autoArchiveDuration)
+                .put("archive_timestamp", archiveTimestamp)
+                .put("locked", locked)
+                .put("invitable", invitable)
+                .put("create_timestamp", createTimestamp);
     }
 }

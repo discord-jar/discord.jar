@@ -10,15 +10,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Bucket {
 
-    private int limit;
-    private AtomicInteger atomicRemaining;
-    private AtomicLong atomicReset;
-    private String id;
-    private int waitingRequests = 0;
     private final Lock lock = new ReentrantLock();
     private final List<String> affectedRoutes = new ArrayList<>();
+    private int limit;
+    private final AtomicInteger atomicRemaining;
+    private final AtomicLong atomicReset;
+    private String id;
+    private int waitingRequests = 0;
     private volatile boolean allowedToSendRequests = true;
-    private AtomicLong resetAfter;
+    private final AtomicLong resetAfter;
     private volatile boolean waiting = false;
     private boolean debug = false;
 
@@ -56,7 +56,7 @@ public class Bucket {
 //        }, "djar--bucket-reset").start();
     }
 
-    public synchronized  Bucket update(int limit, int remaining, double reset, float resetAfter) {
+    public synchronized Bucket update(int limit, int remaining, double reset, float resetAfter) {
         if (remaining == 0) allowedToSendRequests = false;
         this.limit = limit;
         this.atomicRemaining.set(remaining);
@@ -107,11 +107,13 @@ public class Bucket {
         }
 
 
-        if (debug) System.out.println("Clearing request for launch: WR:" + waitingRequests + " AR:" + atomicRemaining.get() + " BID: " + id + " RSA:" + resetAfter);
+        if (debug)
+            System.out.println("Clearing request for launch: WR:" + waitingRequests + " AR:" + atomicRemaining.get() + " BID: " + id + " RSA:" + resetAfter);
         atomicRemaining.getAndDecrement();
         if (atomicRemaining.get() < 1) {
             atomicRemaining.set(0);
-            if (debug) System.out.println("Cancelling launch clearance: WR:" + waitingRequests + " AR:" + atomicRemaining.get() +" RA:" + resetAfter);
+            if (debug)
+                System.out.println("Cancelling launch clearance: WR:" + waitingRequests + " AR:" + atomicRemaining.get() + " RA:" + resetAfter);
             long resetAfterFinal = resetAfter.get();
             Thread.sleep(resetAfter.get());
             if (resetAfterFinal != resetAfter.get()) {
@@ -121,7 +123,8 @@ public class Bucket {
                 if (diff > 0) Thread.sleep(resetAfter.get() - resetAfterFinal);
             }
             atomicRemaining.set(limit - 1);
-            if (debug) System.out.println("Clearing launch again: WR:" + waitingRequests + " AR:" + atomicRemaining.get());
+            if (debug)
+                System.out.println("Clearing launch again: WR:" + waitingRequests + " AR:" + atomicRemaining.get());
         }
 
         waitingRequests--;

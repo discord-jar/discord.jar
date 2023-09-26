@@ -23,9 +23,17 @@ public class ModifyStickerAction {
         this.discordJar = discordJar;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public ModifyStickerAction setName(String name) {
         this.name = name;
         return this;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public ModifyStickerAction setDescription(String description) {
@@ -33,21 +41,13 @@ public class ModifyStickerAction {
         return this;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
     public ModifyStickerAction setTags(String tags) {
         this.tags = tags;
         return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getTags() {
-        return tags;
     }
 
     public CompletableFuture<Sticker> run() {

@@ -8,7 +8,7 @@ package com.seailz.discordjar.utils;
  * <pre>
  *     {@code <{PREFIX}{ID}>}
  * </pre>
- *
+ * <p>
  * For example, my user mention would look like this:
  * <pre>
  *     {@code <@947691195658797167>}
@@ -31,18 +31,21 @@ public interface Mentionable {
 
     /**
      * Returns the ID of the current mentionable entity.
+     *
      * @return {@link String}
      */
     String id();
 
     /**
      * The prefix that comes after the first {@code <} but before the id in a mention.
+     *
      * @return {@link String}
      */
     String getMentionablePrefix();
 
     /**
      * Returns the current mentionable entity as a mention.
+     *
      * @return {@link String}
      */
     default String getAsMention() {

@@ -5,7 +5,10 @@ import com.seailz.discordjar.ws.WSPayloads;
 import com.seailz.discordjar.ws.WebSocket;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Every animal has a heart, and as we all know that websockets are animals, they also have hearts.
@@ -16,9 +19,9 @@ import java.util.*;
 public class HeartLogic {
 
     private final WebSocket socket;
+    private final Map<UUID, Boolean> isInstanceStillRunning = new HashMap<>();
     private long interval;
     private long lastSequence = -1;
-    private final Map<UUID, Boolean> isInstanceStillRunning = new HashMap<>();
 
     public HeartLogic(WebSocket socket, long interval) {
         this.interval = interval;
@@ -48,7 +51,7 @@ public class HeartLogic {
 
     public void forceHeartbeat() {
         socket.send(
-            WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
+                WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
         );
     }
 
@@ -63,7 +66,7 @@ public class HeartLogic {
                 }
                 try {
                     socket.send(
-                        WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
+                            WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
                     );
                     GatewayFactory.lastHeartbeatSent = new Date();
                     Thread.sleep(interval);

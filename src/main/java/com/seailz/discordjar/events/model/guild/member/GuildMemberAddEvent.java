@@ -1,10 +1,8 @@
 package com.seailz.discordjar.events.model.guild.member;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.guild.Member;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -13,8 +11,8 @@ import org.json.JSONObject;
  * <br><B>Requires the {@code GUILD_MEMBERS} intent.</B>
  *
  * @author Seailz
- * @since  1.0
- * @see    Member
+ * @see Member
+ * @since 1.0
  */
 public class GuildMemberAddEvent extends GuildEvent {
     public GuildMemberAddEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {

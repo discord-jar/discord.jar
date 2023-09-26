@@ -22,6 +22,23 @@ public record VoiceState(
 ) implements Compilerable {
 
 
+    public static VoiceState decompile(JSONObject obj, DiscordJar djar) {
+        String guildId = obj.has("guild_id") && !obj.isNull("guild_id") ? obj.getString("guild_id") : null;
+        String channelId = obj.has("channel_id") && !obj.isNull("channel_id") ? obj.getString("channel_id") : null;
+        String userId = obj.has("user_id") && !obj.isNull("user_id") ? obj.getString("user_id") : null;
+        Member member = obj.has("member") && !obj.isNull("member") ? Member.decompile(obj.getJSONObject("member"), djar, guildId, null) : null;
+        String sessionId = obj.has("session_id") && !obj.isNull("session_id") ? obj.getString("session_id") : null;
+        boolean deaf = obj.has("deaf") && obj.getBoolean("deaf");
+        boolean mute = obj.has("mute") && obj.getBoolean("mute");
+        boolean selfDeaf = obj.has("self_deaf") && obj.getBoolean("self_deaf");
+        boolean selfMute = obj.has("self_mute") && obj.getBoolean("self_mute");
+        boolean selfStream = obj.has("self_stream") && obj.getBoolean("self_stream");
+        boolean selfVideo = obj.has("self_video") && obj.getBoolean("self_video");
+        boolean suppress = obj.has("suppress") && obj.getBoolean("suppress");
+        String requestToSpeakTimestamp = obj.has("request_to_speak_timestamp") && !obj.isNull("request_to_speak_timestamp") ? obj.getString("request_to_speak_timestamp") : null;
+        return new VoiceState(guildId, channelId, userId, member, sessionId, deaf, mute, selfDeaf, selfMute, selfStream, selfVideo, suppress, requestToSpeakTimestamp);
+    }
+
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
@@ -43,23 +60,6 @@ public record VoiceState(
 
     public boolean connected() {
         return channelId != null;
-    }
-
-    public static VoiceState decompile(JSONObject obj, DiscordJar djar) {
-        String guildId = obj.has("guild_id") && !obj.isNull("guild_id") ? obj.getString("guild_id") : null;
-        String channelId = obj.has("channel_id") && !obj.isNull("channel_id") ? obj.getString("channel_id") : null;
-        String userId = obj.has("user_id") && !obj.isNull("user_id") ? obj.getString("user_id") : null;
-        Member member = obj.has("member") && !obj.isNull("member") ? Member.decompile(obj.getJSONObject("member"), djar, guildId, null) : null;
-        String sessionId = obj.has("session_id") && !obj.isNull("session_id") ? obj.getString("session_id") : null;
-        boolean deaf = obj.has("deaf") && obj.getBoolean("deaf");
-        boolean mute = obj.has("mute") && obj.getBoolean("mute");
-        boolean selfDeaf = obj.has("self_deaf") && obj.getBoolean("self_deaf");
-        boolean selfMute = obj.has("self_mute") && obj.getBoolean("self_mute");
-        boolean selfStream = obj.has("self_stream") && obj.getBoolean("self_stream");
-        boolean selfVideo = obj.has("self_video") && obj.getBoolean("self_video");
-        boolean suppress = obj.has("suppress") && obj.getBoolean("suppress");
-        String requestToSpeakTimestamp = obj.has("request_to_speak_timestamp") && !obj.isNull("request_to_speak_timestamp") ? obj.getString("request_to_speak_timestamp") : null;
-        return new VoiceState(guildId, channelId, userId, member, sessionId, deaf, mute, selfDeaf, selfMute, selfStream, selfVideo, suppress, requestToSpeakTimestamp);
     }
 
 }

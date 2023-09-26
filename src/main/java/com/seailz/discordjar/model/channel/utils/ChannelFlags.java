@@ -17,10 +17,6 @@ public enum ChannelFlags {
         this.id = id;
     }
 
-    public int getLeftShiftId() {
-        return 1 << id;
-    }
-
     public static EnumSet<ChannelFlags> getChannelFlagsByInt(int flags) {
         EnumSet<ChannelFlags> set = EnumSet.noneOf(ChannelFlags.class);
         if (flags == 0)
@@ -30,5 +26,9 @@ public enum ChannelFlags {
                 set.add(flag);
         }
         return set;
+    }
+
+    public int getLeftShiftId() {
+        return 1 << id;
     }
 }

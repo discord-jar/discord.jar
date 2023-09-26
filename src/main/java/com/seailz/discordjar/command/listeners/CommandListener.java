@@ -1,10 +1,10 @@
 package com.seailz.discordjar.command.listeners;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.command.CommandType;
 import com.seailz.discordjar.command.annotation.SlashCommandInfo;
 import com.seailz.discordjar.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
-import com.seailz.discordjar.command.CommandType;
 
 /**
  * This interface is used to create a command listener,

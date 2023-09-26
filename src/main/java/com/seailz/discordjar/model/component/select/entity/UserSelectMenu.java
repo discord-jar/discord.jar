@@ -48,6 +48,16 @@ public class UserSelectMenu implements SelectMenu {
         this.raw = raw;
     }
 
+    public static UserSelectMenu decompile(JSONObject json) {
+        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
+        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
+        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
+        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
+        boolean isDisabled = json.has("disabled") && json.getBoolean("disabled");
+
+        return new UserSelectMenu(customId, placeholder, minValues, maxValues, isDisabled, json);
+    }
+
     @Override
     public String customId() {
         return customId;
@@ -120,16 +130,6 @@ public class UserSelectMenu implements SelectMenu {
         return obj;
     }
 
-    public static UserSelectMenu decompile(JSONObject json) {
-        String customId = json.has("custom_id") ? json.getString("custom_id") : null;
-        String placeholder = json.has("placeholder") ? json.getString("placeholder") : null;
-        int minValues = json.has("min_values") ? json.getInt("min_values") : 0;
-        int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
-        boolean isDisabled = json.has("disabled") && json.getBoolean("disabled");
-
-        return new UserSelectMenu(customId, placeholder, minValues, maxValues, isDisabled, json);
-    }
-
     @Override
     public JSONObject raw() {
         return raw;
@@ -137,7 +137,7 @@ public class UserSelectMenu implements SelectMenu {
 
     @Override
     public void setRaw(JSONObject raw) {
-          this.raw = raw;
+        this.raw = raw;
     }
 }
 

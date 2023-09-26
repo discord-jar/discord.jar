@@ -2,7 +2,6 @@ package com.seailz.discordjar.model.channel.internal;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.MessagingChannel;
-import com.seailz.discordjar.model.channel.TextChannel;
 import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.thread.ThreadMember;
 import com.seailz.discordjar.model.channel.thread.ThreadMetadata;

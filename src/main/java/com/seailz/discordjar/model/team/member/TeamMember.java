@@ -7,16 +7,6 @@ import org.json.JSONObject;
 
 public record TeamMember(MembershipState membershipState, String permissions, String teamId,
                          User user, Role role) implements Compilerable {
-    @Override
-    public JSONObject compile() {
-        return new JSONObject()
-                .put("membership_state", membershipState.getCode())
-                .put("permissions", permissions)
-                .put("team_id", teamId)
-                .put("user", user.compile())
-                .put("role", role.getValue());
-    }
-
     public static TeamMember decompile(JSONObject obj, DiscordJar discordJar) {
         MembershipState membershipState;
         String permissions;
@@ -54,22 +44,27 @@ public record TeamMember(MembershipState membershipState, String permissions, St
         return new TeamMember(membershipState, permissions, teamId, user, role);
     }
 
+    @Override
+    public JSONObject compile() {
+        return new JSONObject()
+                .put("membership_state", membershipState.getCode())
+                .put("permissions", permissions)
+                .put("team_id", teamId)
+                .put("user", user.compile())
+                .put("role", role.getValue());
+    }
+
     public enum Role {
         OWNER("owner"),
         ADMIN("admin"),
         DEVELOPER("developer"),
         READ_ONLY("read_only"),
-        UNKNOWN("unknown")
-        ;
+        UNKNOWN("unknown");
 
-        private String value;
+        private final String value;
 
         Role(String value) {
             this.value = value;
-        }
-
-        public String getValue() {
-            return value;
         }
 
         public static Role fromValue(String value) {
@@ -79,6 +74,10 @@ public record TeamMember(MembershipState membershipState, String permissions, St
                 }
             }
             return UNKNOWN;
+        }
+
+        public String getValue() {
+            return value;
         }
 
     }

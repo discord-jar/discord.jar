@@ -21,10 +21,6 @@ public enum StatusType {
         this.code = code;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public static StatusType fromCode(String code) {
         switch (code) {
             case "online" -> {
@@ -46,6 +42,10 @@ public enum StatusType {
                 return null;
             }
         }
+    }
+
+    public String getCode() {
+        return code;
     }
 
 }

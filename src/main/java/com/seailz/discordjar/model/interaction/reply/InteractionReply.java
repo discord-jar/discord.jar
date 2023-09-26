@@ -25,6 +25,7 @@ import java.util.List;
 public interface InteractionReply extends Compilerable {
 
     boolean useFiles();
+
     List<File> getFiles();
 
 }

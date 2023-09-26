@@ -23,10 +23,9 @@ public class StartThreadForumChannelAction {
     private final String name;
     private final ForumThreadMessageParams message;
     private final DiscordJar djar;
-
+    private final List<String> tagIds = new ArrayList<>();
     private ArchiveDuration autoArchiveDuration;
     private int rateLimitPerUser;
-    private final List<String> tagIds = new ArrayList<>();
 
 
     public StartThreadForumChannelAction(String channelId, String name, ForumThreadMessageParams message, DiscordJar djar) {
@@ -315,12 +314,12 @@ public class StartThreadForumChannelAction {
             return this;
         }
 
-        public void setSilent(boolean silent) {
-            this.silent = silent;
-        }
-
         public boolean isSilent() {
             return silent;
+        }
+
+        public void setSilent(boolean silent) {
+            this.silent = silent;
         }
 
         protected JSONObject compile() {

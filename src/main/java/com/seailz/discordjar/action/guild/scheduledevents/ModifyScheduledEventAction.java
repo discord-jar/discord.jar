@@ -1,14 +1,12 @@
 package com.seailz.discordjar.action.guild.scheduledevents;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.guild.scheduledevents.ScheduledEvent;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
-import org.springframework.aop.ThrowsAdvice;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;

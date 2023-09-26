@@ -11,6 +11,13 @@ public record VoiceServerUpdate(
 ) implements Compilerable {
 
 
+    public static @NotNull VoiceServerUpdate decompile(@NotNull JSONObject obj) {
+        String token = obj.has("token") ? obj.getString("token") : null;
+        String guildId = obj.has("guild_id") ? obj.getString("guild_id") : null;
+        String endpoint = obj.has("endpoint") ? obj.getString("endpoint") : null;
+        return new VoiceServerUpdate(token, guildId, endpoint);
+    }
+
     @Override
     public JSONObject compile() {
         JSONObject obj = new JSONObject();
@@ -18,12 +25,5 @@ public record VoiceServerUpdate(
         obj.put("guild_id", guildId);
         obj.put("endpoint", endpoint);
         return obj;
-    }
-
-    public static @NotNull VoiceServerUpdate decompile(@NotNull JSONObject obj) {
-        String token = obj.has("token") ? obj.getString("token") : null;
-        String guildId = obj.has("guild_id") ? obj.getString("guild_id") : null;
-        String endpoint = obj.has("endpoint") ? obj.getString("endpoint") : null;
-        return new VoiceServerUpdate(token, guildId, endpoint);
     }
 }

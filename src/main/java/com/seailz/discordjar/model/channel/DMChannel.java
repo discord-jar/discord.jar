@@ -25,32 +25,15 @@ import java.util.List;
  * <br>To create a DM channel, see {@link User#createDM()}
  *
  * @author Seailz
- * @since  1.0
- * @see    User
- * @see    User#createDM()
- * @see    MessageCreateAction
- * @see    DisplayComponent
- * @see    ChannelType#DM
- * @see    ChannelType#GROUP_DM
+ * @see User
+ * @see User#createDM()
+ * @see MessageCreateAction
+ * @see DisplayComponent
+ * @see ChannelType#DM
+ * @see ChannelType#GROUP_DM
+ * @since 1.0
  */
 public interface DMChannel extends Channel, Typeable, Messageable, MessageRetrievable {
-
-    String lastMessageId();
-    List<User> recipients();
-    DiscordJar discordJv();
-
-    @NotNull
-    @Override
-    default ChannelType type() {
-        return ChannelType.DM;
-    }
-
-    default MessageCreateAction sendMessage(String text) {
-        return new MessageCreateAction(text, id(), discordJv());
-    }
-    default MessageCreateAction sendComponents(DisplayComponent... components) {
-        return new MessageCreateAction(new ArrayList<>(List.of(components)), id(), discordJv());
-    }
 
     @NotNull
     @Contract("_, _ -> new")
@@ -62,7 +45,27 @@ public interface DMChannel extends Channel, Typeable, Messageable, MessageRetrie
         recipientsArray.forEach(o -> recipients.add(User.decompile((JSONObject) o, djv)));
 
         String name = obj.has("name") ? obj.getString("name") : recipients.get(0).username();
-        return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId ,recipients, djv, obj);
+        return new DMChannelImpl(obj.getString("id"), ChannelType.DM, name, lastMessageId, recipients, djv, obj);
+    }
+
+    String lastMessageId();
+
+    List<User> recipients();
+
+    DiscordJar discordJv();
+
+    @NotNull
+    @Override
+    default ChannelType type() {
+        return ChannelType.DM;
+    }
+
+    default MessageCreateAction sendMessage(String text) {
+        return new MessageCreateAction(text, id(), discordJv());
+    }
+
+    default MessageCreateAction sendComponents(DisplayComponent... components) {
+        return new MessageCreateAction(new ArrayList<>(List.of(components)), id(), discordJv());
     }
 
     /**

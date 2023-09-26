@@ -9,14 +9,6 @@ public record EmbedProvider(
         String url
 ) implements Compilerable {
 
-    @Override
-    public JSONObject compile() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", name);
-        obj.put("url", url);
-        return obj;
-    }
-
     @NonNull
     public static EmbedProvider decompile(JSONObject obj) {
         String name;
@@ -34,5 +26,13 @@ public record EmbedProvider(
             url = null;
         }
         return new EmbedProvider(name, url);
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONObject obj = new JSONObject();
+        obj.put("name", name);
+        obj.put("url", url);
+        return obj;
     }
 }

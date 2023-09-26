@@ -35,20 +35,19 @@ import java.util.stream.Collectors;
  * <p>
  * For <b>Linked Roles</b>, discord.jar will use Spring's web API.
  *
- * @author  Seailz
- * @see     package-info.java
- * @since   1.0
+ * @author Seailz
+ * @see package-info.java
+ * @since 1.0
  */
 @SpringBootApplication
 public class LinkedRoles {
 
+    private static boolean isInstance = false;
     private String clientId;
     private String clientSecret;
     private String redirectEndpoint;
     private DiscordJar discordJar;
     private Database database;
-
-    private static boolean isInstance = false;
     private String appId;
 
     /**
@@ -63,7 +62,7 @@ public class LinkedRoles {
      * @param applicationId         The ID of the application.
      * @param redirectUrl           The redirect URL that you set in the developer portal.
      * @param redirectBackToDiscord Whether to redirect back to <a href="https://discord.com/oauth2/authorized">Discord's Authorization Finished page</a> after the user has been redirected to the redirect endpoint. This is recommended, however if you have an external login page you may not want to redirect back to Discord.
-     * @param discordJar             The discord.jar instance.
+     * @param discordJar            The discord.jar instance.
      * @param db                    The database you'd like to use.
      */
     public LinkedRoles(String clientId, String clientSecret, String redirectUrl, String redirectEndpoint, String applicationId, boolean redirectBackToDiscord, DiscordJar discordJar, Database db) {
@@ -86,7 +85,8 @@ public class LinkedRoles {
         this.database = db;
     }
 
-    protected LinkedRoles() {}
+    protected LinkedRoles() {
+    }
 
     /**
      * Updates user application role connections

@@ -42,30 +42,6 @@ public record UnavailableGuild(
         List<Sticker> stickers
 ) implements Compilerable, Snowflake {
 
-    @Override
-    public JSONObject compile() {
-        JSONArray emojis = new JSONArray();
-        this.emojis.forEach(emoji -> emojis.put(emoji.compile()));
-
-        JSONArray features = new JSONArray();
-        this.features.forEach(feature -> features.put(feature.toString()));
-
-        JSONArray stickers = new JSONArray();
-        this.stickers.forEach(sticker -> stickers.put(sticker.compile()));
-        return new JSONObject()
-                .put("id", id)
-                .put("name", name)
-                .put("icon", icon)
-                .put("splash", splash)
-                .put("discovery_splash", discoverySplash)
-                .put("emojis", emojis)
-                .put("features", features)
-                .put("approximate_member_count", approximateMemberCount)
-                .put("approximate_presence_count", approximatePresenceCount)
-                .put("description", description)
-                .put("stickers", stickers);
-    }
-
     @NotNull
     public static UnavailableGuild decompile(JSONObject obj, DiscordJar discordjv) {
         String id;
@@ -177,5 +153,29 @@ public record UnavailableGuild(
                 description,
                 stickers
         );
+    }
+
+    @Override
+    public JSONObject compile() {
+        JSONArray emojis = new JSONArray();
+        this.emojis.forEach(emoji -> emojis.put(emoji.compile()));
+
+        JSONArray features = new JSONArray();
+        this.features.forEach(feature -> features.put(feature.toString()));
+
+        JSONArray stickers = new JSONArray();
+        this.stickers.forEach(sticker -> stickers.put(sticker.compile()));
+        return new JSONObject()
+                .put("id", id)
+                .put("name", name)
+                .put("icon", icon)
+                .put("splash", splash)
+                .put("discovery_splash", discoverySplash)
+                .put("emojis", emojis)
+                .put("features", features)
+                .put("approximate_member_count", approximateMemberCount)
+                .put("approximate_presence_count", approximatePresenceCount)
+                .put("description", description)
+                .put("stickers", stickers);
     }
 }

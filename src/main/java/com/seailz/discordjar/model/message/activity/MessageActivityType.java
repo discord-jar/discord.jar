@@ -13,10 +13,6 @@ public enum MessageActivityType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static MessageActivityType fromCode(int code) {
         for (MessageActivityType type : values()) {
             if (type.getCode() == code) {
@@ -24,5 +20,9 @@ public enum MessageActivityType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

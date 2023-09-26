@@ -26,10 +26,6 @@ public enum ActivityFlags {
         this.id = id;
     }
 
-    public int getLeftShiftId() {
-        return 1 << id;
-    }
-
     public static EnumSet<ActivityFlags> fromInt(int i) {
         EnumSet<ActivityFlags> set = EnumSet.noneOf(ActivityFlags.class);
         for (ActivityFlags flag : ActivityFlags.values()) {
@@ -38,5 +34,9 @@ public enum ActivityFlags {
             }
         }
         return set;
+    }
+
+    public int getLeftShiftId() {
+        return 1 << id;
     }
 }

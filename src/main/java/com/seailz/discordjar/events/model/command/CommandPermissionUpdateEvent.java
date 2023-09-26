@@ -1,8 +1,8 @@
 package com.seailz.discordjar.events.model.command;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.command.permissions.ApplicationCommandPermissions;
+import com.seailz.discordjar.events.model.Event;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

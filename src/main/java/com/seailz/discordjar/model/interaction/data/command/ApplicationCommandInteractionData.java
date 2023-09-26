@@ -23,9 +23,9 @@ public class ApplicationCommandInteractionData extends InteractionData implement
     private final String id;
     private final String name;
     private final ResolvedData resolved;
-    private List<ResolvedCommandOption> options;
     private final Guild guild;
     private final String targetId;
+    private List<ResolvedCommandOption> options;
 
     /**
      * @param id       The ID of the invoked command

@@ -15,10 +15,6 @@ public enum CommandType {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public static CommandType fromCode(int code) {
         for (CommandType type : CommandType.values()) {
             if (type.getCode() == code) {
@@ -26,5 +22,9 @@ public enum CommandType {
             }
         }
         return null;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

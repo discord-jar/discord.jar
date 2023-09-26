@@ -1,11 +1,10 @@
 package com.seailz.discordjar.voice.model.provider;
 
-import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.voice.udp.VoiceUDP;
-import com.seailz.discordjar.voice.ws.VoiceGatewayFactory;
 
 /**
  * Extend this class to provide audio data to the voice gateway.
+ *
  * @author Seailz
  */
 public abstract class VoiceProvider {

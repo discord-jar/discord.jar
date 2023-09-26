@@ -22,12 +22,12 @@ import org.json.JSONObject;
 public class TypingStartEvent extends Event {
 
     private final String channelId;
-    private Channel channel;
     private final String guildId;
-    private Guild guild;
     private final String userId;
-    private User user;
     private final long timestamp;
+    private Channel channel;
+    private Guild guild;
+    private User user;
     private Member member;
 
     public TypingStartEvent(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {

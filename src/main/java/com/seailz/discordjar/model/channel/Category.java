@@ -5,7 +5,6 @@ import com.seailz.discordjar.model.channel.internal.CategoryImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface Category extends GuildChannel {
-
-    List<CategoryMember> members();
 
     static Category decompile(JSONObject obj, DiscordJar discordJar) {
         String id = obj.getString("id");
@@ -45,5 +42,7 @@ public interface Category extends GuildChannel {
     static Category fromId(String id, DiscordJar discordJar) {
         return discordJar.getCategoryById(id);
     }
+
+    List<CategoryMember> members();
 
 }

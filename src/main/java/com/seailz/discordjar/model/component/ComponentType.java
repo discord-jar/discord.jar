@@ -56,6 +56,20 @@ public enum ComponentType {
     }
 
     /**
+     * Returns a component type based on the code
+     *
+     * @param code The code to get the component type from
+     * @return The component type
+     */
+    public static ComponentType getType(int code) {
+        for (ComponentType type : values()) {
+            if (type.getCode() == code)
+                return type;
+        }
+        return UNKNOWN;
+    }
+
+    /**
      * The code representing the component type
      *
      * @return An integer representing the component type
@@ -107,20 +121,6 @@ public enum ComponentType {
      */
     public Class<? extends Component> getClazz() {
         return clazz;
-    }
-
-    /**
-     * Returns a component type based on the code
-     *
-     * @param code The code to get the component type from
-     * @return The component type
-     */
-    public static ComponentType getType(int code) {
-        for (ComponentType type : values()) {
-            if (type.getCode() == code)
-                return type;
-        }
-        return UNKNOWN;
     }
 
 }

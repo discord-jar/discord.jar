@@ -9,7 +9,6 @@ import com.seailz.discordjar.model.component.select.entity.ChannelSelectMenu;
 import com.seailz.discordjar.model.component.select.entity.RoleSelectMenu;
 import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
 import com.seailz.discordjar.model.component.text.TextInput;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -20,6 +19,10 @@ import org.json.JSONObject;
  * @since 1.0
  */
 public interface RawComponent extends Component {
+
+    static RawComponent unknown(JSONObject obj) {
+        return UnknownRawComponent.of(obj);
+    }
 
     /**
      * @return The max amount of this component that can be in a row
@@ -88,10 +91,6 @@ public interface RawComponent extends Component {
     @Override
     default boolean isModalCompatible() {
         return type().isModalCompatible();
-    }
-
-    static RawComponent unknown(JSONObject obj) {
-        return UnknownRawComponent.of(obj);
     }
 
 }

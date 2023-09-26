@@ -406,16 +406,6 @@ public class Gateway {
         this.status = status;
     }
 
-    public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
-        public void addMember(Member member) {
-            members.add(member);
-        }
-
-        public void complete() {
-            future.complete(members);
-        }
-    }
-
     /**
      * Retrieves the Gateway URL from Discord.
      * @return The Gateway URL.
@@ -559,8 +549,18 @@ public class Gateway {
         }
     }
     public record ReconnectInfo(String sessionId, String token, String url) {}
+    public record MemberChunkStorageWrapper(List<Member> members, CompletableFuture<List<Member>> future) {
+        public void addMember(Member member) {
+            members.add(member);
+        }
 
-    public static Builder builder(DiscordJar bot) {
+        public void complete() {
+            future.complete(members);
+        }
+    }
+
+    @Contract(value = "_ -> new", pure = true)
+    public static @NotNull Builder builder(DiscordJar bot) {
         return new GatewayBuilder(bot);
     }
 
@@ -603,5 +603,6 @@ public class Gateway {
             return this;
         }
     }
+
 
 }

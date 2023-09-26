@@ -280,6 +280,11 @@ public class Gateway {
      * @param payload The HELLO payload.
      */
     private void handleHello(@NotNull JSONObject payload) {
+        if (heartbeatManager != null) {
+            heartbeatManager.setSocket(socket);
+            heartbeatManager.startCycle();
+            return;
+        }
         heartbeatManager = new HeartLogic(socket, payload.getJSONObject("d").getInt("heartbeat_interval"));
         heartbeatManager.start();
     }

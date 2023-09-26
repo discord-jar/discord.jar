@@ -18,10 +18,11 @@ import java.util.UUID;
  */
 public class HeartLogic {
 
-    private final WebSocket socket;
+    private WebSocket socket;
     private long interval;
     private long lastSequence = -1;
     private final Map<UUID, Boolean> isInstanceStillRunning = new HashMap<>();
+    boolean running = true;
 
     public HeartLogic(WebSocket socket, long interval) {
         this.interval = interval;
@@ -41,12 +42,20 @@ public class HeartLogic {
     }
 
     public void restart() {
-        isInstanceStillRunning.forEach((uuid, aBoolean) -> isInstanceStillRunning.put(uuid, false));
-        start();
+        running = false;
+        startCycle();
     }
 
     public void stop() {
-        isInstanceStillRunning.forEach((uuid, aBoolean) -> isInstanceStillRunning.put(uuid, false));
+        running = false;
+    }
+
+    public void startCycle() {
+        running = true;
+    }
+
+    public void setSocket(WebSocket socket) {
+        this.socket = socket;
     }
 
     public void forceHeartbeat() {
@@ -57,12 +66,15 @@ public class HeartLogic {
 
     public void start() {
         Thread thread = new Thread(() -> {
-            UUID uuid = UUID.randomUUID();
-            isInstanceStillRunning.put(uuid, true);
             while (true) {
-                if (!isInstanceStillRunning.get(uuid)) {
-                    isInstanceStillRunning.remove(uuid);
-                    return;
+                if (!running) {
+                    System.out.println("Heartbeat thread stopped.");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    continue;
                 }
                 try {
                     socket.send(

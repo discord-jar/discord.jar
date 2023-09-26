@@ -20,6 +20,7 @@ import com.seailz.discordjar.ws.ExponentialBackoffLogic;
 import com.seailz.discordjar.ws.WebSocket;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -445,6 +446,30 @@ public class Gateway {
         return gatewayUrl;
     }
 
+    /**
+     * Returns resume info for the next resume attempt, or null if READY was not received yet.
+     */
+    @Nullable
+    public ReconnectInfo getResumeInfo() {
+        return resumeInfo;
+    }
+
+    /**
+     * Returns when the last heartbeat was sent, or null if none were sent yet.
+     */
+    @Nullable
+    public static Date getLastHeartbeatSent() {
+        return lastHeartbeatSent;
+    }
+
+    /**
+     * Returns an array of estimated ping times in milliseconds based on heartbeat ACKs.
+     */
+    @NotNull
+    public static List<Long> getPingHistoryMs() {
+        return pingHistoryMs;
+    }
+
     private enum OpCodes {
         DISPATCH(0),
         HEARTBEAT(1),
@@ -533,7 +558,7 @@ public class Gateway {
             return UNKNOWN;
         }
     }
-    private record ReconnectInfo(String sessionId, String token, String url) {}
+    public record ReconnectInfo(String sessionId, String token, String url) {}
 
     public static Builder builder(DiscordJar bot) {
         return new GatewayBuilder(bot);

@@ -525,7 +525,14 @@ public class Gateway {
     }
 
     public void setReceivedReady(boolean receivedReady) {
-        this.receivedReady = receivedReady;
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            this.receivedReady = receivedReady;
+        }).start();
     }
 
     /**

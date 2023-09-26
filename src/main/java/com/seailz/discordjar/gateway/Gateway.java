@@ -92,6 +92,7 @@ public class Gateway {
     }
 
     public void disconnectFlow(@NotNull CloseStatus closeStatus) {
+        heartbeatManager.stop(); // Stop attempting heartbeats to avoid broken pipe errors
         CloseCode closeCode = CloseCode.fromCode(closeStatus.getCode());
         readyForMessages = false;
         boolean attemptReconnect = closeCode.shouldReconnect();

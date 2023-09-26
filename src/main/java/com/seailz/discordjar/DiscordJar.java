@@ -438,7 +438,7 @@ public class DiscordJar {
         JSONObject json = new JSONObject();
         json.put("d", status.compile());
         json.put("op", 3);
-        gatewayFactory.queueMessage(json);
+        gatewayFactory.queueMessageUntilReady(json);
         gatewayFactory.setStatus(status);
         this.status = status;
     }

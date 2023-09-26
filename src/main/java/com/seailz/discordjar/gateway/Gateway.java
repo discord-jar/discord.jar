@@ -64,6 +64,7 @@ public class Gateway {
     private ReconnectInfo resumeInfo;
     public static long lastSequenceNumber = -1;
     private boolean readyForMessages = false;
+    private boolean receivedReady = false;
     private HeartLogic heartbeatManager;
     public static Date lastHeartbeatSent = new Date();
     public static List<Long> pingHistoryMs = new ArrayList<>();
@@ -118,6 +119,7 @@ public class Gateway {
      * @param closeStatus The close status of the disconnect.
      */
     public void disconnectFlow(@NotNull CloseStatus closeStatus) {
+        setReceivedReady(false);
         heartbeatManager.stop(); // Stop attempting heartbeats to avoid broken pipe errors
         CloseCode closeCode = CloseCode.fromCode(closeStatus.getCode());
         readyForMessages = false;
@@ -404,6 +406,22 @@ public class Gateway {
     }
 
     /**
+     * Queues a message to be sent to the gateway.
+     * <br>Messages will be sent after the READY event is received.
+     * @param payload {@link JSONObject} containing the payload to send
+     */
+    public void queueMessageUntilReady(@NotNull JSONObject payload) {
+        if (bot.isDebug()) logger.info("[Gateway] Queued message: " + payload);
+        while (receivedReady) {
+            socket.send(payload.toString());
+            if (bot.isDebug()) {
+                logger.info("[Gateway] Sent message: " + payload);
+            }
+            break;
+        }
+    }
+
+    /**
      * Sends a request to the gateway to request guild members.
      * @param action {@link RequestGuildMembersAction} containing extra information about the request
      * @param future {@link CompletableFuture} that will be completed when the request is completed
@@ -504,6 +522,10 @@ public class Gateway {
             return getGatewayUrl();
         }
         return gatewayUrl;
+    }
+
+    public void setReceivedReady(boolean receivedReady) {
+        this.receivedReady = receivedReady;
     }
 
     /**

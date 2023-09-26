@@ -70,6 +70,7 @@ public enum DispatchedEvents {
     READY((p, g, d) -> {
         Logger.getLogger("Gateway")
                 .info("[Gateway] Ready to receive events");
+        g.setReceivedReady(true);
         return ReadyEvent.class;
     }),
     RESUMED((p, d, g) -> GatewayResumedEvent.class),

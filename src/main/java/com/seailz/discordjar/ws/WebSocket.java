@@ -152,6 +152,7 @@ public class WebSocket extends WebSocketListener {
         onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(code, reason)));
 
         if (reEstablishConnection.apply(new CloseStatus(code, reason))) {
+            if (debug) Logger.getLogger("WS").info("[WS] Attempting to re-establish connection");
             try {
                 connect(url);
             } catch (Exception e) {
@@ -166,11 +167,10 @@ public class WebSocket extends WebSocketListener {
         open = false;
         buffer = null;
 
-        new Thread(() -> {
-            onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(1006, t.getMessage())));
-        }, "djar--ws-disconnect-consumers").start();
+        onDisconnectConsumers.forEach(consumer -> consumer.accept(new CloseStatus(1006, t.getMessage())));
 
         if (reEstablishConnection.apply(new CloseStatus(1006, t.getMessage()))) {
+            if (debug) Logger.getLogger("WS").info("[WS] Attempting to re-establish connection");
             try {
                 connect(url);
             } catch (Exception e) {

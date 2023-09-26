@@ -60,6 +60,7 @@ public class Gateway {
     private GatewayTransportCompressionType compressionType;
     private WebSocket socket;
     private boolean resumedConnection = false;
+    private boolean reconnecting = false;
     private ReconnectInfo resumeInfo;
     public static long lastSequenceNumber = -1;
     private boolean readyForMessages = false;
@@ -127,7 +128,9 @@ public class Gateway {
         }
 
         if (closeCode.shouldResume()) resumeFlow();
-        else connectionFlow();
+        else reconnecting = true;
+
+        if (bot.isDebug()) logger.info("[Gateway] Finished disconnect flow.");
     }
 
     /**
@@ -356,7 +359,7 @@ public class Gateway {
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
         backoffReconnectLogic.setAttemptReconnect((c) -> {
             new Thread(bot::clearMemberCaches, "djar--clearing-member-caches").start();
-            return false;
+            return reconnecting;
         });
 
         socket.addOnDisconnectConsumer((cs) -> {

@@ -274,7 +274,7 @@ public class Gateway {
             if (bot.getStatus() != null) {
                 JSONObject json = new JSONObject();
                 json.put("d", bot.getStatus().compile());
-                json.put("op", OpCodes.PRESENCE_UPDATE);
+                json.put("op", OpCodes.PRESENCE_UPDATE.opCode);
                 queueMessage(json);
             }
         }
@@ -311,7 +311,7 @@ public class Gateway {
         }
 
         JSONObject payload = new JSONObject();
-        payload.put("op", 2);
+        payload.put("op", OpCodes.IDENTIFY.opCode);
         JSONObject data = new JSONObject();
         data.put("token", bot.getToken());
         if (shardCount != -1 && shardId != -1) {
@@ -339,7 +339,7 @@ public class Gateway {
 
                     if (resuming) {
                         JSONObject resumeObject = new JSONObject();
-                        resumeObject.put("op", OpCodes.RESUME);
+                        resumeObject.put("op", OpCodes.RESUME.opCode);
                         resumeObject.put("d", new JSONObject()
                                 .put("token", bot.getToken())
                                 .put("session_id", resumeInfo.sessionId())
@@ -449,7 +449,7 @@ public class Gateway {
         dPayload.put("limit", action.getLimit());
         if (action.isPresences()) dPayload.put("presences", true);
         dPayload.put("nonce", action.getNonce());
-        payload.put("op", 8);
+        payload.put("op", OpCodes.REQUEST_GUILD_MEMBERS.opCode);
         payload.put("d", dPayload);
 
         queueMessage(payload);
@@ -464,7 +464,7 @@ public class Gateway {
         dPayload.put("channel_id", channelId);
         dPayload.put("self_mute", selfMute);
         dPayload.put("self_deaf", selfDeaf);
-        payload.put("op", 4);
+        payload.put("op", OpCodes.VOICE_STATE_UPDATE.opCode);
         payload.put("d", dPayload);
         queueMessage(payload);
     }
@@ -525,14 +525,7 @@ public class Gateway {
     }
 
     public void setReceivedReady(boolean receivedReady) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            this.receivedReady = receivedReady;
-        }).start();
+        this.receivedReady = receivedReady;
     }
 
     /**

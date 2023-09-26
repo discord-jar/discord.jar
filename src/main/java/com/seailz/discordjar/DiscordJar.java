@@ -435,12 +435,14 @@ public class DiscordJar {
     public void setStatus(@NotNull Status status) {
         if (gatewayFactory == null)
             throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
-        JSONObject json = new JSONObject();
-        json.put("d", status.compile());
-        json.put("op", 3);
-        gatewayFactory.queueMessageUntilReady(json);
-        gatewayFactory.setStatus(status);
-        this.status = status;
+        new Thread(() -> {
+            JSONObject json = new JSONObject();
+            json.put("d", status.compile());
+            json.put("op", 3);
+            gatewayFactory.queueMessageUntilReady(json);
+            gatewayFactory.setStatus(status);
+            this.status = status;
+        }).start();
     }
 
     public Status getStatus() {

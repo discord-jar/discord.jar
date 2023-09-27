@@ -1,6 +1,7 @@
 package com.seailz.discordjar;
 
 import com.seailz.discordjar.action.guild.GetCurrentUserGuildsAction;
+import com.seailz.discordjar.action.sku.ListEntitlementRequest;
 import com.seailz.discordjar.cache.Cache;
 import com.seailz.discordjar.cache.CacheType;
 import com.seailz.discordjar.cache.JsonCache;
@@ -34,6 +35,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
+import com.seailz.discordjar.model.monetization.SKU;
 import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
@@ -1505,6 +1507,36 @@ public class DiscordJar {
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
+    }
+
+    public List<SKU> getApplicationSkus() {
+        DiscordRequest req = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.APPLICATION.GET_APPLICATION_SKUS.replace("{application.id}", getSelfInfo().id()),
+                this,
+                URLS.GET.APPLICATION.GET_APPLICATION_SKUS,
+                RequestMethod.GET
+        );
+        JSONArray res = null;
+        try {
+            res = req.invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+        List<SKU> skus = new ArrayList<>();
+        for (int i = 0; i < res.length(); i++) {
+            skus.add(SKU.decompile(res.getJSONObject(i), this));
+        }
+        return skus;
+    }
+
+    public SKU getSKUById(String id) {
+        return getApplicationSkus().stream().filter(s -> s.id().equals(id)).findFirst().orElse(null);
+    }
+
+    public ListEntitlementRequest getEntitlements() {
+        return new ListEntitlementRequest(this);
     }
 
     public boolean isDebug() {

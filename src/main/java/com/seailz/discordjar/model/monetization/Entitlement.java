@@ -58,7 +58,7 @@ public class Entitlement implements Compilerable {
     @NotNull
     public SKU sku() {
         if (sku == null) sku = jar.getSKUById(skuId);
-        return sku; // TODO
+        return sku;
     }
 
     /**

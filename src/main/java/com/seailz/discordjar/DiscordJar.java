@@ -19,7 +19,7 @@ import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
 import com.seailz.discordjar.events.DiscordListener;
 import com.seailz.discordjar.events.EventDispatcher;
-import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.gateway.GatewayTransportCompressionType;
 import com.seailz.discordjar.http.HttpOnlyApplication;
 import com.seailz.discordjar.model.api.APIRelease;
@@ -49,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.socket.CloseStatus;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -82,7 +83,7 @@ public class DiscordJar {
     /**
      * Used to manage the gateway connection
      */
-    private GatewayFactory gatewayFactory;
+    private Gateway gatewayFactory;
     /**
      * Stores the logger
      */
@@ -144,9 +145,9 @@ public class DiscordJar {
     private Status status;
 
     public int gatewayConnections = 0;
-    public List<GatewayFactory> gatewayFactories = new ArrayList<>();
     private final List<String> memberCachingDisabledGuilds = new ArrayList<>();
     private final GatewayTransportCompressionType gatewayTransportCompressionType;
+    private final APIVersion apiVersion;
 
     /**
      * @deprecated Use {@link DiscordJarBuilder} instead.
@@ -216,6 +217,7 @@ public class DiscordJar {
         this.eventDispatcher = new EventDispatcher(this);
         this.token = token;
         this.intents = intents;
+        this.apiVersion = version;
         this.cacheTypes = cacheTypes;
         new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
@@ -296,7 +298,11 @@ public class DiscordJar {
         this.numShards = numShards;
 
             if (!httpOnly) {
-                this.gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gwCompressionType);
+                this.gatewayFactory = Gateway.builder(this)
+                        .setShardCount(numShards)
+                        .setShardId(shardId)
+                        .setTransportCompressionType(gwCompressionType)
+                        .build();
             }
 
     }
@@ -341,43 +347,10 @@ public class DiscordJar {
         }, "djar-shutdown-prevention").start();
     }
 
-    public GatewayFactory getGateway() {
+    public Gateway getGateway() {
         return gatewayFactory;
     }
 
-    /**
-     * Kills the gateway connection and destroys the {@link GatewayFactory} instance.
-     * This method will also initiate garbage collection to avoid memory leaks. This probably shouldn't be used unless in {@link #restartGateway()}.
-     */
-    public void killGateway() {
-        try {
-            if (gatewayFactory != null) gatewayFactory.killConnection();
-        } catch (IOException ignored) {}
-        gatewayFactory = null;
-        // init garbage collection to avoid memory leaks
-        System.gc();
-    }
-
-    /**
-     * Restarts the gateway connection and creates a new {@link GatewayFactory} instance.
-     * This will invalidate and destroy the old {@link GatewayFactory} instance.
-     * This method will also initiate garbage collection to avoid memory leaks.
-     *
-     * @see GatewayFactory
-     * @see #killGateway()
-     */
-    public void restartGateway() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException ignored) {}
-        killGateway();
-        try {
-            gatewayFactory = new GatewayFactory(this, debug, shardId, numShards, gatewayTransportCompressionType);
-            gatewayFactories.add(gatewayFactory);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     protected void initiateShutdownHooks() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -387,11 +360,7 @@ public class DiscordJar {
                 throw new RuntimeException(e);
             }
             if (gatewayFactory != null) {
-                try {
-                    gatewayFactory.killConnectionNicely();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                gatewayFactory.disconnect(CloseStatus.GOING_AWAY);
             }
         }, "djar--shutdown-hook"));
     }
@@ -414,10 +383,6 @@ public class DiscordJar {
             voiceStates.values().removeIf(s -> s.userId().equals(user.id()));
             voiceStates.put(state.guildId(), state);
         }
-    }
-
-    public void setGatewayFactory(GatewayFactory gatewayFactory) {
-        this.gatewayFactory = gatewayFactory;
     }
 
     public List<Bucket> getBuckets() {
@@ -470,12 +435,14 @@ public class DiscordJar {
     public void setStatus(@NotNull Status status) {
         if (gatewayFactory == null)
             throw new IllegalStateException("Cannot set status on an HTTP-only bot. See the constructor for more information.");
-        JSONObject json = new JSONObject();
-        json.put("d", status.compile());
-        json.put("op", 3);
-        gatewayFactory.queueMessage(json);
-        gatewayFactory.setStatus(status);
-        this.status = status;
+        new Thread(() -> {
+            JSONObject json = new JSONObject();
+            json.put("d", status.compile());
+            json.put("op", 3);
+            gatewayFactory.queueMessageUntilReady(json);
+            gatewayFactory.setStatus(status);
+            this.status = status;
+        }).start();
     }
 
     public Status getStatus() {
@@ -1554,7 +1521,7 @@ public class DiscordJar {
      * <br>The time is in milliseconds.
      */
     public List<Long> getGatewayPingHistory() {
-        return GatewayFactory.pingHistoryMs;
+        return Gateway.pingHistoryMs;
     }
 
     /**
@@ -1570,5 +1537,7 @@ public class DiscordJar {
          return sum / getGatewayPingHistory().size();
      }
 
-
+    public APIVersion getApiVersion() {
+        return apiVersion;
+    }
 }

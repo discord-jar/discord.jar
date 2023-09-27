@@ -5,7 +5,7 @@ package com.seailz.discordjar.gateway.events;
  * This is an internal class and should not be used by the end user.
  *
  * @author Seailz
- * @see com.seailz.discordjar.gateway.GatewayFactory
+ * @see com.seailz.discordjar.gateway.Gateway
  * @since 1.0
  */
 public enum GatewayEvents {

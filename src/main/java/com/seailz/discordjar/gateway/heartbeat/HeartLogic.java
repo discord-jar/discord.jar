@@ -1,11 +1,14 @@
 package com.seailz.discordjar.gateway.heartbeat;
 
-import com.seailz.discordjar.gateway.GatewayFactory;
+import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.ws.WSPayloads;
 import com.seailz.discordjar.ws.WebSocket;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Every animal has a heart, and as we all know that websockets are animals, they also have hearts.
@@ -15,10 +18,11 @@ import java.util.*;
  */
 public class HeartLogic {
 
-    private final WebSocket socket;
+    private WebSocket socket;
     private long interval;
     private long lastSequence = -1;
     private final Map<UUID, Boolean> isInstanceStillRunning = new HashMap<>();
+    boolean running = true;
 
     public HeartLogic(WebSocket socket, long interval) {
         this.interval = interval;
@@ -38,12 +42,20 @@ public class HeartLogic {
     }
 
     public void restart() {
-        isInstanceStillRunning.forEach((uuid, aBoolean) -> isInstanceStillRunning.put(uuid, false));
-        start();
+        running = false;
+        startCycle();
     }
 
     public void stop() {
-        isInstanceStillRunning.forEach((uuid, aBoolean) -> isInstanceStillRunning.put(uuid, false));
+        running = false;
+    }
+
+    public void startCycle() {
+        running = true;
+    }
+
+    public void setSocket(WebSocket socket) {
+        this.socket = socket;
     }
 
     public void forceHeartbeat() {
@@ -54,18 +66,21 @@ public class HeartLogic {
 
     public void start() {
         Thread thread = new Thread(() -> {
-            UUID uuid = UUID.randomUUID();
-            isInstanceStillRunning.put(uuid, true);
             while (true) {
-                if (!isInstanceStillRunning.get(uuid)) {
-                    isInstanceStillRunning.remove(uuid);
-                    return;
+                if (!running) {
+                    System.out.println("Heartbeat thread stopped.");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    continue;
                 }
                 try {
                     socket.send(
                         WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
                     );
-                    GatewayFactory.lastHeartbeatSent = new Date();
+                    Gateway.lastHeartbeatSent = new Date();
                     Thread.sleep(interval);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

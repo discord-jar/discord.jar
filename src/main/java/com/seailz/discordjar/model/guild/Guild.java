@@ -19,6 +19,7 @@ import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.emoji.Emoji;
 import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.model.guild.filter.ExplicitContentFilterLevel;
+import com.seailz.discordjar.model.guild.incident.IncidentsData;
 import com.seailz.discordjar.model.guild.mfa.MFALevel;
 import com.seailz.discordjar.model.guild.notification.DefaultMessageNotificationLevel;
 import com.seailz.discordjar.model.guild.premium.PremiumTier;
@@ -98,6 +99,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     private final boolean premiumProgressBarEnabled;
     private final String safetyAlertChannelId;
     private Channel safetyAlertChannel = null;
+    private final IncidentsData incidentsData;
+
     private final DiscordJar discordJar;
     private final JsonCache roleCache;
 
@@ -143,7 +146,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             List<Sticker> stickers,
             boolean premiumProgressBarEnabled,
             String safetyAlertChannelId,
-            DiscordJar discordJar,
+            IncidentsData incidentsData, DiscordJar discordJar,
             JsonCache roleCache
     ) {
         this.id = id;
@@ -187,6 +190,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         this.stickers = stickers;
         this.premiumProgressBarEnabled = premiumProgressBarEnabled;
         this.safetyAlertChannelId = safetyAlertChannelId;
+        this.incidentsData = incidentsData;
         this.discordJar = discordJar;
         this.roleCache = roleCache;
     }
@@ -330,6 +334,9 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     public boolean premiumProgressBarEnabled() {
         return premiumProgressBarEnabled;
     }
+    public IncidentsData incidentsData() {
+        return incidentsData;
+    }
 
     public DiscordJar discordJar() {
         return discordJar;
@@ -381,7 +388,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 .put("welcome_screen", welcomeScreen)
                 .put("stickers", stickers)
                 .put("premium_progress_bar_enabled", premiumProgressBarEnabled)
-                .put("safety_alerts_channel_id", safetyAlertChannelId);
+                .put("safety_alerts_channel_id", safetyAlertChannelId)
+                .put("incidents_data", incidentsData.compile());
     }
 
     @NotNull
@@ -671,6 +679,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             safetyAlertsChannelId = obj.getString("safety_alerts_channel_id");
         }
 
+        IncidentsData incidentsData = obj.has("incidents_data") && !obj.isNull("incidents_data") ? IncidentsData.decompile(obj.getJSONObject("incidents_data")) : null;
+
         Guild g = new Guild(
                 id,
                 name,
@@ -713,7 +723,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 stickers,
                 premiumProgressBarEnabled,
                 safetyAlertsChannelId,
-                discordJar,
+                incidentsData, discordJar,
                 JsonCache.newc(new DiscordRequest(
                         new JSONObject(),
                         new HashMap<>(),
@@ -1717,6 +1727,30 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                         discordJar,
                         URLS.DELETE.GUILD.SCHEDULED_EVENTS.DELETE_SCHEDULED_EVENT,
                         RequestMethod.DELETE
+                ).invoke();
+                res.complete(null);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                res.completeError(new Response.Error(
+                        e.getCode(),
+                        e.getMessage(),
+                        e.getBody()
+                ));
+            }
+        }).start();
+        return res;
+    }
+
+    public Response<Void> modifyGuildIncidentActions(@NotNull IncidentsData incidentsData) {
+        Response<Void> res = new Response<>();
+        new java.lang.Thread(() -> {
+            try {
+                new DiscordRequest(
+                        incidentsData.compile(),
+                        new HashMap<>(),
+                        URLS.PATCH.GUILD.MODIFY_GUILD_INCIDENT_ACTIONS.replace("{guild.id}", this.id),
+                        discordJar,
+                        URLS.PATCH.GUILD.MODIFY_GUILD_INCIDENT_ACTIONS,
+                        RequestMethod.PATCH
                 ).invoke();
                 res.complete(null);
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {

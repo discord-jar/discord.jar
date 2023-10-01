@@ -12,6 +12,7 @@ import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -129,6 +130,11 @@ public class InteractionFollowupAction {
         return this;
     }
 
+    public InteractionFollowupAction addFiles(File... files) {
+        this.getReply().addFiles(files);
+        return this;
+    }
+
     public InteractionFollowupAction setAllowedMentions(AllowedMentions allowedMentions) {
         this.getReply().setAllowedMentions(allowedMentions);
         return this;
@@ -146,7 +152,7 @@ public class InteractionFollowupAction {
     public Response<InteractionHandler> run() {
         Response<InteractionHandler> response = new Response<>();
         try {
-            new DiscordRequest(
+            DiscordRequest req = new DiscordRequest(
                     getReply().compile(),
                     new HashMap<>(),
                     URLS.POST.INTERACTIONS.FOLLOWUP
@@ -155,7 +161,11 @@ public class InteractionFollowupAction {
                     discordJar,
                     URLS.POST.INTERACTIONS.FOLLOWUP,
                     RequestMethod.POST
-            ).invoke();
+            );
+
+            if (getReply().useFiles()) req.invokeWithFiles(getReply().getFiles().toArray(new File[0]));
+            else req.invoke();
+
             response.complete(InteractionHandler.from(token, id, discordJar));
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             response.completeError(new Response.Error(e.getCode(), e.getMessage(), e.getBody()));

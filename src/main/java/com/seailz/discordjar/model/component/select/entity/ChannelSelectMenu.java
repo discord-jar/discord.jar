@@ -5,6 +5,7 @@ import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelec
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
+import com.seailz.discordjar.model.component.select.AutoPopulatedSelect;
 import com.seailz.discordjar.model.component.select.SelectMenu;
 import com.seailz.discordjar.model.component.select.string.StringSelectMenu;
 import com.seailz.discordjar.utils.registry.components.ChannelSelectRegistry;
@@ -13,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -23,7 +25,7 @@ import java.util.function.Consumer;
  * @see com.seailz.discordjar.model.component.select.SelectMenu
  * @since 1.0
  */
-public class ChannelSelectMenu implements SelectMenu {
+public class ChannelSelectMenu implements AutoPopulatedSelect {
 
     private String customId;
     private String placeholder;
@@ -31,6 +33,7 @@ public class ChannelSelectMenu implements SelectMenu {
     private int maxValues;
     private List<ChannelType> channelTypes;
     private boolean disabled;
+    private List<String> defaultValues;
 
     private JSONObject raw;
 
@@ -52,7 +55,7 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param maxValues    The maximum amount of values that can be selected
      * @param channelTypes The channel types that can be selected
      */
-    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled, JSONObject raw) {
+    public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, List<ChannelType> channelTypes, boolean disabled, JSONObject raw, List<String> defaultValues) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
@@ -60,6 +63,7 @@ public class ChannelSelectMenu implements SelectMenu {
         this.channelTypes = channelTypes;
         this.disabled = disabled;
         this.raw = raw;
+        this.defaultValues = defaultValues;
     }
 
     /**
@@ -72,7 +76,7 @@ public class ChannelSelectMenu implements SelectMenu {
      * @param channelTypes The channel types that can be selected
      */
     public ChannelSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw, ChannelType... channelTypes) {
-        this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled, raw);
+        this(customId, placeholder, minValues, maxValues, List.of(channelTypes), disabled, raw, new ArrayList<>());
     }
 
     @Override
@@ -131,6 +135,26 @@ public class ChannelSelectMenu implements SelectMenu {
         );
     }
 
+
+    @Override
+    public List<String> defaultValues() {
+        return defaultValues;
+    }
+
+    public ChannelSelectMenu setDefaultValues(List<String> defaultValues) {
+        if (this.defaultValues == null)
+            this.defaultValues = new ArrayList<>();
+        this.defaultValues = defaultValues;
+        return this;
+    }
+
+    public ChannelSelectMenu addDefaultValue(String... defaultValue) {
+        if (this.defaultValues == null)
+            this.defaultValues = new ArrayList<>();
+        this.defaultValues.addAll(Arrays.asList(defaultValue));
+        return this;
+    }
+
     /**
      * Sets the action of the select.
      *
@@ -166,6 +190,13 @@ public class ChannelSelectMenu implements SelectMenu {
         if (maxValues != 0) obj.put("max_values", maxValues);
         if (disabled) obj.put("disabled", true);
         if (this.channelTypes != null) obj.put("channel_types", channelTypes);
+        if (defaultValues != null && !defaultValues.isEmpty()) {
+            JSONArray values = new JSONArray();
+            for (String value : defaultValues) {
+                values.put(new JSONObject().put("id", value).put("type", "channel"));
+            }
+            obj.put("default_values", values);
+        }
         return obj;
     }
 
@@ -187,7 +218,14 @@ public class ChannelSelectMenu implements SelectMenu {
             });
         }
 
-        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled, json);
+        List<String> defaultValues = new ArrayList<>();
+        if (json.has("default_values")) {
+            for (Object o : json.getJSONArray("default_values")) {
+                defaultValues.add(o.toString());
+            }
+        }
+
+        return new ChannelSelectMenu(customId, placeholder, minValues, maxValues, channelTypesDecompiled, disabled, json, defaultValues);
     }
 
     @Override

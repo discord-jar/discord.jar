@@ -2,8 +2,16 @@ package com.seailz.discordjar.model.component.select.entity;
 
 import com.seailz.discordjar.model.component.ActionComponent;
 import com.seailz.discordjar.model.component.ComponentType;
+import com.seailz.discordjar.model.component.select.AutoPopulatedSelect;
 import com.seailz.discordjar.model.component.select.SelectMenu;
+import com.seailz.discordjar.utils.Mentionable;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents a {@link com.seailz.discordjar.utils.Mentionable} select menu ({@link com.seailz.discordjar.model.role.Role} & {@link com.seailz.discordjar.model.user.User})
@@ -19,6 +27,7 @@ public class MentionableSelectMenu implements SelectMenu {
     private int minValues;
     private int maxValues;
     private boolean disabled;
+    private HashMap<MentionableType, String> defaultValues;
 
     private JSONObject raw;
 
@@ -39,13 +48,14 @@ public class MentionableSelectMenu implements SelectMenu {
      * @param minValues   The minimum amount of values that can be selected
      * @param maxValues   The maximum amount of values that can be selected
      */
-    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw) {
+    public MentionableSelectMenu(String customId, String placeholder, int minValues, int maxValues, boolean disabled, JSONObject raw, HashMap<MentionableType, String> defaultValues) {
         this.customId = customId;
         this.placeholder = placeholder;
         this.minValues = minValues;
         this.maxValues = maxValues;
         this.disabled = disabled;
         this.raw = raw;
+        this.defaultValues = defaultValues;
     }
 
     @Override
@@ -87,7 +97,7 @@ public class MentionableSelectMenu implements SelectMenu {
     @Override
     public ActionComponent setDisabled(boolean disabled) {
         return new MentionableSelectMenu(
-                customId, placeholder, minValues, maxValues, disabled, raw
+                customId, placeholder, minValues, maxValues, disabled, raw, defaultValues
         );
     }
 
@@ -95,6 +105,27 @@ public class MentionableSelectMenu implements SelectMenu {
     public ComponentType type() {
         return ComponentType.MENTIONABLE_SELECT;
     }
+
+
+    public HashMap<MentionableType, String> defaultValues() {
+        return defaultValues;
+    }
+
+
+    public MentionableSelectMenu setDefaultValues(HashMap<MentionableType, String> defaultValues) {
+        if (this.defaultValues == null)
+            this.defaultValues = new HashMap<>();
+        this.defaultValues = defaultValues;
+        return this;
+    }
+
+    public MentionableSelectMenu addDefaultValue(MentionableType type, String defaultValue) {
+        if (this.defaultValues == null)
+            this.defaultValues = new HashMap<>();
+        this.defaultValues.put(type, defaultValue);
+        return this;
+    }
+
 
     @Override
     public boolean isSelect() {
@@ -113,6 +144,11 @@ public class MentionableSelectMenu implements SelectMenu {
         if (minValues != 0) obj.put("min_values", minValues);
         if (maxValues != 0) obj.put("max_values", maxValues);
         if (disabled) obj.put("disabled", true);
+        if (defaultValues != null && !defaultValues.isEmpty()) {
+            JSONArray values = new JSONArray();
+            defaultValues.forEach((type, value) -> values.put(new JSONObject().put("id", value).put("type", type.getId())));
+            obj.put("default_values", values);
+        }
         return obj;
     }
 
@@ -123,7 +159,17 @@ public class MentionableSelectMenu implements SelectMenu {
         int maxValues = json.has("max_values") ? json.getInt("max_values") : 25;
         boolean disabled = json.has("disabled") && json.getBoolean("disabled");
 
-        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues, disabled, json);
+        HashMap<MentionableType, String> defaultValues = new HashMap<>();
+
+        if (json.has("default_values")) {
+            JSONArray values = json.getJSONArray("default_values");
+            for (int i = 0; i < values.length(); i++) {
+                JSONObject value = values.getJSONObject(i);
+                defaultValues.put(MentionableType.fromId(value.getString("type")), value.getString("id"));
+            }
+        }
+
+        return new MentionableSelectMenu(customId, placeholder, minValues, maxValues, disabled, json, defaultValues);
     }
 
     @Override

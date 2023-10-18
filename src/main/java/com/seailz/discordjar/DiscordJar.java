@@ -306,7 +306,6 @@ public class DiscordJar {
                         .setTransportCompressionType(gwCompressionType)
                         .build();
             }
-
     }
 
     /**

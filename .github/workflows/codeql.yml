@@ -79,5 +79,7 @@ jobs:
         category: "/language:${{matrix.language}}"    
     - name: Qodana Scan
       uses: JetBrains/qodana-action@v2023.2.8
+      env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
 
 

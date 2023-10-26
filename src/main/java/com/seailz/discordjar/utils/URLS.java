@@ -133,6 +133,8 @@ public final class URLS {
              * Returns the bot's application object
              */
             public static String APPLICATION_INFORMATION = "/applications/@me";
+            public static String GET_APPLICATION_SKUS = "/applications/{application.id}/skus";
+            public static String LIST_ENTITLEMENTS = "/applications/{application.id}/entitlements";
 
             public static class COMMANDS {
                 public static String GET_GLOBAL_APPLICATION_COMMANDS = "/applications/{application.id}/commands";

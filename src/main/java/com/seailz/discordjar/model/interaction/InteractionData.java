@@ -23,7 +23,7 @@ public class InteractionData {
         return switch (type) {
             case APPLICATION_COMMAND, APPLICATION_COMMAND_AUTOCOMPLETE ->
                     new ApplicationCommandInteractionData(obj, jv);
-            case MESSAGE_COMPONENT -> new MessageComponentInteractionData(obj);
+            case MESSAGE_COMPONENT -> new MessageComponentInteractionData(obj, jv);
             case MODAL_SUBMIT -> new ModalSubmitInteractionData(obj);
             default -> null;
         };

@@ -1,8 +1,10 @@
 package com.seailz.discordjar.model.interaction.data.message;
 
+import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.component.ComponentType;
 import com.seailz.discordjar.model.component.select.SelectOption;
 import com.seailz.discordjar.model.interaction.InteractionData;
+import com.seailz.discordjar.model.interaction.data.ResolvedData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,15 +27,17 @@ public class MessageComponentInteractionData extends InteractionData {
     // The selected options if this is a select menu
     private SelectOption.ResolvedSelectOption[] selectOptions;
     private List<String> snowflakes;
+    private ResolvedData resolved;
 
-    public MessageComponentInteractionData(String customId, ComponentType componentType, SelectOption.ResolvedSelectOption[] selectOptions, List<String> snowflakes) {
+    public MessageComponentInteractionData(String customId, ComponentType componentType, SelectOption.ResolvedSelectOption[] selectOptions, List<String> snowflakes, ResolvedData resolved) {
         this.customId = customId;
         this.componentType = componentType;
         this.selectOptions = selectOptions;
         this.snowflakes = snowflakes;
+        this.resolved = resolved;
     }
 
-    public MessageComponentInteractionData(JSONObject obj) {
+    public MessageComponentInteractionData(JSONObject obj, DiscordJar discordJar) {
         this.customId = obj.getString("custom_id");
         this.componentType = ComponentType.getType(obj.getInt("component_type"));
 
@@ -48,6 +52,8 @@ public class MessageComponentInteractionData extends InteractionData {
                 obj.getJSONArray("values").toList().forEach(snowflake -> snowflakes.add(snowflake.toString()));
             }
         }
+
+        resolved = obj.has("resolved") ? ResolvedData.decompile(obj.getJSONObject("resolved"), discordJar) : null;
     }
 
     public String customId() {
@@ -86,6 +92,10 @@ public class MessageComponentInteractionData extends InteractionData {
 
     public List<String> snowflakes() {
         return snowflakes;
+    }
+
+    public ResolvedData resolved() {
+        return resolved;
     }
 
 }

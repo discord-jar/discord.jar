@@ -12,13 +12,13 @@ import java.util.EnumSet;
  */
 public class BitwiseUtil<T extends Enum<T> & Bitwiseable> {
 
-    public EnumSet<T> get(long flags, Class<T> clazz) {
-        EnumSet<T> set = EnumSet.noneOf(clazz);
+    public EnumSet<T> get(long flags, Class<? extends Bitwiseable> clazz) {
+        EnumSet<T> set = EnumSet.noneOf((Class<T>) clazz);
         if (flags == 0)
             return set;
-        for (T flag : clazz.getEnumConstants()) {
+        for (Bitwiseable flag : clazz.getEnumConstants()) {
             if ((flag.getLeftShiftId() & flags) == flag.getLeftShiftId())
-                set.add(flag);
+                set.add((T) flag);
         }
         return set;
     }

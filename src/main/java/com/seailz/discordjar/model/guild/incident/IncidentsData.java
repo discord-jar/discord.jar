@@ -27,8 +27,8 @@ public record IncidentsData(
     @Override
     public JSONObject compile() {
         return new JSONObject()
-                .put("invites_disabled_until", invitesDisabledUntil.toString())
-                .put("dms_disabled_until", dmsDisabledUntil.toString());
+                .put("invites_disabled_until", invitesDisabledUntil == null ? JSONObject.NULL : invitesDisabledUntil.toString())
+                .put("dms_disabled_until", dmsDisabledUntil == null ? JSONObject.NULL : dmsDisabledUntil.toString());
     }
 
     public static IncidentsData decompile(@NotNull JSONObject obj) {

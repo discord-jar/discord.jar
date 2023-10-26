@@ -1750,7 +1750,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                         URLS.PATCH.GUILD.MODIFY_GUILD_INCIDENT_ACTIONS.replace("{guild.id}", this.id),
                         discordJar,
                         URLS.PATCH.GUILD.MODIFY_GUILD_INCIDENT_ACTIONS,
-                        RequestMethod.PATCH
+                        RequestMethod.PUT
                 ).invoke();
                 res.complete(null);
             } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {

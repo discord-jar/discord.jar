@@ -7,11 +7,13 @@ import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Message;
+import com.seailz.discordjar.model.monetization.Entitlement;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
@@ -59,12 +61,14 @@ public class Interaction implements Compilerable {
     private final String locale;
     // Guild's preferred locale, if invoked in a guild
     private final String guildLocale;
+    // For monetized apps, array of Entitlements for the invoking user
+    private List<Entitlement> entitlements;
     private final String raw;
     private final DiscordJar djar;
     @Deprecated
     private final String channelId;
 
-    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, JSONObject member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, String raw, String channelId, DiscordJar discordJar) {
+    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, JSONObject member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, List<Entitlement> entitlements, String raw, String channelId, DiscordJar discordJar) {
         this.id = id;
         this.application = application;
         this.type = type;
@@ -87,6 +91,7 @@ public class Interaction implements Compilerable {
         this.raw = raw;
         this.channelId = channelId;
         this.djar = discordJar;
+        this.entitlements = entitlements;
     }
 
     @Deprecated
@@ -161,6 +166,10 @@ public class Interaction implements Compilerable {
         return raw;
     }
 
+    public List<Entitlement> entitlements() {
+        return entitlements;
+    }
+
     @Override
     public JSONObject compile() {
         JSONObject data = null;
@@ -180,6 +189,13 @@ public class Interaction implements Compilerable {
             }
         }
 
+        JSONArray entitlements = new JSONArray();
+        if (this.entitlements != null) {
+            for (Entitlement entitlement : this.entitlements) {
+                entitlements.put(entitlement.compile());
+            }
+        }
+
         return new JSONObject()
                 .put("id", id)
                 .put("application", application.id())
@@ -194,7 +210,8 @@ public class Interaction implements Compilerable {
                 .put("app_permissions", appPermissions)
                 .put("locale", locale)
                 .put("guild_locale", guildLocale)
-                .put("channel_id", channelId);
+                .put("channel_id", channelId)
+                .put("entitlements", entitlements);
     }
 
     @NotNull
@@ -215,7 +232,15 @@ public class Interaction implements Compilerable {
         String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
         String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
 
-        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, json.toString(), channelId, discordJar);
+        JSONArray entitlements = json.has("entitlements") ? json.getJSONArray("entitlements") : null;
+        List<Entitlement> entitlementList = new ArrayList<>();
+        if (entitlements != null) {
+            for (int i = 0; i < entitlements.length(); i++) {
+                entitlementList.add(Entitlement.decompile(discordJar, entitlements.getJSONObject(i)));
+            }
+        }
+
+        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, entitlementList, json.toString(), channelId, discordJar);
     }
 
 

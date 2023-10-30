@@ -3,11 +3,11 @@ package com.seailz.discordjar.model.interaction.callback.internal;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.action.interaction.EditInteractionMessageAction;
 import com.seailz.discordjar.action.interaction.followup.InteractionFollowupAction;
+import com.seailz.discordjar.model.interaction.callback.InteractionCallbackType;
 import com.seailz.discordjar.model.interaction.callback.InteractionHandler;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -127,6 +127,22 @@ public class InteractionHandlerImpl implements InteractionHandler {
         try {
             new DiscordRequest(
                     new JSONObject().put("type", 5).put("data", new JSONObject().put("flags", ephemeral ? 64 : 0)),
+                    new HashMap<>(),
+                    URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
+                    discordJar,
+                    URLS.POST.INTERACTIONS.CALLBACK,
+                    RequestMethod.POST
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    @Override
+    public void requirePremium(boolean ephemeral) {
+        try {
+            new DiscordRequest(
+                    new JSONObject().put("type", InteractionCallbackType.PREMIUM_REQUIRED.getCode()).put("data",new JSONObject().put("flags", ephemeral ? 64 : 0)),
                     new HashMap<>(),
                     URLS.POST.INTERACTIONS.CALLBACK.replace("{interaction.id}", id).replace("{interaction.token}", token),
                     discordJar,

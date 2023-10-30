@@ -22,6 +22,7 @@ public interface InteractionHandler {
     Message getFollowup(String id);
 
     void deleteFollowup(String id);
+    void requirePremium(boolean ephemeral);
 
     EditInteractionMessageAction editOriginalResponse();
 

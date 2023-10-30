@@ -277,7 +277,7 @@ public record Application(
         }
 
         try {
-            guild = Guild.decompile(obj.getJSONObject("guild"), discordJar);
+            guild = Guild.decompile(obj.getJSONObject("guild"), discordJar, false);
         } catch (JSONException e) {
             guild = null;
         }

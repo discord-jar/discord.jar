@@ -112,7 +112,7 @@ public class GetCurrentUserGuildsAction {
         }
 
         List<Guild> returnGuilds = new ArrayList<>();
-        response.arr().forEach(guild -> returnGuilds.add(Guild.decompile((JSONObject) guild, discordJar)));
+        response.arr().forEach(guild -> returnGuilds.add(Guild.decompile((JSONObject) guild, discordJar, false)));
 
         returnGuilds.forEach(g -> discordJar.getGuildCache().cache(g));
         return returnGuilds;

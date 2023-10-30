@@ -23,6 +23,8 @@ public enum InteractionCallbackType {
     APPLICATION_COMMAND_AUTOCOMPLETE_RESULT(8),
     // 	respond to an interaction with a popup modal
     MODAL(9),
+    // Respond to an interaction with an upgrade button. Only available for monetized apps.
+    PREMIUM_REQUIRED(10),
     UNKNOWN(-1);
 
     private final int code;

@@ -98,6 +98,14 @@ public class InteractionEvent extends Event {
         return new MessageInteractionCallbackAction(InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE, new InteractionMessageResponse(embeds), getInteraction().token(), getInteraction().id(), getBot());
     }
 
+    /**
+     * Replies to this interaction with a button that will re-direct users to the premium payment window.
+     * <br>This is type {@link InteractionCallbackType#PREMIUM_REQUIRED} (10), part of app monetization/subscriptions, and will only work if the bot is monetized.
+     */
+    public void replyRequirePremium(boolean ephemeral) {
+        getHandler().requirePremium(ephemeral);
+    }
+
     @NotNull
     public InteractionHandler getHandler() {
         return InteractionHandler.from(getInteraction().token(), getInteraction().id(), getBot());

@@ -119,7 +119,20 @@ public class Cache<T> {
     }
 
     /**
-     * Gets an item from the cache
+     * This method is used to get an item from the cache by its ID.
+     * <br>Unlike {@link #getById(String)}, <b>this method will not make a request to Discord if the item is not in the cache,</b> and will instead return null.
+     * @param id The ID of the item to get
+     * @return The item, or null if it is not in the cache
+     */
+    public T returnFromCache(String id) {
+        if (!discordJar.getCacheTypes().contains(type) && !discordJar.getCacheTypes().contains(CacheType.ALL)) return null;
+        return getFromCacheByIdOrNull(id);
+    }
+
+    /**
+     * Gets an item from the cache.
+     * <br>If the provided ID matches no items in the cache, a request will be made to Discord to get the item.
+     * <br>If the item is not in the cache, and the request to Discord fails, null will be returned.
      *
      * @param id The id of the item to get
      * @return The item

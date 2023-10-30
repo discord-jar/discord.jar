@@ -393,7 +393,16 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     @NotNull
-    public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+    public static Guild decompile(JSONObject obj, DiscordJar discordJar, boolean bypassCache) {
+        System.out.println("decomp guild");
+
+        // If the cache happens to contain the current guild, we'll use that instead of creating a new one.
+        // Helpful for slight memory optimization & performance.
+        Guild cachedGuild = discordJar.getGuildCache().returnFromCache(obj.getString("id"));
+        if (cachedGuild != null && !bypassCache) {
+            return cachedGuild;
+        }
+
         long nano = System.nanoTime();
         String id;
         String name;
@@ -733,7 +742,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                         RequestMethod.GET
                 ))
         );
-        g.roleCache.reset(60000);
         return g;
     }
 
@@ -1140,6 +1148,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
         if (roleCache != null) {
             roleCache.update(new JSONObject().put("data", res));
+            roleCache.resetSingle(60000, "roles");
         }
         return roles;
     }

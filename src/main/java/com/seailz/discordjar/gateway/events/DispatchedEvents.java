@@ -116,7 +116,7 @@ public enum DispatchedEvents {
         if (p.getJSONObject("d").has("unavailable") && p.getJSONObject("d").getBoolean("unavailable"))
             // Guild is unavailable, don't cache it
             return GuildCreateEvent.class;
-        Guild guild = Guild.decompile(p.getJSONObject("d"), g);
+        Guild guild = Guild.decompile(p.getJSONObject("d"), g, true);
         g.getGuildCache().cache(guild);
 
         JSONArray arr = p.getJSONObject("d").getJSONArray("channels");
@@ -153,14 +153,14 @@ public enum DispatchedEvents {
     }),
     GUILD_UPDATE((p, g, d) -> {
         // modify cached guild, if it exists
-        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d, true);
         d.getGuildCache().cache(guild);
 
         return GuildUpdateEvent.class;
     }),
     GUILD_DELETE((p, g, d) -> {
         // remove cached guild, if it exists
-        Guild guild = Guild.decompile(p.getJSONObject("d"), d);
+        Guild guild = Guild.decompile(p.getJSONObject("d"), d, true);
         d.getGuildCache().remove(guild);
 
         return GuildDeleteEvent.class;

@@ -13,6 +13,6 @@ public class GuildUpdateEvent extends Event {
 
     @NotNull
     public Guild getGuild() {
-        return Guild.decompile(getJson().getJSONObject("d"), getBot());
+        return Guild.decompile(getJson().getJSONObject("d"), getBot(), false);
     }
 }

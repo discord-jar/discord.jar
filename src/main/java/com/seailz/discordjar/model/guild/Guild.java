@@ -385,6 +385,11 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
     @NotNull
+    public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+        return decompile(obj, discordJar, false);
+    }
+
+    @NotNull
     public static Guild decompile(JSONObject obj, DiscordJar discordJar, boolean bypassCache) {
         System.out.println("decomp guild");
 

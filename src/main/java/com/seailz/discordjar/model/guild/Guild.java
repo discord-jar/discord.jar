@@ -386,6 +386,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     @NotNull
     public static Guild decompile(JSONObject obj, DiscordJar discordJar) {
+        System.out.println("decomp guild");
         long nano = System.nanoTime();
         String id;
         String name;
@@ -723,7 +724,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                         RequestMethod.GET
                 ))
         );
-        g.roleCache.reset(60000);
+        g.roleCache.reset(60000, "guild-" + id + "-role-cache");
         return g;
     }
 

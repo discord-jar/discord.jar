@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * A cache that can be used to store JSON objects.
@@ -62,7 +63,8 @@ public interface JsonCache {
      *
      * @param interval The interval on which to invalidate the cache.
      */
-    default void reset(int interval) {
+    default void reset(int interval, String origin) {
+        Logger.getLogger(origin).info("Starting cache invalidation timer for " + origin + " with interval " + interval + "ms");
         new Thread(() -> {
             while (true) {
                 try {

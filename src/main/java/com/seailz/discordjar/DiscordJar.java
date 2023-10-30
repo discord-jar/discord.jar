@@ -494,7 +494,7 @@ public class DiscordJar {
 
         if (getSelfUserCache == null) {
             getSelfUserCache = JsonCache.newc(response.body(), req);
-            getSelfUserCache.reset(60000);
+            getSelfUserCache.reset(60000, "self-user-cache");
         }
         this.getSelfUserCache.update(response.body());
         return User.decompile(response.body(), this);

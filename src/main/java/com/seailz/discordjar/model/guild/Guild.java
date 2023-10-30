@@ -399,8 +399,6 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
 
     @NotNull
     public static Guild decompile(JSONObject obj, DiscordJar discordJar, boolean bypassCache) {
-        System.out.println("decomp guild");
-
         // If the cache happens to contain the current guild, we'll use that instead of creating a new one.
         // Helpful for slight memory optimization & performance.
         Guild cachedGuild = discordJar.getGuildCache().returnFromCache(obj.getString("id"));

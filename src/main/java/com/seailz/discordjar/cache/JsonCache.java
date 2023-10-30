@@ -77,6 +77,18 @@ public interface JsonCache {
         }, "djar--CacheInvalidate" + new Random().nextInt(999)).start();
     }
 
+    default void resetSingle(int interval, String origin) {
+        Logger.getLogger(origin).info("Starting cache invalidation timer for " + origin + " with interval " + interval + "ms");
+        new Thread(() -> {
+            try {
+                Thread.sleep(interval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            invalidate();
+        }, "djar--CacheInvalidate" + new Random().nextInt(999)).start();
+    }
+
     /**
      * Updates the cached object.
      * <p>

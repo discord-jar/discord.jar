@@ -557,6 +557,95 @@ public record Message(
     }
 
     /**
+     * Deletes the bot's reaction on a given message with a given emoji.
+     * @param emoji The emoji to delete the reaction of.
+     */
+    public Response<Void> deleteOwnReaction(@NotNull Emoji emoji) {
+        Response<Void> response = new Response<>();
+        DiscordJarThreadAllocator.requestThread(() -> {
+            try {
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.DELETE.CHANNEL.MESSAGE.DELETE_OWN_REACTION
+                                .replace("{channel.id}", channelId)
+                                .replace("{message.id}", id)
+                                .replace("{emoji}", URLEncoder.encode(emoji.toSimpleString(), StandardCharsets.UTF_8)),
+                        discordJar,
+                        URLS.DELETE.CHANNEL.MESSAGE.DELETE_OWN_REACTION,
+                        RequestMethod.DELETE
+                ).invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                response.completeError(new Response.Error(e));
+                return;
+            }
+            response.complete(null);
+        }, "djar--delete-own-reaction");
+        return response;
+    }
+
+    /**
+     * Deletes the reaction of a given user on a given message with a given emoji.
+     * @param emoji The emoji to delete the reaction of.
+     * @param userId The user whose reaction to delete.
+     */
+    public Response<Void> deleteUserReaction(@NotNull Emoji emoji, @NotNull String userId) {
+        Response<Void> response = new Response<>();
+        DiscordJarThreadAllocator.requestThread(() -> {
+            try {
+                new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.DELETE.CHANNEL.MESSAGE.DELETE_USER_REACTION
+                                .replace("{channel.id}", channelId)
+                                .replace("{message.id}", id)
+                                .replace("{emoji}", URLEncoder.encode(emoji.toSimpleString(), StandardCharsets.UTF_8))
+                                .replace("{user.id}", userId),
+                        discordJar,
+                        URLS.DELETE.CHANNEL.MESSAGE.DELETE_USER_REACTION,
+                        RequestMethod.DELETE
+                ).invoke();
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                response.completeError(new Response.Error(e));
+                return;
+            }
+            response.complete(null);
+        }, "djar--delete-user-reaction");
+        return response;
+    }
+
+    public Response<Void> deleteUserReaction(@NotNull Emoji emoji, @NotNull User user) {
+        return deleteUserReaction(emoji, user.id());
+    }
+
+    public Response<List<User>> retrieveReactionsOfEmoji(@NotNull Emoji emoji) {
+        Response<List<User>> response = new Response<>();
+        DiscordJarThreadAllocator.requestThread(() -> {
+            try {
+                JSONArray arr = new DiscordRequest(
+                        new JSONObject(),
+                        new HashMap<>(),
+                        URLS.GET.CHANNELS.MESSAGES.GET_REACTIONS_OF_EMOJI
+                                .replace("{channel.id}", channelId)
+                                .replace("{message.id}", id)
+                                .replace("{emoji}", URLEncoder.encode(emoji.toSimpleString(), StandardCharsets.UTF_8)),
+                        discordJar,
+                        URLS.GET.CHANNELS.MESSAGES.GET_REACTIONS_OF_EMOJI,
+                        RequestMethod.GET
+                ).invoke().arr();
+                List<User> users = new ArrayList<>();
+                for (Object o : arr) {
+                    users.add(User.decompile((JSONObject) o, discordJar));
+                }
+                response.complete(users);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                response.completeError(new Response.Error(e));
+            }
+        }, "djar--retrieve-reactions-of-emoji");
+        return response;
+    }
+
+    /**
      * Unpins the message within the channel.
      */
     public void unpin() {

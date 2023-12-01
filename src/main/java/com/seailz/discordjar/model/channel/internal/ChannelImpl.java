@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.channel.internal;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
+import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;

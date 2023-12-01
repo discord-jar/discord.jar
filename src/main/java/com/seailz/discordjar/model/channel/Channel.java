@@ -5,12 +5,10 @@ import com.seailz.discordjar.action.channel.ModifyBaseChannelAction;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.channel.internal.ChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
-import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.resolve.Resolvable;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Mentionable;
 import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +67,7 @@ public interface Channel extends Compilerable, Resolvable, Mentionable, Snowflak
     default ModifyBaseChannelAction modify() {
         return new ModifyBaseChannelAction(djv(), id());
     }
+
 
     /**
      * Returns this class as a {@link GuildChannel}, or null if it is not a guild channel.

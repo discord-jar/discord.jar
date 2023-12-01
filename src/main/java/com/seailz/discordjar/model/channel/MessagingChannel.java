@@ -1,49 +1,22 @@
 package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
 import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.interfaces.Transcriptable;
 import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.MessagingChannelImpl;
-import com.seailz.discordjar.model.channel.transcript.TranscriptFormatter;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
-import com.seailz.discordjar.model.component.DisplayComponent;
-import com.seailz.discordjar.model.embed.Embed;
-import com.seailz.discordjar.model.embed.EmbedField;
-import com.seailz.discordjar.model.embed.Embeder;
 import com.seailz.discordjar.model.guild.Guild;
-import com.seailz.discordjar.model.message.Attachment;
-import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
-import com.seailz.discordjar.model.user.User;
-import com.seailz.discordjar.utils.Checker;
-import com.seailz.discordjar.utils.Snowflake;
-import com.seailz.discordjar.utils.URLS;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
-import com.seailz.discordjar.utils.rest.DiscordResponse;
 import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.springframework.web.bind.annotation.RequestMethod;
+
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A channel that can be used to send messages.
@@ -175,6 +148,12 @@ public interface MessagingChannel extends GuildChannel, CategoryMember, Typeable
         obj.put("permission_overwrites", permissionOverwrites());
         return obj;
     }
+
+    default Response<Message> crosspostMessage(@NotNull Message message) {
+        return crosspostMessage(message.id());
+    }
+    Response<Message> crosspostMessage(@NotNull String message);
+
 
 
 }

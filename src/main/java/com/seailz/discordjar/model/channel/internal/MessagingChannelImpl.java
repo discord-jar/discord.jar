@@ -5,6 +5,7 @@ import com.seailz.discordjar.model.channel.Category;
 import com.seailz.discordjar.model.channel.MessagingChannel;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
@@ -91,6 +92,28 @@ public class MessagingChannelImpl extends GuildChannelImpl implements MessagingC
             }
 
         }, "djar--msg-channel-impl").start();
+        return response;
+    }
+
+    @Override
+    public Response<Message> crosspostMessage(@NotNull String message) {
+        Response<Message> response = new Response<>();
+        new Thread(() -> {
+            DiscordRequest req = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.POST.MESSAGES.CROSSPOST_MESSAGE.replace("{channel.id}", id()),
+                    djv(),
+                    URLS.POST.MESSAGES.CROSSPOST_MESSAGE,
+                    RequestMethod.POST
+            );
+            try {
+                req.invoke();
+                response.complete(Message.decompile(req.body(), djv()));
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                response.completeError(new Response.Error(e));
+            }
+        }, "djar--channel-crosspost-message").start();
         return response;
     }
 

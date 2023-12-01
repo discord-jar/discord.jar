@@ -51,6 +51,7 @@ public final class URLS {
             public static final String SEND = "/channels/{channel.id}/messages";
             public static final String EDIT = "/channels/{channel.id}/messages/{message.id}";
             public static final String START_THREAD_FORUM = "/channels/{channel.id}/threads";
+            public static final String CROSSPOST_MESSAGE = "/channels/{channel.id}/messages/{message.id}/crosspost";
         }
 
         public static class GUILDS {
@@ -173,6 +174,8 @@ public final class URLS {
              */
             public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
 
+            public static String GET_CHANNEL_INVITES = "/channels/{channel.id}/invites";
+
             public static class MESSAGES {
                 /**
                  * Returns a list of messages
@@ -184,6 +187,8 @@ public final class URLS {
                  * Returns a message
                  */
                 public static String GET_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+
+                public static String GET_REACTIONS_OF_EMOJI = "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}";
             }
         }
 
@@ -420,6 +425,8 @@ public final class URLS {
             }
             public static class MESSAGE {
                 public static String DELETE_MESSAGE = "/channels/{channel.id}/messages/{message.id}";
+                public static String DELETE_OWN_REACTION = "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me";
+                public static String DELETE_USER_REACTION = "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}";
             }
             /**
              * Deletes a channel

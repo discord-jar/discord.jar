@@ -5,10 +5,12 @@ import com.seailz.discordjar.action.channel.invites.CreateChannelInviteAction;
 import com.seailz.discordjar.model.channel.internal.GuildChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -130,4 +132,9 @@ public interface GuildChannel extends Channel {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
+
+    /**
+     * Returns a list of invites, with invite metadata, for this channel
+     */
+    Response<List<Invite>> retrieveChannelInvites();
 }

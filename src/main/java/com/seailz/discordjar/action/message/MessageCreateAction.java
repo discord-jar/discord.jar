@@ -34,6 +34,7 @@ public class MessageCreateAction {
 
     private String text;
     private String nonce;
+    private boolean enforceNonce;
     private boolean tts;
     private List<Embeder> embeds;
     private MessageReference messageReference;
@@ -78,9 +79,10 @@ public class MessageCreateAction {
         this.stickerIds = new ArrayList<>();
     }
 
-    public MessageCreateAction(@Nullable String text, @Nullable String nonce, boolean tts, @Nullable MessageReference messageReference, @Nullable List<DisplayComponent> components, @Nullable List<String> stickerIds, @Nullable List<Attachment> attachments, boolean supressEmbeds, @NotNull String channelId, @NotNull DiscordJar discordJar) {
+    public MessageCreateAction(@Nullable String text, @Nullable String nonce, boolean enforceNonce, boolean tts, @Nullable MessageReference messageReference, @Nullable List<DisplayComponent> components, @Nullable List<String> stickerIds, @Nullable List<Attachment> attachments, boolean supressEmbeds, @NotNull String channelId, @NotNull DiscordJar discordJar) {
         this.text = text;
         this.nonce = nonce;
+        this.enforceNonce = enforceNonce;
         this.tts = tts;
         this.messageReference = messageReference;
         this.components = components;
@@ -98,6 +100,10 @@ public class MessageCreateAction {
     public String nonce() {
         return nonce;
     }
+
+	public boolean enforceNonce() {
+		return enforceNonce;
+	}
 
     public boolean tts() {
         return tts;
@@ -157,6 +163,11 @@ public class MessageCreateAction {
         this.nonce = nonce;
         return this;
     }
+
+	public MessageCreateAction setEnforceNonce(boolean enforceNonce) {
+		this.enforceNonce = enforceNonce;
+		return this;
+	}
 
     public MessageCreateAction setTts(boolean tts) {
         this.tts = tts;
@@ -270,6 +281,7 @@ public class MessageCreateAction {
             JSONObject payload = new JSONObject();
             if (this.text != null) payload.put("content", this.text);
             if (this.nonce != null) payload.put("nonce", this.nonce);
+            if (this.enforceNonce) payload.put("enforce_nonce", true);
             if (this.tts) payload.put("tts", true);
             if (this.messageReference != null) payload.put("message_reference", this.messageReference.compile());
             if (this.waveform != null) {

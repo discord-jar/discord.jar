@@ -101,9 +101,9 @@ public class MessageCreateAction {
         return nonce;
     }
 
-	public boolean enforceNonce() {
-		return enforceNonce;
-	}
+    public boolean enforceNonce() {
+        return enforceNonce;
+    }
 
     public boolean tts() {
         return tts;
@@ -164,10 +164,10 @@ public class MessageCreateAction {
         return this;
     }
 
-	public MessageCreateAction setEnforceNonce(boolean enforceNonce) {
-		this.enforceNonce = enforceNonce;
-		return this;
-	}
+    public MessageCreateAction setEnforceNonce(boolean enforceNonce) {
+        this.enforceNonce = enforceNonce;
+        return this;
+    }
 
     public MessageCreateAction setTts(boolean tts) {
         this.tts = tts;

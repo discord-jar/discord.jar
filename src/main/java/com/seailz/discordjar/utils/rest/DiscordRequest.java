@@ -352,8 +352,8 @@ public class DiscordRequest {
                     }
                 } catch (JSONException ignored) {
                 }
-                Logger.getLogger("DiscordJar")
-                        .warning("[REST] 404: " + message);
+//                Logger.getLogger("DiscordJar")
+//                        .warning("[REST] 404: " + message);
                 return new DiscordResponse(404, null, null, null);
             }
 

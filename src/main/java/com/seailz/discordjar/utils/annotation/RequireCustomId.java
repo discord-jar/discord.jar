@@ -1,5 +1,7 @@
 package com.seailz.discordjar.utils.annotation;
 
+import com.seailz.discordjar.events.annotation.EventMethod;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -23,9 +25,11 @@ import java.lang.annotation.Target;
  * <p></p>
  * Using this annotation, however, will cause some performance loss, so use it sparingly or if time is not a concern.
  * @author Seailz
+ * @deprecated Use the {@link EventMethod#requireCustomId()} field instead.
  * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated(since = "1.0")
 @Target({java.lang.annotation.ElementType.METHOD})
 public @interface RequireCustomId {
     String value();

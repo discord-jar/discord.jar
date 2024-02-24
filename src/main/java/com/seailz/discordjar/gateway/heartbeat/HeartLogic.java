@@ -68,7 +68,6 @@ public class HeartLogic {
         Thread thread = new Thread(() -> {
             while (true) {
                 if (!running) {
-                    System.out.println("Heartbeat thread stopped.");
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {

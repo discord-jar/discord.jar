@@ -30,10 +30,12 @@ public class EventDispatcher {
     private static class ListenerMethodPair {
         final DiscordListener listener;
         final Method method;
+        final String customId;
 
-        ListenerMethodPair(DiscordListener listener, Method method) {
+        ListenerMethodPair(DiscordListener listener, Method method, String customId) {
             this.listener = listener;
             this.method = method;
+            this.customId = customId;
         }
     }
 
@@ -53,7 +55,12 @@ public class EventDispatcher {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.isAnnotationPresent(EventMethod.class)) {
                     Class<? extends Event> eventType = (Class<? extends Event>) method.getParameterTypes()[0];
-                    listenersByEventType.computeIfAbsent(eventType, k -> new ArrayList<>()).add(new ListenerMethodPair(listener, method));
+                    EventMethod eventMethod = method.getAnnotation(EventMethod.class);
+
+                    String customId = null;
+                    if (eventMethod.requireCustomId() != null && !eventMethod.requireCustomId().equals("")) customId = eventMethod.requireCustomId();
+
+                    listenersByEventType.computeIfAbsent(eventType, k -> new ArrayList<>()).add(new ListenerMethodPair(listener, method, customId));
                 }
             }
         }
@@ -85,6 +92,18 @@ public class EventDispatcher {
                         }
 
                         if (!((CustomIdable) event).getCustomId().matches(method.getAnnotation(RequireCustomId.class).value())) {
+                            continue;
+                        }
+                    }
+                }
+
+                if (listenerMethodPair.customId != null) {
+                    if (event instanceof CustomIdable) {
+                        if (((CustomIdable) event).getCustomId() == null) {
+                            continue;
+                        }
+
+                        if (!((CustomIdable) event).getCustomId().matches(listenerMethodPair.customId)) {
                             continue;
                         }
                     }

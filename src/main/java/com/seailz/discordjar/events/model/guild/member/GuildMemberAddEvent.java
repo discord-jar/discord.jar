@@ -1,10 +1,8 @@
 package com.seailz.discordjar.events.model.guild.member;
 
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.guild.GuildEvent;
 import com.seailz.discordjar.model.guild.Member;
-import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

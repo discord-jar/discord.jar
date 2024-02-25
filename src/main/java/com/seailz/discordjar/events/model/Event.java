@@ -17,6 +17,7 @@ import org.json.JSONObject;
  */
 public class Event {
 
+    private String name;
     private final DiscordJar bot;
     private final long sequence;
     private final JSONObject json;
@@ -25,6 +26,18 @@ public class Event {
         this.bot = bot;
         this.sequence = sequence;
         this.json = data;
+    }
+
+    /**
+     * Returns the literal name of the event - e.g. {@code MESSAGE_CREATE}
+     */
+    @NotNull
+    public String getName() {
+        return name;
+    }
+
+    public void setName(@NotNull String name) {
+        this.name = name;
     }
 
     @NotNull

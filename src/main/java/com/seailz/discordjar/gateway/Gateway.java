@@ -255,6 +255,8 @@ public class Gateway {
                 return;
             }
 
+            event.setName(payload.getString("t"));
+
             bot.getEventDispatcher().dispatchEvent(event, eventClass, bot);
 
             if (bot.isDebug()) {

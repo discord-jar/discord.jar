@@ -1,6 +1,7 @@
 package com.seailz.discordjar.events;
 
 import com.seailz.discordjar.command.listeners.CommandListener;
+import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.automod.AutoModExecutionEvent;
 import com.seailz.discordjar.events.model.automod.rule.AutoModRuleCreateEvent;
 import com.seailz.discordjar.events.model.automod.rule.AutoModRuleUpdateEvent;
@@ -33,6 +34,19 @@ import org.jetbrains.annotations.NotNull;
  * Once extended, you can override the methods you want to listen for.
  * Then, just register them in your main class.
  *
+ * <br><br>To implement a listener for a method that is not present in this class, such as {@link com.seailz.discordjar.events.model.interaction.InteractionEvent InteractionEvent},
+ * you can use create your own method, and it should work provided you still use the {@link com.seailz.discordjar.events.annotation.EventMethod EventMethod} annotation.
+ * Example:
+ * <code>
+ *     <br>public class MyListener extends DiscordListener {
+ *     <br>    @EventMethod
+ *     <br>    public void onInteractionEvent(@NotNull InteractionEvent event) {
+ *     <br>        // Do something
+ *     <br>    }
+ *     <br>}
+ *     <br>
+ * </code>
+ *
  * @author Seailz
  * @see com.seailz.discordjar.events.EventDispatcher
  * @see com.seailz.discordjar.events.annotation.EventMethod
@@ -40,6 +54,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class DiscordListener {
     // General Events
+
+    /**
+     * Any event that is fired by the Discord API will be sent to this method.
+     */
+    public void onEvent(@NotNull Event event) {
+    }
+
     public void onReady(@NotNull ReadyEvent event) {
     }
 

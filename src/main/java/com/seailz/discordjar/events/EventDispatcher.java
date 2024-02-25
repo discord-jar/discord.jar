@@ -6,6 +6,7 @@ import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.interaction.CustomIdable;
 import com.seailz.discordjar.utils.annotation.RequireCustomId;
 import com.seailz.discordjar.utils.thread.DiscordJarThreadAllocator;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -67,6 +68,23 @@ public class EventDispatcher {
     }
 
     /**
+     * Returns a list of all listeners that are registered to the dispatcher relating to the given event type.
+     * <br>This includes superclasses, so if someone registered a listener for {@link Event}, they'll get all events, or {@link com.seailz.discordjar.events.model.interaction.InteractionEvent InteractionEvents} and they'll get all interaction events, etc.
+     * @param eventType The type of event to get listeners for
+     * @return A list of all listeners that are registered to the dispatcher relating to the given event type
+     */
+    @NotNull
+    private List<ListenerMethodPair> findListenersForEvent(@NotNull Class<? extends Event> eventType) {
+        List<ListenerMethodPair> listeners = new ArrayList<>();
+        listenersByEventType.forEach((event, listenerMethodPairs) -> {
+            if (event.isAssignableFrom(eventType)) {
+                listeners.addAll(listenerMethodPairs);
+            }
+        });
+        return listeners;
+    }
+
+    /**
      * Dispatches an event to all registered listeners.
      * This method is called by the {@link DiscordJar} class & other internal classes and should not be called by the end user.
      * This method is called in a new thread so the bot can handle multiple events at once.
@@ -78,7 +96,7 @@ public class EventDispatcher {
         if (event == null) return;
         new Thread(() -> {
             long start = System.currentTimeMillis();
-            List<ListenerMethodPair> listenersForEventType = listenersByEventType.get(type);
+            List<ListenerMethodPair> listenersForEventType = findListenersForEvent(type);
             if (listenersForEventType == null) {
                 return;
             }

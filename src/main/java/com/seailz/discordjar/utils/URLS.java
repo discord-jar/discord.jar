@@ -447,6 +447,7 @@ public final class URLS {
 
     public static class PATCH {
         public static class GUILD {
+            public static String MODIFY_GUILD_INCIDENT_ACTIONS = "/guilds/{guild.id}/incident-actions";
             public static class SCHEDULED_EVENTS {
                 public static String MODIFY_GUILD_SCHEDULED_EVENT = "/guilds/{guild.id}/scheduled-events/{event.id}";
             }

@@ -1,7 +1,9 @@
 package com.seailz.discordjar.events.model;
 
 import com.seailz.discordjar.DiscordJar;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 /**
@@ -21,6 +23,13 @@ public class Event {
     private final DiscordJar bot;
     private final long sequence;
     private final JSONObject json;
+    /**
+     * -- SETTER --
+     *  Not intended for use by the end user.
+     */
+    @Setter
+    @Nullable
+    private Class<? extends Event> type;
 
     public Event(@NotNull DiscordJar bot, long sequence, @NotNull JSONObject data) {
         this.bot = bot;
@@ -52,6 +61,14 @@ public class Event {
     @NotNull
     public JSONObject getJson() {
         return json;
+    }
+
+    /**
+     * Returns the <i>type</i> of the event, such as {@link com.seailz.discordjar.events.model.message.MessageCreateEvent MessageCreateEvent}. This is nullable!
+     */
+    @Nullable
+    public Class<? extends Event> getType() {
+        return type;
     }
 
 }

@@ -94,6 +94,7 @@ public class EventDispatcher {
      */
     public void dispatchEvent(Event event, Class<? extends Event> type, DiscordJar djv) {
         if (event == null) return;
+        event.setType(type);
         new Thread(() -> {
             long start = System.currentTimeMillis();
             List<ListenerMethodPair> listenersForEventType = findListenersForEvent(type);

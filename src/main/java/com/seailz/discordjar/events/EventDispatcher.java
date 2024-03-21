@@ -59,7 +59,7 @@ public class EventDispatcher {
 
                     if (!Event.class.isAssignableFrom(maybeEventType))
                         throw new IllegalArgumentException(String.format("%s first arg is not of Event", method));
-                    else if (method.getParameterTypes().length > 1)
+                    else if (method.getParameterTypes().length != 1)
                         throw new IllegalArgumentException(String.format("%s#%s is an invalid listener", method.getDeclaringClass(), method.getName()));
 
                     @SuppressWarnings("unchecked")

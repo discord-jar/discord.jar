@@ -55,7 +55,15 @@ public class EventDispatcher {
         for (DiscordListener listener : listeners) {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.isAnnotationPresent(EventMethod.class)) {
-                    Class<? extends Event> eventType = (Class<? extends Event>) method.getParameterTypes()[0];
+                    Class<?> maybeEventType = method.getParameterTypes()[0];
+
+                    if (!Event.class.isAssignableFrom(maybeEventType))
+                        throw new IllegalArgumentException(String.format("%s first arg is not of Event", method));
+                    else if (method.getParameterTypes().length != 1)
+                        throw new IllegalArgumentException(String.format("%s#%s is an invalid listener", method.getDeclaringClass(), method.getName()));
+
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Event> eventType = (Class<? extends Event>) maybeEventType;
                     EventMethod eventMethod = method.getAnnotation(EventMethod.class);
 
                     String customId = null;

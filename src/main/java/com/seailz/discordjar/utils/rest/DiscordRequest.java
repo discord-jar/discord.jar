@@ -240,9 +240,6 @@ public class DiscordRequest {
             if (auth) {
                 requestBuilder.addHeader("Authorization", "Bot " + djv.getToken());
             }
-            if (contentType == null) {
-                requestBuilder.addHeader("Content-Type", "application/json");
-            }
             if (contentType != null) {
                 requestBuilder.addHeader("Content-Type", contentType);
             }

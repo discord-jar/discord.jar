@@ -78,11 +78,16 @@ public record Application(
         InstallParams installParams,
         String roleConnectionsVerificationUrl,
         int approximateGuildCount,
+        HashMap<IntegrationTypes, IntegrationTypeConfiguration> integrationTypes,
         DiscordJar discordJar
 ) implements Compilerable, Snowflake {
 
     @Override
     public JSONObject compile() {
+        JSONObject integrationTypes = new JSONObject();
+        this.integrationTypes.forEach((key, val) -> {
+            integrationTypes.put(String.valueOf(key.code), val.compile());
+        });
         return new JSONObject()
                 .put("id", id)
                 .put("name", name)
@@ -106,11 +111,12 @@ public record Application(
                 .put("custom_install_url", customInstallUrl)
                 .put("role_connections_verification_url", roleConnectionsVerificationUrl)
                 .put("approximate_guild_count", approximateGuildCount)
+                .put("integration_types_config", integrationTypes)
                 .put("guild", guild.compile());
     }
 
     public static Application decompile(JSONObject obj, DiscordJar discordJar) {
-        if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, null, 0, null,  null, null, null, 0, discordJar);
+        if (obj == null) return new Application(null,  null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null, null, null, 0, null,  null, null, null, 0, null, discordJar);
         String id;
         String name;
         String iconUrl;
@@ -136,6 +142,7 @@ public record Application(
         InstallParams installParams;
         String roleConnectionsVerificationUrl;
         int approximateGuildCount;
+        HashMap<IntegrationTypes, IntegrationTypeConfiguration> integrationTypesConfiguration = null;
 
         try {
             id = obj.getString("id");
@@ -282,6 +289,14 @@ public record Application(
             guild = null;
         }
 
+        if (obj.has("integration_types_config")) {
+            integrationTypesConfiguration = new HashMap<>();
+            JSONObject integrationTypesConfig = obj.getJSONObject("integration_types_config");
+            for (String code : integrationTypesConfig.keySet()) {
+                integrationTypesConfiguration.put(IntegrationTypes.getByCode(Integer.parseInt(code)), IntegrationTypeConfiguration.decompile(integrationTypesConfig.getJSONObject(code)));
+            }
+        }
+
         return new Application(
                 id,
                 name,
@@ -308,6 +323,7 @@ public record Application(
                 installParams,
                 roleConnectionsVerificationUrl,
                 approximateGuildCount,
+                integrationTypesConfiguration,
                 discordJar
         );
     }
@@ -348,7 +364,7 @@ public record Application(
      *
      * @param roleConnections The list of role connection metadata objects to update.
      *
-     * @throws com.seailz.discordjar.utils.Checker.NullArgumentException if the list is null.
+     * @throws Checker.NullArgumentException if the list is null.
      * @throws IllegalArgumentException if the list has more than 5 elements.
      */
     public void setRoleConnections(@NotNull List<ApplicationRoleConnectionMetadata> roleConnections) {
@@ -423,6 +439,51 @@ public record Application(
         @Override
         public int id() {
             return id;
+        }
+    }
+
+
+    public enum IntegrationTypes {
+
+        GUILD_INSTALL(0),
+        USER_INSTALL(1),
+        UNKNOWN(-1)
+        ;
+
+        private final int code;
+
+        IntegrationTypes(int code) {
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static IntegrationTypes getByCode(int code) {
+            for (IntegrationTypes value : values()) {
+                if (value.getCode() == code) return value;
+            }
+            return UNKNOWN;
+        }
+    }
+
+    public record IntegrationTypeConfiguration(
+            InstallParams installParams
+    ) implements Compilerable {
+
+        @Override
+        public JSONObject compile() {
+            return new JSONObject()
+                    .put("oauth2_install_params", installParams == null ? JSONObject.NULL : installParams.compile());
+        }
+
+        public static IntegrationTypeConfiguration decompile(JSONObject obj) {
+            InstallParams oauth2InstallParams = null;
+            if (obj.has("oauth2_install_params")) {
+                oauth2InstallParams = InstallParams.decompile(obj.getJSONObject("oauth2_install_params"));
+            }
+            return new IntegrationTypeConfiguration(oauth2InstallParams);
         }
     }
 }

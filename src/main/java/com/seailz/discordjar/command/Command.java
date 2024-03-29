@@ -89,21 +89,21 @@ public record Command(
         boolean canUseInDms = true;
         boolean nsfw = false;
 
-        if (obj.has("name_localizations")) {
+        if (obj.has("name_localizations") && !obj.isNull("name_localizations")) {
             JSONObject nameLocalesJson = obj.getJSONObject("name_localizations");
             for (String locale : nameLocalesJson.keySet()) {
                 nameLocales.put(locale, nameLocalesJson.getString(locale));
             }
         }
 
-        if (obj.has("description_localizations")) {
+        if (obj.has("description_localizations") && !obj.isNull("description_localizations")) {
             JSONObject descriptionLocalesJson = obj.getJSONObject("description_localizations");
             for (String locale : descriptionLocalesJson.keySet()) {
                 descriptionLocales.put(locale, descriptionLocalesJson.getString(locale));
             }
         }
 
-        if (obj.has("default_member_permissions")) {
+        if (obj.has("default_member_permissions") && !obj.isNull("default_member_permissions")) {
             int permissions = obj.getInt("default_member_permissions");
             BitwiseUtil<Permission> util = new BitwiseUtil<>();
             EnumSet<Permission> permissionsList = util.get(permissions, Permission.class);

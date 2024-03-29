@@ -22,6 +22,14 @@ https://discord.gg/tmvS8A57J4
 
 Before we start - please note that discord.jar is still a work in progress and there are some risks of deploying it in a production enviroment.
 
+## Example Usages
+- [Tune](https://github.com/seailz/Tune) An example Discord Music bot built using discord.jar & LavaPlayer in just 1 hour, that's how simple it is!
+
+## Tools built for Discord.jar
+<ul>
+        <li><a href="https://github.com/discord-jar/discript">Discript</a> - a scripting language to simplify bot development.</li>
+</ul>
+
 ### Prerequisites
 
 <b>You'll need to add discord.jar to your project's dependencies. We are currently using
@@ -188,9 +196,6 @@ To contribute to the `/examples` module, please see [here](https://github.com/di
 
 ## License
 License info can be found [here](https://github.com/discord-jar/discord.jar/blob/main/LICENSE). This project is licensed under GNU General Public License V3
-
-## Example Usages
-- [Tune](https://github.com/seailz/Tune) An example Discord Music bot built using discord.jar & LavaPlayer in just 1 hour, that's how simple it is!
 
 
 ## Contact

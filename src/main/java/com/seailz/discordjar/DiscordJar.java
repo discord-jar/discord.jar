@@ -1574,4 +1574,8 @@ public class DiscordJar {
     public APIVersion getApiVersion() {
         return apiVersion;
     }
+
+    public DiscordObjectParser getParser() {
+        return parser;
+    }
 }

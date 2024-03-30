@@ -18,6 +18,7 @@ import com.seailz.discordjar.command.listeners.UserContextCommandListener;
 import com.seailz.discordjar.command.listeners.slash.SlashCommandListener;
 import com.seailz.discordjar.command.listeners.slash.SlashSubCommand;
 import com.seailz.discordjar.command.listeners.slash.SubCommandListener;
+import com.seailz.discordjar.decoding.DiscordObjectParser;
 import com.seailz.discordjar.events.DiscordListener;
 import com.seailz.discordjar.events.EventDispatcher;
 import com.seailz.discordjar.gateway.Gateway;
@@ -90,6 +91,7 @@ public class DiscordJar {
      * Stores the logger
      */
     private final Logger logger;
+    private final DiscordObjectParser parser;
     /**
      * Intents the bot will use when connecting to the gateway
      */
@@ -224,6 +226,7 @@ public class DiscordJar {
         new URLS(release, version);
         logger = Logger.getLogger("DISCORD.JAR");
         this.commandDispatcher = new CommandDispatcher();
+        this.parser = new DiscordObjectParser(this);
         this.queuedRequests = new ArrayList<>();
         this.buckets = new ArrayList<>();
         this.voiceStates = new HashMap<>();

@@ -13,5 +13,5 @@ import com.seailz.discordjar.decoding.annotations.DiscordObjectParameter;
  * You must have a constructor that matches your fields, <b>even down to the order</b>. That constructor
  * must be marked with {@link DiscordObjectConstructor DiscordObjectConstructor}.
  */
-public abstract class DiscordObject {
+public interface DiscordObject {
 }

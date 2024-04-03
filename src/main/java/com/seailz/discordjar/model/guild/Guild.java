@@ -1138,6 +1138,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         }
         if (res == null) {
             System.out.println(response.code() + " " + (response.body() == null ? "null" : response.body().toString()));
+            return List.of();
         }
 
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
@@ -1232,7 +1233,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * <p/>
      * <b>This action is irreversible!</b>
      */
-    public void delete() throws IllegalAccessException {
+    public void delete() {
         DiscordResponse response;
         try {
             response = new DiscordRequest(

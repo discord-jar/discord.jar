@@ -3,6 +3,7 @@ package com.seailz.discordjar.model.application;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.guild.Guild;
+import com.seailz.discordjar.model.interaction.IntegrationType;
 import com.seailz.discordjar.model.scopes.InstallParams;
 import com.seailz.discordjar.model.team.Team;
 import com.seailz.discordjar.model.user.User;
@@ -78,7 +79,7 @@ public record Application(
         InstallParams installParams,
         String roleConnectionsVerificationUrl,
         int approximateGuildCount,
-        HashMap<IntegrationTypes, IntegrationTypeConfiguration> integrationTypes,
+        HashMap<IntegrationType, IntegrationTypeConfiguration> integrationTypes,
         DiscordJar discordJar
 ) implements Compilerable, Snowflake {
 
@@ -86,7 +87,7 @@ public record Application(
     public JSONObject compile() {
         JSONObject integrationTypes = new JSONObject();
         this.integrationTypes.forEach((key, val) -> {
-            integrationTypes.put(String.valueOf(key.code), val.compile());
+            integrationTypes.put(String.valueOf(key.getCode()), val.compile());
         });
         return new JSONObject()
                 .put("id", id)
@@ -142,7 +143,7 @@ public record Application(
         InstallParams installParams;
         String roleConnectionsVerificationUrl;
         int approximateGuildCount;
-        HashMap<IntegrationTypes, IntegrationTypeConfiguration> integrationTypesConfiguration = null;
+        HashMap<IntegrationType, IntegrationTypeConfiguration> integrationTypesConfiguration = null;
 
         try {
             id = obj.getString("id");
@@ -293,7 +294,7 @@ public record Application(
             integrationTypesConfiguration = new HashMap<>();
             JSONObject integrationTypesConfig = obj.getJSONObject("integration_types_config");
             for (String code : integrationTypesConfig.keySet()) {
-                integrationTypesConfiguration.put(IntegrationTypes.getByCode(Integer.parseInt(code)), IntegrationTypeConfiguration.decompile(integrationTypesConfig.getJSONObject(code)));
+                integrationTypesConfiguration.put(IntegrationType.fromCode(Integer.parseInt(code)), IntegrationTypeConfiguration.decompile(integrationTypesConfig.getJSONObject(code)));
             }
         }
 
@@ -439,32 +440,6 @@ public record Application(
         @Override
         public int id() {
             return id;
-        }
-    }
-
-
-    public enum IntegrationTypes {
-
-        GUILD_INSTALL(0),
-        USER_INSTALL(1),
-        UNKNOWN(-1)
-        ;
-
-        private final int code;
-
-        IntegrationTypes(int code) {
-            this.code = code;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public static IntegrationTypes getByCode(int code) {
-            for (IntegrationTypes value : values()) {
-                if (value.getCode() == code) return value;
-            }
-            return UNKNOWN;
         }
     }
 

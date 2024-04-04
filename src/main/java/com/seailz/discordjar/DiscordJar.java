@@ -33,6 +33,7 @@ import com.seailz.discordjar.model.emoji.sticker.Sticker;
 import com.seailz.discordjar.model.emoji.sticker.StickerPack;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
+import com.seailz.discordjar.model.interaction.InteractionContextType;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
 import com.seailz.discordjar.model.monetization.SKU;
@@ -1067,6 +1068,7 @@ public class DiscordJar {
             Permission[] defaultMemberPermissions = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).defaultMemberPermissions() : ((ContextCommandInfo) ann).defaultMemberPermissions();
             boolean canUseInDms = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).canUseInDms() : ((ContextCommandInfo) ann).canUseInDms();
             boolean nsfw = (ann instanceof SlashCommandInfo) ? ((SlashCommandInfo) ann).nsfw() : ((ContextCommandInfo) ann).nsfw();
+            InteractionContextType[] contextTypes = (ann instanceof ContextCommandInfo) ? ((ContextCommandInfo) ann).contexts() : ((SlashCommandInfo) ann).contexts();
             if (overwrite) list.add(new Command(
                     name,
                     listener.getType(),
@@ -1076,7 +1078,8 @@ public class DiscordJar {
                     descriptionLocales,
                     defaultMemberPermissions,
                     canUseInDms,
-                    nsfw
+                    nsfw,
+                    Arrays.stream(contextTypes).toList()
             ));
             else {
                 new Thread(() -> {
@@ -1090,7 +1093,8 @@ public class DiscordJar {
                                     descriptionLocales,
                                     defaultMemberPermissions,
                                     canUseInDms,
-                                    nsfw
+                                    nsfw,
+                                    Arrays.stream(contextTypes).toList()
                             )
                     );
                 }, "djar--command-register").start();

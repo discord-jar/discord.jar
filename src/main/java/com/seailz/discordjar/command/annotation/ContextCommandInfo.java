@@ -1,5 +1,6 @@
 package com.seailz.discordjar.command.annotation;
 
+import com.seailz.discordjar.model.interaction.InteractionContextType;
 import com.seailz.discordjar.utils.permission.Permission;
 
 import java.lang.annotation.ElementType;
@@ -29,7 +30,16 @@ public @interface ContextCommandInfo {
 
     Permission[] defaultMemberPermissions() default {};
 
+    /**
+     * @deprecated Use {@link #contexts()} instead.
+     */
+    @Deprecated
     boolean canUseInDms() default true;
 
     boolean nsfw() default false;
+
+    /**
+     * Contexts where this command can be used. Default is all contexts.
+     */
+    InteractionContextType[] contexts() default {InteractionContextType.BOT_DM, InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL};
 }

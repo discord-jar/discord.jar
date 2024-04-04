@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -67,8 +68,10 @@ public class Interaction implements Compilerable {
     private final DiscordJar djar;
     @Deprecated
     private final String channelId;
+    private final InteractionContextType context;
+    private final HashMap<IntegrationType, String> authorizingIntegrationOwners;
 
-    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, JSONObject member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, List<Entitlement> entitlements, String raw, String channelId, DiscordJar discordJar) {
+    public Interaction(String id, Application application, InteractionType type, InteractionData data, String guild, Channel channel, JSONObject member, User user, String token, int version, Message message, String appPermissions, String locale, String guildLocale, List<Entitlement> entitlements, String raw, String channelId, InteractionContextType context, HashMap<IntegrationType, String> authorizingIntegrationOwners, DiscordJar discordJar) {
         this.id = id;
         this.application = application;
         this.type = type;
@@ -92,6 +95,8 @@ public class Interaction implements Compilerable {
         this.channelId = channelId;
         this.djar = discordJar;
         this.entitlements = entitlements;
+        this.context = context;
+        this.authorizingIntegrationOwners = authorizingIntegrationOwners;
     }
 
     @Deprecated
@@ -169,6 +174,13 @@ public class Interaction implements Compilerable {
     public List<Entitlement> entitlements() {
         return entitlements;
     }
+    public InteractionContextType context() {
+        return context;
+    }
+
+    public HashMap<IntegrationType, String> authorizingIntegrationOwners() {
+        return authorizingIntegrationOwners;
+    }
 
     @Override
     public JSONObject compile() {
@@ -196,6 +208,11 @@ public class Interaction implements Compilerable {
             }
         }
 
+        JSONObject authIntOwners = new JSONObject();
+        this.authorizingIntegrationOwners.forEach((key, val) -> {
+            authIntOwners.put(String.valueOf(key.getCode()), val);
+        });
+
         return new JSONObject()
                 .put("id", id)
                 .put("application", application.id())
@@ -211,7 +228,9 @@ public class Interaction implements Compilerable {
                 .put("locale", locale)
                 .put("guild_locale", guildLocale)
                 .put("channel_id", channelId)
-                .put("entitlements", entitlements);
+                .put("entitlements", entitlements)
+                .put("context", context.getCode())
+                .put("authorizing_integration_owners", authIntOwners);
     }
 
     @NotNull
@@ -231,6 +250,7 @@ public class Interaction implements Compilerable {
         String locale = json.has("locale") ? json.getString("locale") : null;
         String guildLocale = json.has("guild_locale") ? json.getString("guild_locale") : null;
         String channelId = json.has("channel_id") ? json.getString("channel_id") : null;
+        InteractionContextType context = json.has("context") ? InteractionContextType.fromCode(json.getInt("context")) : null;
 
         JSONArray entitlements = json.has("entitlements") ? json.getJSONArray("entitlements") : null;
         List<Entitlement> entitlementList = new ArrayList<>();
@@ -240,7 +260,17 @@ public class Interaction implements Compilerable {
             }
         }
 
-        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, entitlementList, json.toString(), channelId, discordJar);
+        HashMap<IntegrationType, String> authIntegrationOwners = null;
+
+        if (json.has("authorizing_integration_owners")) {
+            authIntegrationOwners = new HashMap<>();
+            JSONObject authIntegrationOwnersJson = json.getJSONObject("authorizing_integration_owners");
+            for (String code : authIntegrationOwnersJson.keySet()) {
+                authIntegrationOwners.put(IntegrationType.fromCode(Integer.parseInt(code)), authIntegrationOwnersJson.getString(code));
+            }
+        }
+
+        return new Interaction(id, application, type, data, guildId, channel, json.has("member") ? json.getJSONObject("member") : null, user, token, version, message, appPermissions, locale, guildLocale, entitlementList, json.toString(), channelId, context, authIntegrationOwners, discordJar);
     }
 
 

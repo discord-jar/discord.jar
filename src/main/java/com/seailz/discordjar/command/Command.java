@@ -2,6 +2,7 @@ package com.seailz.discordjar.command;
 
 import com.seailz.discordjar.command.annotation.Locale;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.interaction.InteractionContextType;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
 import org.json.JSONArray;
@@ -30,8 +31,10 @@ public record Command(
         Locale[] nameLocalizations,
         Locale[] descriptionLocalizations,
         Permission[] defaultMemberPermissions,
+        @Deprecated
         boolean canUseInDms,
-        boolean nsfw
+        boolean nsfw,
+        List<InteractionContextType> contexts
 ) implements Compilerable {
     @Override
     public JSONObject compile() {
@@ -75,6 +78,10 @@ public record Command(
         obj.put("dm_permission", canUseInDms);
         if (nsfw) obj.put("nsfw", true);
 
+        JSONArray contextsJson = new JSONArray();
+        contexts.forEach((context) -> contextsJson.put(context.getCode()));
+        obj.put("contexts", contextsJson);
+
         return obj;
     }
 
@@ -88,6 +95,7 @@ public record Command(
         Permission[] defaultMemberPermissions = new Permission[0];
         boolean canUseInDms = true;
         boolean nsfw = false;
+        List<InteractionContextType> contexts = new ArrayList<>();
 
         if (obj.has("name_localizations") && !obj.isNull("name_localizations")) {
             JSONObject nameLocalesJson = obj.getJSONObject("name_localizations");
@@ -124,6 +132,12 @@ public record Command(
             }
         }
 
+        if (obj.has("contexts") && obj.get("contexts") != JSONObject.NULL) {
+            for (Object v : obj.getJSONArray("contexts")) {
+                contexts.add(InteractionContextType.fromCode((int) v));
+            }
+        }
+
         return new Command(
                 name,
                 type,
@@ -133,7 +147,8 @@ public record Command(
                 descriptionLocales.entrySet().stream().map((entry) -> newLocale(entry.getKey(), entry.getValue())).toArray(Locale[]::new),
                 defaultMemberPermissions,
                 canUseInDms,
-                nsfw
+                nsfw,
+                contexts
         );
     }
 

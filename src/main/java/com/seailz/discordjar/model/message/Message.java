@@ -89,7 +89,8 @@ public record Message(
         MessageFlag[] flags,
         // the message associated with the message_reference
         Message referencedMessage,
-        // sent if the message is a response to an Interaction
+        // sent if the message is a response to an Interaction - Deprecated, use interactionMetadata instead
+        @Deprecated
         Interaction interaction,
         // the thread that was started from this message, includes thread member object
         Thread thread,
@@ -99,6 +100,7 @@ public record Message(
         int position,
         // data of the role subscription purchase or renewal that prompted this ROLE_SUBSCRIPTION_PURCHASE message
         RoleSubscriptionData roleSubscriptionData,
+        MessageInteractionMetadataObject interactionMetadata,
         DiscordJar discordJar
 ) implements Compilerable, Resolvable, Snowflake {
 
@@ -134,6 +136,7 @@ public record Message(
         List<StickerItem> stickerItems = new ArrayList<>();
         int position = 0;
         RoleSubscriptionData roleSubscriptionData = null;
+        MessageInteractionMetadataObject interactionMetadata = null;
 
         try {
             id = obj.getString("id");
@@ -339,7 +342,11 @@ public record Message(
         if (obj.has("position")) position = obj.getInt("position");
         if (obj.has("role_subscription_data")) roleSubscriptionData = RoleSubscriptionData.decompile(obj.getJSONObject("role_subscription_data"));
 
-        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, stickerItems, position, roleSubscriptionData, discordJar);
+        if (obj.has("interaction_metadata")) {
+            interactionMetadata = MessageInteractionMetadataObject.decompile(obj.getJSONObject("interaction_metadata"));
+        }
+
+        return new Message(id, channelId, author, content, timestamp, editedTimestamp, tts, mentionEveryone, mentions, mentionRoles, mentionChannels, attachments, embeds, reactions, nonce, pinned, webhookId, type, activity, application, applicationId, messageReference, flags, referencedMessage, interaction, thread, components, stickerItems, position, roleSubscriptionData, interactionMetadata, discordJar);
     }
 
     @Override
@@ -425,7 +432,11 @@ public record Message(
                 .put("referenced_message", referencedMessage == null ? JSONObject.NULL : referencedMessage.compile())
                 .put("interaction", interaction == null ? JSONObject.NULL : interaction.compile())
                 .put("thread", thread == null ? JSONObject.NULL : thread.compile())
-                .put("components", componentsArray);
+                .put("components", componentsArray)
+                .put("sticker_items", stickerItems)
+                .put("position", position)
+                .put("role_subscription_data", roleSubscriptionData == null ? JSONObject.NULL : roleSubscriptionData.compile())
+                .put("interaction_metadata", interactionMetadata == null ? JSONObject.NULL : interactionMetadata.compile());
     }
 
     public void delete() {

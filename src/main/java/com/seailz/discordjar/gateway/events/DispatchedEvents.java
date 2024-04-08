@@ -30,6 +30,8 @@ import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelec
 import com.seailz.discordjar.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.events.model.message.MessageDeleteEvent;
+import com.seailz.discordjar.events.model.message.MessageUpdateEvent;
 import com.seailz.discordjar.events.model.message.TypingStartEvent;
 import com.seailz.discordjar.gateway.Gateway;
 import com.seailz.discordjar.command.CommandType;
@@ -305,6 +307,8 @@ public enum DispatchedEvents {
 
     /* MESSAGES */
     MESSAGE_CREATE((p, d, g) -> MessageCreateEvent.class),
+    MESSAGE_UPDATE((p, d, g) -> MessageUpdateEvent.class),
+    MESSAGE_DELETE((p, d, g) -> MessageDeleteEvent.class),
     // TODO: other message events
 
     // TODO: Presence update

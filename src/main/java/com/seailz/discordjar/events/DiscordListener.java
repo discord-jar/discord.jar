@@ -25,6 +25,8 @@ import com.seailz.discordjar.events.model.interaction.select.entity.ChannelSelec
 import com.seailz.discordjar.events.model.interaction.select.entity.RoleSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.interaction.select.entity.UserSelectMenuInteractionEvent;
 import com.seailz.discordjar.events.model.message.MessageCreateEvent;
+import com.seailz.discordjar.events.model.message.MessageDeleteEvent;
+import com.seailz.discordjar.events.model.message.MessageUpdateEvent;
 import com.seailz.discordjar.events.model.message.TypingStartEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,6 +71,12 @@ public abstract class DiscordListener {
 
     // Message Events
     public void onMessageReceived(@NotNull MessageCreateEvent event) {
+    }
+
+    public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
+    }
+
+    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
     }
 
     public void onTypingStart(@NotNull TypingStartEvent event) {

@@ -408,7 +408,7 @@ public record Message(
         return new JSONObject()
                 .put("id", id)
                 .put("channel_id", channelId)
-                .put("author", author.compile())
+                .put("author", author == null ? JSONObject.NULL : author.compile())
                 .put("content", content)
                 .put("timestamp", timestamp)
                 .put("edited_timestamp", editedTimestamp)

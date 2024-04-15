@@ -28,12 +28,13 @@ public record MessageInteractionMetadataObject(
     }
 
     public static MessageInteractionMetadataObject decompile(JSONObject object) {
+        System.out.println(object);
 
         HashMap<IntegrationType, String> authorizingIntegrationOwners = new HashMap<>();
 
         if (object.has("authorizing_integration_owners"))
             object.getJSONObject("authorizing_integration_owners").toMap()
-                    .forEach((key, value) -> authorizingIntegrationOwners.put(IntegrationType.fromCode(Integer.parseInt(key)), (String) value));
+                    .forEach((key, value) -> authorizingIntegrationOwners.put(IntegrationType.fromCode(Integer.parseInt(key)), String.valueOf(value)));
 
 
         return new MessageInteractionMetadataObject(

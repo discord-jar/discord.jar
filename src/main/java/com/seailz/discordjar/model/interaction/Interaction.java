@@ -266,7 +266,8 @@ public class Interaction implements Compilerable {
             authIntegrationOwners = new HashMap<>();
             JSONObject authIntegrationOwnersJson = json.getJSONObject("authorizing_integration_owners");
             for (String code : authIntegrationOwnersJson.keySet()) {
-                authIntegrationOwners.put(IntegrationType.fromCode(Integer.parseInt(code)), authIntegrationOwnersJson.getString(code));
+
+                authIntegrationOwners.put(IntegrationType.fromCode(Integer.parseInt(code)), String.valueOf(authIntegrationOwnersJson.get(code)));
             }
         }
 

@@ -28,8 +28,6 @@ public record MessageInteractionMetadataObject(
     }
 
     public static MessageInteractionMetadataObject decompile(JSONObject object) {
-        System.out.println(object);
-
         HashMap<IntegrationType, String> authorizingIntegrationOwners = new HashMap<>();
 
         if (object.has("authorizing_integration_owners"))

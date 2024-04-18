@@ -48,6 +48,8 @@ public @interface SlashCommandInfo {
 
     /**
      * Contexts where this command can be used. Default is all contexts.
+     * <br>Using this in conjunction with {@link #canUseInDms()} may not work, as then canUseInDms is set to true,
+     * contexts is automatically cleared and set to ONLY InteractionContextType.GUILD. Please only use this option.
      */
     InteractionContextType[] contexts() default {InteractionContextType.BOT_DM, InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL};
 

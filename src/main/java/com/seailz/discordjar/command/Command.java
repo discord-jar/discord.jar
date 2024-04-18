@@ -2,6 +2,7 @@ package com.seailz.discordjar.command;
 
 import com.seailz.discordjar.command.annotation.Locale;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.interaction.Interaction;
 import com.seailz.discordjar.model.interaction.InteractionContextType;
 import com.seailz.discordjar.utils.flag.BitwiseUtil;
 import com.seailz.discordjar.utils.permission.Permission;
@@ -80,8 +81,11 @@ public record Command(
 
         JSONArray contextsJson = new JSONArray();
         contexts.forEach((context) -> contextsJson.put(context.getCode()));
+        if (!canUseInDms) {
+            contextsJson.clear();
+            contextsJson.put(InteractionContextType.GUILD.getCode());
+        }
         obj.put("contexts", contextsJson);
-
         return obj;
     }
 

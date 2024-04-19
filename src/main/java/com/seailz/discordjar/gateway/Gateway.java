@@ -232,24 +232,25 @@ public class Gateway {
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, bot);
         if (eventClass == null) {
             if (bot.isDebug()) logger.info("[discord.jar] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
-            return;
+            eventClass = Event.class;
         }
         if (bot.isDebug()) {
             logger.info("[Gateway] Event class: " + eventClass.getName());
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
+        Class<? extends Event> finalEventClass = eventClass;
         new Thread(() -> {
             Event event;
             try {
-                event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
+                event = finalEventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
                         .newInstance(bot, lastSequenceNumber, payload);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-                logger.warning("[Gateway] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
+                logger.warning("[Gateway] Failed to dispatch " + finalEventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
                 e.printStackTrace();
                 return;
             } catch (InvocationTargetException e) {
-                logger.warning("[Gateway] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
+                logger.warning("[Gateway] Failed to dispatch " + finalEventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
                 // If it's a runtime exception, we want to catch it and print the stack trace.
                 e.getCause().printStackTrace();
                 return;
@@ -257,10 +258,10 @@ public class Gateway {
 
             event.setName(payload.getString("t"));
 
-            bot.getEventDispatcher().dispatchEvent(event, eventClass, bot);
+            bot.getEventDispatcher().dispatchEvent(event, finalEventClass, bot);
 
             if (bot.isDebug()) {
-                logger.info("[Gateway] Event dispatched: " + eventClass.getName());
+                logger.info("[Gateway] Event dispatched: " + finalEventClass.getName());
             }
         }, "djar--event-dispatch-gw").start();
 

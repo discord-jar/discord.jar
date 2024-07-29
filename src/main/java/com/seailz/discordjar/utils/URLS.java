@@ -84,6 +84,7 @@ public final class URLS {
         public static class CHANNELS {
             public static final String TRIGGER_TYPING_INDICATOR = "/channels/{channel.id}/typing";
             public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
+            public static final String START_THREAD = "/channels/{channel.id}/threads";
 
             public static class MESSAGES {
                 public static String BULK_DELETE = "/channels/{channel.id}/messages/bulk-delete";

@@ -244,4 +244,29 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
         }
     }
 
+    enum Type {
+        ANNOUNCEMENT_THREAD(10),
+        PUBLIC_THREAD(11),
+        PRIVATE_THREAD(12),
+        UNKNOWN(-1);
+
+        private final int code;
+
+        Type(int code) {
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static Type fromCode(int code) {
+            for (Type type : values()) {
+                if (type.getCode() == code)
+                    return type;
+            }
+            return UNKNOWN;
+        }
+    }
+
 }

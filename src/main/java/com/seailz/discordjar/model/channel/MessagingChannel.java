@@ -1,12 +1,14 @@
 package com.seailz.discordjar.model.channel;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.channel.StartThreadWithoutMessageAction;
 import com.seailz.discordjar.action.message.MessageCreateAction;
 import com.seailz.discordjar.model.channel.interfaces.MessageRetrievable;
 import com.seailz.discordjar.model.channel.interfaces.Messageable;
 import com.seailz.discordjar.model.channel.interfaces.Transcriptable;
 import com.seailz.discordjar.model.channel.interfaces.Typeable;
 import com.seailz.discordjar.model.channel.internal.MessagingChannelImpl;
+import com.seailz.discordjar.model.channel.thread.Thread;
 import com.seailz.discordjar.model.channel.transcript.TranscriptFormatter;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.component.DisplayComponent;
@@ -121,6 +123,10 @@ public interface MessagingChannel extends GuildChannel, CategoryMember, Typeable
      */
     default Response<Void> bulkDeleteMessages(List<String> messageIds, String reason) {
         return bulkDeleteMessages(messageIds, true, reason);
+    }
+
+    default StartThreadWithoutMessageAction startThread(String name, Thread.Type type) {
+        return new StartThreadWithoutMessageAction(name, type, discordJv(), id());
     }
 
     /**

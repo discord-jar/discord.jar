@@ -29,7 +29,6 @@ public class TranscriptFormatter {
     }
 
     public static String format(String originalText) {
-        System.out.println(originalText);
         Matcher matcher = STRONG.matcher(originalText);
         String newText = originalText;
         while (matcher.find()) {

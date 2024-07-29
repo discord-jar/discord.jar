@@ -50,9 +50,9 @@ public class StartThreadWithoutMessageAction {
         future.completeAsync(() -> {
             JSONObject body = new JSONObject();
             body.put("name", name);
-            body.put("type", type.ordinal());
+            body.put("type", type.getCode());
             if (autoArchiveDuration != null) {
-                body.put("auto_archive_duration", autoArchiveDuration.ordinal());
+                body.put("auto_archive_duration", autoArchiveDuration.minutes());
             }
             body.put("invitable", invitable);
 

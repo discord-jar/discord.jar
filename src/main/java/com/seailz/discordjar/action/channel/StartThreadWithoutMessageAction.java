@@ -45,8 +45,8 @@ public class StartThreadWithoutMessageAction {
         return this;
     }
 
-    public CompletableFuture<Channel> run() {
-        CompletableFuture<Channel> future = new CompletableFuture<>();
+    public CompletableFuture<Thread> run() {
+        CompletableFuture<Thread> future = new CompletableFuture<>();
         future.completeAsync(() -> {
             JSONObject body = new JSONObject();
             body.put("name", name);

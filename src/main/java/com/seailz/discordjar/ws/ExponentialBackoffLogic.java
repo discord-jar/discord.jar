@@ -1,5 +1,7 @@
 package com.seailz.discordjar.ws;
 
+import com.seailz.discordjar.DiscordJar;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.socket.CloseStatus;
 
 import java.time.Instant;
@@ -13,6 +15,7 @@ import java.util.logging.Logger;
  * <br>If true is returned in attemptReconnect, the reconnect will be attempted after the interval. If false is returned, the reconnect will not be attempted.
  * @author Seailz
  */
+@RequiredArgsConstructor
 public class ExponentialBackoffLogic {
 
     private Function<CloseStatus, Boolean> attemptReconnect = (e) -> true;
@@ -20,6 +23,8 @@ public class ExponentialBackoffLogic {
     private final int maxInterval = 60000;
     private int interval = 3000;
     private int attempts = 0;
+
+    private final DiscordJar jv;
 
     private Instant lastCallTime = Instant.now();
 
@@ -43,7 +48,7 @@ public class ExponentialBackoffLogic {
             attempts++;
 
             try {
-                Logger.getLogger("ExponentialBackoffLogic").info("[WebSocket] Waiting " + interval + "ms before attempting reconnect. Attempt " + attempts);
+                if (jv.isDebug()) Logger.getLogger("ExponentialBackoffLogic").info("[WebSocket] Waiting " + interval + "ms before attempting reconnect. Attempt " + attempts);
                 Thread.sleep(interval);
                 return true;
             } catch (InterruptedException e) {

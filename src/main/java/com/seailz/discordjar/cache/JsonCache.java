@@ -64,7 +64,7 @@ public interface JsonCache {
      * @param interval The interval on which to invalidate the cache.
      */
     default void reset(int interval, String origin) {
-        Logger.getLogger(origin).info("Starting cache invalidation timer for " + origin + " with interval " + interval + "ms");
+//        Logger.getLogger(origin).info("Starting cache invalidation timer for " + origin + " with interval " + interval + "ms");
         new Thread(() -> {
             while (true) {
                 try {
@@ -78,7 +78,7 @@ public interface JsonCache {
     }
 
     default void resetSingle(int interval, String origin) {
-        Logger.getLogger(origin).info("Starting cache invalidation timer for " + origin + " with interval " + interval + "ms");
+//        Logger.getLogger(origin).info("Starting cache invalidation timer for " + origin + " with interval " + interval + "ms");
         new Thread(() -> {
             try {
                 Thread.sleep(interval);

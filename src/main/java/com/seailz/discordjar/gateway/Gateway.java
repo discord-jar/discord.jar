@@ -360,7 +360,7 @@ public class Gateway {
      */
     @Contract("_ -> param1")
     private @NotNull WebSocket setupDisconnectedSocket(@NotNull WebSocket socket) {
-        ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic();
+        ExponentialBackoffLogic backoffReconnectLogic = new ExponentialBackoffLogic(bot);
         socket.setReEstablishConnection(backoffReconnectLogic.getFunction());
         backoffReconnectLogic.setAttemptReconnect((c) -> {
             new Thread(bot::clearMemberCaches, "djar--clearing-member-caches").start();

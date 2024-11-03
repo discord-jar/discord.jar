@@ -121,7 +121,6 @@ public class WebSocket extends WebSocketListener {
                 if ((count = inflator.inflate(tmp, 0, tmp.length)) == 0) break;
             } catch (DataFormatException e) {
                 // Reset inflation and try again
-                e.printStackTrace();
                 inflator.reset();
                 inflator.setInput(buffer);
                 continue;

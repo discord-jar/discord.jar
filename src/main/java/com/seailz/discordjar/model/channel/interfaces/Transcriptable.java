@@ -309,7 +309,10 @@ public interface Transcriptable extends MessageRetrievable {
 
                             embedAuthorName.appendChild(embedAuthorNameLink);
                         } else {
-                            embedAuthorName.text(embed.author().url());
+                            try {
+                                embedAuthorName.text(embed.author().url());
+                            } catch (Exception e) {
+                            }
                         }
 
                         embedAuthor.appendChild(embedAuthorName);

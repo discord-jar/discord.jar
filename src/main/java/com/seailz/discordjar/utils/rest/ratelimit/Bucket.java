@@ -81,6 +81,7 @@ public class Bucket {
     }
 
     public List<String> getAffectedRoutes() {
+        if (affectedRoutes == null) return new ArrayList<>();
         return affectedRoutes;
     }
 

@@ -43,10 +43,16 @@ public class WebSocket extends WebSocketListener {
     private static byte[] buffer = {};
     private static final Inflater inflator = new Inflater();
     private boolean open = false;
+    private static List<WebSocket> webSockets = new ArrayList<>();
 
     public WebSocket(String url, boolean debug) {
         this.url = url;
         this.debug = debug;
+        if (webSockets.size() > 1) {
+            // Close all other websockets
+            webSockets.forEach(WebSocket::disconnect);
+        }
+        webSockets.add(this);
     }
 
     public WebsocketAction<Void> connect() {

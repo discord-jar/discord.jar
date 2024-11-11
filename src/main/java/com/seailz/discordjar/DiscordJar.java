@@ -417,6 +417,7 @@ public class DiscordJar {
         for (Bucket bucket : buckets) {
             List<String> affectedRoutes = bucket.getAffectedRoutes();
             if (affectedRoutes == null) continue;
+            if (bucket == null) continue;
             if (affectedRoutes.contains(url)) return bucket;
         }
         return null;

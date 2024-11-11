@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class Cache<T> {
 
-    private final List<T> cache = new ArrayList<>();
+    private List<T> cache = new ArrayList<>();
     private final DiscordJar discordJar;
     private final Class<T> clazz;
     private final DiscordRequest discordRequest;
@@ -83,14 +83,19 @@ public class Cache<T> {
         synchronized (cache) {
             try {
                 if (cache.size() == -1) {
-                    Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - cache size is -1");
+                    if (discordJar.isDebug()) Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - cache size is -1");
+                    cache = new ArrayList<>();
                     return;
-                }; // Also this seems impossible, recent exceptions prove otherwise, so I'm leaving it in. Please ignore your IDE.
+                }; // Also this seems impossible, recent exceptions prove otherwise (possibly related to this? https://bugs.openjdk.org/browse/JDK-7007540), so I'm leaving it in. Please ignore your IDE.
                 cache.add(0, t);
             } catch (Exception e) {
                 // We can ignore this - since the cache isn't critical.
                 // We'll print the stacktrace for debugging purposes.
-                Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - " + e.getMessage());
+                if (discordJar.isDebug()) Logger.getLogger("DiscordJar").warning("[discord.jar] Failed to add obj to cache - " + e.getMessage());
+                if (discordJar.isDebug()) e.printStackTrace();
+
+                // To avoid any further issues, we'll set the cache to a new ArrayList.
+                cache = new ArrayList<>();
                 return;
             }
         }

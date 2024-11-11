@@ -43,7 +43,7 @@ public class WebSocket extends WebSocketListener {
     private static byte[] buffer = {};
     private static final Inflater inflator = new Inflater();
     private boolean open = false;
-    private static List<WebSocket> webSockets = new ArrayList<>();
+    private static final List<WebSocket> webSockets = new ArrayList<>();
 
     public WebSocket(String url, boolean debug) {
         this.url = url;

@@ -150,7 +150,7 @@ public interface Thread extends GuildChannel, Typeable, Messageable, MessageRetr
     static Thread decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
-        String name = obj.getString("name");
+        String name = obj.optString("name");
         Guild guild = obj.has("guild_id") ? discordJar.getGuildById(obj.getString("guild_id")) : null;
         int position = obj.has("position") && !obj.isNull("position") ? obj.getInt("position") : 0;
         boolean nsfw = obj.has("nsfw") && !obj.isNull("nsfw") && obj.getBoolean("nsfw");

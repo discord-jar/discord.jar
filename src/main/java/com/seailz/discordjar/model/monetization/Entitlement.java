@@ -4,10 +4,19 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
+import com.seailz.discordjar.utils.rest.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.HashMap;
 
 /**
  * Represents an entitlement, which is generally defined as a purchase of a {@link SKU}.
@@ -20,13 +29,17 @@ public class Entitlement implements Compilerable {
     private String userId;
     private String applicationId;
     private Type type;
+    private boolean deleted;
+    private DateTime startsAt;
+    private DateTime endsAt;
+    private boolean consumed;
 
     private DiscordJar jar;
     private Guild guild;
     private SKU sku;
     private User user;
 
-    private Entitlement(String id, String skuId, String guildId, String userId, String applicationId, Type type, DiscordJar jar) {
+    private Entitlement(String id, String skuId, String guildId, String userId, String applicationId, Type type, boolean deleted, DateTime startsAt, DateTime endsAt, boolean consumed, DiscordJar jar) {
         this.id = id;
         this.skuId = skuId;
         this.guildId = guildId;
@@ -34,6 +47,10 @@ public class Entitlement implements Compilerable {
         this.applicationId = applicationId;
         this.type = type;
         this.jar = jar;
+        this.deleted = deleted;
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+        this.consumed = consumed;
     }
 
     /**
@@ -113,6 +130,39 @@ public class Entitlement implements Compilerable {
         return guildId == null ? User.class : Guild.class;
     }
 
+    /**
+     * If this is a consumable entitlement, this will consume it.
+     * @return A {@link Response} object that will be completed when the request is finished.
+     */
+    public Response<Void> consume() {
+        Response<Void> res = new Response<>();
+        new Thread(() -> {
+            DiscordRequest req = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.POST.APPLICATIONS.CONSUME_ENTITLEMENT
+                            .replace("{application_id}", applicationId)
+                            .replace("{entitlement_id}", id),
+                    jar,
+                    URLS.POST.APPLICATIONS.CONSUME_ENTITLEMENT,
+                    RequestMethod.POST
+            );
+
+            try {
+                req.invoke();
+                res.complete(null);
+            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+                res.completeError(new Response.Error(
+                        e.getCode(),
+                        e.getMessage(),
+                        e.getBody()
+                ));
+            }
+        }, "djar--entitlement-consume").start();
+        return res;
+    }
+
+
     @NotNull
     @Override
     public JSONObject compile() {
@@ -123,6 +173,10 @@ public class Entitlement implements Compilerable {
         obj.put("user_id", userId);
         obj.put("application_id", applicationId);
         obj.put("type", type.code());
+        obj.put("deleted", deleted);
+        obj.put("starts_at", startsAt.toString());
+        obj.put("ends_at", endsAt.toString());
+        obj.put("consumed", consumed);
         return obj;
     }
 
@@ -136,12 +190,23 @@ public class Entitlement implements Compilerable {
                 obj.has("user_id") ? obj.getString("user_id") : null,
                 obj.getString("application_id"),
                 Type.fromCode(obj.getInt("type")),
+                obj.optBoolean("deleted"),
+                obj.has("starts_at") ? DateTime.parse(obj.getString("starts_at")) : null,
+                obj.has("ends_at") ? DateTime.parse(obj.getString("ends_at")) : null,
+                obj.optBoolean("consumed"),
                 jar
         );
     }
 
     public enum Type {
-        APPLICATION_SUBSCRIPTION(0),
+        PURCHASE(1),
+        PREMIUM_SUBSCRIPTION(2),
+        DEVELOPER_GIFT(3),
+        TEST_MODE_PURCHASE(4),
+        FREE_PURCHASE(5),
+        USER_GIFT(6),
+        PREMIUM_PURCHASE(7),
+        APPLICATION_SUBSCRIPTION(8),
         UNKNOWN(-1);
 
         private int code;

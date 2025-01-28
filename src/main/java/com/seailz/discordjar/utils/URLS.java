@@ -27,7 +27,11 @@ public final class URLS {
         public static class INTERACTIONS {
             public static final String CALLBACK = "/interactions/{interaction.id}/{interaction.token}/callback";
             public static final String FOLLOWUP = "/webhooks/application.id/interaction.token";
+        }
 
+        public static class APPLICATIONS {
+            public static final String CONSUME_ENTITLEMENT = "/applications/{application.id}/entitlements/{entitlement.id}/consume";
+            public static final String CREATE_TEST_ENTITLEMENT = "/applications/{application.id}/entitlements";
         }
 
         public static class COMMANDS {
@@ -335,6 +339,8 @@ public final class URLS {
              * @param id the id of the app
              */
             public static String GET_APPLICATION_ROLE_CONNECTIONS = "/applications/{application.id}/role-connections/metadata";
+
+            public static String GET_APPLICATION_SKUS = "/applications/{application.id}/skus";
         }
 
         public static class STICKER {

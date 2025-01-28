@@ -138,6 +138,8 @@ public class SKU implements Compilerable {
     }
 
     public enum Type {
+        DURABLE(2),
+        CONSUMABLE(3),
         SUBSCRIPTION(5),
         SUBSCRIPTION_GROUP(6),
         UNKNOWN(-1);
@@ -160,6 +162,7 @@ public class SKU implements Compilerable {
     }
     public enum Flag implements Bitwiseable {
 
+        AVAILABLE(2),
         GUILD_SUB(7),
         USER_SUB(8),
         UNKNOWN(-1);

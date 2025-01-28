@@ -4,6 +4,7 @@ import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.interaction.IntegrationType;
+import com.seailz.discordjar.model.monetization.SKU;
 import com.seailz.discordjar.model.scopes.InstallParams;
 import com.seailz.discordjar.model.team.Team;
 import com.seailz.discordjar.model.user.User;
@@ -353,6 +354,36 @@ public record Application(
         if (response.code() == 200) {
             return new JSONArray(response.body()).toList().stream()
                     .map(o -> ApplicationRoleConnectionMetadata.decompile((JSONObject) o))
+                    .toList();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns a list of SKUs for a given application.
+     * @return {@link List} of {@link SKU}
+     */
+    @Nullable
+    public List<SKU> getSKUS() {
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.APPLICATIONS.GET_APPLICATION_SKUS
+                            .replace("{application.id}", id),
+                    discordJar,
+                    URLS.GET.APPLICATIONS.GET_APPLICATION_SKUS,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+
+        if (response.code() == 200) {
+            return new JSONArray(response.body()).toList().stream()
+                    .map(o -> SKU.decompile((JSONObject) o, discordJar))
                     .toList();
         } else {
             return null;

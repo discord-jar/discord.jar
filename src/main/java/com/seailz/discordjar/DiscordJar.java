@@ -36,6 +36,7 @@ import com.seailz.discordjar.model.guild.Member;
 import com.seailz.discordjar.model.interaction.InteractionContextType;
 import com.seailz.discordjar.model.invite.Invite;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
+import com.seailz.discordjar.model.monetization.Entitlement;
 import com.seailz.discordjar.model.monetization.SKU;
 import com.seailz.discordjar.model.status.Status;
 import com.seailz.discordjar.model.user.User;

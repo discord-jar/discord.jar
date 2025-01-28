@@ -399,7 +399,9 @@ public class DiscordJar {
     }
 
     public void updateBucket(String id, Bucket bucket) {
+        if (bucket == null) return;
         for (int i = 0; i < buckets.size(); i++) {
+            if (buckets.get(i) == null) continue;
             if (buckets.get(i).id().equals(id)) {
                 buckets.remove(i);
                 return;
@@ -415,9 +417,9 @@ public class DiscordJar {
     public Bucket getBucketForUrl(String url) {
         final List<Bucket> buckets = new ArrayList<>(this.buckets);
         for (Bucket bucket : buckets) {
+            if (bucket == null) continue;
             List<String> affectedRoutes = bucket.getAffectedRoutes();
             if (affectedRoutes == null) continue;
-            if (bucket == null) continue;
             if (affectedRoutes.contains(url)) return bucket;
         }
         return null;

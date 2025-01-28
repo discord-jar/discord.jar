@@ -182,6 +182,8 @@ public class WebSocket extends WebSocketListener {
                 e.printStackTrace();
             }
         }
+
+        webSocket.close(1006, t.getMessage());
     }
 
     /**

@@ -67,7 +67,14 @@ public class Gateway {
     private boolean receivedReady = false;
     private HeartLogic heartbeatManager;
     public static Date lastHeartbeatSent = new Date();
+
     public static List<Long> pingHistoryMs = new ArrayList<>();
+    /**
+     * Allows you to set the maximum size of the ping history. This is initially limited to 100 to avoid memory issues in long-running bots.
+     * If the array exceeds the limit, the oldest ping will be removed.
+     */
+    public static int maxPingHistorySize = 100;
+
     private final List<Consumer<VoiceState>> onVoiceStateUpdateListeners = new ArrayList<>();
     private final List<Consumer<VoiceServerUpdate>> onVoiceServerUpdateListeners = new ArrayList<>();
     public final HashMap<String, Gateway.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
@@ -216,6 +223,9 @@ public class Gateway {
                         logger.info("[Gateway] Received HEARTBEAT_ACK event. Ping: " + ping + "ms");
                     }
 
+                    if (pingHistoryMs.size() > maxPingHistorySize) {
+                        pingHistoryMs.remove(0);
+                    }
                     pingHistoryMs.add(ping);
                 }
                 break;

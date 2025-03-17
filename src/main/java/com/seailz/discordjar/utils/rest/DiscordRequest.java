@@ -498,8 +498,8 @@ public class DiscordRequest {
         private int httpCode;
         public UnhandledDiscordAPIErrorException(JSONObject body, int httpCode) {
             this.body = body.has("errors") ?  body.getJSONObject("errors") : body;
-            this.code = body.getInt("code");
-            this.error = body.getString("message");
+            this.code = body.optInt("code", -1);
+            this.error = body.optString("message", "Unknown error");
             this.httpCode = httpCode;
             Logger.getLogger("discord.jar")
                     .warning(ErrorTreeReader.readErrorTree(body, httpCode));

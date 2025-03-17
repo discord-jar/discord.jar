@@ -367,6 +367,10 @@ public class MessageCreateAction {
                     return;
                 }
             }
+            if (response == null) {
+                future.completeError(new Response.Error(-1, "Response as null", new JSONObject()));
+                return;
+            }
 
             future.complete(Message.decompile(response.body(), discordJar));
         }, "djar--msg-create-action").start();

@@ -52,10 +52,12 @@ public class WebSocket extends WebSocketListener {
         this.debug = debug;
         if (webSockets.size() > 1) {
             // Close all other websockets
-            webSockets.get(jar).forEach(WebSocket::disconnect);
+            if (webSockets.containsKey(jar)) {
+                webSockets.get(jar).forEach(WebSocket::disconnect);
+            }
         }
         // Add websockets to the list
-        webSockets.put(jar, new ArrayList<>(Arrays.asList(this)));
+        webSockets.put(jar, new ArrayList<>(List.of(this)));
     }
 
     public WebsocketAction<Void> connect() {

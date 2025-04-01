@@ -2,9 +2,11 @@ package com.seailz.discordjar.voice.ws;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.voice.model.packet.AudioPacket;
 import com.seailz.discordjar.voice.model.provider.VoiceProvider;
 import com.seailz.discordjar.voice.udp.VoiceUDP;
+import lombok.Getter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.CloseStatus;
@@ -28,6 +30,7 @@ import java.util.function.Consumer;
 // TODO: at some point this should be converted to use the WebSocket class
 public class VoiceGatewayFactory extends TextWebSocketHandler {
 
+    @Getter
     private final String serverId;
     private final String userId;
     private final String sessionId;
@@ -43,13 +46,17 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
     private boolean speaking = true;
     private VoiceUDP socket;
 
-    public VoiceGatewayFactory(String serverId, String userId, String sessionId, String token, String endpoint, VoiceProvider prov) throws ExecutionException, InterruptedException {
+    @Getter
+    private DiscordJar jar;
+
+    public VoiceGatewayFactory(String serverId, String userId, String sessionId, String token, String endpoint, VoiceProvider prov, DiscordJar jar) throws ExecutionException, InterruptedException {
         this.serverId = serverId;
         this.userId = userId;
         this.sessionId = sessionId;
         this.token = token;
         this.provider = prov;
         connect(endpoint);
+        this.jar = jar;
     }
 
     public void connect(String endpoint) throws ExecutionException, InterruptedException {

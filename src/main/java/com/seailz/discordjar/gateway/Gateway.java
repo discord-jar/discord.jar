@@ -482,6 +482,19 @@ public class Gateway {
         queueMessage(payload);
     }
 
+    // Leaves the voice channel
+    public void sendVoicePayloadToLeave(String guildId) {
+        JSONObject payload = new JSONObject();
+        JSONObject dPayload = new JSONObject();
+        dPayload.put("guild_id", guildId);
+        dPayload.put("channel_id", JSONObject.NULL);
+        dPayload.put("self_mute", false);
+        dPayload.put("self_deaf", false);
+        payload.put("op", OpCodes.VOICE_STATE_UPDATE.opCode);
+        payload.put("d", dPayload);
+        queueMessage(payload);
+    }
+
     public void onVoiceStateUpdate(Consumer<VoiceState> consumer) {
         onVoiceStateUpdateListeners.add(consumer);
     }

@@ -123,8 +123,9 @@ public class VoiceUDP {
     }
 
     public void disconnect() {
-        voiceGateway.close(1001);
+        voiceGateway.close(1000);
         socket.disconnect();
+        voiceGateway.getJar().getGateway().sendVoicePayloadToLeave(voiceGateway.getServerId());
     }
 
     public void stop() {

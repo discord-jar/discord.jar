@@ -75,9 +75,8 @@ public class AudioChannelImpl extends GuildChannelImpl implements AudioChannel {
                 }
 
                 if (receivedVoiceServerUpdate.get() && receivedVoiceStateUpdate.get()) {
-                    System.out.println("Establishing Voice WS Connection");
                     try {
-                        VoiceGatewayFactory voiceGateway = new VoiceGatewayFactory(guild().id(), discordJv().getSelfUser().id(), sessionId.get(), token.get(), endpoint.get(), vp);
+                        VoiceGatewayFactory voiceGateway = new VoiceGatewayFactory(guild().id(), discordJv().getSelfUser().id(), sessionId.get(), token.get(), endpoint.get(), vp, discordJv());
                         break;
                     } catch (ExecutionException | InterruptedException e) {
                         throw new RuntimeException(e);

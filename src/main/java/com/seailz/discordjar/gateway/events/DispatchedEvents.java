@@ -256,10 +256,10 @@ public enum DispatchedEvents {
 
                 switch (CommandType.fromCode(p.getJSONObject("d").getJSONObject("data").getInt("type"))) {
                     case SLASH_COMMAND ->
-                            event = new SlashCommandInteractionEvent(d, Gateway.lastSequenceNumber, p);
-                    case USER -> event = new UserContextCommandInteractionEvent(d, Gateway.lastSequenceNumber, p);
+                            event = new SlashCommandInteractionEvent(d, d.getGateway().lastSequenceNumber, p);
+                    case USER -> event = new UserContextCommandInteractionEvent(d, d.getGateway().lastSequenceNumber, p);
                     case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(d, Gateway.lastSequenceNumber, p);
+                            event = new MessageContextCommandInteractionEvent(d, d.getGateway().lastSequenceNumber, p);
                 }
 
                 d.getCommandDispatcher().dispatch(p.getJSONObject("d").getJSONObject("data").getString("name"),

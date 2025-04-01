@@ -23,14 +23,17 @@ public class HeartLogic {
     private long lastSequence = -1;
     private final Map<UUID, Boolean> isInstanceStillRunning = new HashMap<>();
     boolean running = true;
+    private final Gateway gateway;
 
-    public HeartLogic(WebSocket socket, long interval) {
+    public HeartLogic(WebSocket socket, long interval, Gateway gateway) {
         this.interval = interval;
         this.socket = socket;
+        this.gateway = gateway;
     }
 
-    public HeartLogic(WebSocket socket) {
+    public HeartLogic(WebSocket socket, Gateway gateway) {
         this.socket = socket;
+        this.gateway = gateway;
     }
 
     public void setInterval(long interval) {
@@ -79,7 +82,7 @@ public class HeartLogic {
                     socket.send(
                         WSPayloads.HEARBEAT.fill(lastSequence == -1 ? JSONObject.NULL : lastSequence).toString()
                     );
-                    Gateway.lastHeartbeatSent = new Date();
+                    gateway.lastHeartbeatSent = new Date();
                     Thread.sleep(interval);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

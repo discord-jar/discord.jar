@@ -79,12 +79,12 @@ public class HttpOnlyManager {
 
                 switch (CommandType.fromCode(new JSONObject(interaction.raw()).getJSONObject("data").getInt("type"))) {
                     case SLASH_COMMAND -> {
-                        event = new SlashCommandInteractionEvent(discordJar, Gateway.lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
+                        event = new SlashCommandInteractionEvent(discordJar, discordJar.getGateway().lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
                     }
                     case USER ->
-                            event = new UserContextCommandInteractionEvent(discordJar, Gateway.lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
+                            event = new UserContextCommandInteractionEvent(discordJar, discordJar.getGateway().lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
                     case MESSAGE ->
-                            event = new MessageContextCommandInteractionEvent(discordJar, Gateway.lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
+                            event = new MessageContextCommandInteractionEvent(discordJar, discordJar.getGateway().lastSequenceNumber, new JSONObject().put("d", new JSONObject(body)));
                 }
 
                 discordJar.getCommandDispatcher().dispatch(new JSONObject(interaction.raw()).getJSONObject("data").getString("name"), event);

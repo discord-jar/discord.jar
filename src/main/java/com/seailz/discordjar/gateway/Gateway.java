@@ -62,13 +62,13 @@ public class Gateway {
     private boolean resumedConnection = false;
     private boolean reconnecting = false;
     private ReconnectInfo resumeInfo;
-    public static long lastSequenceNumber = -1;
+    public long lastSequenceNumber = -1;
     private boolean readyForMessages = false;
     private boolean receivedReady = false;
     private HeartLogic heartbeatManager;
-    public static Date lastHeartbeatSent = new Date();
+    public Date lastHeartbeatSent = new Date();
 
-    public static List<Long> pingHistoryMs = new ArrayList<>();
+    public List<Long> pingHistoryMs = new ArrayList<>();
     /**
      * Allows you to set the maximum size of the ping history. This is initially limited to 100 to avoid memory issues in long-running bots.
      * If the array exceeds the limit, the oldest ping will be removed.
@@ -106,7 +106,7 @@ public class Gateway {
         gatewayUrl = appendGatewayQueryParams(gatewayUrl);
         if (bot.isDebug()) logger.info("[Gateway - Connection Flow] Gateway URL with query params: " + gatewayUrl);
 
-        socket = new WebSocket(gatewayUrl, bot.isDebug());
+        socket = new WebSocket(gatewayUrl, bot.isDebug(), bot);
         setupDisconnectedSocket(socket);
         connectToSocket(socket, false);
 
@@ -154,7 +154,7 @@ public class Gateway {
 
         String connectUrl = appendGatewayQueryParams(resumeInfo.url());
         if (bot.isDebug()) logger.info("[Gateway - Resume Flow] Resume URL: " + connectUrl);
-        socket = new WebSocket(connectUrl, bot.isDebug());
+        socket = new WebSocket(connectUrl, bot.isDebug(), bot);
         setupDisconnectedSocket(socket);
         connectToSocket(socket, true);
 
@@ -303,7 +303,7 @@ public class Gateway {
             heartbeatManager.startCycle();
             return;
         }
-        heartbeatManager = new HeartLogic(socket, payload.getJSONObject("d").getInt("heartbeat_interval"));
+        heartbeatManager = new HeartLogic(socket, payload.getJSONObject("d").getInt("heartbeat_interval"), this);
         heartbeatManager.start();
     }
 
@@ -553,7 +553,7 @@ public class Gateway {
      * Returns when the last heartbeat was sent, or null if none were sent yet.
      */
     @Nullable
-    public static Date getLastHeartbeatSent() {
+    public Date getLastHeartbeatSent() {
         return lastHeartbeatSent;
     }
 
@@ -561,7 +561,7 @@ public class Gateway {
      * Returns an array of estimated ping times in milliseconds based on heartbeat ACKs.
      */
     @NotNull
-    public static List<Long> getPingHistoryMs() {
+    public List<Long> getPingHistoryMs() {
         return pingHistoryMs;
     }
 

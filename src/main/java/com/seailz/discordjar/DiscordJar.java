@@ -1561,7 +1561,7 @@ public class DiscordJar {
      * <br>The time is in milliseconds.
      */
     public List<Long> getGatewayPingHistory() {
-        return Gateway.pingHistoryMs;
+        return getGateway().pingHistoryMs;
     }
 
     /**

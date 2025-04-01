@@ -1,5 +1,6 @@
 package com.seailz.discordjar.ws;
 
+import com.seailz.discordjar.DiscordJar;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -17,6 +18,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,20 +41,21 @@ public class WebSocket extends WebSocketListener {
     private final List<Consumer<CloseStatus>> onDisconnectConsumers = new ArrayList<>();
     private final List<Runnable> onConnectConsumers = new ArrayList<>();
     private Function<CloseStatus, Boolean> reEstablishConnection = (e) -> true;
-    private static final byte[] ZLIB_SUFFIX = new byte[] { 0, 0, (byte) 0xff, (byte) 0xff };
-    private static byte[] buffer = {};
-    private static final Inflater inflator = new Inflater();
+    private final byte[] ZLIB_SUFFIX = new byte[] { 0, 0, (byte) 0xff, (byte) 0xff };
+    private byte[] buffer = {};
+    private final Inflater inflator = new Inflater();
     private boolean open = false;
-    private static final List<WebSocket> webSockets = new ArrayList<>();
+    private static final HashMap<DiscordJar, List<WebSocket>> webSockets = new HashMap<>();
 
-    public WebSocket(String url, boolean debug) {
+    public WebSocket(String url, boolean debug, DiscordJar jar) {
         this.url = url;
         this.debug = debug;
         if (webSockets.size() > 1) {
             // Close all other websockets
-            webSockets.forEach(WebSocket::disconnect);
+            webSockets.get(jar).forEach(WebSocket::disconnect);
         }
-        webSockets.add(this);
+        // Add websockets to the list
+        webSockets.put(jar, new ArrayList<>(Arrays.asList(this)));
     }
 
     public WebsocketAction<Void> connect() {

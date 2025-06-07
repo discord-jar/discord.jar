@@ -146,5 +146,10 @@
             <artifactId>xsalsa20poly1305</artifactId>
             <version>v0.10.1		</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>1.17.0</version>
+        </dependency>
     </dependencies>
 </project>

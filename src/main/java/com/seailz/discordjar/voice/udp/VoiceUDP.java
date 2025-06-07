@@ -27,6 +27,11 @@ public class VoiceUDP {
     private volatile boolean speaking = false;
     private final VoiceGatewayFactory voiceGateway;
 
+    /**
+     * Increments for each packet sent. This is used to encrypt the audio packets.
+     */
+    private int counter = 0;
+
     public VoiceUDP(InetSocketAddress address, VoiceProvider provider, int srrc, VoiceGatewayFactory voiceGateway) throws SocketException {
         this.address = address;
         this.provider = provider;
@@ -90,7 +95,8 @@ public class VoiceUDP {
                 }
 
                 if (packet != null) {
-                    packet.encrypt(secretKey);
+                    packet.encrypt(secretKey, counter);
+                    counter++;
                 }
                 if (socket.isClosed()) {
                     continue;
@@ -112,6 +118,7 @@ public class VoiceUDP {
                 if (packet != null) {
                     try {
                         socket.send(packet.toDatagramPacket(address));
+                        System.out.println("Sending packet with sequence: " + sequence);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

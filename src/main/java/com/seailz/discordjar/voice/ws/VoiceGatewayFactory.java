@@ -79,6 +79,9 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 VoiceUDP udp = null;
                 ssrc = finalPayload.getInt("ssrc");
                 try {
+                    System.out.println("Connecting to voice server");
+                    System.out.println("IP: " + finalPayload.getString("ip"));
+                    System.out.println("Port: " + finalPayload.getInt("port"));
                     udp = new VoiceUDP(new InetSocketAddress(InetAddress.getByName(finalPayload.getString("ip")), finalPayload.getInt("port")), provider, finalPayload.getInt("ssrc"), this);
                 } catch (SocketException | UnknownHostException e) {
                     throw new RuntimeException(e);
@@ -170,7 +173,7 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
         data.put("data", new JSONObject()
                 .put("address", address.getAddress().getHostAddress())
                 .put("port", address.getPort())
-                .put("mode", "xsalsa20_poly1305"));
+                .put("mode", "aead_aes256_gcm_rtpsize"));
         selectProtocol.put("d", data);
         session.sendMessage(new TextMessage(selectProtocol.toString()));
     }

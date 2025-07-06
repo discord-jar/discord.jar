@@ -393,6 +393,7 @@ public class DiscordJar {
 
     public Bucket getBucket(String id) {
         for (Bucket bucket : buckets) {
+            if (bucket == null) continue;
             if (bucket.id().equals(id)) return bucket;
         }
         return null;

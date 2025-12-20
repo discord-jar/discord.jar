@@ -35,4 +35,11 @@ public abstract class VoiceProvider {
      */
     public abstract boolean canProvide();
 
+    /**
+     * discord.jar will request from Discord to use this DAVE version. If set to 0, discord.jar will request to disable DAVE. Called before connecting to the voice gateway.
+     */
+    public int requestDaveVersion() {
+        return VoiceGatewayFactory.LATEST_DAVE_VER;
+    }
+
 }

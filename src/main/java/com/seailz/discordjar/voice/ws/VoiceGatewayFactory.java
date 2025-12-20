@@ -30,6 +30,11 @@ import java.util.function.Consumer;
 // TODO: at some point this should be converted to use the WebSocket class
 public class VoiceGatewayFactory extends TextWebSocketHandler {
 
+    public static final int LATEST_DAVE_VER = 1;
+
+    // Set to 0 to disable DAVE
+    public int daveVer = LATEST_DAVE_VER;
+
     @Getter
     private final String serverId;
     private final String userId;
@@ -55,6 +60,7 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
         this.sessionId = sessionId;
         this.token = token;
         this.provider = prov;
+        daveVer = prov.requestDaveVersion();
         connect(endpoint);
         this.jar = jar;
     }
@@ -135,6 +141,7 @@ public class VoiceGatewayFactory extends TextWebSocketHandler {
                 data.put("user_id", userId);
                 data.put("session_id", sessionId);
                 data.put("token", token);
+                data.put("max_dave_protocol_version", daveVer);
                 identify.put("d", data);
                 try {
                     session.sendMessage(new TextMessage(identify.toString()));
